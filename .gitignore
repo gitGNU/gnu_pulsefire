@@ -1,0 +1,31 @@
+#
+# Ignore some files in the pulsefire project.
+#
+
+# Ignore all maven target directories
+/target
+*/target
+*/*/target
+*/*/*/target
+
+# Ignore leftovers of really failed release build
+release.properties
+pom.xml.next
+pom.xml.releaseBackup
+pom.xml.backup
+pom.xml.branch
+pom.xml.tag
+
+# todo: Ignore C build files
+*.o
+
+# Ignore netbeans (tmp?) directory
+nbproject
+
+# Ignore mac finder files
+.DS_Store
+
+# Ignore windows files.
+Thumbs.db
+Desktop.ini
+

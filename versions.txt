@@ -1,0 +1,214 @@
+
+=== PulseFire versions ===
+
+Version 0.9:
+
+- Added stv_error_secs for optional recovery from error.
+- Added second timer map; ptc_time1_map.
+- Removed ptc_time_slots leaving unmapped is the same.
+- Added ptc_timeX_mul for time multipliers of steps.
+- Moved version cmd to chip_info output.
+- Changed feedback when mapping to echo only changed mapping.
+- Added sys_pin3_map and sys_pin4_map
+- WIP Added VFC_in/out_map for Virtual Feedback Channels
+- Added pulse_fire variable to do internal trigger replaces pulse_trigger=1.
+- Added req_pulse_fire to trigger fire on command.
+- Fixed default reset_data start step from one to zero.
+- Added dirty impl of freq/prm counter for vfc test.
+- Added trigger bit output to 'help map' cmd.
+- Fixed STV_*_secs minimal time in warning/error mode.
+- Fixed STV_*_secs 255 value of always off means always off.
+- Made sys_warmup_* unmappable for safety.
+- Added new pulse mode PULSE_MODE_FLASH_ZERO but shifted all modes;
+0=PULSE_MODE_OFF,
+1=PULSE_MODE_FLASH,
+2=PULSE_MODE_FLASH_ZERO,
+3=PULSE_MODE_TRAIN,
+4=PULSE_MODE_PPM,
+5=PULSE_MODE_PPMA,
+6=PULSE_MODE_PPMI
+- Added support for 16 digital outputs (DOC) without extra chip.(untested)
+- Added support for 12 digital inputs (DIC) done with pin mappings.
+- Renamed sys_warmup_* to swc; System Warmup Controller
+- Renamed SF_ENABLE_FREQ to SF_ENABLE_FRQ so chip_flags are inline.
+- Added bank support for pwm_on/of and ppm_data renamed to ppm_data_a/ppm_data_b/etc.
+- Renamed pulse_data_* to without _data_ keyword.
+- Added bank support for pulse_init_a/b and pulse_mask_b/b.
+- Renamed pulse_delay_post to pulse_post_delay.
+- Renamed/Impl pulse_trig_delay (was pulse_delay_pre)
+- Renamed sys_pinX_map to avr_pinX_map because is avr chip pins mappings only.
+- Renamed pulse_trigger to pulse_trig to be like others.
+- Added stv_*_mode value of 255 is keep the same, so message only.
+- Change swc_mode 0 was keep now 0 = off and 255 is keep the same.
+- Added chip_name and chip_name_id for manufacturing box type id.
+- Fixed &Renamed ptt_trigX_map timer looped for ever.
+- Added swc_trig to fire trigger after warmup.
+- Renamed sys_* to without sys_ for faster serial communition.
+- Fixed DIC reset bit to only clear one bit not all.
+- Fixed ptt_fire trig it would loop forever now runs once per trigger.
+
+Errata:
+- Serial/io on high freq output.
+- Soft warmup and pulse_mode 3,4,5 is not oke.
+- MAL support is WorkInProgress.
+- When using 16 pwm outputs last output step had extratime.
+
+
+Version 0.8-fix:
+
+- Dropped SF_ENABLE_INFO_CMD flags else gui wont work.
+- Renamed SF_ENABLE_FREQ_CMD -> SF_ENABLE_FREQ
+- Renamed SF_ENABLE_SOFT_START -> SF_ENABLE_WARMUP
+- Quick fix for auto_lpm will smooth more out when adding mmw code.
+- Added some missing chip_flags in info_chip
+- Added check to removed cmd which are removed by disable SF_ENABLE_* flags.
+- Dropped req_auto_lpm_tune cmd will be done in gui to many options for chip.
+- Fixed PF_VAR array size with SF_ENABLE_* flags so help cmd list is shorter.
+- Tuned lcd code to be bit slower to work on more models,Done by Russ.
+- Limited pwm_duty to 110, need to add extra counter for higher values.
+- Created readme/example/command files in project.
+
+Version 0.8:
+
+- Fixed duplicate name so renamed pf_data.pulse_dir to pulse_dir_cnt
+- Added req_tx_promt and req_tx_echo for less serial output
+- Renamed req_auto_push to req_tx_push
+- droped SF_SHORT_CMD and SF_ENABLE_LOW_MEMORY compiler flags
+- Added auto config change based on eeprom space of avr chip.
+- Added 'help max' outputs max values of variales with 'max.' as prefix.
+- Changed 'help index' to 'help idx' and output max index values instead of map var id.
+- Added 'help bits' to output variable bit field values.
+- Added 'help map' to list it mappable value ids of variales with 'map.' prefix
+- Reserved extended lcd/out mode pins so in 3 output mode out0,1,2 are used.
+- Renamed reset_prog to reset_chip
+- Added chip/build info to info_chip
+- Renamed info_calc to info_freq and made output freq for all channels.
+- Added dev_volt,dev_amp,dev_temp,dev_freq,dev_varX for code and mappings.
+- Added sys_pin2_map to map pin2 do diffent features.
+- Renamed pwm_wait to pwm_tune_cnt,pwm_compa to pwm_on_cnt,pwm_compb to pwm_off_cnt
+- Renamed ppm_data_off to ppm_data_offset
+- Added stv Min and Max Safety Treshold Values.
+- Revered extened 16bit output so chip0 keeps output0
+- Added support for digital output my map to sys_doc_port[0-7] variable.
+- Removed named mapping support but left it working in command but output is numeric.
+- Improved lcd menu for all type lcd screens.
+- WIP ptc timers for variable like pulse_enable for conditioning of cells and trigger timers.
+- Changed safaty minimal value on pwm_cnt_on from 5 to 1 for motor setups.
+- Almost silenced boot so we can connect faster to port after flash.
+- Fixed pwm_off_cnt offset by one.
+- Fixed duty (pwm_off_cnt) to also use pwm_loop.
+
+Errata:
+- Serial/io on high freq output.
+- Soft warmup and pulse_mode 3,4,5 is not oke.
+- MAL support is WorkInProgress.
+- req_auto_lpm_tune/pulse_delay_pre are not yet implemented.
+- sys_pin3_map and sys_pin4_map not yet implemented.
+
+Version 0.7:
+
+- Rewrite of config variable handeling so smaller and more options
+- Wrote small lcd display driver for size and extended mode support
+- Fixed external trigger bug
+- Fixed soft warmup + added LCD keyword
+- Fixed one off ppm_data_len cmd
+- Changed sys_conn_mode to compiler flags
+- Moved sys_*_time and sys_input_delay to defines to save space in eeprom
+- WIP Added MicroAssemblyLanguage support for small scripts
+- Added sys_dic_map 2-8 digital inputs in extended mode
+- Added all fields to info_data to see internal pulse data.
+- Added info_prog command to see internal prog data.
+- Split source to multiple files phase1.
+- Renamed sys_start_* to sys_warmup_*.
+- Added sys_warmup_delay for startup predelay with all outputs off.
+- Added sys_warmup_mode to use diffent pulse mode in sys_warmup_secs warmup mode.
+- Added index printing argument to help command
+- Added pulse_mode 5 Interleaved ppm data
+- Made sys_adc/dic_map also work on indexed variables
+- Made sys_adc/dic_map work with variable names instead of numbers
+- Added more support for 16 column lcd and 4 row display
+- Added debug flag which print more info to serial
+- Moved sys_push_mode from eeprom into pf_prog with new name: req_auto_push
+- Fixed offset of pwm_compa,pwm_compb and pwm_wait so now pwm_compa 0 is step 0.
+- Fixed missed interrupt of compbX>0 so there was a loop of timer why result was stange.
+- Fixed duel step bug/wait in auto reveral pulse_dir mode.
+
+Errata:
+- Serial/io on high freq output.
+- Soft warmup and pulse_mode 3,4,5 is not oke.
+- MAL support is WorkInProgress.
+- req_auto_lpm_tune/pulse_delay_pre are not yet implemented.
+
+Version 0.6:
+
+- Added compiler flags to remove options so code can fit in 16K chip.
+- Note on flags; disabling LCD will make all 6 analog input usable.
+- Redone step duty timing now with option per output
+- Given each output step timing options
+- Added variable idx number to help output
+- Renamed train_* into pwm_*
+- Renamed _seq_* into ppm_*
+- Renamed defaults into reset_conf
+- Added reset_data(goto step0,etc) and reset_prog(reboots) cmds
+- req_auto_lpm cmd works (if lpm_size > 0 and adc mapping to 101)
+- LPM messurement code looks working with lcd output.
+- Added pulse_enable which is a global output enable useful for map adc for safety devices
+- Change pulse_modes into;
+0=PULSE_MODE_OFF
+1=PULSE_MODE_FLASH
+2=PULSE_MODE_TRAIN
+3=PULSE_MODE_PPM
+4=PULSE_MODE_PPMA
+- Added pulse_dir (0=LR,default,1=RL,2=LRRL(nightrider))
+- Added pulse_data_inv for inverting output data
+- Renamed pulse_duty into pulse_delay_post
+- pwm_compa is per step timer
+- pwm_compb is per step duty timer
+- pwm_wait is per step wait loop to delay output a few ms.
+- ppm_data is per output sequence data 
+- Added watchdog so if main loops is slower then 4sec device reboots.
+- Improved LCD output
+- Fixed pulse_steps 1 bug
+- Lots of things to make code faster/smaller
+- etc
+
+Errata:
+- soft startup does not work
+- req_pwm_freq chooses sometimes low compa values which give some problems with receiving the serial data
+
+Version 0.5:
+
+- Seqence mode offset looks working now
+- Fixed custom init data reversal in reverse mode
+- Added input validation for Serial and Lcd.
+- Given LCD UI all config options to change.
+- Added auto push mode which pushes config changes to serial
+- Added output masking for disabling some outputs
+- Spilt info into 3 commands info_conf,info_data and info_calc
+- Changed adc mapping now all config variables can be mapped.
+- Fixed flashmode output steps limit
+- Change _inc to _delta and added _tcnt_deltas's so now we have
+- 4 config values which puts the fire in the pulse.
+- start added auto lpm messurement code for freq tuning feature.
+- start working on req_train_freq command.
+
+Know errata:
+- pulse_steps 1 does not pulse
+- lpm code is yet connected
+- _delta seems not be working in pulse_mode 4
+- req_* requests are wip
+- Higher speeds breaks lcd/serial refresh (2out~600hz,6out~250hz)
+- In higher freq don't use req_train_freq but calc yourself for best result
+- bugs,etc
+
+Version 0.4:
+
+- serial speed 115200 
+- config can be saved in eeprom
+- soft startup via extra off duty
+- mappable analog input to variable with range
+- 'WIP' code for pulse seqence with offset into next step
+- simple lcd ui via 2 button
+
+
+
