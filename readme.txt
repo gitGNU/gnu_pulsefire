@@ -1,10 +1,10 @@
 
 === Welcome in PulseFire ===
 
-PulseFire is a programable pwm and bit seqencer build on the arduino platform in C.
-Targeted for free energy (re)search with full generic configable mapping for analog/digital
+PulseFire is a programmable PWM and bit sequencer build on the Arduino platform in C.
+Targeted for free energy (re)search with full generic configurable mappings for analog/digital
 inputs so it can operate HHO cells, magnetic motors and solid state coil shorting setups.
-Some features; max 16 outputs,soft warmup,timing per channel,serial console,lcd interface,etc.
+Some features; max 16 outputs,soft warm-up,timing per channel,serial console,lcd interface,etc.
 
 === Files in this package ===
 
@@ -21,10 +21,12 @@ src                 - Arduino/site/schematic source
 === Licenced binary files ===
 
 ./src/schemetic/avr-ext-chips.sch
-./src/site/resources/images/pulsefire-gui.png
-./src/site/resources/images/pulsefire-left.png
 ./src/site/resources/images/arduino-default.png
 ./src/site/resources/images/avr-ext-chips.png
+./src/site/resources/images/banner-background.png
+./src/site/resources/images/pulsefire-gui.png
+./src/site/resources/images/pulsefire-left.png
+./src/site/pulsefire.jks
 
 
 The binary files in the above listing fall all under

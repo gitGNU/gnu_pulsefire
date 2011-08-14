@@ -20,17 +20,17 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*
-Short name   : PulseFire
-Short desc   : Automatic PulseFire Seqence Generator.
-First created: 26-Apr-2011
-Last modified: 25-Jul-2011
-Last version : 0.9
-First Author : Willem Cazander
-License-Type : BSD 2-Clause (licence.txt and http://www.opensource.org/licenses/bsd-license.php)
-IO-Hardware  : see IO_DEF_* or IO_EXT_* #defines ~200 lines below
-USB-Serial   : 115200b + "Newline" on enter/return
-*/
+
+
+//Short name   : PulseFire
+//Short desc   : Automatic PulseFire Seqence Generator.
+//First created: 26-Apr-2011
+//Last modified: 25-Jul-2011
+//Last version : 0.9
+//First Author : Willem Cazander
+//License-Type : BSD 2-Clause (licence.txt and http://www.opensource.org/licenses/bsd-license.php)
+//IO-Hardware  : see IO_DEF_* or IO_EXT_* #defines ~200 lines below
+//USB-Serial   : 115200b + "Newline" on enter/return
 
 #include <avr/io.h>
 #include <avr/wdt.h>

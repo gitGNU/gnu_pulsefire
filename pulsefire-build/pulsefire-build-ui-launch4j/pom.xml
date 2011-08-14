@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2011, Willem Cazander
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided
+that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the
+  following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+  the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>pulsefire-build</artifactId>
+    <groupId>org.nongnu.pulsefire</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>pulsefire-build-ui-launch4j</artifactId>
+  <packaging>pom</packaging>
+  <name>pulsefire-build-ui-launch4j</name>
+  <description>pulsefire-build-ui-launch4j</description>
+  <repositories>
+    <repository>
+      <id>akathist-repository</id>
+      <name>Akathist Repository</name>
+      <url>http://www.9stmaryrd.com/maven</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>akathist-repository</id>
+      <name>Akathist Repository</name>
+      <url>http://www.9stmaryrd.com/maven</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-site-plugin</artifactId>
+         <version>${maven-site-plugin.version}</version>
+         <configuration>
+           <siteDirectory>${project.basedir}/../../src/site</siteDirectory>
+         </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>fix-launch4j-plugin</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo>Just run anttask will create target dir so launch4j maven plugin works in child pom.</echo>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+        <artifactId>launch4j-maven-plugin</artifactId>
+        <version>${launch4j-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>PulseFire</id>
+            <phase>package</phase>
+            <goals>
+              <goal>launch4j</goal>
+            </goals>
+            <configuration>
+              <headerType>gui</headerType>
+              <outfile>${project.build.directory}/pulsefire.exe</outfile>
+              <jar>../../pulsefire-java/pulsefire-device-ui/target/pulsefire-device-ui-${project.version}.jar</jar>
+              <!-- <dontWrapJar>true</dontWrapJar> -->
+              <chdir>.</chdir>
+              <customProcName>true</customProcName>
+              <cmdLine>-Djava.library.path=. -jni-cp-os</cmdLine>
+              <classPath>
+                <mainClass>org.nongnu.pulsefire.device.ui.PulseFireUI</mainClass>
+                <addDependencies>true</addDependencies>
+                <jarLocation>lib/</jarLocation>
+                <postCp>jni/pulsefire-rxtx-windows-x86-${project.version}.jar:jni/pulsefire-rxtx-windows-x86_64-${project.version}.jar</postCp>
+              </classPath>
+              <jre>
+                <minVersion>${project.build.javaVersion}.0</minVersion>
+                <initialHeapSize>64</initialHeapSize>
+                <maxHeapSize>256</maxHeapSize>
+              </jre>
+              <versionInfo>
+                <fileVersion>0.1.2.3</fileVersion>
+                <txtFileVersion>${project.version}</txtFileVersion>
+                <fileDescription>a description</fileDescription>
+                <copyright>BSD Licence</copyright>
+                <productVersion>0.1.2.3</productVersion>
+                <txtProductVersion>${project.version}</txtProductVersion>
+                <productName>PulseFire</productName>
+                <internalName>pulsefire</internalName>
+                <originalFilename>pulsefire.exe</originalFilename>
+              </versionInfo>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${maven-assembly-plugin.version}</version>
+        <configuration>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>ui-launch4j-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/bin.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.nongnu.pulsefire</groupId>
+      <artifactId>pulsefire-device-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+</project>

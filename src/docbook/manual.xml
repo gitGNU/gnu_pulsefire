@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2011, Willem Cazander
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided
+ that the following conditions are met:
+ 
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the
+   following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+   the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+ EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<book lang="en">
+  <bookinfo revision="1.0">
+    <title>PulseFire Manual</title>
+    <corpname>PulseFire</corpname>
+    <authorgroup>
+      <author>
+        <firstname>Willem</firstname>
+        <surname>Cazander</surname>
+      </author>
+    </authorgroup>
+    
+    <edition>Manual for PulseFire version 1.0</edition>
+    <pubdate>2011</pubdate>
+    
+    <copyright>
+      <year>2011</year>
+      <year>2012</year>
+      <holder>Willem Cazander</holder>
+    </copyright>
+
+    <revhistory>
+      <revision>
+        <revnumber>0.1</revnumber>
+        <date>12-07-2011</date>
+      </revision>
+    </revhistory>
+  </bookinfo>
+
+  <preface>
+    <beginpage/>
+    <title>Preface</title>
+
+    <para>Welcome in the <application>PulseFire</application> Manual.
+    Here we describe howto interface the PulseFire UI and the chip board.
+    </para>
+  </preface>
+
+
+  <chapter lang="en">
+    <chapterinfo>
+      <title>Introduction</title>
+      <keywordset>
+        <keyword>Introduction</keyword>
+      </keywordset>
+    </chapterinfo>
+    <title>Intoduction</title>
+    <beginpage/>
+    <sect1>
+      <title>Introduction</title>
+
+      <para>Welcom in the  <application>PulseFire</application> manual.</para>
+
+      <para>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/logo-pulsefire.png" />
+          </imageobject>
+        </mediaobject>
+      </para>
+
+      <para>PulseFire is software written for small embedded platform to pulse multiple outputs.</para>
+    </sect1>
+  </chapter>
+
+
+  <appendix>
+    <appendixinfo>
+      <title>Appendix</title>
+      <keywordset>
+        <keyword>appendix</keyword>
+        <keyword>licence</keyword>
+      </keywordset>
+    </appendixinfo>
+    <title>Appendix</title>
+    <beginpage/>
+    
+    <section>
+        <title>Licence</title>
+        <beginpage/>
+        <para>Todo smoe text
+        </para>
+      <beginpage/>
+    </section>
+   </appendix>
+</book>
