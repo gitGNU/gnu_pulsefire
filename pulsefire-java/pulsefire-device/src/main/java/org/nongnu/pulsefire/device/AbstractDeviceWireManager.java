@@ -65,6 +65,7 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	
 	@Override
 	public void disconnect() {
+		deviceData.createParameters();
 		connectProgress = 0;
 		sendCommandQueue.clear();
 		if (isConnected()) {
@@ -110,7 +111,6 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		// Get variable info and variables
 		connectPhase = "push promt";connectProgress = 12;
 		requestCommand(new Command(CommandName.req_tx_promt,"0")).waitForResponseChecked();
-		requestCommand(new Command(CommandName.req_tx_push,	"1")).waitForResponseChecked();
 		
 		connectPhase = "help max";connectProgress = 15;
 		requestCommand(new Command(CommandName.help,		"max")).waitForResponseChecked();
@@ -125,6 +125,9 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		requestCommand(new Command(CommandName.info_data)).waitForResponseChecked();
 		connectPhase = "info_prog";connectProgress = 85;
 		requestCommand(new Command(CommandName.info_prog)).waitForResponseChecked();
+		
+		// Turn conf push changes on as last.
+		requestCommand(new Command(CommandName.req_tx_push,	"1")).waitForResponseChecked();
 		
 		connectPhase = "Fire events";connectProgress = 95;
 		if (isConnected()) {

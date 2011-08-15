@@ -65,7 +65,16 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 	private JPanel createInfoPanel() {
 		JPanel infoPanel = JComponentFactory.createJFirePanel();
 		JLabel text = new JLabel();
-		text.setText("<html><center><h1>PulseFire</h1><sub>Copyright 2011 Willem Cazander</sub><br>For more information visit website;<br>http://www.nongnu.org/pulsefire/<br></center></html>");
+		text.setText("<html><center><h1>PulseFire</h1><sub>Copyright 2011 Willem Cazander</sub><br>For more information visit website;<br>http://www.nongnu.org/pulsefire/<br>" +
+				"<sub><font face=\"monospace\">" +
+				"#________#_#_#_#<br>" +
+				"_#______________<br>" +
+				"__#__________#__<br>" +
+				"___#____________<br>" +
+				"____#____###__##<br>" +
+				"_____#____###__#" +
+				"</font></sub>" +
+				"</center></html>");
 		infoPanel.add(text);
 		return infoPanel;
 	}

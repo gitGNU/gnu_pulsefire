@@ -38,7 +38,7 @@ set JNI_CP=%%a
 )
 
 :: Launch application
-java %JAVA_OPTS% -cp "%CP%;%JNI_CP%" -Djava.library.path=. %MAIN_CLASS% -jni-cp
+java %JAVA_OPTS% -cp "%CP%;jni\%JNI_CP%" -Djava.library.path=. %MAIN_CLASS% -jni-cp
 
 endlocal 
 :: EOF

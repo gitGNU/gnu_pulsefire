@@ -91,6 +91,9 @@ public class PulseFireUI extends SingleFrameApplication {
 				cl = libName.getClass().getClassLoader();
 			}
 			String arch = System.getProperty("os.arch");
+			if ("amd64".endsWith(arch)) {
+				arch = "x86_64"; // this name looks better in dir listings and is logical.
+			}
 			Enumeration<URL> libs = cl.getResources(libName);
 			while (libs.hasMoreElements()) {	
 				URL jarResourceUrl = libs.nextElement();
@@ -162,8 +165,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		});
 		
 		FrameView mainView = getMainView();
-		//mainView.getFrame().setMinimumSize(new Dimension(800-32,600-32));
-		mainView.getFrame().setMinimumSize(new Dimension(1024-32,768-32));
+		mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
 		mainView.setComponent(new JMainPanel());
 		// //new JFireGlassPane(mainView.getFrame());
 			

@@ -81,7 +81,7 @@ public class SerialDeviceWireThread extends Thread {
 			while (running) {
 				pollInputReader();
 				if (sendCommand!=null) {
-					checkSendCommandTimeout();
+					softReconnectDevice(true);
 					Thread.sleep(5);
 					continue; // wait on response
 				}
@@ -100,28 +100,29 @@ public class SerialDeviceWireThread extends Thread {
 	/**
 	 * Check for in system reboot detecting , this should get better someday
 	 */
-	private void checkSendCommandTimeout() {
+	private void softReconnectDevice(boolean testSendCommand) {
 		long currTime = System.currentTimeMillis();
-		if (currTime>sendCommand.getRequestTime()+(10*1000)) {
-			logger.info("In system reboot detected trying soft reconnect.");
-			//newLineEchos = 0;
-			if (sendCommand!=null) {
-				sendCommand=null;
-			}
-			// clear send buffer
-			DeviceCommandRequest poll = deviceManager.pollCommandRequest();
-			while (poll!=null) {
-				poll.setResponse(poll.getRequest()); // release possible waiting requester 
-				poll = deviceManager.pollCommandRequest();
-			}	
-			deviceManager.requestCommand(new Command(CommandName.req_tx_echo,"0"));
-			deviceManager.requestCommand(new Command(CommandName.req_tx_promt,"0"));
-			deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
-			deviceManager.requestCommand(new Command(CommandName.info_conf,	"all"));
-			deviceManager.requestCommand(new Command(CommandName.info_data));
-			deviceManager.requestCommand(new Command(CommandName.info_prog));
+		if (testSendCommand && currTime<sendCommand.getRequestTime()+(10*1000)) {
 			return;
 		}
+		logger.info("In system reboot detected trying soft reconnect.");
+		//newLineEchos = 0;
+		if (sendCommand!=null) {
+			sendCommand=null;
+		}
+		// clear send buffer
+		DeviceCommandRequest poll = deviceManager.pollCommandRequest();
+		while (poll!=null) {
+			poll.setResponse(poll.getRequest()); // release possible waiting requester 
+			poll = deviceManager.pollCommandRequest();
+		}	
+		deviceManager.requestCommand(new Command(CommandName.req_tx_echo,"0"));
+		deviceManager.requestCommand(new Command(CommandName.req_tx_promt,"0"));
+		deviceManager.requestCommand(new Command(CommandName.info_conf,	"all"));
+		deviceManager.requestCommand(new Command(CommandName.info_data));
+		deviceManager.requestCommand(new Command(CommandName.info_prog));
+		deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
+		return;
 	}
 	
 	private void pollCommandRequest() throws InterruptedException, IOException {
@@ -185,7 +186,14 @@ public class SerialDeviceWireThread extends Thread {
 		}
 		
 		if (scannedInput.startsWith(PULSE_FIRE_PROMT)) {
+			if (seenPromt && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
+				softReconnectDevice(false);
+			}
 			seenPromt = true;
+			// todo this is hack to be able to connect while promt and device_version are on single line !!!
+			if (scannedInput.contains(CommandName.chip_version.name())==false && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
+				return;
+			}
 			scannedInput=scannedInput.substring(scannedInput.indexOf(':')+1,scannedInput.length()).trim();
 		}
 		if (scannedInput.startsWith("#")) {

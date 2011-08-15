@@ -25,17 +25,35 @@
 package org.nongnu.pulsefire.device.ui;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 /**
  * DevicePortsComboBoxModel
  * 
  * @author Willem Cazander
  */
-public class DevicePortsComboBoxModel extends DefaultComboBoxModel {
+public class DevicePortsComboBoxModel extends DefaultComboBoxModel implements PopupMenuListener {
 
 	private static final long serialVersionUID = 4610540916741783097L;
 
 	public DevicePortsComboBoxModel() {
 		super(PulseFireUI.getInstance().getDeviceManager().getDevicePorts().toArray());
+	}
+
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		removeAllElements();
+		for (String port:PulseFireUI.getInstance().getDeviceManager().getDevicePorts()) {
+			addElement(port);
+		}
+	}
+
+	@Override
+	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+	}
+
+	@Override
+	public void popupMenuCanceled(PopupMenuEvent e) {
 	}
 }

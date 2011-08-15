@@ -105,7 +105,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <mainClass>org.nongnu.pulsefire.device.ui.PulseFireUI</mainClass>
                 <addDependencies>true</addDependencies>
                 <jarLocation>lib/</jarLocation>
-                <postCp>jni/pulsefire-rxtx-windows-x86-${project.version}.jar:jni/pulsefire-rxtx-windows-x86_64-${project.version}.jar</postCp>
+                <postCp>jni/pulsefire-rxtx-windows-x86-${project.version}.jar;jni/pulsefire-rxtx-windows-x86_64-${project.version}.jar</postCp>
               </classPath>
               <jre>
                 <minVersion>${project.build.javaVersion}.0</minVersion>

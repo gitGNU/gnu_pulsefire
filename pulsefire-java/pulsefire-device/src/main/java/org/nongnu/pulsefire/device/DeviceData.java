@@ -50,6 +50,11 @@ public class DeviceData {
 		indexedDeviceParameters = new HashMap<CommandName,Map<Integer,Command>>(16);
 	}
 	
+	protected void createParameters() {
+		deviceParameters.clear();
+		indexedDeviceParameters.clear();
+	}
+	
 	/**
 	 * Sets and device variable
 	 * @param command	The command to set.

@@ -68,7 +68,9 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		borderPanel.add(serialPanel);
 		
 		serialPanel.add(JComponentFactory.createJLabel(this, "ports"));
-		portsComboBox = new JComboBox(new DevicePortsComboBoxModel());
+		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
+		portsComboBox = new JComboBox(portModel);
+		portsComboBox.addPopupMenuListener(portModel);
 		serialPanel.add(portsComboBox);
 		
 		serialPanel.add(JComponentFactory.createJLabel(this, "connect"));

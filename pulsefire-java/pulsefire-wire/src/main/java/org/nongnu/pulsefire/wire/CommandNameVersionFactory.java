@@ -52,12 +52,12 @@ public class CommandNameVersionFactory {
 		if (version==CURRENT_VERSION) {
 			return configCurrentVersion();
 		}
-		if (version==8) {
-			return configVersion8();
-		}
-		if (version==7) {
-			return configVersion7();
-		}
+		//if (version==8) {
+		//	return configVersion8();
+		//}
+		//if (version==7) {
+		//	return configVersion7();
+		//}
 		return false;
 	}
 	

@@ -59,6 +59,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <module>pulsefire-java</module>
     <module>pulsefire-build</module>
   </modules>
+  <distributionManagement>
+    <site>
+      <id>cvs-savannah-site</id>
+      <url>scm:cvs:ext:cvs.savannah.nongnu.org:/web/pulsefire:pulsefire</url>
+    </site>
+  </distributionManagement>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.javaVersion>1.6</project.build.javaVersion>
@@ -129,6 +135,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <configuration>
             <siteDirectory>${project.basedir}/src/site</siteDirectory>
           </configuration>
+          <dependencies>
+            <dependency><!-- add support for ssh/scp -->
+              <groupId>org.apache.maven.wagon</groupId>
+              <artifactId>wagon-scm</artifactId>
+              <version>1.0</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-provider-cvsjava</artifactId>
+              <version>1.5</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <!-- 
         <plugin>
