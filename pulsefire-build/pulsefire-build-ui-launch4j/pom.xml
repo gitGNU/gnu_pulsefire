@@ -95,7 +95,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
               <headerType>gui</headerType>
               <outfile>${project.build.directory}/pulsefire.exe</outfile>
               <jar>../../pulsefire-java/pulsefire-device-ui/target/pulsefire-device-ui-${project.version}.jar</jar>
-              <!-- <dontWrapJar>true</dontWrapJar> -->
+              <!-- Fails with net.sf.launch4j.BuilderException: Specify runtime path of the jar relative to the executable.
+              <dontWrapJar>true</dontWrapJar>
+               -->
               <chdir>.</chdir>
               <customProcName>true</customProcName>
               <cmdLine>-Djava.library.path=. -jni-cp-os</cmdLine>

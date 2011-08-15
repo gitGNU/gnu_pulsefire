@@ -25,6 +25,8 @@ Commands
 
 	Current list of commands over PulseFire serial console.
 
+[images/pulsefire-overview.png] default mode
+
 ------
 root@pulsefire: help
 # The commands are;

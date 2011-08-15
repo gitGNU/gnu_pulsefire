@@ -21,17 +21,36 @@ src                 - Arduino/site/schematic source
 === Licenced binary files ===
 
 ./src/schemetic/avr-ext-chips.sch
+./src/docbook/images/logo-pulsefire.png
+./src/docbook/images/pulsefire-overview.svg
 ./src/site/resources/images/arduino-default.png
 ./src/site/resources/images/avr-ext-chips.png
 ./src/site/resources/images/banner-background.png
 ./src/site/resources/images/pulsefire-gui.png
 ./src/site/resources/images/pulsefire-left.png
+./src/site/resources/images/pulsefire-overview.png
 ./src/site/pulsefire.jks
 
 
 The binary files in the above listing fall all under
 the licence terms described in the licence.txt file.
 
+
+=== External licenced binary files ===
+
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-lib/src/main/lib/RXTXcomm.jar
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-windows-x86/src/main/jni/rxtxSerial.dll
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-windows-x86_64/src/main/jni/rxtxSerial.dll
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-mac-10.5/src/main/jni/librxtxSerial.jnilib
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-armv71/src/main/jni/librxtxSerial.so
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-ppc32/src/main/jni/librxtxSerial.so
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-ppc64/src/main/jni/librxtxSerial.so
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-x86/src/main/jni/librxtxSerial.so
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-x86_64/src/main/jni/librxtxSerial.so
+./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-openindiana-x86_64/src/main/jni/librxtxSerial.so
+
+The binary files in the above listing fall all under the licence terms
+described in the licence file of rxtx on http://rxtx.qbang.org/.
 
 === Timing calucalations ===
 
