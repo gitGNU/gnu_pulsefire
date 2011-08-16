@@ -42,7 +42,10 @@ void Serial_println_get_P2(const char* argu0,const char* argu1) {
   Serial.println();
 }
 
-void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) { 
+void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) {
+  if (setIndexA>=Vars_getIndexAMax(i)) {
+    setIndexA = ZERO; // safty check for indexes
+  }
   Serial.print(UNPSTRA(&PF_VARS[i][PFVF_NAME]));
   if(setIndexA<10) {Serial.print('0');}
   Serial.print((int)setIndexA);
@@ -65,8 +68,8 @@ void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) {
 
 // Print a PF_VARS variable
 void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
-  boolean indexed = Vars_isIndexA(i);
-  if (indexed==false) {
+  boolean indexedA = Vars_isIndexA(i);
+  if (indexedA==false) {
     Serial.print(UNPSTRA(&PF_VARS[i][PFVF_NAME]));
     if (isSet) {
       Serial_print_P(pmSetSpaced);
@@ -347,11 +350,13 @@ void cmd_execute(char* cmd, char** args) {
         }
       }
       Serial.println();
+    }
+    for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
       Serial_print_P(pmConfPPMDataB);
       if (i <= 9) { Serial.print('0'); }
       Serial.print((int)i);
       Serial_print_P(pmGetSpaced);
-      data_row = pf_conf.ppm_data_b[i];
+      uint16_t data_row = pf_conf.ppm_data_b[i];
       for (int i=OUTPUT_MAX-ONE;i>=ZERO;i-- ) {
         uint16_t out = (data_row >> i) & ONE;
         if (out == ZERO) {
@@ -536,7 +541,6 @@ void cmd_execute(char* cmd, char** args) {
             for (uint8_t ii=ZERO;ii < Vars_getIndexAMax(i);ii++) {
               pf_var_value_set_serial(i,ii,ZERO,atou16(args[0]));
             }
-            
           } else {
             pf_var_value_set_serial(i,atou16(args[1]),ZERO,atou16(args[0]));
           }
@@ -578,7 +582,13 @@ void cmd_execute(char* cmd, char** args) {
         if (Vars_isIndexB(i)) {
           cmd_print_var_indexed(i,atou16(args[0]));
         } else {
-          cmd_print_var_indexed(i,atou16(args[1]));
+          if (args[1] == NULL) {
+            for (uint8_t ii=ZERO;ii < Vars_getIndexAMax(i);ii++) {
+              cmd_print_var_indexed(i,ii);
+            }
+          } else {
+            cmd_print_var_indexed(i,atou16(args[1]));
+          }
         }
       }
       

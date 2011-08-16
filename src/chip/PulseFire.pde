@@ -31,6 +31,7 @@
 //License-Type : BSD 2-Clause (licence.txt and http://www.opensource.org/licenses/bsd-license.php)
 //IO-Hardware  : see IO_DEF_* or IO_EXT_* #defines ~200 lines below
 //USB-Serial   : 115200b + "Newline" on enter/return
+//Website      : http://www.nongnu.org/pulsefire/
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -458,14 +459,23 @@ uint16_t Vars_getIndexFromName(char* name) {
 }
 
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
-  boolean indexed = Vars_isIndexA(idx);
+  boolean indexedA   = Vars_isIndexA(idx);
+  boolean indexedB   = Vars_isIndexB(idx);
+  uint8_t idxMaxA    = Vars_getIndexAMax(idx);
+  uint8_t idxMaxB    = Vars_getIndexBMax(idx);
   uint16_t fieldType = pgm_read_word(&(PF_VARS[idx][PFVF_TYPE]));
   uint16_t value = ZERO;
+  if (indexedA && idxA>=idxMaxA) {
+    idxA = ZERO; // safty check for indexes
+  }
+  if (indexedB && idxB>=idxMaxB) {
+    idxB = ZERO;
+  }  
   if (fieldType == PFVT_16BIT) {
     uint16_t *valuePtr = (uint16_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-    if (indexed) {
-      if (Vars_isIndexB(idx)) {
-        valuePtr += Vars_getIndexBMax(idx)*idxA + idxB;
+    if (indexedA) {
+      if (indexedB) {
+        valuePtr += idxMaxB * idxA + idxB;
       } else {
         valuePtr += idxA;
       }
@@ -473,9 +483,9 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
     value = *(valuePtr);
   } else if (fieldType == PFVT_8BIT) {
     uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-    if (indexed) {
-      if (Vars_isIndexB(idx)) {
-        valuePtr += Vars_getIndexBMax(idx)*idxA + idxB;
+    if (indexedA) {
+      if (indexedB) {
+        valuePtr += idxMaxB * idxA + idxB;
       } else {
         valuePtr += idxA;
       }
@@ -487,9 +497,13 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 
 
 uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA) {
-  boolean indexed = Vars_isIndexA(idx);
+  boolean indexedA = Vars_isIndexA(idx);
+  uint8_t idxMaxA    = Vars_getIndexAMax(idx);
   uint32_t *valuePtr = (uint32_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-  if (indexed) {
+  if (indexedA && idxA>=idxMaxA) {
+    idxA = ZERO; // safty check for indexes
+  }
+  if (indexedA) {
     valuePtr += idxA;
   }
   uint32_t value = *(valuePtr);
@@ -528,8 +542,10 @@ uint16_t pf_var_value_set(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) 
   return pf_var_value_set_impl(idx,idxA,0,value,true,false);
 }
 uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial) {
-  boolean indexed = Vars_isIndexA(idx);
-  uint8_t idxMaxA = Vars_getIndexAMax(idx);
+  boolean indexedA   = Vars_isIndexA(idx);
+  boolean indexedB   = Vars_isIndexB(idx);
+  uint8_t idxMaxA    = Vars_getIndexAMax(idx);
+  uint8_t idxMaxB    = Vars_getIndexBMax(idx);
   uint16_t fieldType = pgm_read_word(&(PF_VARS[idx][PFVF_TYPE]));
   uint16_t value_max = pgm_read_word(&(PF_VARS[idx][PFVF_MAX]));
   uint16_t value_min = ZERO;
@@ -556,6 +572,14 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
   }
   #endif
   
+  // safty check for indexes
+  if (indexedA && idxA>=idxMaxA) {
+    idxA = ZERO;
+  }
+  if (indexedB && idxB>=idxMaxB) {
+    idxB = ZERO;
+  }  
+  
   if (value==0xFF) {
     value_max = ZERO; // big hack for swc_mode,stv_*_mode.
   }
@@ -569,9 +593,9 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
   // Set value
   if (fieldType == PFVT_16BIT) {
     uint16_t *valuePtr = (uint16_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-      if (indexed) {
-        if (Vars_isIndexB(idx)) {
-          valuePtr += Vars_getIndexBMax(idx)*idxA + idxB;
+      if (indexedA) {
+        if (indexedB) {
+          valuePtr += idxMaxB * idxA + idxB;
         } else {
           valuePtr += idxA;
         }
@@ -593,9 +617,9 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
       }
   } else if (fieldType == PFVT_8BIT) {
       uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-      if (indexed) {
-        if (Vars_isIndexB(idx)) {
-          valuePtr += Vars_getIndexBMax(idx)*idxA + idxB;
+      if (indexedA) {
+        if (indexedB) {
+          valuePtr += idxMaxB * idxA + idxB;
         } else {
           valuePtr += idxA;
         }
@@ -605,7 +629,7 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
           for (uint8_t i=ZERO;i<idxMaxA;i++) {
             uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
             if (Vars_isIndexB(idx)) {
-              valuePtr += Vars_getIndexBMax(idx)*i + idxB;
+              valuePtr += idxMaxB * i + idxB;
             } else {
               valuePtr += i;
             }
@@ -617,7 +641,7 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
       }
   } else if (fieldType == PFVT_32BIT) {
     uint32_t *valuePtr = (uint32_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
-    if (indexed) {
+    if (indexedA) {
       valuePtr += idxA;
     }
     uint32_t v = value;
@@ -626,7 +650,7 @@ uint16_t pf_var_value_set_impl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t va
   
   // Send to serial if push is on
   if (pf_prog.req_tx_push == ONE && serial==false) {
-    if (indexed) {
+    if (indexedA) {
       if (idxA == QMAP_VAR_IDX_ALL) {
         for (uint8_t i=ZERO;i<idxMaxA;i++) {
           Serial.print(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
@@ -1092,7 +1116,7 @@ void loop_stv(void) {
       pf_prog.stv_map_idx          = ZERO;
       if (pf_prog.stv_state == STV_STATE_WARNING_MAX) {
         if (pf_conf.stv_warn_mode != 0xFF) {
-          pf_var_value_set(ONE,ZERO,ZERO,pf_prog.stv_mode_org);
+          pf_var_value_set(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
         }
       } else {
         if (pf_conf.stv_error_mode != 0xFF) {
@@ -1134,7 +1158,7 @@ void loop_stv(void) {
 
      if (pf_prog.stv_state == STV_STATE_WARNING_MIN) {
         if (pf_conf.stv_warn_mode != 0xFF) {
-          pf_var_value_set(ONE,ZERO,ZERO,pf_prog.stv_mode_org);
+          pf_var_value_set(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
         }
       } else {
         if (pf_conf.stv_error_mode != 0xFF) {

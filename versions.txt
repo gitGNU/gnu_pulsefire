@@ -1,6 +1,14 @@
 
 === PulseFire versions ===
 
+Version 0.9-fix:
+- Fixed pulse_trig_delay to last step instead of step zero.
+- Fixed last step offset of pwm_* values of last step in train/ppmi mode.
+- Fixed STV set correct warn mode if input goes from error to warning.
+- Fixed indexA/indexB max checking when set/get variable falls back to idx=zero.
+- Fixed output of set all index values at once, cmd worked but printed only one.
+- Fixed info_ppm output to print per bank was per output.	
+
 Version 0.9:
 
 - Added stv_error_secs for optional recovery from error.

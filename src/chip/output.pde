@@ -221,7 +221,7 @@ void int_do_work(void) {
   if (pf_conf.pulse_mode == PULSE_MODE_TRAIN | pf_conf.pulse_mode == PULSE_MODE_PPMI) {
     step_zero--; // corrected value for compa/compb and wait... mmmm
     if (pf_data.pulse_step == ZERO) {
-      step_zero = pf_conf.pulse_steps;
+      step_zero = pf_conf.pulse_steps - ONE;
     }
   }
   
@@ -342,16 +342,14 @@ void int_do_work(void) {
         pf_data.pulse_dir_cnt     = PULSE_DIR_RL; } else { // Auto direction reversal
         pf_data.pulse_dir_cnt     = PULSE_DIR_LR;
       }
+    }
+    if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
+      pf_data.pwm_state = PWM_STATE_TRIGGER_END;      // timeout after trigger
+    } else if (pf_conf.pulse_post_delay > ZERO) {
+      pf_data.pwm_state = PWM_STATE_WAIT_POST;        // timeout after pulse train
     } 
   } else {
-    pf_data.pulse_step++;                      // Goto next step in pulse fire train
-    if (pf_data.pulse_step == ONE) {
-      if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
-        pf_data.pwm_state = PWM_STATE_TRIGGER_END;      // timeout after trigger
-      } else if (pf_conf.pulse_post_delay > ZERO) {
-        pf_data.pwm_state = PWM_STATE_WAIT_POST;        // timeout after pulse train
-      }      
-    }
+    pf_data.pulse_step++;                             // Goto next step in pulse fire train
   }
 }
 
