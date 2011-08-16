@@ -218,12 +218,14 @@ void int_do_work(void) {
     return; // disable when in manuale trigger fire.
   }
   uint8_t step_zero = pf_data.pulse_step;
-  if (pf_conf.pulse_mode == PULSE_MODE_TRAIN | pf_conf.pulse_mode == PULSE_MODE_PPMI) {
-    step_zero--; // corrected value for compa/compb and wait... mmmm
+  /*
+  if (pf_conf.pulse_mode == PULSE_MODE_TRAIN) {
+    step_zero--; // corrected value for compa/compb and wait... mmmm ) | (pf_conf.pulse_mode == PULSE_MODE_PPMI)
     if (pf_data.pulse_step == ZERO) {
       step_zero = pf_conf.pulse_steps - ONE;
     }
   }
+  */
   
   uint8_t step_ocr = step_zero;
   if (pf_conf.pulse_mode == PULSE_MODE_FLASH_ZERO) {
@@ -288,6 +290,11 @@ void int_do_work(void) {
 
   // do step duty timing
   uint16_t off_time = ZERO;
+  if (step_ocr==ZERO) {
+    step_ocr = pf_conf.pulse_steps - ONE;
+  } else {
+    step_ocr--; // corrected value for compb 
+  }
   if (pf_data.pulse_bank_cnt==ZERO) {
     off_time = pf_conf.pwm_off_cnt_a[step_ocr];
   } else {
