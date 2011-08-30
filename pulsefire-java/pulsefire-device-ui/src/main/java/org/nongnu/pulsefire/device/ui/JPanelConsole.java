@@ -23,6 +23,7 @@
 
 package org.nongnu.pulsefire.device.ui;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -32,11 +33,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceDataListener;
@@ -58,14 +60,14 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	private DateFormat timeFormat = null;
 	
 	public JPanelConsole() {
-		
+		// Use simple time based format for console logging
 		timeFormat = new SimpleDateFormat("HH:mm:ss");
-		
+		consoleLogLinesMax = new Integer(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
 		// Config panel and inner panel
 		setLayout(new GridLayout(1,1)); // take max size
 		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		JPanel innerPanel = JComponentFactory.createJFirePanel();
-		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+		innerPanel.setLayout(new BorderLayout());
 		add(innerPanel);
 		
 		// Config console output
@@ -74,15 +76,28 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleLog.setAutoscrolls(true);
 		consoleLog.setEditable(false);
 		JScrollPane consoleScrollPane = new JScrollPane(consoleLog);
+		consoleScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		consoleScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		consoleScrollPane.getViewport().setOpaque(false);
-		innerPanel.add(consoleScrollPane);
+		innerPanel.add(consoleScrollPane,BorderLayout.CENTER);
 		
 		// Config console input
-		consoleInput = new JTextField(40);
+		consoleInput = new JTextField(30);
 		consoleInput.setMargin(new Insets(5, 5, 5, 5));
 		consoleInput.addActionListener(this);
 		consoleInput.setEnabled(false);
-		innerPanel.add(consoleInput);
+		JPanel consoleActionPanel = new JPanel();
+		consoleActionPanel.setLayout(new BorderLayout());
+		consoleActionPanel.add(consoleInput,BorderLayout.LINE_START);
+		JButton consoleClear = new JButton("Clear");
+		consoleClear.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				consoleLog.setText("");
+			}
+		});
+		consoleActionPanel.add(consoleClear,BorderLayout.LINE_END);
+		innerPanel.add(consoleActionPanel,BorderLayout.SOUTH);
 		
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
@@ -111,7 +126,6 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		
 		consoleLogLines++;
 		if (consoleLogLines>consoleLogLinesMax) {
-			//System.out.println("clean log: "+consoleLogLines);
 			String t = consoleLog.getText();
 			int l = 0;
 			int rm = consoleLogLinesMax/2;
@@ -148,11 +162,13 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 
 	@Override
 	public void deviceConnect() {
+		consoleInput.setEnabled(true);
 		updateText("Connected succesfully.","##");
 	}
 
 	@Override
 	public void deviceDisconnect() {
+		consoleInput.setEnabled(false);
 		updateText("Closed connection succesfully.","##");
 		updateText("Ready to connect.","##");
 	}

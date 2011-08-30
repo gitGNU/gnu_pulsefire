@@ -24,6 +24,10 @@
 package org.nongnu.pulsefire.device.ui;
 
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +51,19 @@ public class JComponentFactory {
 		JLabel label = new JLabel(name);
 		//label.setName(name);
 		return label;
+	}
+	
+	static public JCheckBox createSettingsJCheckBox(final PulseFireUISettingKeys key) {
+		JCheckBox c = new JCheckBox();
+		c.setSelected(PulseFireUI.getInstance().getSettingBoolean(key));
+		c.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PulseFireUI.getInstance().getSettings().setProperty(key.name(), ""+((JCheckBox)e.getSource()).isSelected());
+				PulseFireUI.getInstance().saveSettings();
+			}
+		});
+		return c;
 	}
 	
 	static public JPanel createJPanelJWrap(JComponent comp) {

@@ -40,6 +40,7 @@ import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
@@ -304,6 +305,10 @@ public class JTabPanelChannels extends AbstractTabPanel implements DeviceCommand
 	}
 	
 	private void checkChannels(int steps) {
+		Boolean limit = PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.LIMIT_CHANNELS);
+		if (limit==false) {
+			steps = CommandName.pulse_steps.getMaxValue();
+		}
 		centerPanel.removeAll();
 		for (int i=0;i<16;i++) {
 			if (i>=steps) {

@@ -21,48 +21,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui.tabs;
-
-import java.awt.FlowLayout;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+package org.nongnu.pulsefire.device.ui;
 
 /**
- * JTabPanelLogging
+ * PulseFireUISettingKeys defines all uniq settings keys as enum with defaults as string.
  * 
  * @author Willem Cazander
  */
-public class JTabPanelLogging extends AbstractTabPanel {
+public enum PulseFireUISettingKeys {
 
-	private static final long serialVersionUID = 474107322357112741L;
-
-	public JTabPanelLogging() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		JPanel loggingPanel = new JPanel();
-		loggingPanel.setLayout(new SpringLayout());
-		
-		loggingPanel.add(JComponentFactory.createJLabel("Log received cmd"));
-		JCheckBox c = new JCheckBox();
-		loggingPanel.add(c);
-		
-		loggingPanel.add(JComponentFactory.createJLabel("Log send cmd"));
-		loggingPanel.add(new JCheckBox());
-		
-		loggingPanel.add(JComponentFactory.createJLabel("Log file"));
-		loggingPanel.add(new JTextField(20));
-		
-		SpringLayoutGrid.makeCompactGrid(loggingPanel,3,2);
-		add(loggingPanel);
+	LAF_COLORS("dark-red"),
+	AUTO_CONNECT("false"),
+	DEVICE_PORT(""),
+	LIMIT_CHANNELS("true"),
+	CONSOLE_LINES("300"),
+	LOG_FILE_APPEND("false"),
+	LOG_CMD_ENABLE("false"),
+	LOG_CMD_FILE(""),
+	LOG_CMD_TX("true"),
+	LOG_CMD_RX("true"),
+	LOG_PULL_ENABLE("false"),
+	LOG_PULL_FILE(""),
+	LOG_PULL_FIELDS("");
+	
+	private String defaultValue = null;
+	private PulseFireUISettingKeys(String defaultValue) {
+		if (defaultValue==null) {
+			throw new IllegalStateException("Can't allow null default.");
+		}
+		this.defaultValue=defaultValue;
 	}
 	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
+	public String getDefaultValue() {
+		return defaultValue;
 	}
 }

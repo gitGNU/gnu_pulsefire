@@ -25,12 +25,9 @@ package org.nongnu.pulsefire.device.ui.components;
 
 import java.awt.BasicStroke;
 
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 
 /**
  * JFireDial is a swing component to dial the value in with the mouse.
@@ -138,7 +134,6 @@ public class JFireDial extends JComponent  {
 				spin(e);
 			}
 		});
-		//setBorder(new JFireDialBorder());
 	}
 
 	protected void spin(MouseEvent e) {
@@ -197,14 +192,10 @@ public class JFireDial extends JComponent  {
 		
 		// Select color of dial circle
 		if (isEnabled()) {
-			if (entered) {
-				if (mouseDialing) {
-					g2.setColor(UIManager.getColor("nimbusFocus"));
-				} else {
-					g2.setColor(UIManager.getColor("nimbusOrange"));
-				}
+			if (mouseDialing) {
+				g2.setColor(UIManager.getColor("nimbusOrange"));
 			} else {
-				if (mouseDialing) {
+				if (entered) {
 					g2.setColor(UIManager.getColor("nimbusFocus"));
 				} else {
 					g2.setColor(UIManager.getColor("controlShadow"));
@@ -252,7 +243,6 @@ public class JFireDial extends JComponent  {
 			return;
 		}
 		valueOld = value;
-		//setToolTipText(""+valueSet);
 		repaint();
 		fireDialEvent();
 	}
@@ -263,13 +253,13 @@ public class JFireDial extends JComponent  {
 	public void setMinimum(int minValue) {
 		valueMin = minValue;
 	}
-	public int getMinimum()  {
+	public int getMinimum() {
 		return valueMin;
 	}
-	public void setMaximum(int maxValue)  {
+	public void setMaximum(int maxValue) {
 		valueMax = maxValue;
 	}
-	public int getMaximum()  {
+	public int getMaximum() {
 		return valueMax;
 	}
 	
@@ -302,34 +292,5 @@ public class JFireDial extends JComponent  {
 	}
 	public interface DialListener extends EventListener {
 		void dialAdjusted(DialEvent e);
-	}
-	
-	class JFireDialBorder implements Border {
-
-		@Override
-		public void paintBorder(Component c, Graphics g, int x, int y,
-				int width, int height) {
-			Graphics2D g2 = (Graphics2D)g;
-			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			//int textHeight = getTitleHeight(c);
-
-			g2.setColor(c.getForeground());
-			g2.drawRoundRect(0,0,width,height,4,4);
-		}
-
-		protected int getTitleHeight(Component c) {
-			FontMetrics metrics = c.getFontMetrics(c.getFont());
-			return (int)(metrics.getHeight() * 1.90);
-		}
-		@Override
-		public Insets getBorderInsets(Component c) {
-			return new Insets(0, 5, getTitleHeight(c), 5);
-		}
-
-		@Override
-		public boolean isBorderOpaque() {
-			return true;
-		}
-		
 	}
 }

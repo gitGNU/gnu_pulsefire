@@ -86,7 +86,7 @@ public class JFireBorder implements Border,MouseListener {
 		if (endColor==null) {
 			endColor = c.getBackground();
 		}
-		Color startColor = UIManager.getColor("controlLHighlight");
+		Color startColor = UIManager.getColor("nimbusBorder");
 		if (startColor==null) {
 			startColor = c.getForeground();
 		}
@@ -99,7 +99,7 @@ public class JFireBorder implements Border,MouseListener {
 					false);
 		}
 		if (gradientEntered==null) {
-			startColor = UIManager.getColor("nimbusOrange");
+			startColor = UIManager.getColor("nimbusFocus");
 			if (startColor==null) {
 				startColor = c.getForeground();
 			}
@@ -115,8 +115,6 @@ public class JFireBorder implements Border,MouseListener {
 		}
 		g2.fillRoundRect(x, y, width, titleHeight, radius, radius);
 		g2.fillRect(x,titleHeight/2,radius+1, titleHeight/2);
-
-		//g2.drawLine(x, titleHeight-1, width, titleHeight-1);
 		g2.drawRoundRect(x,y,width-1,height-1,radius,radius);
 		
 		if (title==null) {

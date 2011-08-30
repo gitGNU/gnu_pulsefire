@@ -33,6 +33,7 @@ import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireTimeData;
@@ -57,7 +58,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 	public JFireGraph(CommandName commandName) {
 		this.commandName=commandName;
 		this.timeDataStore=PulseFireUI.getInstance().getTimeData();
-		this.gridColor = Color.GREEN.darker().darker().darker();
+		this.gridColor = UIManager.getColor("nimbusGreen");
 		setPreferredSize(new Dimension(440,220));
 		setMinimumSize(new Dimension(80,40));
 		setBorder(BorderFactory.createEmptyBorder());
@@ -69,24 +70,24 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 	}
 	
 	public Color randomColor(int idx){
-	  Random random=new Random();
-	  if (idx>16) {
-		  idx = idx/2;
-	  }
-	  idx++; // skip 0
-	  int red=random.nextInt(idx*16);
-	  if (red<33) {
-		  red+=random.nextInt(133);
-	  }
-	  int green=random.nextInt(idx*16);
-	  if (green<33) {
-		  green+=random.nextInt(166);
-	  }
-	  int blue=random.nextInt(idx*16);
-	  if (blue<33) {
-		  blue+=random.nextInt(199);
-	  }
-	  return new Color(red, green, blue);
+		Random random=new Random();
+		if (idx>16) {
+			idx = idx/2;
+		}
+		idx++; // skip 0
+		int red=random.nextInt(idx*16);
+		if (red<33) {
+			red+=random.nextInt(133);
+		}
+		int green=random.nextInt(idx*16);
+		if (green<33) {
+			green+=random.nextInt(166);
+		}
+		int blue=random.nextInt(idx*16);
+		if (blue<33) {
+			blue+=random.nextInt(199);
+		}
+		return new Color(red, green, blue);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -200,8 +201,9 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 			}
 		}
 	
-		g2.setPaint(Color.YELLOW);
+		g2.setPaint(UIManager.getColor("nimbusAlertYellow"));
 		g2.drawRect(0, 0, w-1, h-1);
+		//g2.setPaint(UIManager.getColor("nimbusRed"));
 		g2.drawString("Name:", 7, 20);
 		g2.drawString(commandName.name(), 50, 20);
 		g2.drawString("Value:", 7, 35);

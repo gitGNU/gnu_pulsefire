@@ -35,9 +35,12 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
+import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.components.JFireGraph;
+import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -45,16 +48,16 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener {
+public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,DeviceCommandListener {
 
 	private static final long serialVersionUID = 5027054951800480326L;
-	private int graphsW = 0;
-	private int graphsH = 0;
 	private JPanel infoPanel = null;
+	private boolean donePaint = false;
 	
 	public JPanelConsoleInfo() {
 		addComponentListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_data, this);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		setBorder(BorderFactory.createEmptyBorder());
 		
@@ -86,11 +89,6 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		int hMin = 100;
 		int gW = w/wMin;
 		int gH = h/hMin;
-		if (gW==graphsW & gH==graphsH) {
-			return;
-		}
-		graphsW = gW;
-		graphsH = gH;
 		
 		for (Component c:getComponents()) {
 			if (c instanceof JFireGraph) {
@@ -101,6 +99,13 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		removeAll();
 		if (PulseFireUI.getInstance().getTimeData().getTimeDataKeys().isEmpty()) {
 			add(infoPanel);
+			final JPanel thisPanel = this;
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					SwingUtilities.updateComponentTreeUI(thisPanel);
+				}
+			});
 			return;
 		}
 		
@@ -143,7 +148,7 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		int ii=0;
 		for (int y=0;y<gH;y++) {
 			for (int x=0;x<gW;x++) {
-				if (ii>d.size()) {
+				if (ii>=d.size()) {
 					break;
 				}
 				CommandName name = d.get(ii);
@@ -152,9 +157,6 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				add(g);
 				ii++;
 			}
-		}
-		if (getComponentCount()==0) {
-			//add(infoPanel); // add info panel
 		}
 	}
 	
@@ -174,7 +176,6 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 
 	@Override
 	public void deviceConnect() {
-		redoPanel();
 	}
 
 	@Override
@@ -186,5 +187,33 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 			}
 		}
 		removeAll();
+		add(infoPanel);
+		donePaint = false;
+		final JPanel thisPanel = this;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SwingUtilities.updateComponentTreeUI(thisPanel);
+			}
+		});
+	}
+
+	@Override
+	public void commandReceived(Command command) {
+		if (donePaint) {
+			return;
+		}
+		if (PulseFireUI.getInstance().getTimeData().getTimeDataKeys().isEmpty()) {
+			return;
+		}
+		final JPanel thisPanel = this;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				redoPanel();
+				donePaint = true;
+				SwingUtilities.updateComponentTreeUI(thisPanel);
+			}
+		});
 	}
 }

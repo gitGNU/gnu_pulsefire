@@ -95,6 +95,26 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 		updateSerialCounter();
+		
+		Boolean autoConnect = PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.AUTO_CONNECT);
+		String devicePort = PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.DEVICE_PORT);
+		if (autoConnect && devicePort.isEmpty()==false) {
+			// check if port is there
+			for (int i=0;i<portsComboBox.getModel().getSize();i++) {
+				String port = (String)portsComboBox.getModel().getElementAt(i);
+				if (port.equals(devicePort)) {
+					portsComboBox.setSelectedIndex(i);
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							actionPerformed(null);
+						}
+					});
+					break;
+				}
+			}
+			
+		}
 	}
 
 	@Override
@@ -118,6 +138,8 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		portsComboBox.setEnabled(false);
 		connectButtton.setText("Disconnect");
 		versionLabel.setText(""+PulseFireUI.getInstance().getDeviceManager().getDeviceVersion());
+		PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.DEVICE_PORT.name(),""+portsComboBox.getSelectedItem());
+		PulseFireUI.getInstance().saveSettings();
 	}
 
 	@Override

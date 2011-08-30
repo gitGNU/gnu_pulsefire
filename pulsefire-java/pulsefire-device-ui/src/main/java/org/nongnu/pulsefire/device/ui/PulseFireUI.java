@@ -29,11 +29,13 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.Properties;
 
 import javax.swing.UIManager;
 
@@ -59,7 +61,9 @@ public class PulseFireUI extends SingleFrameApplication {
 	private DeviceWireManagerController deviceManagerController = null;
 	private PulseFireTimeData timeData = null;
 	private EventTimeManager eventTimeManager = null;
+	private PulseFireDataLogManager dataLogManager = null;
 	private boolean fullScreen = false;
+	private Properties settings = null;
 	
 	static public void main(String[] args) {
 		Application.launch(PulseFireUI.class, args);
@@ -139,11 +143,21 @@ public class PulseFireUI extends SingleFrameApplication {
 		}
 		fixNativeLib(jniCopy,jniCopyOs);
 		
+		try {
+			settings = (Properties)getContext().getLocalStorage().load("pulsefire-settings.xml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (settings==null) {
+			settings = new Properties();
+		}
 		deviceManagerController = new DeviceWireManagerController();
 		deviceManagerController.addDeviceManager(new SerialDeviceWireManager());
 		eventTimeManager = new EventTimeManager();
 		eventTimeManager.start();
 		timeData = new PulseFireTimeData();
+		dataLogManager = new PulseFireDataLogManager();
+		dataLogManager.start();
 		installColorsLaF();
 	}
 	
@@ -153,7 +167,8 @@ public class PulseFireUI extends SingleFrameApplication {
 				return true;
 			}
 			public void willExit(EventObject event) {
-				PulseFireUI.getInstance().getEventTimeManager().shutdown();
+				dataLogManager.stop();
+				eventTimeManager.shutdown();
 				PulseFireUI.getInstance().getDeviceManager().disconnect();
 				for (int i=0;i<20;i++) {
 					try { Thread.sleep(100); } catch (InterruptedException e) {}
@@ -179,24 +194,39 @@ public class PulseFireUI extends SingleFrameApplication {
 		}
 		
 		eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),10000));
-		//new org.pulsefire.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
+		//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
 	}
 	
 	private void installColorsLaF() {
-		//UIManager.put("nimbusBlueGrey", Color.BLUE.darker().darker());
-		UIManager.put("TabbedPane.font",  		Font.decode("SansSerif-BOLD-12"));
-		UIManager.put("TitledBorder.font",  	Font.decode("SansSerif-BOLD-16"));
-		UIManager.put("FireDial.font",  		Font.decode("SansSerif-9"));
+		UIManager.put("TabbedPane.font",		Font.decode("SansSerif-BOLD-12"));
+		UIManager.put("TitledBorder.font",		Font.decode("SansSerif-BOLD-16"));
+		UIManager.put("FireDial.font",			Font.decode("SansSerif-9"));
 		
-		
-		UIManager.put("text",  					new Color(233,10, 10, 255));
-		UIManager.put("info",  					new Color(55, 10, 0,  255));
-		UIManager.put("control", 				new Color(10 ,20, 40, 255));
-		UIManager.put("nimbusBase", 			new Color(0 , 5,  10, 255));
-		UIManager.put("nimbusFocus", 			new Color(0 , 150,10, 255));
-		UIManager.put("nimbusOrange", 			new Color(10, 100,40, 255));
-		UIManager.put("nimbusDisabledText",		new Color(133,15 ,15, 255));
-		UIManager.put("nimbusLightBackground",	new Color(5 , 10 ,40, 255));
+		String colorName = getSettingString(PulseFireUISettingKeys.LAF_COLORS);
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		if (cl==null) {
+			cl = this.getClass().getClassLoader();
+		}
+		InputStream in = cl.getResourceAsStream("org/nongnu/pulsefire/device/ui/resources/colors/"+colorName+".properties");
+		if (in==null) {
+			return;
+		}
+		try {
+			Properties p = new Properties();
+			p.load(in);
+			
+			for (Object key:p.keySet()) {
+				String value = p.getProperty(key.toString());
+				Color colorValue = Color.decode(value);
+				UIManager.put(key,colorValue);
+			}
+		} catch (IOException e) {
+		} finally {
+			try {
+				in.close();
+			} catch (IOException e) {
+			}
+		}
 	}
 	
 	static public PulseFireUI getInstance() {
@@ -221,6 +251,26 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	public DeviceData getDeviceData() {
 		return getDeviceManager().getDeviceData();
+	}
+	
+	public Properties getSettings() {
+		return settings;
+	}
+	
+	public String getSettingString(PulseFireUISettingKeys key) {
+		return settings.getProperty(key.name(),key.getDefaultValue());
+	}
+	
+	public Boolean getSettingBoolean(PulseFireUISettingKeys key) {
+		return new Boolean(getSettingString(key));
+	}
+	
+	public void saveSettings() {
+		try {
+			getContext().getLocalStorage().save(settings,"pulsefire-settings.xml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean isWebStart() {

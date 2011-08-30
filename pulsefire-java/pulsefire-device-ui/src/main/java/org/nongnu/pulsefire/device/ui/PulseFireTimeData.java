@@ -51,7 +51,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	
 	public PulseFireTimeData() {
 		logger = Logger.getLogger(PulseFireTimeData.class.getName());
-		timeDataQueueMap = new HashMap<TimeDataKey,Queue<TimeData>>(20);
+		timeDataQueueMap = Collections.synchronizedMap(new HashMap<TimeDataKey,Queue<TimeData>>(20));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(new EventTimeTrigger("refreshTimeData",new DataCommandAutoAdd(),1000));
 	}
