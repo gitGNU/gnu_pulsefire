@@ -145,7 +145,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </dependency>
     <dependency>
     	<groupId>org.nongnu.pulsefire</groupId>
-    	<artifactId>pulsefire-rxtx-openindiana-x86_64</artifactId>
+    	<artifactId>pulsefire-rxtx-openindiana-i86pc</artifactId>
     	<version>${project.version}</version>
     </dependency>
     <dependency>

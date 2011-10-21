@@ -40,6 +40,7 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JFlashDialog;
 
 /**
  * JTabPanelSettings
@@ -126,7 +127,7 @@ public class JTabPanelSettings extends AbstractTabPanel {
 			}
 		});
 		panel.add(pullButton);
-		
+				
 		SpringLayoutGrid.makeCompactGrid(panel,7,3);
 		
 		return panel;
@@ -176,7 +177,23 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		});
 		panel.add(consoleLines);
 		
-		SpringLayoutGrid.makeCompactGrid(panel,4,2);
+		panel.add(JComponentFactory.createJLabel("Audio Scope"));
+		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.SCOPE_ENABLE));
+
+		panel.add(JComponentFactory.createJLabel("Flash Chip"));
+		JButton flashButton = new JButton("Burn");
+		flashButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFlashDialog flashDialog = new JFlashDialog(PulseFireUI.getInstance().getMainFrame());
+				flashDialog.pack();
+				flashDialog.setLocationRelativeTo(PulseFireUI.getInstance().getMainFrame());
+				flashDialog.setVisible(true);
+			}
+		});
+		panel.add(flashButton);
+		
+		SpringLayoutGrid.makeCompactGrid(panel,6,2);
 		return panel;
 	}
 	

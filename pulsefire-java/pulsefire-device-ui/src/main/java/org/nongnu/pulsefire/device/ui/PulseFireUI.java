@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
@@ -64,6 +65,8 @@ public class PulseFireUI extends SingleFrameApplication {
 	private PulseFireDataLogManager dataLogManager = null;
 	private boolean fullScreen = false;
 	private Properties settings = null;
+	private Logger logger = null;
+	private long startTimeTotal = System.currentTimeMillis();
 	
 	static public void main(String[] args) {
 		Application.launch(PulseFireUI.class, args);
@@ -89,7 +92,7 @@ public class PulseFireUI extends SingleFrameApplication {
 				return; // File is already copyed.
 			}
 
-			System.out.println("Finding native lib: "+libName);
+			logger.info("Finding native lib: "+libName);
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			if (cl==null) {
 				cl = libName.getClass().getClassLoader();
@@ -101,7 +104,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			Enumeration<URL> libs = cl.getResources(libName);
 			while (libs.hasMoreElements()) {	
 				URL jarResourceUrl = libs.nextElement();
-				System.out.println("Copy native lib from: "+jarResourceUrl+" for: "+arch);
+				logger.info("Copy native lib from: "+jarResourceUrl+" for: "+arch);
 				if (jniCopyOs && jarResourceUrl.toExternalForm().contains(arch)==false) {
 					continue;
 				}
@@ -126,6 +129,8 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	protected void initialize(String[] args) {
 		super.initialize(args);
+		long startTime = System.currentTimeMillis();
+		logger = Logger.getLogger(PulseFireUI.class.getName());
 
 		boolean jniCopy = false;
 		boolean jniCopyOs = false;
@@ -146,7 +151,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		try {
 			settings = (Properties)getContext().getLocalStorage().load("pulsefire-settings.xml");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warning("Could not load settings error: "+e.getMessage());
 		}
 		if (settings==null) {
 			settings = new Properties();
@@ -159,14 +164,18 @@ public class PulseFireUI extends SingleFrameApplication {
 		dataLogManager = new PulseFireDataLogManager();
 		dataLogManager.start();
 		installColorsLaF();
+		long stopTime = System.currentTimeMillis();
+		logger.info("PulseFireUI initialized in "+(stopTime-startTime)+" ms.");
 	}
 	
 	protected void startup() {
+		long startTime = System.currentTimeMillis();
 		addExitListener(new ExitListener() {
 			public boolean canExit(EventObject e) {
 				return true;
 			}
 			public void willExit(EventObject event) {
+				logger.info("Shutdown PulseFireUI requested.");
 				dataLogManager.stop();
 				eventTimeManager.shutdown();
 				PulseFireUI.getInstance().getDeviceManager().disconnect();
@@ -176,6 +185,7 @@ public class PulseFireUI extends SingleFrameApplication {
 						break;
 					}
 				}
+				logger.info("PulseFireUI is stopped.");
 			}
 		});
 		
@@ -195,6 +205,8 @@ public class PulseFireUI extends SingleFrameApplication {
 		
 		eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),10000));
 		//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
+		long stopTime = System.currentTimeMillis();
+		logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");
 	}
 	
 	private void installColorsLaF() {
@@ -209,18 +221,20 @@ public class PulseFireUI extends SingleFrameApplication {
 		}
 		InputStream in = cl.getResourceAsStream("org/nongnu/pulsefire/device/ui/resources/colors/"+colorName+".properties");
 		if (in==null) {
+			logger.warning("Color schema not found: "+colorName);
 			return;
 		}
 		try {
 			Properties p = new Properties();
 			p.load(in);
-			
 			for (Object key:p.keySet()) {
 				String value = p.getProperty(key.toString());
 				Color colorValue = Color.decode(value);
 				UIManager.put(key,colorValue);
 			}
+			logger.info("Color schema loaded: "+colorName);
 		} catch (IOException e) {
+			logger.warning("Could not load color schema: "+colorName+" error: "+e.getMessage());
 		} finally {
 			try {
 				in.close();
@@ -269,7 +283,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		try {
 			getContext().getLocalStorage().save(settings,"pulsefire-settings.xml");
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warning("Could not save settings error: "+e.getMessage());
 		}
 	}
 	

@@ -35,6 +35,7 @@ public enum PulseFireUISettingKeys {
 	DEVICE_PORT(""),
 	LIMIT_CHANNELS("true"),
 	CONSOLE_LINES("300"),
+	SCOPE_ENABLE("false"),
 	LOG_FILE_APPEND("false"),
 	LOG_CMD_ENABLE("false"),
 	LOG_CMD_FILE(""),

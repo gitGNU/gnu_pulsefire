@@ -47,6 +47,7 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMAL;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTC;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTT;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSTV;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelScope;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSettings;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSystem;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVFC;
@@ -77,6 +78,9 @@ public class JMainPanel extends JPanel {
 		tabPanels.add(new JTabPanelLPM());
 		tabPanels.add(new JTabPanelGraphs());
 		tabPanels.add(new JTabPanelVariables());
+		if (PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.SCOPE_ENABLE)) {
+			tabPanels.add(new JTabPanelScope());
+		}
 		tabPanels.add(new JTabPanelSettings());
 
 		JPanel main = this; //new JPanel(); //new ContentPanel(this);

@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <module>pulsefire-device</module>
     <module>pulsefire-device-ui</module>
     <module>pulsefire-rxtx</module>
+    <module>pulsefire-device-flash</module>
   </modules>
   <build>
     <pluginManagement>
