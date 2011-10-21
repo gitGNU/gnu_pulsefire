@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandRequest;
@@ -70,8 +71,8 @@ public class SerialDeviceWireThread extends Thread {
 		this.deviceManager= deviceManager;
 		this.serialPort=serialPort;
 		readBuffer = new StringBuffer();
-		reader = new InputStreamReader(serialPort.getInputStream());
-		writer = new OutputStreamWriter(serialPort.getOutputStream());
+		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII"));
+		writer = new OutputStreamWriter(serialPort.getOutputStream(),Charset.forName("US-ASCII"));
 		logger.info("Connected to port: "+serialPort.getName());
 	}
 	

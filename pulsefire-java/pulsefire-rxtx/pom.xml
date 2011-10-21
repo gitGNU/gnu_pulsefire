@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <module>pulsefire-rxtx-linux-ppc32</module>
     <module>pulsefire-rxtx-linux-ppc64</module>
     <module>pulsefire-rxtx-linux-armv71</module>
-    <module>pulsefire-rxtx-openindiana-x86_64</module>
+    <module>pulsefire-rxtx-openindiana-i86pc</module>
   </modules>
   <build>
     <pluginManagement>

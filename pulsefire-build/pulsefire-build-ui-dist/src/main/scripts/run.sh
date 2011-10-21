@@ -32,8 +32,9 @@ CP=`echo lib/*.jar | sed 's/ \+/:/g'`;
 # Special check for fruitcake products.
 case `uname -s` in 
   Darwin) JNI_LIB=`echo jni/pulsefire-rxtx-mac-10.5-*.jar`;;
-  Linux)  
+  SunOS|Linux)  
 	case `uname -m` in 
+	        i86pc)  JNI_LIB=`echo jni/pulsefire-rxtx-openindiana-i86pc-*.jar`;;
           x86_64) JNI_LIB=`echo jni/pulsefire-rxtx-linux-x86_64-*.jar`;;
           *)      JNI_LIB=`echo jni/pulsefire-rxtx-linux-x86-*.jar`;;
         esac;;
