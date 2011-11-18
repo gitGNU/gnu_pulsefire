@@ -116,7 +116,17 @@ public class JTabPanelSystem extends AbstractTabPanel {
 		ioPanel.add(JComponentFactory.createJLabel("Pin5 Mapping"));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin5_map));
 		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,7,2);
+		ioPanel.add(JComponentFactory.createJLabel("Lcd Size"));
+		ioPanel.add(new JCommandComboBox(CommandName.lcd_size));
+		
+		ioPanel.add(JComponentFactory.createJLabel("Dev volt dot"));
+		ioPanel.add(new JCommandComboBox(CommandName.dev_volt_dot));
+		ioPanel.add(JComponentFactory.createJLabel("Dev amp dot"));
+		ioPanel.add(new JCommandComboBox(CommandName.dev_amp_dot));
+		ioPanel.add(JComponentFactory.createJLabel("Dev temp dot"));
+		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
+		
+		SpringLayoutGrid.makeCompactGrid(ioPanel,11,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

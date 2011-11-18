@@ -103,10 +103,14 @@ public class SerialDeviceWireThread extends Thread {
 	 */
 	private void softReconnectDevice(boolean testSendCommand) {
 		long currTime = System.currentTimeMillis();
-		if (testSendCommand && currTime<sendCommand.getRequestTime()+(10*1000)) {
+		if (testSendCommand && currTime<sendCommand.getRequestTime()+(15*1000)) {
 			return;
 		}
-		logger.info("In system reboot detected trying soft reconnect.");
+		if (testSendCommand) {
+			logger.info("In system reboot detected trying soft reconnect. timeout of: "+sendCommand.getRequest().getLineRaw());
+		} else {
+			logger.info("In system reboot requested trying soft reconnect.");
+		}
 		//newLineEchos = 0;
 		if (sendCommand!=null) {
 			sendCommand=null;
@@ -187,15 +191,18 @@ public class SerialDeviceWireThread extends Thread {
 		}
 		
 		if (scannedInput.startsWith(PULSE_FIRE_PROMT)) {
-			if (seenPromt && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
-				softReconnectDevice(false);
-			}
+			//if (seenPromt && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
+			//	softReconnectDevice(false);
+			//}
 			seenPromt = true;
 			// todo this is hack to be able to connect while promt and device_version are on single line !!!
-			if (scannedInput.contains(CommandName.chip_version.name())==false && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
+			//if (scannedInput.contains(CommandName.chip_version.name())==false && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
+			//	return;
+			//}
+			scannedInput=scannedInput.substring(scannedInput.indexOf(':')+1,scannedInput.length()).trim();
+			if (scannedInput.contains("=")==false) {
 				return;
 			}
-			scannedInput=scannedInput.substring(scannedInput.indexOf(':')+1,scannedInput.length()).trim();
 		}
 		if (scannedInput.startsWith("#")) {
 			return;

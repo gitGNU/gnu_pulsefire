@@ -31,6 +31,7 @@ package org.nongnu.pulsefire.wire;
 public enum WireChipFlags {
 
 	AVR,
+	PWM,
 	LCD,
 	LPM,
 	PPM,

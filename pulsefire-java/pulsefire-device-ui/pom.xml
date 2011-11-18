@@ -69,5 +69,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <artifactId>pulsefire-device-flash</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.nongnu.pulsefire</groupId>
+      <artifactId>pulsefire-chip</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

@@ -30,7 +30,7 @@ package org.nongnu.pulsefire.wire;
  */
 public class CommandNameVersionFactory {
 
-	static public final int CURRENT_VERSION = 9;
+	static public final int CURRENT_VERSION = 10;
 	
 	static public void configCommandMax(int version,CommandName commandName,int value) {
 		commandName.maxValue=value;
@@ -52,12 +52,12 @@ public class CommandNameVersionFactory {
 		if (version==CURRENT_VERSION) {
 			return configCurrentVersion();
 		}
-		//if (version==8) {
-		//	return configVersion8();
-		//}
-		//if (version==7) {
-		//	return configVersion7();
-		//}
+		if (version==9) {
+			return configVersion9();
+		}
+		if (version==8) {
+			return configVersion8();
+		}
 		return false;
 	}
 	
@@ -129,6 +129,22 @@ public class CommandNameVersionFactory {
 		CommandName.stv_error_mode.magicTopListValue = true;
 		CommandName.stv_error_mode.listValues = WirePulseMode.getModeList("KEEP");
 		
+		CommandName.lcd_size.listValues = new String[] {
+				"LCD_2x16",
+				"LCD_2x20",
+				"LCD_4x20"
+			};
+
+		CommandName.dev_volt_dot.listValues = new String[] {
+				"/0",
+				"/10",
+				"/100",
+				"/1000",
+				"/10000"
+			};
+		CommandName.dev_amp_dot.listValues = CommandName.dev_volt_dot.listValues;
+		CommandName.dev_temp_dot.listValues = CommandName.dev_volt_dot.listValues;
+		
 		CommandName.avr_pin2_map.listValues = new String[] {
 				"PIN2_OFF",
 				"PIN2_TRIG_IN",
@@ -182,11 +198,34 @@ public class CommandNameVersionFactory {
 		
 		return true;
 	}
-	
-	static private boolean configVersion8() {
+
+	static private boolean configVersion9() {
 		
 		// Config like current
 		configCurrentVersion();
+		
+		for (CommandName cn:CommandName.values()) {
+			if (cn.chipFlagDependency!=null && cn.chipFlagDependency==WireChipFlags.PWM) {
+				cn.chipFlagDependency=null; // remove PWM flag dep in 0.9 and older
+			}
+		}
+		
+		CommandName.dev_volt_dot.disabled=true;
+		CommandName.dev_amp_dot.disabled=true;
+		CommandName.dev_temp_dot.disabled=true;
+		CommandName.lpm_relay_inv.disabled=true;
+		CommandName.lcd_size.disabled=true;
+		
+		CommandName.sys_time_ticks.disabled=true; // note only needed on prog config ??
+		CommandName.sys_time_ssec.disabled=true;
+		
+		return true;
+	}
+	
+	static private boolean configVersion8() {
+		
+		// Config like 9
+		configVersion9();
 
 		// Disable and Alias some commands
 		CommandName.pulse_trig.aliasName = "pulse_trigger";
@@ -234,21 +273,6 @@ public class CommandNameVersionFactory {
 		CommandName.swc_duty.aliasName="sys_warmup_delay";
 		CommandName.swc_trig.disabled=true;
 		
-		return true;
-	}
-	
-	static private boolean configVersion7() {
-		
-		// Config like 0.8
-		configVersion8();
-		
-		// todo
-		CommandName.pulse_mode.listValues = new String[] {
-				WirePulseMode.OFF.name(),
-				WirePulseMode.FLASH.name(),
-				WirePulseMode.PPM.name(),
-				WirePulseMode.PPM_ALL.name(),
-			};
 		return true;
 	}
 }

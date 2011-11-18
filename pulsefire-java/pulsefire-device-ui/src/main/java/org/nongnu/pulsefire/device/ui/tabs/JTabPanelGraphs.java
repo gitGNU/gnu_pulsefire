@@ -65,8 +65,9 @@ public class JTabPanelGraphs extends AbstractTabPanel {
 		for (CommandName name:PulseFireUI.getInstance().getTimeData().getTimeDataKeys()) {
 			graphPanel.add(new JFireGraph(name));
 		}
-		if ((gTotal & 1) > 0) {
-			graphPanel.add(new JLabel("fill"));
+		int unevenDetection = (gTotal & 1);
+		if (unevenDetection > 0) {
+			graphPanel.add(JComponentFactory.createJPanelJWrap(new JLabel("fill")));
 		}
 		SpringLayoutGrid.makeCompactGrid(graphPanel,gTotal/2,2);
 		super.deviceConnect();
@@ -76,8 +77,10 @@ public class JTabPanelGraphs extends AbstractTabPanel {
 	public void deviceDisconnect() {
 		super.deviceDisconnect();
 		for (Component c:graphPanel.getComponents()) {
-			JFireGraph g = (JFireGraph)c;
-			PulseFireUI.getInstance().getTimeData().removeTimeDataListener(g.getCommandName(), g);
+			if (c instanceof JFireGraph) {
+				JFireGraph g = (JFireGraph)c;
+				PulseFireUI.getInstance().getTimeData().removeTimeDataListener(g.getCommandName(), g);
+			}
 		}
 		graphPanel.removeAll();
 	}

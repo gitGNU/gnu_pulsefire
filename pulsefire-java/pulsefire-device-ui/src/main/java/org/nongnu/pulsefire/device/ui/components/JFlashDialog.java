@@ -42,14 +42,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -66,31 +69,40 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 
 /**
- * JFlashDialog displays all device firmwares and let use flash them.
+ * JFlashDialog displays all device firmwares and let user flash them.
  * 
  * @author Willem Cazander
  */
 public class JFlashDialog extends JDialog implements ActionListener,ListSelectionListener {
 	
 	private static final long serialVersionUID = -7552916322807635756L;
+	private Logger logger = null;
+	private volatile FlashManager flashManager = null;
 	private JComboBox mcuTypeBox = null;
 	private JComboBox mcuSpeedBox = null;
 	private JCheckBox buildLcdBox = null;
 	private JCheckBox buildLpmBox = null;
 	private JCheckBox buildPpmBox = null;
 	private JCheckBox buildAdcBox = null;
+	private JCheckBox buildLcdExtBox = null;
+	private JCheckBox buildLcd4Box = null;
 	private JComboBox portsComboBox = null;
+	private JComboBox progComboBox = null;
+	private JProgressBar flashProgressBar = null;
 	private JButton cancelButton = null;
 	private JButton flashButton = null;
 	private DeviceImagesTableModel tableModel = null;
 	private JTable table = null;
 	private JLabel burnName = null;
 	private JLabel burnProg = null;
-	private String[] columnNames = new String[] {"name","speed","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","LCD_ROW","LCD_COL"};
-	
+	private String[] columnNames = new String[] {"name","speed",
+			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
+			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL"};
+			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
 		setTitle("Flash");
+		logger = Logger.getLogger(JFlashDialog.class.getName());
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -116,6 +128,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		buildPpmBox = new JCheckBox();
 		buildPpmBox.addActionListener(this);
 		tableOption.add(buildPpmBox);	
+
+		JLabel lcdExtText = new JLabel("lcd_ext:");
+		tableOption.add(lcdExtText);
+		buildLcdExtBox = new JCheckBox();
+		buildLcdExtBox.addActionListener(this);
+		tableOption.add(buildLcdExtBox);	
 		
 		JLabel speedText = new JLabel("speed:");
 		tableOption.add(speedText);
@@ -135,7 +153,13 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		buildAdcBox.addActionListener(this);
 		tableOption.add(buildAdcBox);
 		
-		SpringLayoutGrid.makeCompactGrid(tableOption,2,6);
+		JLabel lcd4Text = new JLabel("lcd_4row:");
+		tableOption.add(lcd4Text);
+		buildLcd4Box = new JCheckBox();
+		buildLcd4Box.addActionListener(this);
+		tableOption.add(buildLcd4Box);	
+		
+		SpringLayoutGrid.makeCompactGrid(tableOption,2,8);
 		
 		JPanel optionWrapPanel = new JPanel();
 		optionWrapPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -146,7 +170,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		tableModel = new DeviceImagesTableModel();
 		table = new JTable(tableModel);
 		table.getTableHeader().setReorderingAllowed(false);
-		table.getTableHeader().setResizingAllowed(false);
+		table.getTableHeader().setResizingAllowed(true);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setFillsViewportHeight(true);
 		table.setShowHorizontalLines(true);
@@ -165,37 +189,49 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		mainPanel.add(scroll,BorderLayout.CENTER);
 		
 		JPanel burnPanel = JComponentFactory.createJFirePanel("Burn");
-		burnPanel.setLayout(new SpringLayout());
+		burnPanel.setLayout(new BorderLayout());
 		
-		burnPanel.add(new JLabel("name:"));
+		JPanel burnInfoPanel = new JPanel();
+		burnInfoPanel.setLayout(new SpringLayout());
+		burnInfoPanel.add(new JLabel("name:"));
 		burnName = new JLabel();
-		burnPanel.add(burnName);
-		burnPanel.add(new JLabel("Port"));
+		burnInfoPanel.add(burnName);
+		burnInfoPanel.add(new JLabel("prog:"));
+		burnProg = new JLabel();
+		burnInfoPanel.add(burnProg);
+		SpringLayoutGrid.makeCompactGrid(burnInfoPanel,2,2);
+		burnPanel.add(burnInfoPanel,BorderLayout.NORTH);
+		
+		JPanel burnOptionWrapPanel = new JPanel();
+		burnOptionWrapPanel.setLayout(new BoxLayout(burnOptionWrapPanel, BoxLayout.PAGE_AXIS));
+		JPanel burnOptionPanel = new JPanel();
+		burnOptionPanel.setLayout(new SpringLayout());
+		burnOptionPanel.add(new JLabel("Port"));
 		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
 		portsComboBox = new JComboBox(portModel);
 		portsComboBox.addPopupMenuListener(portModel);
-		burnPanel.add(portsComboBox);
-		
-		burnPanel.add(new JLabel("prog:"));
-		burnProg = new JLabel();
-		burnPanel.add(burnProg);
-		burnPanel.add(new JLabel());
-		burnPanel.add(new JLabel());
-		
-		burnPanel.add(new JLabel());
-		burnPanel.add(new JLabel());
-		burnPanel.add(new JLabel());
-		JPanel actionPanel = new JPanel();
-		actionPanel.setBorder(BorderFactory.createEmptyBorder());
+		burnOptionPanel.add(portsComboBox);
+		burnOptionPanel.add(new JLabel("Programer"));
+		progComboBox = new JComboBox();
+		burnOptionPanel.add(progComboBox);
+		SpringLayoutGrid.makeCompactGrid(burnOptionPanel,2,2);
+		burnOptionWrapPanel.add(burnOptionPanel);
+		JPanel burnProgressPanel = new JPanel();
+		flashProgressBar = new JProgressBar();
+		flashProgressBar.setStringPainted(true);
+		burnProgressPanel.add(flashProgressBar);
+		burnOptionWrapPanel.add(burnProgressPanel);
+		burnPanel.add(burnOptionWrapPanel,BorderLayout.CENTER);
+
+		JPanel burnActionPanel = new JPanel();
+		burnActionPanel.setBorder(BorderFactory.createEmptyBorder());
 		flashButton = new JButton("Flash");
 		flashButton.addActionListener(this);
-		actionPanel.add(flashButton);
+		burnActionPanel.add(flashButton);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
-		actionPanel.add(cancelButton);
-		burnPanel.add(actionPanel);
-		
-		SpringLayoutGrid.makeCompactGrid(burnPanel,3,4);
+		burnActionPanel.add(cancelButton);
+		burnPanel.add(burnActionPanel,BorderLayout.SOUTH);
 		
 		JPanel burnWrapPanel = new JPanel();
 		burnWrapPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -217,20 +253,53 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			return;
 		}
 		if (e.getSource()==flashButton) {
-			FlashManager fm = new FlashManager();
-			fm.setPort(portsComboBox.getSelectedItem().toString());
-			fm.setProtocol(burnProg.getText());
-			try {
-				fm.loadHex(new File("/tmp/pulsefire.hex"));
-				fm.flash();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+			flashButton.setEnabled(false);
+			flashManager = new FlashManager();
+			flashManager.setPort(portsComboBox.getSelectedItem().toString());
+			flashManager.setProtocol(burnProg.getText());
+			FlashThread t = new FlashThread();t.start();
+			ProgressThread p = new ProgressThread();p.start();
 			return;
 		}
 		tableModel.refilterData();
 	}
 
+	class FlashThread extends Thread {
+		@Override
+		public void run() {
+			try {
+				String hexResource = "firmware/"+burnName.getText()+"/pulsefire.hex";
+				logger.info("Start flash thread with hex: "+hexResource);
+				flashManager.loadHex(hexResource);
+				flashManager.flash();
+			} catch (Exception e1) {
+				flashProgressBar.setString(e1.getMessage());
+				e1.printStackTrace();
+			} finally {
+				flashManager = null;
+				logger.fine("Stopped flash thread.");
+			}
+		}
+	}
+	class ProgressThread extends Thread {
+		@Override
+		public void run() {
+			logger.fine("Start progress thread.");
+			while (flashManager!=null) {
+				int progress = flashManager.getProgress();
+				logger.finer("Flash progress: "+progress);
+				flashProgressBar.getModel().setValue(progress);
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+				}
+			}
+			flashProgressBar.getModel().setValue(0);
+			flashButton.setEnabled(true);
+			logger.fine("Stopped progress thread.");
+		}
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
@@ -257,15 +326,14 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		private List<BuildOption> dataFull = null;
 		
 		public DeviceImagesTableModel() {
+			data = new ArrayList<BuildOption>(100);
+			dataFull = new ArrayList<BuildOption>(100);
 			try {
-				data = new ArrayList<BuildOption>(100);
-				dataFull = new ArrayList<BuildOption>(100);
-				dataFull.addAll(readBuildOptions(new File("/tmp/makefile")));
-				refilterData();
+				dataFull.addAll(readBuildOptionsResource("firmware/makefile"));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warning("Could not load resource makefile.");
 			}
+			refilterData();
 		}
 		
 		public List<BuildOption> getBuildOptions() {
@@ -285,6 +353,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 					continue;
 				}
 				if (buildAdcBox.isSelected() && checkFlag(option,"ADC")==false) {
+					continue;
+				}
+				if (buildLcdExtBox.isSelected() && checkFlag(option,"EXT_LCD")==false) {
+					continue;
+				}
+				if (buildLcd4Box.isSelected() && "4".equals(getFlagOption(option,"LCD_SIZE_ROW"))==false) {
 					continue;
 				}
 				if (mcuTypeBox.getSelectedIndex()>0) {
@@ -326,20 +400,25 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			default:
 			case 0:		return option.name;
 			case 1:		return option.speed;
-			case 2:		return checkFlag(option,"LCD");
-			case 3:		return checkFlag(option,"LPM");
-			case 4:		return checkFlag(option,"PPM");
-			case 5:		return checkFlag(option,"ADC");
-			case 6:		return checkFlag(option,"DIC");
-			case 7:		return checkFlag(option,"DOC");
-			case 8:		return checkFlag(option,"DEV");
-			case 9:		return checkFlag(option,"PTC");
-			case 10:	return checkFlag(option,"PTT");
-			case 11:	return checkFlag(option,"STV");
-			case 12:	return checkFlag(option,"VFC");
-			case 13:	return checkFlag(option,"SWC");
-			case 14:	return getFlagOption(option,"LCD_SIZE_ROW");
-			case 15:	return getFlagOption(option,"LCD_SIZE_COL");
+			case 2:		return checkFlag(option,"EXT_OUT");
+			case 3:		return checkFlag(option,"EXT_OUT_16BIT");
+			case 4:		return checkFlag(option,"EXT_LCD");
+			case 5:		return checkFlag(option,"EXT_LCD_DIC");
+			case 6:		return checkFlag(option,"EXT_LCD_DOC");
+			case 7:		return checkFlag(option,"PWM");
+			case 8:		return checkFlag(option,"LCD");
+			case 9:		return checkFlag(option,"LPM");
+			case 10:	return checkFlag(option,"PPM");
+			case 11:	return checkFlag(option,"ADC");
+			case 12:	return checkFlag(option,"DIC");
+			case 13:	return checkFlag(option,"DOC");
+			case 14:	return checkFlag(option,"DEV");
+			case 15:	return checkFlag(option,"PTC");
+			case 16:	return checkFlag(option,"PTT");
+			case 17:	return checkFlag(option,"STV");
+			case 18:	return checkFlag(option,"VFC");
+			case 19:	return checkFlag(option,"SWC");
+			case 20:	return checkFlag(option,"MAL");
 			}
 		}
 		
@@ -374,11 +453,22 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		public List<String> options = new ArrayList<String>(20);
 	}
 	
-	public Collection<BuildOption> readBuildOptions(File inputFile) throws IOException {
+	public Collection<BuildOption> readBuildOptionsFile(File inputFile) throws IOException {
 		return readBuildOptions(new FileInputStream(inputFile));
 	}
 	
+	public Collection<BuildOption> readBuildOptionsResource(String inputResource) throws IOException {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		if (cl==null) {
+			cl = this.getClass().getClassLoader();
+		}
+		return readBuildOptions(cl.getResourceAsStream(inputResource));
+	}
+	
 	public Collection<BuildOption> readBuildOptions(InputStream input) throws IOException {
+		if (input==null) {
+			throw new NullPointerException("Can't read null inputstream.");
+		}
 		Map<String,BuildOption> result = new HashMap<String,BuildOption>(100);
 		LineNumberReader reader = null;
 		try {
@@ -464,6 +554,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				input.close();
 			}
 		}
+		logger.info("Loaded makefile with: "+result.size()+" builds.");
 		return result.values();
 	}
 

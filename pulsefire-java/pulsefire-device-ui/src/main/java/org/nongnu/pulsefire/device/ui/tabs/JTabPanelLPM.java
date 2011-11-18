@@ -44,6 +44,7 @@ import javax.swing.table.TableColumn;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
+import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -81,6 +82,9 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		inputPanel.add(JComponentFactory.createJLabel("Lpm Size"));
 		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_size)));
 		
+		inputPanel.add(JComponentFactory.createJLabel("Relay Invert"));
+		inputPanel.add(new JCommandCheckBox(CommandName.lpm_relay_inv));
+		
 		inputPanel.add(JComponentFactory.createJLabel("Start Lpm"));
 		inputPanel.add(new JCommandButton("Start",CommandName.req_auto_lpm));
 		
@@ -89,7 +93,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		inputPanel.add(JComponentFactory.createJLabel("Lpm progress"));
 		inputPanel.add(bar);
 		
-		SpringLayoutGrid.makeCompactGrid(inputPanel,5,2);
+		SpringLayoutGrid.makeCompactGrid(inputPanel,6,2);
 		return inputPanel;
 	}
 	

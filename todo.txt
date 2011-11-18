@@ -3,10 +3,9 @@ TODO LIST:
 - Added SF_ENABLE_EXT_MEGA to test it
 - Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
-- softstart and ppmX modes
+- invert per output
 - A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
 - Operation manual
-- (WIP) PC GUI
 - Port to arm7
 - Port to arm9 aka PandaBoard
 

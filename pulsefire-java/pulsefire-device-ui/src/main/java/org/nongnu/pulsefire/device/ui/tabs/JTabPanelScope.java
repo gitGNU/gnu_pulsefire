@@ -23,13 +23,17 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Line2D;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,17 +46,31 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
+import javax.swing.ToolTipManager;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JFireDial;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
+import org.nongnu.pulsefire.device.ui.components.JFlashDialog.BuildOption;
+import org.nongnu.pulsefire.device.ui.components.JFlashDialog.DeviceImagesTableModel;
 
 /**
  * JTabPanelScope
@@ -64,6 +82,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 	private static final long serialVersionUID = -6711428986888517858L;
 	private JScopePanel scopePanel = null;
 	private JButton startButton = null;
+	private JButton channelsButton = null;
 	private CaptureManager captureManager = null;
 	private JFireDial gainDialA = null;
 	private JFireDial gainDialB = null;
@@ -73,20 +92,36 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		captureManager = new CaptureManager();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		wrap.add(createScopeOptions());
-		wrap.add(createScope());
-		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
+		//wrap.setLayout(new SpringLayout());
+		wrap.setLayout(new BorderLayout());
+		wrap.add(createScope(),BorderLayout.CENTER);
+		wrap.add(createScopeOptions(),BorderLayout.LINE_END);
+		//SpringLayoutGrid.makeCompactGrid(wrap,1,2);
 		add(wrap);
 	}
 	
 	private JPanel createScopeOptions() {
+		JPanel optionPanel = new JPanel();
+		optionPanel.setLayout(new BoxLayout(optionPanel,BoxLayout.PAGE_AXIS));
+		
 		JPanel inputPanel = JComponentFactory.createJFirePanel("Options");
 		//inputPanel.setLayout(new SpringLayout());
 				
 		startButton = new JButton("Start");
 		startButton.addActionListener(this);
 		inputPanel.add(startButton);
+
+		channelsButton = new JButton("Channels");
+		channelsButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JAudioCardDialog audioDialog = new JAudioCardDialog(PulseFireUI.getInstance().getMainFrame());
+				audioDialog.pack();
+				audioDialog.setLocationRelativeTo(PulseFireUI.getInstance().getMainFrame());
+				audioDialog.setVisible(true);
+			}
+		});
+		inputPanel.add(channelsButton);
 		
 		gainDialA = new JFireDial("gainB",-100,100,0);
 		gainDialA.addDialListener(this);
@@ -99,9 +134,17 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		timeDial = new JFireDial("time",1,32768,32768);
 		timeDial.addDialListener(this);
 		inputPanel.add(timeDial);
+		optionPanel.add(inputPanel);
+		
+		for (int i=0;i<3;i++) {
+			JPanel channelPanel = JComponentFactory.createJFirePanel("Channel A");
+			JFireDial gainChannel = new JFireDial("gainA",-100,100,0);
+			channelPanel.add(gainChannel);
+			optionPanel.add(channelPanel);
+		}
 		
 		//SpringLayoutGrid.makeCompactGrid(inputPanel,5,2);
-		return inputPanel;
+		return optionPanel;
 	}
 	
 	private JPanel createScope() {
@@ -235,7 +278,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		private static final long serialVersionUID = -8942308841693048263L;
 
 		public JScopePanel() {
-			setPreferredSize(new Dimension(900,300));
+			setPreferredSize(new Dimension(600,300));
 		}
 		
 		public void paint(Graphics g) {
@@ -255,6 +298,8 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 			for (int i=0;i<10;i++) {
 				g2.drawLine(i*(w/10),0, i*(w/10),h);
 			}
+			g2.drawLine(0,h-1,w-1,h-1);
+			g2.drawLine(w-1,0,w-1,h-1);
 			
 			g2.setColor(Color.BLUE);
 			for (int i = 1; i < lines0.size(); i++) {
@@ -376,5 +421,117 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 	public void dialAdjusted(DialEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public class JAudioCardDialog extends JDialog implements ActionListener {
+		
+		private static final long serialVersionUID = 5741561145725436759L;
+		private JTable table = null;
+		private AudioCardTableModel tableModel = null;
+		
+		public JAudioCardDialog(Frame aFrame) {
+			super(aFrame, true);
+			setTitle("Audio");
+			
+			JPanel mainPanel = new JPanel();
+			//mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+			mainPanel.setLayout(new BorderLayout());
+			
+			tableModel = new AudioCardTableModel();
+			table = new JTable(tableModel);
+			table.getTableHeader().setReorderingAllowed(false);
+			table.getTableHeader().setResizingAllowed(true);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.setFillsViewportHeight(true);
+			table.setShowHorizontalLines(true);
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			//table.getSelectionModel().addListSelectionListener(this);
+			table.setRowMargin(2);
+			table.setRowHeight(26);
+			TableColumn nameColumn = table.getColumnModel().getColumn(0);
+			nameColumn.setPreferredWidth(150);
+			TableColumn speedColumn = table.getColumnModel().getColumn(1);
+			speedColumn.setPreferredWidth(130);
+			ToolTipManager.sharedInstance().unregisterComponent(table);
+			ToolTipManager.sharedInstance().unregisterComponent(table.getTableHeader());
+
+			JScrollPane scroll = new JScrollPane(table);
+			mainPanel.add(scroll,BorderLayout.CENTER);
+			
+			
+			getContentPane().add(mainPanel);		
+			setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+			addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent we) {
+					setVisible(false);
+				}
+			});
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		}
+		
+		class MixerInfo {
+			Mixer.Info mixerInfo = null;
+			List<Line.Info> data = new ArrayList<Line.Info>(10);
+		}
+		
+		public class AudioCardTableModel extends AbstractTableModel {
+
+			private static final long serialVersionUID = -1432038909521987705L;
+			private List<MixerInfo> data = null;
+			private String[] columnNames = new String[] {"name","description","vendor"};
+			
+			public AudioCardTableModel() {
+				data = new ArrayList<MixerInfo>(10);
+				for (Mixer.Info mixerInfo:AudioSystem.getMixerInfo()) {
+					Mixer mixer = AudioSystem.getMixer(mixerInfo);
+					try {
+						mixer.open();
+						MixerInfo mi = new MixerInfo();
+						mi.mixerInfo=mixerInfo;
+						for (Line.Info lineInfo:mixer.getSourceLineInfo()) {
+							mi.data.add(lineInfo);
+						}
+						if (mi.data.isEmpty()) {
+							continue;
+						}
+						data.add(mi);
+					} catch (LineUnavailableException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			@Override
+			public int getRowCount() {
+				return data.size();
+			}
+			
+			@Override
+			public int getColumnCount() {
+				return columnNames.length;
+			}
+			
+			public String getColumnName(int col) {
+				return columnNames[col];
+			}
+			
+			@Override
+			public Object getValueAt(int row, int col) {
+				MixerInfo mi = data.get(row);
+				switch (col) {
+				default:
+				case 0:		return mi.mixerInfo.getName();
+				case 1:		return mi.mixerInfo.getDescription();
+				case 2:		return mi.data.size();
+
+				}
+			}
+			
+
+		}
 	}
 }

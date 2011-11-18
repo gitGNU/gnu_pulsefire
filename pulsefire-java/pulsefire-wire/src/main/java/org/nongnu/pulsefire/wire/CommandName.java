@@ -53,29 +53,29 @@ public enum CommandName {
 
 	mal_program				(CommandVariableType.CMD,WireChipFlags.MAL),
 	
-	pulse_enable			(CommandVariableType.CONF),
-	pulse_mode				(CommandVariableType.CONF),
-	pulse_steps				(CommandVariableType.CONF),
-	pulse_trig				(CommandVariableType.CONF),
-	pulse_dir				(CommandVariableType.CONF),
-	pulse_bank				(CommandVariableType.CONF),
-	pulse_inv				(CommandVariableType.CONF),
-	pulse_trig_delay		(CommandVariableType.CONF),
-	pulse_post_delay		(CommandVariableType.CONF),
-	pulse_mask_a			(CommandVariableType.CONF),
-	pulse_mask_b			(CommandVariableType.CONF),
-	pulse_init_a			(CommandVariableType.CONF),
-	pulse_init_b			(CommandVariableType.CONF),
+	pulse_enable			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_mode				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_steps				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_trig				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_dir				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_bank				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_inv				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_trig_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_post_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_mask_a			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_mask_b			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_init_a			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_init_b			(CommandVariableType.CONF,WireChipFlags.PWM),
 	
-	pwm_on_cnt_a			(CommandVariableType.CONF),
-	pwm_on_cnt_b			(CommandVariableType.CONF),
-	pwm_off_cnt_a			(CommandVariableType.CONF),
-	pwm_off_cnt_b			(CommandVariableType.CONF),
-	pwm_tune_cnt			(CommandVariableType.CONF),
-	pwm_loop				(CommandVariableType.CONF),
-	pwm_loop_delta			(CommandVariableType.CONF),
-	pwm_clock				(CommandVariableType.CONF),
-	pwm_duty				(CommandVariableType.CONF),
+	pwm_on_cnt_a			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_on_cnt_b			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_off_cnt_a			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_off_cnt_b			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_tune_cnt			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_loop				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_loop_delta			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_clock				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_duty				(CommandVariableType.CONF,WireChipFlags.PWM),
 	
 	ppm_data_offset			(CommandVariableType.CONF,WireChipFlags.PPM),
 	ppm_data_len			(CommandVariableType.CONF,WireChipFlags.PPM),
@@ -85,6 +85,7 @@ public enum CommandName {
 	lpm_start				(CommandVariableType.CONF,WireChipFlags.LPM),
 	lpm_stop				(CommandVariableType.CONF,WireChipFlags.LPM),
 	lpm_size				(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_relay_inv			(CommandVariableType.CONF,WireChipFlags.LPM),
 	
 	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC),
 	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC),
@@ -97,6 +98,10 @@ public enum CommandName {
 	ptt_1map				(CommandVariableType.CONF,WireChipFlags.PTT),
 	ptt_2map				(CommandVariableType.CONF,WireChipFlags.PTT),
 	ptt_3map				(CommandVariableType.CONF,WireChipFlags.PTT),
+	
+	dev_volt_dot			(CommandVariableType.CONF,WireChipFlags.DEV),
+	dev_amp_dot				(CommandVariableType.CONF,WireChipFlags.DEV),
+	dev_temp_dot			(CommandVariableType.CONF,WireChipFlags.DEV),
 	
 	stv_warn_secs			(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_warn_mode			(CommandVariableType.CONF,WireChipFlags.STV),
@@ -116,6 +121,8 @@ public enum CommandName {
 	avr_pin3_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin4_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin5_map			(CommandVariableType.CONF,WireChipFlags.AVR),
+	
+	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	
 	swc_delay				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_mode				(CommandVariableType.CONF,WireChipFlags.SWC),
@@ -192,6 +199,9 @@ public enum CommandName {
 	
 	freq_pwm_data			(CommandVariableType.FREQ),
 
+	sys_time_ticks			(CommandVariableType.PROG), /// new v1.0
+	sys_time_ssec			(CommandVariableType.PROG),
+	
 	lcd_menu_state			(CommandVariableType.PROG),
 	lcd_menu_mul			(CommandVariableType.PROG),
 	lcd_menu_idx			(CommandVariableType.PROG),
@@ -209,7 +219,7 @@ public enum CommandName {
 	
 	
 	private CommandVariableType type = null;
-	private WireChipFlags chipFlagDependency = null;
+	protected WireChipFlags chipFlagDependency = null;
 	protected int maxValue = 65535;
 	protected int maxIndexA = -1;
 	protected int maxIndexB = -1;

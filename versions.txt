@@ -1,6 +1,17 @@
 
 === PulseFire versions ===
 
+Version 1.0:
+- Converted project code to real C project.
+- Removed arduino C libary dependeny.
+- Added SF_ENABLE_PWM flag to fully remove software pwm code.
+- Implemented Arduino flash protocol in java and added firmware flash dialog.
+- Moved compile option to config: lpm_relay_inv to inverse relay output signal.
+- Moved compile option to config: lcd_size; 0=2x16,1=2x20,2=4x20
+- Added dev_*_dot conf value for display and calc of volt/amp/temp.
+- Created makefile with ~40 target firmware builds for in system flashing.
+
+
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.
 - Fixed last step offset of pwm_* values of last step in train/ppmi mode.

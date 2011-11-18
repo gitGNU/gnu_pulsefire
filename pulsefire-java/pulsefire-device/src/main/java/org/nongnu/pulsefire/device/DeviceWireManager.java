@@ -38,7 +38,7 @@ public interface DeviceWireManager {
 
 	// main 
 	public List<String> getDevicePorts();
-	public boolean connect(String port);
+	public boolean connect(String port) throws Exception;
 	public void disconnect();
 	public DeviceData getDeviceData();
 	

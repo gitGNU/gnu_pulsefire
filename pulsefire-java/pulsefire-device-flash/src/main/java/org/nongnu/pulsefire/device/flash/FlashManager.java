@@ -44,6 +44,7 @@ import org.nongnu.pulsefire.device.flash.avr.Stk500v2Controller;
 public class FlashManager extends AbstractFlashProgramController {
 
 	private String protocol = null;
+	private FlashProgramController backendController = null;
 
 	static public void main(String argu[]) {
 		try {
@@ -59,8 +60,7 @@ public class FlashManager extends AbstractFlashProgramController {
 					fm.setPortParameter(arg.substring(4));
 				}
 				if (arg.startsWith("-f=")) {
-					File hexFile = new File(arg.substring(3));
-					fm.loadHex(hexFile);
+					fm.loadHex(new File(arg.substring(3)));
 				}
 			}
 			fm.flash();
@@ -74,8 +74,12 @@ public class FlashManager extends AbstractFlashProgramController {
 		setFlashData(readHexData(new FileInputStream(hexFile)));	
 	}
 	
-	public void loadHex(String hexResource) {
-		
+	public void loadHex(String hexResource) throws IOException {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		if (cl==null) {
+			cl = this.getClass().getClassLoader();
+		}
+		setFlashData(readHexData(cl.getResourceAsStream(hexResource)));
 	}
 	
 	public void flash() throws IOException {
@@ -88,22 +92,32 @@ public class FlashManager extends AbstractFlashProgramController {
 		if (getFlashData()==null) {
 			throw new IllegalStateException("Can flash without flashdata.");
 		}
-		FlashProgramController prog = null;
 		if ("stk500".equals(getProtocol())) {
-			prog = new Stk500Controller();
+			backendController = new Stk500Controller();
 		} else if ("arduino".equals(getProtocol())) {
-			prog = new Stk500Controller();
+			backendController = new Stk500Controller();
 		} else if ("stk500v2".equals(getProtocol())) {
-			prog = new Stk500v2Controller();
+			backendController = new Stk500v2Controller();
 		} else {
 			throw new IllegalStateException("Unknow protocol: "+getProtocol());
 		}
-		prog.setPort(getPort());
-		prog.setPortParameter(getPortParameter());
-		prog.setFlashData(getFlashData());
-		prog.flash();
+		backendController.setPort(getPort());
+		backendController.setPortParameter(getPortParameter());
+		backendController.setFlashData(getFlashData());
+		backendController.flash();
 	}
 	
+	/**
+	 * @see org.nongnu.pulsefire.device.flash.AbstractFlashProgramController#getProgress()
+	 */
+	@Override
+	public int getProgress() {
+		if (backendController==null) {
+			return 0;
+		}
+		return backendController.getProgress();
+	}
+
 	/**
 	 * @return the protocol
 	 */

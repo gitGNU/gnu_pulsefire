@@ -24,8 +24,12 @@
 package org.nongnu.pulsefire.wire.serial;
 
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
+import gnu.io.UnsupportedCommOperationException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -70,7 +74,7 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 	}
 
 	@Override
-	public boolean connect(String port) {
+	public boolean connect(String port) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, InterruptedException {
 
 		if (isConnected()) {
 			disconnect();
@@ -84,6 +88,7 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			logger.finer("Port: "+o.getName());
 		}
 		
+		boolean done = false;
 		try {
 			// Get the commport and config it.
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
@@ -128,12 +133,14 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			}
 			
 			// Let do rest of connect by abstract parent
-			return doSafeConnect(infoChip);
-			
-		} catch (Exception ee) {
-			ee.printStackTrace(); // todo rm
+			boolean result = doSafeConnect(infoChip);
+			done = true;
+			return result;
+		} finally {
+			if (done==false) {
+				disconnect();
+			}
 		}
-		return false;
 	}
 
 	@Override

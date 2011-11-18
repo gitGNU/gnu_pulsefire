@@ -38,6 +38,9 @@ pom.xml.backup
 pom.xml.branch
 pom.xml.tag
 
+# Ignore manual makefile builds
+/pulsefire-chip/src/main/c/build
+
 # Ignore C/java/images binary files
 *.o
 *.hex

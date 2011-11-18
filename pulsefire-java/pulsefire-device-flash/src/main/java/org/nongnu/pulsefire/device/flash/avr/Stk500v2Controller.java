@@ -137,12 +137,15 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		if (output==null) {
 			return;
 		}
+		progress = 1;
 		rebootDevice();
+		progress = 2;
 
 		// Sync serial with device
 		for (int i = 0; i < 5; i++) {
 			doFlashCommand(Stk500v2Command.CMD_SIGN_ON);
 		}
+		progress = 3;
 		
 		// Check if we are connected
 		/*
@@ -167,7 +170,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		
 		FlashMessage version = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_HW_VER.getToken());
 		
-		
+		progress = 9;
 		FlashMessage enterIsp = new FlashMessage();
 		prepareMessagePrefix(enterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
 		enterIsp.getRequest().add(0xC8); // timeout in ms
@@ -184,11 +187,13 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		prepareMessagePostfix(enterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
 		enterIsp = sendFlashMessage(enterIsp);
 		
+		progress = 10;
 		byte[] dataBytes = getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
 		
 		for (int i=0;i<=pages;i++) {
+			progress = new Float((90.0f/pages)*i).intValue()+10;
 			int address = (i*pageSize)/2; 
 			logger.info("Set address to: "+Integer.toHexString(address));
 			doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,address,address>>8);
@@ -219,5 +224,6 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 			// check
 		}
 		disconnectPort();
+		progress = 100;
 	}
 }

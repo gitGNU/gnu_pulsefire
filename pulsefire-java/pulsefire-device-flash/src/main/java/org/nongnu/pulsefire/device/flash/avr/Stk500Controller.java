@@ -110,12 +110,15 @@ public class Stk500Controller extends AbstractStk500Controller {
 		if (output==null) {
 			return;
 		}
+		progress = 1;
 		rebootDevice();
+		progress = 2;
 
 		// Sync serial with device
 		for (int i = 0; i < 5; i++) {
 			doFlashCommand(Stk500Command.STK_GET_SYNC);
 		}
+		progress = 3;
 		
 		// Check if we are connected
 		FlashMessage msg = doFlashCommand(Stk500Command.STK_GET_SYNC);
@@ -133,7 +136,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 			logger.info("not connected; got: "+msg.getResponse().get(1));
 			return;
 		}
-		
+		progress = 6;
 		
 		FlashMessage version = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
 
@@ -158,11 +161,14 @@ public class Stk500Controller extends AbstractStk500Controller {
 		logger.info("got2C: "+response+" hex: "+Integer.toHexString(response));
 		*/
 		
+		
+		progress = 10;
 		byte[] dataBytes = getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
 		
 		for (int i=0;i<=pages;i++) {
+			progress = new Float((90.0f/pages)*i).intValue()+10;
 			int address = (i*pageSize)/2; 
 			logger.info("Set address to: "+Integer.toHexString(address));
 			doFlashCommand(Stk500Command.STK_LOAD_ADDRESS,address,address>>8);
@@ -187,6 +193,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 			// check
 		}
 		disconnectPort();
+		progress = 100;
 	}
 	
 	/*
