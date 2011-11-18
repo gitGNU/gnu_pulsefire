@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>pulsefire-root</artifactId>
+    <groupId>org.nongnu.pulsefire</groupId>
+    <version>0.9.2-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>pulsefire-chip</artifactId>
+  <name>pulsefire-chip</name>
+  <description>pulsefire-chip build and packages all the firmwares.</description>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+          <configuration>
+            <siteDirectory>${project.basedir}/../src/site</siteDirectory>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>build-native</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <mkdir dir="target/classes/firmware"/>
+                <copy file="src/main/c/makefile" todir="target/classes/firmware"/>
+                <mkdir dir="target/firmware-build"/>
+                <exec dir="src/main/c" executable="make" failonerror="true">
+                  <arg value="clean"/>
+                  <arg value="TPATH=../../../target/firmware-build"/>
+                </exec>
+                <exec dir="src/main/c" executable="make" failonerror="true">
+                  <arg value="all"/>
+                  <arg value="TPATH=../../../target/firmware-build"/>
+                </exec>
+                <copy todir="target/classes/firmware">
+                  <fileset dir="target/firmware-build">
+                    <include name="**/*.hex"/><!-- We want only hex files in artifact, note switch to jar packing filtering is better for cmd builds -->
+                  </fileset>
+                </copy>
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
