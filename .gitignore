@@ -45,7 +45,6 @@ pom.xml.tag
 *.o
 *.hex
 *.dat
-*.jar
 *.bmp
 *.gif
 *.pdf
