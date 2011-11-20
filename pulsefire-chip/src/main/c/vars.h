@@ -32,26 +32,8 @@
 #include "strings.h"
 #include "utils.h"
 #include "freq.h"
+#include "chip.h"
 #include "mal.h"
-
-#if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
-  #include <avr/eeprom.h>
-  #include <avr/pgmspace.h>
-  #define CHIP_PROGMEM        PROGMEM
-  #define CHIP_PROGMEM_ARRAY    PGM_P
-#elif __AVR_ATmega328P__
-  #include <avr/eeprom.h>
-  #include <avr/pgmspace.h>
-  #define CHIP_PROGMEM        PROGMEM
-  #define CHIP_PROGMEM_ARRAY    PGM_P
-#elif __AVR_ATmega168P__
-  #include <avr/eeprom.h>
-  #include <avr/pgmspace.h>
-  #define CHIP_PROGMEM        PROGMEM    // avr gcc flag to define data in progmem
-  #define CHIP_PROGMEM_ARRAY    PGM_P    // flag to define data in progmem array
-#else
-# error "Don't know how to run on your MCU_TYPE."
-#endif
 
 // Defines Types
 typedef uint8_t boolean;
@@ -104,10 +86,12 @@ typedef struct {
   volatile uint16_t      dic_map[DIC_NUM_MAX][QMAP_SIZE];  // Map digital input channel to variable
   #endif
   
+  #ifdef SF_ENABLE_AVR
   volatile uint8_t       avr_pin2_map;           // Mapping for pin2
   volatile uint8_t       avr_pin3_map;           // Mapping for pin3
   volatile uint8_t       avr_pin4_map;           // Mapping for pin4
   volatile uint8_t       avr_pin5_map;           // Mapping for pin5
+  #endif
   
   #ifdef SF_ENABLE_LCD
   volatile uint8_t       lcd_size;       // Lcd size type
@@ -199,6 +183,24 @@ typedef struct {
   #ifdef SF_ENABLE_MAL
   volatile uint8_t       mal_program[MAL_PROGRAM_SIZE][MAL_PROGRAM_MAX];    // Progam space for really tiny basic code
   #endif
+
+  #ifdef SF_ENABLE_CIT_MEGA
+  volatile uint8_t       cit_oc1_clock;
+  volatile uint16_t      cit_oc1_a;
+  volatile uint16_t      cit_oc1_b;
+  volatile uint16_t      cit_oc1_c;
+
+  volatile uint8_t       cit_oc3_clock;
+  volatile uint16_t      cit_oc3_a;
+  volatile uint16_t      cit_oc3_b;
+  volatile uint16_t      cit_oc3_c;
+
+  volatile uint8_t       cit_oc4_clock;
+  volatile uint16_t      cit_oc4_a;
+  volatile uint16_t      cit_oc4_b;
+  volatile uint16_t      cit_oc4_c;
+  #endif
+
 } pf_conf_struct;
 
 // PulseFire internal data
@@ -293,11 +295,12 @@ typedef struct {
 
 // PulseFire program data (which does not get reset)
 typedef struct {
-  char unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
 
-  volatile char cmd_buff[CMD_BUFF_SIZE];
-  volatile uint8_t cmd_buff_idx;
-  volatile uint8_t cmd_process;
+  // == 4 Special variables because these 4 are not in the VARS list !!! ==
+  char unpstr_buff[UNPSTR_BUFF_SIZE];    // buffer to copy progmem data into
+  volatile char cmd_buff[CMD_BUFF_SIZE]; // Command buffer for serial cmds
+  volatile uint8_t cmd_buff_idx;         // Command index
+  volatile uint8_t cmd_process;          // Processing command
 
   volatile uint32_t      sys_time_ticks;
   volatile uint32_t      sys_time_ssec;
@@ -329,7 +332,7 @@ typedef struct {
   volatile uint8_t       stv_map_idx;
   #endif
   
-} pf_prog_struct;  
+} pf_prog_struct;
 
 // variables
 extern pf_data_struct       pf_data;
@@ -338,7 +341,7 @@ extern pf_conf_struct       pf_conf;
 
 // Dynamicly calculate PF_VARS size bases on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     11
+#define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
   #define PF_VARS_PWM_SIZE  32
 #else
@@ -414,7 +417,16 @@ extern pf_conf_struct       pf_conf;
 #else
   #define PF_VARS_SWC_SIZE  0
 #endif
-
+#ifdef SF_ENABLE_AVR
+  #define PF_VARS_AVR_SIZE  4
+#else
+  #define PF_VARS_AVR_SIZE  0
+#endif
+#ifdef SF_ENABLE_AVR_MEGA
+  #define PF_VARS_AVR_MEGA_SIZE  0
+#else
+  #define PF_VARS_AVR_MEGA_SIZE  0
+#endif
 
 
 // functions

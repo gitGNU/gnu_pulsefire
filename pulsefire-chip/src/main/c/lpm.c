@@ -28,22 +28,11 @@
 // Check for lpm messurements
 #ifdef SF_ENABLE_LPM
 void LPM_loopRelayOutput(boolean relay_open) {
-  int pinLevel = ONE;
+	uint8_t pinLevel = ONE;
   if (relay_open==pf_conf.lpm_relay_inv) {
     pinLevel = ZERO;
   }
-  if (pf_conf.avr_pin2_map == PIN2_RELAY_OUT) {
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN2_PIN,pinLevel);
-  }
-  if (pf_conf.avr_pin3_map == PIN3_RELAY_OUT) {
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN3_PIN,pinLevel);
-  }
-  if (pf_conf.avr_pin4_map == PIN4_RELAY_OUT) {
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN4_PIN,pinLevel);
-  }
-  if (pf_conf.avr_pin5_map == PIN5_RELAY_OUT) {
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN4_PIN,pinLevel);
-  }
+  Chip_io_lpm(pinLevel);
 }
 
 void LPM_loop(void) {

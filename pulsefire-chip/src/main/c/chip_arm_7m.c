@@ -20,26 +20,53 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
- // Include singleton
-#ifndef _SERIAL_H
-#define _SERIAL_H
 
-#include "vars.h"
-#include "utils.h"
-#include "freq.h"
-#include "chip.h"
 
-void Serial_printChar(char* argu);
-void Serial_printCharP(const char* argu);
-void Serial_printHex(int argu);
-void Serial_printDec(int argu);
-void Serial_println(void);
-void Serial_write(uint8_t c);
+void Chip_loop(void) {
+}
 
-void Serial_loop(void);
-void Serial_setup(void);
-void Serial_rx_int(uint8_t c);
+void Chip_reset(void) {
+}
 
-// end include
-#endif
+void Chip_setup(void) {
+}
+
+uint32_t millis(void) {
+	return ZERO;
+}
+
+void Chip_delay(uint16_t delay) {
+}
+
+void Chip_delayU(uint16_t delay) {
+}
+
+uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
+	return ZERO;
+}
+
+void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
+}
+
+uint16_t analogRead(uint8_t channel) {
+	return ZERO;
+}
+
+void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte) {
+}
+
+uint8_t Chip_pgm_read(const char* p) {
+	return ZERO;
+}
+
+void Chip_io_pwm(uint16_t data) {
+}
+
+void Chip_io_serial(uint8_t data) {
+}
+
+void Chip_io_lpm(uint8_t data) {
+}
+
+void Chip_io_int_pin(uint8_t pin,uint8_t enable) {
+}

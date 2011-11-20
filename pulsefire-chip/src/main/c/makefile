@@ -21,8 +21,7 @@ CFLAGS += -I./..
 CFLAGS += -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -Os
-CFLAGS += -mcall-prologues
-#CFLAGS += -mshort-calls
+#CFLAGS += -mcall-prologues // AVR cc flag
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
 CFLAGS += -fpack-struct
@@ -33,11 +32,9 @@ CFLAGS += -fno-split-wide-types
 CFLAGS += -fno-tree-scev-cprop
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
-#CFLAGS += -Wundef
 CFLAGS += -Wfloat-equal
-#CFLAGS += -Wconversion 
 CFLAGS += -ffunction-sections
-#CFLAGS += -Wunreachable-code
+CFLAGS += -Wunreachable-code
 CFLAGS += -Wsign-compare
 
 # Minimalistic printf version
@@ -99,26 +96,8 @@ REMOVEDIR = rm -rf
 COPY = cp
 WINSHELL = cmd
 
-
-# Define Messages
-# English
-MSG_ERRORS_NONE = Errors: none
-MSG_BEGIN = -------- begin --------
-MSG_END = -------- end --------
-MSG_SIZE_BEFORE = Size before: 
-MSG_SIZE_AFTER = Size after:
-MSG_COFF = Converting to AVR COFF:
-MSG_EXTENDED_COFF = Converting to AVR Extended COFF:
-MSG_FLASH = Creating load file for Flash:
-MSG_EEPROM = Creating load file for EEPROM:
-MSG_EXTENDED_LISTING = Creating Extended Listing:
-MSG_SYMBOL_TABLE = Creating Symbol Table:
-MSG_LINKING = Linking:
-MSG_COMPILING = Compiling C:
-MSG_COMPILING_CPP = Compiling C++:
-MSG_ASSEMBLING = Assembling:
-MSG_CLEANING = Cleaning project:
-MSG_CREATING_LIBRARY = Creating library:
+ARM_CC = ~/sat/bin/arm-none-eabi-gcc
+ARM_OBJCOPY = ~/sat/bin/arm-none-eabi-objcopy
 
 # Define all src files.
 SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./output.c ./ptc.c ./serial.c ./utils.c 
@@ -154,8 +133,8 @@ atmega328p-805 \
 atmega328p-806 \
 atmega328p-807 \
 atmega328p-808 \
-atmega168p-801 
-
+atmega168p-801 \
+atmega1280-1601
 
 #
 #====================================
@@ -1165,41 +1144,63 @@ atmega168p-801-isp: ISP_MCU = m168p
 atmega168p-801-isp: ISP_PROG = arduino
 atmega168p-801-isp: avr-flash
 
+atmega1280-1601: MCU = atmega1280
+atmega1280-1601: F_CPU = 16000000
+atmega1280-1601: CFLAGS += -mmcu=$(MCU)
+atmega1280-1601: PFLAGS += -DSF_ENABLE_LCD
+atmega1280-1601: PFLAGS += -DSF_ENABLE_LPM
+atmega1280-1601: PFLAGS += -DSF_ENABLE_PPM
+atmega1280-1601: PFLAGS += -DSF_ENABLE_PWM
+atmega1280-1601: PFLAGS += -DSF_ENABLE_ADC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_DIC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_DOC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_DEV
+atmega1280-1601: PFLAGS += -DSF_ENABLE_PTC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_PTT
+atmega1280-1601: PFLAGS += -DSF_ENABLE_STV
+atmega1280-1601: PFLAGS += -DSF_ENABLE_VFC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_SWC
+atmega1280-1601: PFLAGS += -DSF_ENABLE_MAL
+atmega1280-1601: TARGET = atmega1280-1601
+atmega1280-1601: $(TPATH)/atmega1280-1601/pulsefire.hex
+$(TPATH)/atmega1280-1601/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-# Create final output files (.hex, .eep) from ELF output file.
-#%.hex: %.elf
-#	@echo
-#	@echo $(MSG_FLASH) $@
-#	$(OBJCOPY) -O ihex -R .eeprom $< $@
-#%.eep: %.elf
-#	@echo
-#	@echo $(MSG_EEPROM) $@
-#	$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-#		--change-section-lma .eeprom=0 -O $(FORMAT) $< $@
+atmega1280-1601-isp: atmega1280-1601
+atmega1280-1601-isp: TARGET = atmega1280-1601
+atmega1280-1601-isp: ISP_MCU = m1280
+atmega1280-1601-isp: ISP_PROG = arduino
+atmega1280-1601-isp: avr-flash
 
-# Create extended listing file from ELF output file.
-#%.lst: %.elf
-#	@echo
-#	@echo $(MSG_EXTENDED_LISTING) $@
-#	$(OBJDUMP) -h -S $< > $@
 
-# Create a symbol table from ELF output file.
-#%.sym: %.elf
-#	@echo
-#	@echo $(MSG_SYMBOL_TABLE) $@
-#	$(NM) -n $< > $@
 
-# Link: create ELF output file from object files. was 
-#%.elf: $(OBJ)
-#	@echo
-#	@echo $(MSG_LINKING) $@
-#	$(CC) -lm -lc $(CFLAGS) $^ --output $@ $(LDFLAGS)
+arm-lpc1343-7201: MCU = cortex-m3
+arm-lpc1343-7201: F_CPU = 72000000
+arm-lpc1343-7201: CFLAGS += -mcpu=$(MCU) -mthumb
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_LCD
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_LPM
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PPM
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PWM
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_ADC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DIC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DOC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DEV
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTT
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_STV
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_VFC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_SWC
+arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_MAL
+arm-lpc1343-7201: TARGET = arm-lpc1343-7201
+arm-lpc1343-7201: $(TPATH)/arm-lpc1343-7201/pulsefire.hex
+$(TPATH)/arm-lpc1343-7201/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(ARM_CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(ARM_OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-# Compile c code
-#$(FULLOBJECTS): $(OBJDIR)/%.o : %.c
-#	@echo
-#	@echo $(MSG_COMPILING) $<
-#	$(CC) -c $(CFLAGS) $(PFLAGS) $< -o $@
+
 
 
 clean:

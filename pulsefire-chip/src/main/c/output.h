@@ -25,13 +25,14 @@
 #ifndef _OUTPUT_H
 #define _OUTPUT_H
 
-#include <avr/interrupt.h>
 #include "vars.h"
 #include "chip.h"
 #include "utils.h"
 
 #ifdef SF_ENABLE_PWM
 void int_send_output(uint16_t data);
+void int_do_work_a(void);
+void int_do_work_b(void);
 #endif
 
 // end include

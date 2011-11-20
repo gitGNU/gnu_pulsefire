@@ -48,6 +48,7 @@ void Input_loopDic(void) {
   }
   pf_data.dic_time_cnt = current_time + DIC_INPUT_TIME;
   
+  #ifdef SF_ENABLE_AVR
   // Special readout of pin2 into dic2 for 1or3 digital inputs without extension
   if (pf_conf.avr_pin2_map == PIN2_DIC2_IN) {
     check_avr_pin(2,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN2_PIN));
@@ -73,6 +74,7 @@ void Input_loopDic(void) {
   if (pf_conf.avr_pin5_map == PIN5_DIC11_IN) {
     check_avr_pin(11,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN5_PIN));
   }
+  #endif
   
   #ifdef SF_ENABLE_EXT_LCD  
   uint8_t i=ZERO;
@@ -84,6 +86,7 @@ void Input_loopDic(void) {
         break; // check only 2 inputs
       }
     #endif
+    #ifdef SF_ENABLE_AVR
     if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
     if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
     if (i==4  && pf_conf.avr_pin4_map == PIN4_DIC4_IN)  { continue; }
@@ -92,6 +95,7 @@ void Input_loopDic(void) {
     if (i==9  && pf_conf.avr_pin3_map == PIN3_DIC9_IN)  { continue; }
     if (i==10 && pf_conf.avr_pin4_map == PIN4_DIC10_IN) { continue; }
     if (i==11 && pf_conf.avr_pin5_map == PIN5_DIC11_IN) { continue; }
+    #endif
     
     uint8_t result = ZERO;
     if ((i & ONE) == ZERO) {
@@ -236,9 +240,11 @@ void Input_loopLcd() {
   }
   pf_data.sys_input_time_cnt = current_time + SYS_INPUT_TIME;
   
+  #ifdef SF_ENABLE_AVR
   if (pf_conf.avr_pin3_map != PIN3_MENU0_IN && pf_conf.avr_pin4_map != PIN4_MENU1_IN) {
     return;// todo use dic for menu pins.
   }
+  #endif
 
   int input0 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN);
   int input1 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN);

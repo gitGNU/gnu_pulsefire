@@ -26,6 +26,7 @@
 #define _UTILS_H
 
 #include "vars.h"
+#include "chip.h"
 
 char* UNPSTR(const char* dstring);
 char* UNPSTRA(const uint16_t* argu);
@@ -37,6 +38,7 @@ uint16_t reverse_bits(uint16_t num,uint16_t num_bits);
 long mapValue(long x, long in_min, long in_max, long out_min, long out_max);
 char* strtok(char *s, const char *delim);
 int strcmp(char *s1,char *s2);
+
 
 // end include
 #endif

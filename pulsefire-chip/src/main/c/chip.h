@@ -25,12 +25,28 @@
 #ifndef _CHIP_H
 #define _CHIP_H
 
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
+#include "vars_define.h"
+#if defined(SF_ENABLE_AVR) || defined(SF_ENABLE_AVR_MEGA)
+  #include <avr/io.h>
+  #include <avr/wdt.h>
+  #include <util/delay.h>
+  #include <avr/eeprom.h>
+  #include <avr/pgmspace.h>
+  #include <avr/interrupt.h>
+  #define CHIP_PROGMEM        PROGMEM    // avr gcc flag to define data in progmem
+  #define CHIP_PROGMEM_ARRAY    PGM_P    // flag to define data in progmem array
+#elif defined(SF_ENABLE_ARM_7M)
+  #include <stdint.h>
+  #define CHIP_PROGMEM                       // empty for arm
+  #define CHIP_PROGMEM_ARRAY  const char*    // flag to define data in progmem array
+#else
+# error "Don't know how to run on your MCU_TYPE."
+#endif
+
 #include "vars.h"
 #include "output.h"
 #include "serial.h"
+
 
 // ATMEL ATMEGA8 & 168 / ARDUINO
 //
@@ -100,6 +116,56 @@
 #define IO_EXT_ADC4_PIN             4
 #define IO_EXT_ADC5_PIN             5
 
+
+// PIN MAPPING FOR MEGA CONNECTION MODE
+#define IO_MEGA_SERIAL_PORT      &PORTE
+#define IO_MEGA_RX_PIN               0    // Rx/Tx for serial is wired internally to USB
+#define IO_MEGA_TX_PIN               1
+
+#define IO_MEGA_PIN_TRIG_PORT    &PORTJ
+#define IO_MEGA_PIN15_PIN            0    // PCINT9  (def) Trigger
+#define IO_MEGA_PIN14_PIN            1    // PCINT10 (def) menu or trigger or startlpm
+#define IO_MEGA_PIN_CLK_PORT     &PORTL
+#define IO_MEGA_PIN49_PIN            0    // (def) enter menu
+#define IO_MEGA_PIN48_PIN            1    // (def) enter menu
+#define IO_MEGA_PIN47_PIN            2    // T5 (def) External clock source for pwm
+
+#define IO_MEGA_DIC_PORT         &PORTL
+#define IO_MEGA_DIC_PORT_IN       &PINL
+#define IO_MEGA_DIC_0_PIN            0
+#define IO_MEGA_DIC_1_PIN            1
+#define IO_MEGA_DIC_2_PIN            2
+#define IO_MEGA_DIC_3_PIN            3
+
+#define IO_MEGA_LCD_DATA_PORT    &PORTC
+#define IO_MEGA_LCD_CNTR_PORT    &PORTC
+#define IO_MEGA_LCD_RS_PIN           6
+#define IO_MEGA_LCD_E_PIN            7
+
+#define IO_MEGA_DOC_PORT         &PORTB
+#define IO_MEGA_DOC_0_PIN            0
+#define IO_MEGA_DOC_1_PIN            1
+#define IO_MEGA_DOC_2_PIN            2
+#define IO_MEGA_DOC_3_PIN            3
+
+#define IO_MEGA_OUT_PORT         &PORTA
+#define IO_MEGA_OUT_0_PIN            0
+#define IO_MEGA_OUT_1_PIN            1
+#define IO_MEGA_OUT_2_PIN            2
+#define IO_MEGA_OUT_3_PIN            3
+#define IO_MEGA_OUT_4_PIN            4
+#define IO_MEGA_OUT_5_PIN            5
+#define IO_MEGA_EXT_OUT_DATA_PIN     0  //   output 0-7 and 8-15 via 2 chip casade
+#define IO_MEGA_EXT_OUT_CLK_PIN      1  //
+#define IO_MEGA_EXT_OUT_E_PIN        2  //
+#define IO_MEGA_EXT_S2P_DATA_PIN     5  // lcd D0-D3,RS,E,mux0/1=Select digital input via dual 4to1 multiplexer
+#define IO_MEGA_EXT_S2P_CLK_PIN      6  //
+#define IO_MEGA_EXT_S2P_E_PIN        7  //
+
+#define IO_MEGA_ADCL_PORT        &PORTF
+#define IO_MEGA_ADCH_PORT        &PORTK
+
+
 void Chip_setup(void);
 void Chip_loop(void);
 void Chip_reset(void);
@@ -110,6 +176,12 @@ uint8_t digitalRead(volatile uint8_t *port,uint8_t pin);
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value);
 uint16_t analogRead(uint8_t channel);
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte);
+
+uint8_t Chip_pgm_read(const char* p);
+void Chip_io_pwm(uint16_t data);
+void Chip_io_serial(uint8_t data);
+void Chip_io_lpm(uint8_t data);
+void Chip_io_int_pin(uint8_t pin,uint8_t enable);
 
 // end include
 #endif

@@ -73,24 +73,7 @@ void int_send_output(uint16_t data) {
     data = ~data; 
   }
   
-  // Send data to output depending on connection mode; max outs 16,8,3,6 
-  #if defined(SF_ENABLE_EXT_OUT_16BIT)
-    digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,LOW);
-        shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)(data >> 8)); // high byte
-        shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)data);        // low byte, is last to that fist chip is zero !
-    digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,HIGH);
-  #elif defined(SF_ENABLE_EXT_OUT)
-    digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,LOW);
-        shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)data);
-    digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,HIGH);
-  #elif defined(SF_ENABLE_EXT_LCD)
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_0_PIN,(data & 1) >> 0); // only set 3 bits on output, other 3 are for lcd
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_1_PIN,(data & 2) >> 1);
-    digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_2_PIN,(data & 4) >> 2);
-  #else
-    volatile uint8_t *port = IO_DEF_OUT_PORT;
-    *port = data;
-  #endif
+  Chip_io_pwm(data);
 }
 
 #ifdef SF_ENABLE_SWC
@@ -218,7 +201,8 @@ boolean int_pulse_mode_ppma(void) {
 #endif
 
 // Do all work per timer step cnt
-void int_do_work(void) {
+// Timer interrupt for step on time
+void int_do_work_a(void) {
   if (pf_data.pwm_state == PWM_STATE_STEP_DUTY) {
     return; // waiting for step duty
   }
@@ -369,32 +353,22 @@ void int_do_work(void) {
   }
 }
 
-#endif
-
 // Timer interrupt for step off time
-ISR(TIMER1_COMPB_vect) {
-#ifdef SF_ENABLE_PWM
-  if (pf_data.pwm_state != PWM_STATE_STEP_DUTY) {
-    return;
-  }
-  // time step with counter
-  pf_data.pwm_loop_cnt++;
-  if (pf_data.pwm_loop_cnt < pf_data.pwm_loop_max) {
-    return;
-  }
-  
-  pf_data.pwm_state = PWM_STATE_STEP_DUTY_DONE;
-  pf_data.pwm_loop_cnt = pf_data.pwm_loop_max; // skip normal wait, so we can go to next step
-  int_do_work();
-#endif
+void int_do_work_b(void) {
+	if (pf_data.pwm_state != PWM_STATE_STEP_DUTY) {
+		return;
+	}
+	// time step with counter
+	pf_data.pwm_loop_cnt++;
+	if (pf_data.pwm_loop_cnt < pf_data.pwm_loop_max) {
+		return;
+	}
+
+	pf_data.pwm_state = PWM_STATE_STEP_DUTY_DONE;
+	pf_data.pwm_loop_cnt = pf_data.pwm_loop_max; // skip normal wait, so we can go to next step
+	int_do_work_a();
 }
 
-// Timer interrupt for step on time
-ISR(TIMER1_COMPA_vect) {
-#ifdef SF_ENABLE_PWM
-  int_do_work();
 #endif
-}
-
 
 

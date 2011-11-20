@@ -49,8 +49,6 @@
 #//define SF_ENABLE_EXT_LCD_DIC    // enable multiplexing DIC inputs (with: EXT_LCD !!)
 #//define SF_ENABLE_EXT_LCD_DOC    // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
 #//define SF_ENABLE_EXT_LCD_DOC_16BIT  // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
-#//define SF_ENABLE_EXT_MEGA       // (not implemented yet) enable special extended mode for mega arduino.
-
 
 // Customizable data
 #define LCD_INIT_MSG_TIME         555    // Welcome message timeout
@@ -78,6 +76,7 @@
 
 // MCU depended variables
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
+  #define SF_ENABLE_AVR_MEGA           // Define avr mega
   #define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
   #define MAL_PROGRAM_SIZE        128
   #define MAL_PROGRAM_MAX           8
@@ -89,6 +88,7 @@
   #define DEV_VAR_MAX              16  
   #define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support.
 #elif __AVR_ATmega328P__
+  #define SF_ENABLE_AVR                // Define AVR
   #define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
   #define MAL_PROGRAM_SIZE         64
   #define MAL_PROGRAM_MAX           2
@@ -100,6 +100,7 @@
   #define DEV_VAR_MAX               4
   #define VFC_MAP_MAX               3
 #elif __AVR_ATmega168P__
+  #define SF_ENABLE_AVR                  // Define AVR
   #define CHIP_EEPROM_SIZE        512    // 512 bytes eeprom
   #define MAL_PROGRAM_SIZE         64    // config array size of basic program
   #define MAL_PROGRAM_MAX           1    // Total amount of diffent programs
@@ -110,6 +111,18 @@
   #define STV_MIN_MAP_MAX           2    // Maping of safety trashhold values.
   #define DEV_VAR_MAX               2    // Generic device variables
   #define VFC_MAP_MAX               2    // Virtual feedback channels
+#elif __ARM_ARCH_7M__
+  #define SF_ENABLE_ARM_7M               // Define ARM
+  #define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
+  #define MAL_PROGRAM_SIZE         64
+  #define MAL_PROGRAM_MAX           2
+  #define ADC_NUM_MAX               6
+  #define PTC_TIME_MAP_MAX          8
+  #define PTT_TRIG_MAP_MAX          4
+  #define STV_MAX_MAP_MAX           8
+  #define STV_MIN_MAP_MAX           4
+  #define DEV_VAR_MAX               4
+  #define VFC_MAP_MAX               3
 #else
 # error "Don't know how to run on your MCU_TYPE."
 #endif

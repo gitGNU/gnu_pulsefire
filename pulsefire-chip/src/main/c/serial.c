@@ -153,13 +153,13 @@ void cmd_print_info_freq(void) {
 
 
 // Prototype and function for specific c init location.
-void SRAM_init(void) __attribute__((naked)) __attribute__ ((section (".init1"))); 
-void SRAM_init(void) { 
-  uint8_t *p; // Break into the C startup so I can clear SRAM to 
-  uint16_t i; // known values making it easier to see how it is used 
-  for (i=0x100; i < RAMEND; i++) { 
-    p = (uint8_t *)i; *p = 0x5A; 
-  } 
+void SRAM_init(void) __attribute__((naked)) __attribute__ ((section (".init1")));
+void SRAM_init(void) {
+  uint8_t *p; // Break into the C startup so I can clear SRAM to
+  uint16_t i; // known values making it easier to see how it is used
+  for (i=0x100; i < RAMEND; i++) {
+    p = (uint8_t *)i; *p = 0x5A;
+  }
 }
 
 void cmd_print_info_chip(void) {
@@ -674,11 +674,13 @@ void cmd_parse(void) {
   }
 }
 
-// in mega USART0_RX_vect
-ISR(USART_RX_vect) {
-	char c = Serial_read();
+void Serial_write(uint8_t c) {
+	Chip_io_serial(c);
+}
+
+void Serial_rx_int(uint8_t c) {
     if (pf_prog.req_tx_echo == ONE) {
-      Serial_write(c);
+      Chip_io_serial(c);
     }
 	if (pf_prog.cmd_process == ZERO) {
 		return; // skip serial data ???
@@ -703,15 +705,6 @@ ISR(USART_RX_vect) {
     }
 }
 
-uint8_t Serial_read(void) {
-	while ( !(UCSR0A & (1<<RXC0)) );
-	return UDR0;
-}
-
-void Serial_write(uint8_t data) {
-	while ( !(UCSR0A & (1<<UDRE0)));
-	UDR0 = data;
-}
 
 // Check for data from console and put in cmd_buff
 void Serial_loop(void) {
@@ -724,26 +717,9 @@ void Serial_loop(void) {
 void Serial_setup(void) {
   pf_prog.cmd_process  = ONE; // rm me
 
-  // initialize UART0
-  //UBRR0H = (((F_CPU/SERIAL_SPEED)/16)-1)>>8; 	// set baud rate
-  //UBRR0L = (((F_CPU/SERIAL_SPEED)/16)-1);
-  UBRR0H = ZERO;
-  UBRR0L = 16;        // 115K with double rate enabled else 8.
-  UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
-
-  UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0);  // enable Rx & Tx
-  UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);          // 8n1
- 
-  // Enable pull-up on D0/RX, to supress line noise
-  DDRD &= ~_BV(PIND0);
-  PORTD |= _BV(PIND0);
-
   // delay is needed else we get junk on terminal.
   Chip_delay(100);
   Serial_println();
   Serial_printCharP(pmPromt);
 }
-
-
-
 

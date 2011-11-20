@@ -4,7 +4,9 @@
 pf_data_struct       pf_data;
 pf_prog_struct       pf_prog;
 pf_conf_struct       pf_conf;
+#if defined(SF_ENABLE_AVR) | defined(SF_ENABLE_AVR_MEGA)
 pf_conf_struct EEMEM pf_conf_eeprom;
+#endif
 
 CHIP_PROGMEM_ARRAY pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
     pmCmdHelp,pmCmdSave,
@@ -39,8 +41,8 @@ PF variable fields metadata:
 
 */
 // PFVT_TYPE,  VARIALBE_POINTER,                       ASCII_POINTER,                    MAX_VALUE,            VARIABLE_BITS,                  DEFAULT_VALUE
-const uint16_t PF_VARS[PF_VARS_PWM_SIZE+
-  PF_VARS_PF_SIZE+PF_VARS_LCD_SIZE+PF_VARS_LPM_SIZE+
+const uint16_t PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SIZE+
+  PF_VARS_PWM_SIZE+PF_VARS_LCD_SIZE+PF_VARS_LPM_SIZE+
   PF_VARS_PPM_SIZE+PF_VARS_ADC_SIZE+PF_VARS_DIC_SIZE+
   PF_VARS_DOC_SIZE+PF_VARS_DEV_SIZE+PF_VARS_PTC_SIZE+
   PF_VARS_PTT_SIZE+PF_VARS_STV_SIZE+PF_VARS_VFC_SIZE+
@@ -133,10 +135,12 @@ const uint16_t PF_VARS[PF_VARS_PWM_SIZE+
   {PFVT_8BIT,  (uint16_t)&pf_conf.swc_trig,            (uint16_t)&pmConfSWCTrig,         PTT_TRIG_VAR_SIZE-ONE,PFVB_NOMAP,                    0xFF},
   #endif
 
+  #ifdef SF_ENABLE_AVR
   {PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin2_map,        (uint16_t)&pmConfAVRPin2Map,      PIN2_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN2_TRIG_IN},
   {PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin3_map,        (uint16_t)&pmConfAVRPin3Map,      PIN3_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN3_MENU0_IN},
   {PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin4_map,        (uint16_t)&pmConfAVRPin4Map,      PIN4_DOC10_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN4_MENU1_IN},
   {PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin5_map,        (uint16_t)&pmConfAVRPin5Map,      PIN5_DOC11_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN5_CLOCK_IN},
+  #endif
 
   #ifdef SF_ENABLE_LCD
   {PFVT_8BIT,  (uint16_t)&pf_conf.lcd_size,            (uint16_t)&pmConfLCDSize,         LCD_SIZE_4x20,       PFVB_NOMAP+PFVB_NOMENU,         ZERO},
@@ -672,7 +676,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
           if(i<10) {Serial_write('0');} Serial_printDec((int)i);
           Serial_printCharP(pmSetSpaced);
           Serial_printDec(value);
-          Serial_println();         
+          Serial_println();
         }
       } else {
         Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
@@ -694,20 +698,22 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
   if ( varName == (uint16_t)&pmConfPulseMode && trig==false) {
     Vars_resetData();
   }
+  #ifdef SF_ENABLE_AVR
   if ( varName == (uint16_t)&pmConfAVRPin2Map) {
     if (pf_conf.avr_pin2_map == PIN2_TRIG_IN || pf_conf.avr_pin2_map == PIN2_FREQ_IN || pf_conf.avr_pin2_map == PIN2_FIRE_IN) {
-      EIMSK |= (1 << INT0);   // Enable INT0 External Interrupt
+    	Chip_io_int_pin(ZERO,ZERO);
     } else {
-      EIMSK &= ~(1 << INT0);
+    	Chip_io_int_pin(ZERO,ONE);
     }
   }
   if ( varName == (uint16_t)&pmConfAVRPin3Map) {
     if (pf_conf.avr_pin3_map == PIN3_FREQ_IN || pf_conf.avr_pin3_map == PIN3_FIRE_IN) {
-      EIMSK |= (1 << INT1);   // Enable INT0 External Interrupt
+    	Chip_io_int_pin(ONE,ZERO);
     } else {
-      EIMSK &= ~(1 << INT1);
+    	Chip_io_int_pin(ONE,ONE);
     }
   }
+  #endif
   #ifdef SF_ENABLE_PWM
   if ( varName == (uint16_t)&pmConfPWMClock) {
     TCCR1B = pf_conf.pwm_clock & 7;

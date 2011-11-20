@@ -30,8 +30,8 @@ char* UNPSTR(const char* dstring) {
     pf_prog.unpstr_buff[i]='\0'; // clean buffer
   }
   int index = ZERO;
-  while (pgm_read_byte(dstring) != 0x00) {
-    uint8_t c = pgm_read_byte(dstring++);
+  while (Chip_pgm_read(dstring) != 0x00) {
+    uint8_t c = Chip_pgm_read(dstring++);
     pf_prog.unpstr_buff[index]=c;
     index++;
   }
@@ -40,14 +40,10 @@ char* UNPSTR(const char* dstring) {
 
 // Fill pstr_buff from pointer
 char* UNPSTRA(const uint16_t* argu) {
-  uint8_t c=ZERO;
-  for (c=ZERO;c < UNPSTR_BUFF_SIZE;c++) {
-    pf_prog.unpstr_buff[c]='\0';
-  }
-  PGM_P p;
-  memcpy_P(&p,argu, sizeof(PGM_P));
-  strcpy_P(pf_prog.unpstr_buff, p);
-  return pf_prog.unpstr_buff;
+	uint8_t msb = Chip_pgm_read((const char*)argu+1);
+	uint8_t lsb = Chip_pgm_read((const char*)argu);
+	const char*p = (const char*) ((msb*256)+lsb);
+	return UNPSTR(p);
 }
 
 // Reverse a string

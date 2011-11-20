@@ -45,17 +45,17 @@ void lcd_writeMux(uint8_t c,uint8_t cmd,uint8_t mux) {
    lcd_write_s2p(lcd_out);
   #else
     if (cmd==LCD_SEND_DATA) {
-      digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_RS_PIN,ONE); // write data
+      digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_RS_PIN,ONE); // write data
     } else {
-      digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_RS_PIN,ZERO);  // write command
+      digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_RS_PIN,ZERO);  // write command
     }
     volatile uint8_t *port = IO_DEF_ADC_PORT;
     *port=(*port & 0xF0)|hn;
     //*port=(IO_DEF_ADC_PORT & 0xF0)|hn;
-    digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_E_PIN,ONE);
+    digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_E_PIN,ONE);
     asm volatile ("nop");
     asm volatile ("nop");
-    digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_E_PIN,ZERO);  //Now data lines are stable pull E low for transmission
+    digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_E_PIN,ZERO);  //Now data lines are stable pull E low for transmission
   #endif
 
   if (cmd!=LCD_SEND_INIT) {
@@ -73,10 +73,10 @@ void lcd_writeMux(uint8_t c,uint8_t cmd,uint8_t mux) {
     #else
       volatile uint8_t *port = IO_DEF_ADC_PORT;
       *port=(*port & 0xF0)|ln;
-      digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_E_PIN,ONE);
+      digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_E_PIN,ONE);
       asm volatile ("nop");
       asm volatile ("nop");
-      digitalWrite(IO_DEF_ADC_PORT,IO_DEF_LCD_E_PIN,ZERO);
+      digitalWrite(IO_DEF_IO_PORT,IO_DEF_LCD_E_PIN,ZERO);
     #endif
   }
   if (cmd==LCD_SEND_DATA) {
@@ -89,30 +89,38 @@ void lcd_writeMux(uint8_t c,uint8_t cmd,uint8_t mux) {
 #ifdef SF_ENABLE_EXT_LCD
 void lcd_write_s2p(uint8_t value) {
   #ifdef SF_ENABLE_DOC
-    if (pf_conf.avr_pin2_map == PIN2_DOC2_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[2] > ZERO);
-    }
-    if (pf_conf.avr_pin3_map == PIN3_DOC3_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[3] > ZERO);
-    }
-    if (pf_conf.avr_pin4_map == PIN4_DOC4_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[4] > ZERO);
-    }
-    if (pf_conf.avr_pin5_map == PIN5_DOC5_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[5] > ZERO);
-    }
-    if (pf_conf.avr_pin2_map == PIN2_DOC8_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[8] > ZERO);
-    }
-    if (pf_conf.avr_pin3_map == PIN3_DOC9_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[9] > ZERO);
-    }
-    if (pf_conf.avr_pin4_map == PIN4_DOC10_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[10] > ZERO);
-    }
-    if (pf_conf.avr_pin5_map == PIN5_DOC11_OUT) {
-      digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[11] > ZERO);
-    }
+    #if defined(SF_ENABLE_AVR)
+      if (pf_conf.avr_pin2_map == PIN2_DOC2_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[2] > ZERO);
+      }
+      if (pf_conf.avr_pin3_map == PIN3_DOC3_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[3] > ZERO);
+      }
+      if (pf_conf.avr_pin4_map == PIN4_DOC4_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[4] > ZERO);
+      }
+      if (pf_conf.avr_pin5_map == PIN5_DOC5_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[5] > ZERO);
+      }
+      if (pf_conf.avr_pin2_map == PIN2_DOC8_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[8] > ZERO);
+      }
+      if (pf_conf.avr_pin3_map == PIN3_DOC9_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[9] > ZERO);
+      }
+      if (pf_conf.avr_pin4_map == PIN4_DOC10_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[10] > ZERO);
+      }
+      if (pf_conf.avr_pin5_map == PIN5_DOC11_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[11] > ZERO);
+      }
+    #elif defined(SF_ENABLE_AVR_MEGA)
+      if (pf_conf.avr_pin5_map == PIN5_DOC11_OUT) {
+        digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[11] > ZERO);
+      }
+    #else
+    # error "Don't know how to run on your MCU_TYPE."
+    #endif
   #endif
   digitalWrite(IO_DEF_OUT_PORT,IO_EXT_S2P_E_PIN,LOW);
   #ifdef SF_ENABLE_EXT_LCD_DOC
