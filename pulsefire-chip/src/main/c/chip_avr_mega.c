@@ -98,16 +98,16 @@ void Chip_setup(void) {
 
 
 
-  // Timer1 16bit timer used for pulse steps.
-  ICR1 = 0xFFFF;OCR1A = 0xFFFF;OCR1B = 0xFFFF;
-  TCCR1A = ZERO;
-  TCCR1B = (ONE+ONE) & 7;
-  TIMSK1|= (ONE << OCF1A);
-  TIMSK1|= (ONE << OCF1B);
-  TCNT1  = ZERO;
+  // Timer5 16bit timer used for pulse steps.
+  ICR5 = 0xFFFF;OCR5A = 0xFFFF;OCR5B = 0xFFFF;
+  TCCR5A = ZERO;
+  TCCR5B = (ONE+ONE) & 7;
+  TIMSK5|= (ONE << OCF5A);
+  TIMSK5|= (ONE << OCF5B);
+  TCNT5  = ZERO;
   
   #ifdef SF_ENABLE_PWM
-  TCCR1B = pf_conf.pwm_clock & 7;
+  TCCR5B = pf_conf.pwm_clock & 7;
   #endif
 
   // Timer2 8bit timer used for freq/rpm calculation
@@ -207,8 +207,39 @@ void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t data
 	}
 }
 
-uint8_t Chip_pgm_read(const char* p) {
+
+void Chip_eeprom_read(void* eemem) {
+	eeprom_read_block((void*)&pf_conf,(const void*)&eemem,sizeof(pf_conf_struct));
+}
+void Chip_eeprom_write(void* eemem) {
+	eeprom_write_block((const void*)&pf_conf,(void*)&eemem,sizeof(pf_conf_struct));
+}
+
+uint8_t Chip_pgm_readByte(const char* p) {
 	return pgm_read_byte(p);
+}
+
+uint16_t Chip_pgm_readWord(const uint16_t* p) {
+	return pgm_read_word(p);
+}
+
+void Chip_pwm_timer(uint8_t reg,uint16_t value) {
+	switch (reg) {
+	case PWM_REG_CLOCK:
+		TCCR5B = value & 7;
+		break;
+	case PWM_REG_OCRA:
+		OCR5A = value;
+		break;
+	case PWM_REG_OCRB:
+		OCR5B = value;
+		break;
+	case PWM_REG_TCNT:
+		TCNT5 = value;
+		break;
+	default:
+		break;
+	}
 }
 
 void Chip_io_pwm(uint16_t data) {

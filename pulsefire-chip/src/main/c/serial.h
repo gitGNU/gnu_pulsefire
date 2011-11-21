@@ -32,7 +32,7 @@
 
 void Serial_printChar(char* argu);
 void Serial_printCharP(const char* argu);
-void Serial_printHex(int argu);
+void Serial_printHex(uint8_t argu);
 void Serial_printDec(int argu);
 void Serial_println(void);
 void Serial_write(uint8_t c);

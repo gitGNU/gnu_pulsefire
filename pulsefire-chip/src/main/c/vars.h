@@ -439,9 +439,7 @@ boolean Vars_isIndexA(byte idx);
 boolean Vars_isIndexB(byte idx);
 boolean Vars_isNomap(byte idx);
 boolean Vars_isBitSize32(byte idx);
-//ifdef SF_ENABLE_LCD
 boolean Vars_isMenuSkip(byte idx);
-//endif
 boolean Vars_isTypeConf(byte idx);
 boolean Vars_isTypeData(byte idx);
 boolean Vars_isTypeProg(byte idx);
@@ -452,12 +450,12 @@ uint16_t Vars_getDefaultValue(uint8_t idx);
 uint16_t Vars_getIndexFromName(char* name);
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB);
 uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA);
-void Vars_readConfig(void);
-void Vars_writeConfig(void);
 uint16_t Vars_setValueSerial(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value);
 uint16_t Vars_setValueReset(uint8_t idx,uint8_t idxA,uint16_t value);
 uint16_t Vars_setValue(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value);
 uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial);
+void Vars_readConfig(void);
+void Vars_writeConfig(void);
 void Vars_resetConfig(void);
 void Vars_resetData(void);
 void Vars_setup(void);

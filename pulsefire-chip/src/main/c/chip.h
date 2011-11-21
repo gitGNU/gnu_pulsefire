@@ -176,15 +176,15 @@ uint8_t digitalRead(volatile uint8_t *port,uint8_t pin);
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value);
 uint16_t analogRead(uint8_t channel);
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte);
-
-uint8_t Chip_pgm_read(const char* p);
+void Chip_eeprom_read(void* eemem);
+void Chip_eeprom_write(void* eemem);
+uint8_t Chip_pgm_readByte(const char* p);
+uint16_t Chip_pgm_readWord(const uint16_t* p);
+void Chip_pwm_timer(uint8_t reg,uint16_t value);
 void Chip_io_pwm(uint16_t data);
 void Chip_io_serial(uint8_t data);
 void Chip_io_lpm(uint8_t data);
 void Chip_io_int_pin(uint8_t pin,uint8_t enable);
-
-// rm all _P( functions
-// var pgm_read and eeprom r/w and Chip_pwm_clock, serial-mal, pwm_tct and pwm_oscAB
 
 // end include
 #endif

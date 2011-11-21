@@ -93,7 +93,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx,uint8_t duty) {
 	// Calc compa and set for index or set all
 	uint16_t compaValue = F_CPU/CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
 	if (idx == QMAP_VAR_IDX_ALL) {
-		for (i=ZERO;i < OUTPUT_MAX;i++) {
+		for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
 			Vars_setValue(pwmOnCntIdx,i,0,compaValue);
 		}
 	} else {
@@ -109,7 +109,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx,uint8_t duty) {
 		compbValue = (compaValue * duty) / 100; // reverse calc for more persision in high range
 	}
 	if (idx == QMAP_VAR_IDX_ALL) {
-		for (i=ZERO;i < OUTPUT_MAX;i++) {
+		for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
 			Vars_setValue(pwmOffCntIdx,i,0,compbValue);
 		}
 	} else {

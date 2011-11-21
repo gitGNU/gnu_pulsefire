@@ -55,6 +55,12 @@ enum {
 	PWM_STATE_TRIGGER_END
 };
 enum {
+	PWM_REG_CLOCK,
+	PWM_REG_OCRA,
+	PWM_REG_OCRB,
+	PWM_REG_TCNT,
+};
+enum {
 	LPM_INIT,
 	LPM_IDLE,
 	LPM_START,

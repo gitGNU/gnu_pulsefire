@@ -200,9 +200,38 @@ void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t data
 	}
 }
 
+void Chip_eeprom_read(void* eemem) {
+	eeprom_read_block((void*)&pf_conf,(const void*)&eemem,sizeof(pf_conf_struct));
+}
+void Chip_eeprom_write(void* eemem) {
+	eeprom_write_block((const void*)&pf_conf,(void*)&eemem,sizeof(pf_conf_struct));
+}
 
-uint8_t Chip_pgm_read(const char* p) {
+uint8_t Chip_pgm_readByte(const char* p) {
 	return pgm_read_byte(p);
+}
+
+uint16_t Chip_pgm_readWord(const uint16_t* p) {
+	return pgm_read_word(p);
+}
+
+void Chip_pwm_timer(uint8_t reg,uint16_t value) {
+	switch (reg) {
+	case PWM_REG_CLOCK:
+		TCCR1B = value & 7;
+		break;
+	case PWM_REG_OCRA:
+		OCR1A = value;
+		break;
+	case PWM_REG_OCRB:
+		OCR1B = value;
+		break;
+	case PWM_REG_TCNT:
+		TCNT1 = value;
+		break;
+	default:
+		break;
+	}
 }
 
 void Chip_io_pwm(uint16_t data) {

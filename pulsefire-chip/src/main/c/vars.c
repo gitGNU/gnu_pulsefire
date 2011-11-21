@@ -276,14 +276,14 @@ uint8_t Vars_getSize(void) {
 	return sizeof(PF_VARS)/sizeof(uint16_t)/(PFVF_DEF+ONE);
 }
 uint16_t Vars_getBitsRaw(uint8_t idx) {
-	return pgm_read_word(&(PF_VARS[idx][PFVF_BITS]));
+	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS]));
 }
 uint16_t Vars_getValueMax(uint8_t idx) {
-	return pgm_read_word(&(PF_VARS[idx][PFVF_MAX]));
+	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_MAX]));
 }
 
 boolean Vars_isTrigger(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_TRIG;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_TRIG;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -291,7 +291,7 @@ boolean Vars_isTrigger(byte idx) {
 }
 
 boolean Vars_isNolimit(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOLIMIT;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOLIMIT;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -302,7 +302,7 @@ boolean Vars_isIndexA(byte idx) {
 	if (idx > PF_VARS_SIZE) {
 		return false;
 	}
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_IDXA;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_IDXA;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -313,7 +313,7 @@ boolean Vars_isIndexB(byte idx) {
 	if (idx > PF_VARS_SIZE) {
 		return false;
 	}
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_IDXB;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_IDXB;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -324,7 +324,7 @@ boolean Vars_isNomap(byte idx) {
 	if (idx > PF_VARS_SIZE) {
 		return true; // cannot map idx out of range
 	}
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOMAP;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOMAP;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -332,7 +332,7 @@ boolean Vars_isNomap(byte idx) {
 }
 
 boolean Vars_isBitSize32(byte idx) {
-	uint16_t type = pgm_read_word(&(PF_VARS[idx][PFVF_TYPE]));
+	uint16_t type = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE]));
 	if (type == PFVT_32BIT) {
 		return true;
 	}
@@ -341,7 +341,7 @@ boolean Vars_isBitSize32(byte idx) {
 
 #ifdef SF_ENABLE_LCD
 boolean Vars_isMenuSkip(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOMENU;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOMENU;
 	if (bits > ZERO) {
 		return true;
 	}
@@ -350,7 +350,7 @@ boolean Vars_isMenuSkip(byte idx) {
 #endif
 
 boolean Vars_isTypeConf(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
 	if (bits == ZERO) {
 		return true;
 	}
@@ -358,7 +358,7 @@ boolean Vars_isTypeConf(byte idx) {
 }
 
 boolean Vars_isTypeData(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
 	if (bits == PFVB_DT0) {
 		return true;
 	}
@@ -367,7 +367,7 @@ boolean Vars_isTypeData(byte idx) {
 
 
 boolean Vars_isTypeProg(byte idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & (PFVB_DT0+PFVB_DT1);
 	if (bits == PFVB_DT1) {
 		return true;
 	}
@@ -379,24 +379,24 @@ char* Vars_getName(uint8_t idx) {
 }
 
 uint8_t Vars_getIndexAMax(uint8_t idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & 0xFF00;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & 0xFF00;
 	uint8_t result = (bits >> 8) & 0x1F; // only use 5 bits
 	return result;
 }
 
 uint8_t Vars_getIndexBMax(uint8_t idx) {
-	uint16_t bits = pgm_read_word(&(PF_VARS[idx][PFVF_BITS])) & 0xFF00;
+	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & 0xFF00;
 	uint8_t result = (bits >> 13);
 	return result;
 }
 
 uint16_t Vars_getDefaultValue(uint8_t idx) {
-	return pgm_read_word(&(PF_VARS[idx][PFVF_DEF]));
+	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_DEF]));
 }
 
 uint16_t Vars_getIndexFromName(char* name) {
 	for (uint8_t i=ZERO;i < PF_VARS_SIZE;i++) {
-		if (strcmp_P(name, (const prog_char*)pgm_read_word(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
+		if (strcmp(name, UNPSTR((const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME])))) == ZERO) {
 			return i;
 		}
 	}
@@ -408,7 +408,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 	boolean indexedB   = Vars_isIndexB(idx);
 	uint8_t idxMaxA    = Vars_getIndexAMax(idx);
 	uint8_t idxMaxB    = Vars_getIndexBMax(idx);
-	uint16_t fieldType = pgm_read_word(&(PF_VARS[idx][PFVF_TYPE]));
+	uint16_t fieldType = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE]));
 	uint16_t value = ZERO;
 	if (indexedA && idxA>=idxMaxA) {
 		idxA = ZERO; // safty check for indexes
@@ -417,7 +417,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 		idxB = ZERO;
 	}
 	if (fieldType == PFVT_16BIT) {
-		uint16_t *valuePtr = (uint16_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+		uint16_t *valuePtr = (uint16_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -427,7 +427,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 		}
 		value = *(valuePtr);
 	} else if (fieldType == PFVT_8BIT) {
-		uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+		uint8_t *valuePtr = (uint8_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -444,7 +444,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA) {
 	boolean indexedA = Vars_isIndexA(idx);
 	uint8_t idxMaxA    = Vars_getIndexAMax(idx);
-	uint32_t *valuePtr = (uint32_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+	uint32_t *valuePtr = (uint32_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 	if (indexedA && idxA>=idxMaxA) {
 		idxA = ZERO; // safty check for indexes
 	}
@@ -455,14 +455,6 @@ uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA) {
 	return value;
 }
 
-
-void Vars_readConfig(void) {
-	eeprom_read_block((void*)&pf_conf,(const void*)&pf_conf_eeprom,sizeof(pf_conf_struct));
-}
-
-void Vars_writeConfig(void) {
-	eeprom_write_block((const void*)&pf_conf,(void*)&pf_conf_eeprom,sizeof(pf_conf_struct));
-}
 
 
 
@@ -563,28 +555,28 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	boolean indexedB   = Vars_isIndexB(idx);
 	uint8_t idxMaxA    = Vars_getIndexAMax(idx);
 	uint8_t idxMaxB    = Vars_getIndexBMax(idx);
-	uint16_t fieldType = pgm_read_word(&(PF_VARS[idx][PFVF_TYPE]));
-	uint16_t value_max = pgm_read_word(&(PF_VARS[idx][PFVF_MAX]));
+	uint16_t fieldType = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE]));
+	uint16_t value_max = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_MAX]));
 	uint16_t value_min = ZERO;
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntA) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntA) {
 		value_min = ONE;
 	}
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntB) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntB) {
 		value_min = ONE;
 	}
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfSWCDuty) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfSWCDuty) {
 		value_min = ONE;
 	}
 #ifdef SF_ENABLE_PPM
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPPMDataLength) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPPMDataLength) {
 		value_min = ONE;
 	}
 #endif
 #ifdef SF_ENABLE_PTC
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC0Mul) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC0Mul) {
 		value_min = ONE;
 	}
-	if ( pgm_read_word(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC1Mul) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC1Mul) {
 		value_min = ONE;
 	}
 #endif
@@ -609,7 +601,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 	// Set value
 	if (fieldType == PFVT_16BIT) {
-		uint16_t *valuePtr = (uint16_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+		uint16_t *valuePtr = (uint16_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -621,7 +613,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			} else {
 				uint8_t i=ZERO;
 				for (i=ZERO;i<idxMaxA;i++) {
-					uint16_t *valuePtr = (uint16_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+					uint16_t *valuePtr = (uint16_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 					if (Vars_isIndexB(idx)) {
 						valuePtr += Vars_getIndexBMax(idx)*i + idxB;
 					} else {
@@ -634,7 +626,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			*valuePtr = value;
 		}
 	} else if (fieldType == PFVT_8BIT) {
-		uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+		uint8_t *valuePtr = (uint8_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -646,7 +638,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			} else {
 				uint8_t i=ZERO;
 				for (i=ZERO;i<idxMaxA;i++) {
-					uint8_t *valuePtr = (uint8_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+					uint8_t *valuePtr = (uint8_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 					if (Vars_isIndexB(idx)) {
 						valuePtr += idxMaxB * i + idxB;
 					} else {
@@ -659,7 +651,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			*valuePtr = value;
 		}
 	} else if (fieldType == PFVT_32BIT) {
-		uint32_t *valuePtr = (uint32_t*)pgm_read_word(&(PF_VARS[idx][PFVF_VAR]));
+		uint32_t *valuePtr = (uint32_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			valuePtr += idxA;
 		}
@@ -695,7 +687,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 
 	// Some fields require extra update code;
-	uint16_t varName = pgm_read_word(&(PF_VARS[idx][PFVF_NAME]));
+	uint16_t varName = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME]));
 	if ( varName == (uint16_t)&pmConfPulseMode && trig==false) {
 		Vars_resetData();
 	}
@@ -717,7 +709,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 #endif
 #ifdef SF_ENABLE_PWM
 	if ( varName == (uint16_t)&pmConfPWMClock) {
-		TCCR1B = pf_conf.pwm_clock & 7;
+		Chip_pwm_timer(PWM_REG_CLOCK,pf_conf.pwm_clock);
 	}
 #endif
 
@@ -780,13 +772,13 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 	if ( varName == (uint16_t)&pmConfPWMDuty && pf_data.req_pwm_freq != ZERO) {
 		Freq_requestTrainFreq(pf_data.req_pwm_freq,QMAP_VAR_IDX_ALL,QMAP_VAR_IDX_ALL);
-}
+	}
 #endif
 #endif
 #ifdef SF_ENABLE_MAL
 	if ( varName == (uint16_t)&pmDataMALTrig) {
 		mal_execute(idxA,value);
-}
+	}
 #endif
 #ifdef SF_ENABLE_VFC
 	uint8_t vfcIdx = vfc_is_variable_mapped(idx,idxA);
@@ -805,6 +797,12 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	return value; // return corrected value
 }
 
+void Vars_readConfig(void) {
+	Chip_eeprom_read(&pf_conf_eeprom);
+}
+void Vars_writeConfig(void) {
+	Chip_eeprom_write(&pf_conf_eeprom);
+}
 
 // Init all config and data to init state.
 void Vars_resetConfig(void) {  
@@ -858,8 +856,8 @@ void Vars_resetData(void) {
 		Serial_printChar(" setto: ");
 		//cmd_print_var(i,false,false);
 		Serial_println();
-	#endif
-}
+#endif
+	}
 
 #ifdef SF_ENABLE_PWM
 	// Reset cutom pwm data

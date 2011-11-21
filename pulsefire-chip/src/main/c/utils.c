@@ -29,8 +29,8 @@ char* UNPSTR(const char* dstring) {
 		pf_prog.unpstr_buff[i]='\0'; // clean buffer
 	}
 	int index = ZERO;
-	while (Chip_pgm_read(dstring) != 0x00) {
-		uint8_t c = Chip_pgm_read(dstring++);
+	while (Chip_pgm_readByte(dstring) != 0x00) {
+		uint8_t c = Chip_pgm_readByte(dstring++);
 		pf_prog.unpstr_buff[index]=c;
 		index++;
 	}
@@ -39,8 +39,8 @@ char* UNPSTR(const char* dstring) {
 
 // Fill pstr_buff from pointer
 char* UNPSTRA(const uint16_t* argu) {
-	uint8_t msb = Chip_pgm_read((const char*)argu+1);
-	uint8_t lsb = Chip_pgm_read((const char*)argu);
+	uint8_t msb = Chip_pgm_readByte((const char*)argu+1);
+	uint8_t lsb = Chip_pgm_readByte((const char*)argu);
 	const char*p = (const char*) ((msb*256)+lsb);
 	return UNPSTR(p);
 }
@@ -84,11 +84,28 @@ uint16_t atou16(char* s) {
 	char* ss = s;
 	while (*ss++) { nn++; }
 	uint16_t num = ZERO;
-	uint8_t i=ZERO;
-	for (i=ZERO;i <= nn;i++) {
+	for (uint8_t i=ZERO;i <= nn;i++) {
 		if (s[i] >= '0' && s[i] <= '9') {
 			num = num * 10 + s[i] - '0';
 		} else 	{
+			break;
+		}
+	}
+	return num;
+}
+
+uint32_t htou32(char* s) {
+	uint8_t nn = ZERO;
+	char* ss = s;
+	while (*ss++) { nn++; }
+	uint32_t num = ZERO;
+	for (uint8_t i=ZERO;i <= nn;i++) {
+		uint8_t c = s[i];
+		if (c >= '0' && c <= '9') {
+			num = num*16 + (c-'0');
+		} else if (c >= 'A' && c <= 'F')	{
+			num = num*16 + (c-'A'+10);
+		} else {
 			break;
 		}
 	}
