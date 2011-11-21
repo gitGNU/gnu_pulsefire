@@ -25,12 +25,12 @@
 
 
 #if defined(SF_ENABLE_AVR)
-  #include "chip_avr.c"
+	#include "chip_avr.c"
 #elif defined(SF_ENABLE_AVR_MEGA)
-  #include "chip_avr_mega.c"
+	#include "chip_avr_mega.c"
 #elif defined(SF_ENABLE_ARM_7M)
-  #include "chip_arm_7m.c"
+	#include "chip_arm_7m.c"
 #else
-  #error "Don't know how to run on your MCU_TYPE."
+	#error "Don't know how to run on your MCU_TYPE."
 #endif
 

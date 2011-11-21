@@ -15,6 +15,7 @@ TPATH = build
 # -Wall...: warning level
 # -Wa,...: tell GCC to pass this to the assembler.
 # -adhlns...: create assembler listing
+# -E -dM options instead of -c to list all define flags !!
 CFLAGS = -std=gnu99
 CFLAGS += -DF_CPU=$(F_CPU)
 CFLAGS += -I./..

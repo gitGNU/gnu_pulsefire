@@ -23,19 +23,19 @@
 
 
 void Chip_loop(void) {
-	  wdt_reset();
-	  pf_data.sys_main_loop_cnt++;
+	wdt_reset();
+	pf_data.sys_main_loop_cnt++;
 }
 
 void Chip_reset(void) {
-    wdt_enable(WDTO_15MS); // reboot in 15ms.
-    Chip_delay(30);
+	wdt_enable(WDTO_15MS); // reboot in 15ms.
+	Chip_delay(30);
 }
 
 void Chip_setup(void) {
-  // Config pin2 which is multi function
-  DDRD = 0x00;  // default to input
-  PORTD = 0xFF; // with pullup
+	// Config pin2 which is multi function
+	DDRD = 0x00;  // default to input
+	PORTD = 0xFF; // with pullup
 
   /*
   switch (pf_conf.avr_pin2_map) {
@@ -212,26 +212,26 @@ uint8_t Chip_pgm_read(const char* p) {
 }
 
 void Chip_io_pwm(uint16_t data) {
-  // Send data to output depending on connection mode; max outs 16,8,3,6
-	#if defined(SF_ENABLE_EXT_OUT_16BIT)
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,LOW);
-		  shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)(data >> 8)); // high byte
-		  shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)data);        // low byte, is last to that fist chip is zero !
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,HIGH);
-	#elif defined(SF_ENABLE_EXT_OUT)
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,LOW);
-		  shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)data);
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,HIGH);
-	#elif defined(SF_ENABLE_EXT_LCD)
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_0_PIN,(data & 1) >> 0); // only set 5 bits on output, other 3 are for lcd
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_1_PIN,(data & 2) >> 1);
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_2_PIN,(data & 4) >> 2);
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_3_PIN,(data & 4) >> 3);
-	  digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_4_PIN,(data & 4) >> 4);
-	#else
-	  volatile uint8_t *port = IO_MEGA_OUT_PORT;
-	  *port = data;
-	#endif
+	// Send data to output depending on connection mode; max outs 16,8,3,6
+#if defined(SF_ENABLE_EXT_OUT_16BIT)
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,LOW);
+		shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)(data >> 8)); // high byte
+		shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)data);        // low byte, is last to that fist chip is zero !
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,HIGH);
+#elif defined(SF_ENABLE_EXT_OUT)
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,LOW);
+		shiftOut(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_DATA_PIN,IO_MEGA_EXT_OUT_CLK_PIN,(uint8_t)data);
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_OUT_E_PIN,HIGH);
+#elif defined(SF_ENABLE_EXT_LCD)
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_0_PIN,(data & 1) >> 0); // only set 5 bits on output, other 3 are for lcd
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_1_PIN,(data & 2) >> 1);
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_2_PIN,(data & 4) >> 2);
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_3_PIN,(data & 4) >> 3);
+	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_OUT_4_PIN,(data & 4) >> 4);
+#else
+	volatile uint8_t *port = IO_MEGA_OUT_PORT;
+	*port = data;
+#endif
 }
 
 void Chip_io_serial(uint8_t data) {
@@ -276,8 +276,8 @@ void Chip_io_int_pin(uint8_t pin,uint8_t enable) {
 // Prototype and function for specific c init location.
 void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
 void wdt_init(void) {
-  MCUSR = ZERO;
-  wdt_disable(); // Disable watchdog timer in early startup.
+	MCUSR = ZERO;
+	wdt_disable(); // Disable watchdog timer in early startup.
 }
 
 

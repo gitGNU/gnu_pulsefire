@@ -183,5 +183,8 @@ void Chip_io_serial(uint8_t data);
 void Chip_io_lpm(uint8_t data);
 void Chip_io_int_pin(uint8_t pin,uint8_t enable);
 
+// rm all _P( functions
+// var pgm_read and eeprom r/w and Chip_pwm_clock, serial-mal, pwm_tct and pwm_oscAB
+
 // end include
 #endif

@@ -174,193 +174,190 @@ ext_op if ext_type==3:
 // execute program code
 #ifdef SF_ENABLE_MAL
 boolean mal_execute_pc(uint16_t prog) {
-  
-  // Fetch cmd and split and fetch extension if needed
-  uint8_t cmd = pf_conf.mal_program[pf_prog.mal_pc][prog];
-  uint8_t value_type = (cmd >> 4) & 3;
-  uint8_t var_idx    =  cmd & 0x0F;
-  uint8_t cmd_type   = (cmd >> 6) & 3;
-  uint8_t ext_type   = ZERO;
-  uint8_t ext_op     = ZERO;
 
-  #ifdef SF_ENABLE_DEBUG
-  Serial_printCharP(PSTR("Exec cmd: 0x"));
-  if (cmd < 16) { Serial_write('0'); }
-  Serial_printHex(cmd);
-  Serial_printCharP(PSTR(" vt:"));
-  Serial_printDec(value_type);
-  Serial_printCharP(PSTR(" vi:"));
-  Serial_printDec(var_idx);
-  Serial_printCharP(PSTR(" ct:"));
-  Serial_printDec(cmd_type);
-  #endif
-  
-  if (cmd_type==1) {
-    pf_prog.mal_pc++;
-    uint8_t ext_cmd = pf_conf.mal_program[pf_prog.mal_pc][prog];
-    ext_type        = (ext_cmd >> 4) & 0x0F;
-    ext_op          =  ext_cmd & 0x0F;
-    
-    #ifdef SF_ENABLE_DEBUG
-    Serial_printCharP(PSTR(" ext-cmd: 0x"));
-    if (ext_cmd < 16) { Serial_write('0'); }
-    Serial_printHex(ext_cmd);
-    Serial_printCharP(PSTR(" et:"));
-    Serial_printDec(ext_type);
-    Serial_printCharP(PSTR(" eo:"));
-    Serial_printDec(ext_op);
-    #endif
-    
-    if (ext_type==4) {
-      #ifdef SF_ENABLE_DEBUG
-      Serial_printCharP(PSTR(" endif"));
-      Serial_println();
-      #endif
-      pf_prog.mal_state = MAL_STATE_RUN;
-      return true; // endif
-    }
-    
-  } else if (cmd_type==3) {
-    #ifdef SF_ENABLE_DEBUG
-    Serial_println();
-    #endif
-    pf_prog.mal_pc++;
-    uint8_t next_line = pf_conf.mal_program[pf_prog.mal_pc][prog];
-    if (next_line==0xFF) {
-      return false;   // 0xFF and 0xFF is end of program
-    }
-    return true;      // goto first cmd on new line
-  }
-  
-  uint16_t value = ZERO; // Get the value for the cmd and fetch argument
-  pf_prog.mal_pc++;
-  uint8_t cmd_argu = pf_conf.mal_program[pf_prog.mal_pc][prog];
-  
-  #ifdef SF_ENABLE_DEBUG
-  Serial_printCharP(PSTR(" argu: 0x"));
-  if (cmd_argu < 16) { Serial_write('0'); }
-  Serial_printHex(cmd_argu);
-  #endif
-  
-  if (value_type==0) {
-    pf_prog.mal_pc++;
-    uint8_t cmd_argu_ext = pf_conf.mal_program[pf_prog.mal_pc][prog];
-    value = (cmd_argu << 8) + cmd_argu_ext;
-  } else if (value_type==1) {
-    value = pf_prog.mal_var[cmd_argu];
-  } else if (value_type==2) {
-    uint8_t idxA = ZERO;
-    if (Vars_isIndexA(cmd_argu)) {
-      pf_prog.mal_pc++;
-      idxA = pf_conf.mal_program[pf_prog.mal_pc][prog];
-    }
-    value = Vars_getValue(cmd_argu,idxA,ZERO);
-  } else {
-    uint8_t idxA = ZERO;
-    if (Vars_isIndexA(cmd_argu)) {
-      pf_prog.mal_pc++;
-      idxA = pf_conf.mal_program[pf_prog.mal_pc][prog];
-    }
-    if (pf_prog.mal_state == MAL_STATE_ENDIF && ext_type != 4) {
-      #ifdef SF_ENABLE_DEBUG
-      Serial_printCharP(PSTR(" skip"));
-      Serial_println();
-      #endif
-      return true; // skip execution until endif is found.
-    }
-    #ifdef SF_ENABLE_DEBUG
-    Serial_printCharP(PSTR(" set: "));Serial_printDec((int)cmd_argu);
-    Serial_printCharP(PSTR(" idxA: "));Serial_printDec((int)idxA);
-    Serial_printCharP(PSTR(" to: "));Serial_printDec(pf_prog.mal_var[var_idx]);
-    Serial_println();
-    #endif
-    Vars_setValue(cmd_argu,idxA,ZERO,pf_prog.mal_var[var_idx]);
-    return true;  
-  }
-  if (pf_prog.mal_state == MAL_STATE_ENDIF && ext_type != 4) {
-    #ifdef SF_ENABLE_DEBUG
-    Serial_printCharP(PSTR(" skip"));
-    Serial_println();
-    #endif
-    return true; // skip execution until endif is found.
-  }
-  
-  #ifdef SF_ENABLE_DEBUG
-  Serial_printCharP(PSTR(" var: 0x"));Serial_printHex(pf_prog.mal_var[var_idx]);
-  Serial_printCharP(PSTR(" value: 0x"));Serial_printHex(value);
-  Serial_println();
-  #endif
-  
-  if (cmd_type==0) {
-    pf_prog.mal_var[var_idx] = value;
-    return true;
-  }
-  if (ext_type==0) {
-    uint16_t vv = pf_prog.mal_var[var_idx];
-    switch(ext_op) {
-    case 0: pf_prog.mal_var[var_idx] = vv + value;  break;
-    case 1: pf_prog.mal_var[var_idx] = vv - value;  break;
-    case 2: pf_prog.mal_var[var_idx] = vv * value;  break;
-    case 3: pf_prog.mal_var[var_idx] = vv / value;  break;
-    case 4: pf_prog.mal_var[var_idx] = vv & value;  break;
-    case 5: pf_prog.mal_var[var_idx] = vv | value;  break;
-    default: break;
-    }
-    return true;
-  } else if (ext_type==1) {
-    return false; // stop running
-  } else if (ext_type==2) {
-    pf_prog.mal_state = MAL_STATE_RUN; // end endif
-    pf_prog.mal_pc = value - ONE; // goto address/line
-    return true; // -one because while loop does auto pc++
-  } else if (ext_type==3) {
-    boolean if_result = true;
-    switch(ext_op) {
-    case 0: if_result = pf_prog.mal_var[var_idx] == value;  break;
-    case 1: if_result = pf_prog.mal_var[var_idx] != value;  break;
-    case 2: if_result = pf_prog.mal_var[var_idx]  > value;  break;
-    case 3: if_result = pf_prog.mal_var[var_idx]  < value;  break;
-    case 4: if_result = pf_prog.mal_var[var_idx] >= value;  break;
-    case 5: if_result = pf_prog.mal_var[var_idx] <= value;  break;
-    default: break;
-    }
-    if (if_result==false) {
-      pf_prog.mal_state = MAL_STATE_ENDIF;
-    }
-  } else {
-    pf_prog.mal_state = MAL_STATE_RUN;
-  }
-  return true;
+	// Fetch cmd and split and fetch extension if needed
+	uint8_t cmd = pf_conf.mal_program[pf_prog.mal_pc][prog];
+	uint8_t value_type = (cmd >> 4) & 3;
+	uint8_t var_idx    =  cmd & 0x0F;
+	uint8_t cmd_type   = (cmd >> 6) & 3;
+	uint8_t ext_type   = ZERO;
+	uint8_t ext_op     = ZERO;
+
+#ifdef SF_ENABLE_DEBUG
+	Serial_printCharP(PSTR("Exec cmd: 0x"));
+	if (cmd < 16) { Serial_write('0'); }
+	Serial_printHex(cmd);
+	Serial_printCharP(PSTR(" vt:"));
+	Serial_printDec(value_type);
+	Serial_printCharP(PSTR(" vi:"));
+	Serial_printDec(var_idx);
+	Serial_printCharP(PSTR(" ct:"));
+	Serial_printDec(cmd_type);
+#endif
+
+	if (cmd_type==1) {
+		pf_prog.mal_pc++;
+		uint8_t ext_cmd = pf_conf.mal_program[pf_prog.mal_pc][prog];
+		ext_type        = (ext_cmd >> 4) & 0x0F;
+		ext_op          =  ext_cmd & 0x0F;
+
+#ifdef SF_ENABLE_DEBUG
+		Serial_printCharP(PSTR(" ext-cmd: 0x"));
+		if (ext_cmd < 16) { Serial_write('0'); }
+		Serial_printHex(ext_cmd);
+		Serial_printCharP(PSTR(" et:"));
+		Serial_printDec(ext_type);
+		Serial_printCharP(PSTR(" eo:"));
+		Serial_printDec(ext_op);
+#endif
+
+		if (ext_type==4) {
+#ifdef SF_ENABLE_DEBUG
+			Serial_printCharP(PSTR(" endif"));
+			Serial_println();
+#endif
+			pf_prog.mal_state = MAL_STATE_RUN;
+			return true; // endif
+		}
+
+	} else if (cmd_type==3) {
+#ifdef SF_ENABLE_DEBUG
+		Serial_println();
+#endif
+		pf_prog.mal_pc++;
+		uint8_t next_line = pf_conf.mal_program[pf_prog.mal_pc][prog];
+		if (next_line==0xFF) {
+			return false;   // 0xFF and 0xFF is end of program
+		}
+		return true;      // goto first cmd on new line
+	}
+
+	uint16_t value = ZERO; // Get the value for the cmd and fetch argument
+	pf_prog.mal_pc++;
+	uint8_t cmd_argu = pf_conf.mal_program[pf_prog.mal_pc][prog];
+
+#ifdef SF_ENABLE_DEBUG
+	Serial_printCharP(PSTR(" argu: 0x"));
+	if (cmd_argu < 16) { Serial_write('0'); }
+	Serial_printHex(cmd_argu);
+#endif
+
+	if (value_type==0) {
+		pf_prog.mal_pc++;
+		uint8_t cmd_argu_ext = pf_conf.mal_program[pf_prog.mal_pc][prog];
+		value = (cmd_argu << 8) + cmd_argu_ext;
+	} else if (value_type==1) {
+		value = pf_prog.mal_var[cmd_argu];
+	} else if (value_type==2) {
+		uint8_t idxA = ZERO;
+		if (Vars_isIndexA(cmd_argu)) {
+			pf_prog.mal_pc++;
+			idxA = pf_conf.mal_program[pf_prog.mal_pc][prog];
+		}
+		value = Vars_getValue(cmd_argu,idxA,ZERO);
+	} else {
+		uint8_t idxA = ZERO;
+		if (Vars_isIndexA(cmd_argu)) {
+			pf_prog.mal_pc++;
+			idxA = pf_conf.mal_program[pf_prog.mal_pc][prog];
+		}
+		if (pf_prog.mal_state == MAL_STATE_ENDIF && ext_type != 4) {
+#ifdef SF_ENABLE_DEBUG
+			Serial_printCharP(PSTR(" skip"));
+			Serial_println();
+#endif
+			return true; // skip execution until endif is found.
+		}
+#ifdef SF_ENABLE_DEBUG
+		Serial_printCharP(PSTR(" set: "));Serial_printDec((int)cmd_argu);
+		Serial_printCharP(PSTR(" idxA: "));Serial_printDec((int)idxA);
+		Serial_printCharP(PSTR(" to: "));Serial_printDec(pf_prog.mal_var[var_idx]);
+		Serial_println();
+#endif
+		Vars_setValue(cmd_argu,idxA,ZERO,pf_prog.mal_var[var_idx]);
+		return true;
+	}
+	if (pf_prog.mal_state == MAL_STATE_ENDIF && ext_type != 4) {
+#ifdef SF_ENABLE_DEBUG
+		Serial_printCharP(PSTR(" skip"));
+		Serial_println();
+#endif
+		return true; // skip execution until endif is found.
+	}
+
+#ifdef SF_ENABLE_DEBUG
+	Serial_printCharP(PSTR(" var: 0x"));Serial_printHex(pf_prog.mal_var[var_idx]);
+	Serial_printCharP(PSTR(" value: 0x"));Serial_printHex(value);
+	Serial_println();
+#endif
+
+	if (cmd_type==0) {
+		pf_prog.mal_var[var_idx] = value;
+		return true;
+	}
+	if (ext_type==0) {
+		uint16_t vv = pf_prog.mal_var[var_idx];
+		switch(ext_op) {
+			case 0: pf_prog.mal_var[var_idx] = vv + value;  break;
+			case 1: pf_prog.mal_var[var_idx] = vv - value;  break;
+			case 2: pf_prog.mal_var[var_idx] = vv * value;  break;
+			case 3: pf_prog.mal_var[var_idx] = vv / value;  break;
+			case 4: pf_prog.mal_var[var_idx] = vv & value;  break;
+			case 5: pf_prog.mal_var[var_idx] = vv | value;  break;
+			default: break;
+		}
+		return true;
+	} else if (ext_type==1) {
+		return false; // stop running
+	} else if (ext_type==2) {
+		pf_prog.mal_state = MAL_STATE_RUN; // end endif
+		pf_prog.mal_pc = value - ONE; // goto address/line
+		return true; // -one because while loop does auto pc++
+	} else if (ext_type==3) {
+		boolean if_result = true;
+		switch(ext_op) {
+			case 0: if_result = pf_prog.mal_var[var_idx] == value;  break;
+			case 1: if_result = pf_prog.mal_var[var_idx] != value;  break;
+			case 2: if_result = pf_prog.mal_var[var_idx]  > value;  break;
+			case 3: if_result = pf_prog.mal_var[var_idx]  < value;  break;
+			case 4: if_result = pf_prog.mal_var[var_idx] >= value;  break;
+			case 5: if_result = pf_prog.mal_var[var_idx] <= value;  break;
+			default: break;
+		}
+		if (if_result==false) {
+			pf_prog.mal_state = MAL_STATE_ENDIF;
+		}
+	} else {
+		pf_prog.mal_state = MAL_STATE_RUN;
+	}
+	return true;
 }
 
 void mal_execute(uint16_t prog,uint16_t input_value) {
-  if (prog > MAL_PROGRAM_MAX) {
-    return; // invalid
-  }
-  if (pf_conf.mal_program[ZERO][prog] == 0xFF) {
-    return; // there is no program
-  }
+	if (prog > MAL_PROGRAM_MAX) {
+		return; // invalid
+	}
+	if (pf_conf.mal_program[ZERO][prog] == 0xFF) {
+		return; // there is no program
+	}
 
-  // reset program state
-  uint8_t v=ZERO;
-  for(v=ZERO;v<16;v++) {
-    pf_prog.mal_var[v]  = ZERO;
-  }
-  pf_prog.mal_var[ZERO] = input_value;
-  pf_prog.mal_pc        = ZERO;
-  pf_prog.mal_state     = MAL_STATE_RUN;
-  
-  // limit to 250 steps running
-  uint8_t st=0;
-  for(st=0;st<250;st++) {
-    if (mal_execute_pc(prog)==false) {
-      break; // end program
-    }
-    pf_prog.mal_pc++;
-  }  
-  pf_prog.mal_state          = MAL_STATE_IDLE;
+	// reset program state
+	for(uint8_t v=ZERO;v<16;v++) {
+		pf_prog.mal_var[v]  = ZERO;
+	}
+	pf_prog.mal_var[ZERO] = input_value;
+	pf_prog.mal_pc        = ZERO;
+	pf_prog.mal_state     = MAL_STATE_RUN;
+
+	// limit to 250 steps running
+	for(uint8_t st=0;st<250;st++) {
+		if (mal_execute_pc(prog)==false) {
+			break; // end program
+		}
+		pf_prog.mal_pc++;
+	}
+	pf_prog.mal_state = MAL_STATE_IDLE;
 }
-
 
 
 #endif
