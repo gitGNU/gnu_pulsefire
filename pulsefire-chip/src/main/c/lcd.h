@@ -31,8 +31,6 @@
 #include "freq.h"
 
 void lcd_write(uint8_t c,uint8_t cmd);
-void lcd_writeMux(uint8_t c,uint8_t cmd,uint8_t mux);
-void lcd_write_s2p(uint8_t value);
 void lcd_home(void);
 void lcd_clear(void);
 void lcd_cursor(uint8_t col, uint8_t row);

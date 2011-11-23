@@ -38,7 +38,8 @@ char* UNPSTR(const char* dstring) {
 }
 
 // Fill pstr_buff from pointer
-char* UNPSTRA(const uint16_t* argu) {
+char* UNPSTRA(const CHIP_PTR_TYPE* argu) {
+	// rm readByte use word which auto size ptr
 	uint8_t msb = Chip_pgm_readByte((const char*)argu+1);
 	uint8_t lsb = Chip_pgm_readByte((const char*)argu);
 	const char*p = (const char*) ((msb*256)+lsb);

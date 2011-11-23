@@ -41,7 +41,7 @@ PF variable fields metadata:
 
 */
 // PFVT_TYPE,  VARIALBE_POINTER,                       ASCII_POINTER,                    MAX_VALUE,            VARIABLE_BITS,                  DEFAULT_VALUE
-const uint16_t PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SIZE+
+const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SIZE+
   PF_VARS_PWM_SIZE+PF_VARS_LCD_SIZE+PF_VARS_LPM_SIZE+
   PF_VARS_PPM_SIZE+PF_VARS_ADC_SIZE+PF_VARS_DIC_SIZE+
   PF_VARS_DOC_SIZE+PF_VARS_DEV_SIZE+PF_VARS_PTC_SIZE+
@@ -49,9 +49,9 @@ const uint16_t PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SIZE+
   PF_VARS_MAL_SIZE+PF_VARS_FRQ_SIZE+PF_VARS_SWC_SIZE][PFVF_DEF+ONE] CHIP_PROGMEM = {
 
 #ifdef SF_ENABLE_PWM
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_enable,        (uint16_t)&pmConfPulseEnable,     ONE,                  PFVB_NONE,                      ONE},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_mode,          (uint16_t)&pmConfPulseMode,       PULSE_MODE_PPMI,      PFVB_NONE,                      PULSE_MODE_TRAIN},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_steps,         (uint16_t)&pmConfPulseSteps,
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_enable,        (CHIP_PTR_TYPE)&pmConfPulseEnable,     ONE,                  PFVB_NONE,                      ONE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_mode,          (CHIP_PTR_TYPE)&pmConfPulseMode,       PULSE_MODE_PPMI,      PFVB_NONE,                      PULSE_MODE_TRAIN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_steps,         (CHIP_PTR_TYPE)&pmConfPulseSteps,
 	#if defined(SF_ENABLE_EXT_OUT_16BIT)
 		OUTPUT_MAX,
 	#elif defined(SF_ENABLE_EXT_OUT)
@@ -61,219 +61,222 @@ const uint16_t PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SIZE+
 	#else
 		6,
 	#endif
-	                                                                                                            PFVB_NONE,                      DEFAULT_PULSE_STEPS},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_trig,          (uint16_t)&pmConfPulseTrig,       PULSE_TRIG_EXT,      PFVB_NONE,                      PULSE_TRIG_LOOP},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_dir,           (uint16_t)&pmConfPulseDir,        PULSE_DIR_LRRL,      PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_bank,          (uint16_t)&pmConfPulseBank,       ALL_BANK_MAX,        PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pulse_inv,           (uint16_t)&pmConfPulseInv,        ONE,                 PFVB_NONE,                      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_trig_delay,    (uint16_t)&pmConfPulseTrigDelay,  0xFFFF,              PFVB_NONE,                      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_post_delay,    (uint16_t)&pmConfPulsePostDelay,  0xFFFF,              PFVB_NONE,                      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_mask_a,        (uint16_t)&pmConfPulseMaskA,      0xFFFF,              PFVB_NONE,                      PULSE_DATA_ON},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_mask_b,        (uint16_t)&pmConfPulseMaskB,      0xFFFF,              PFVB_NONE,                      PULSE_DATA_ON},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_init_a,        (uint16_t)&pmConfPulseInitA,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pulse_init_b,        (uint16_t)&pmConfPulseInitB,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
+	                                                                                                                      PFVB_NONE,                      DEFAULT_PULSE_STEPS},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_trig,          (CHIP_PTR_TYPE)&pmConfPulseTrig,       PULSE_TRIG_EXT,      PFVB_NONE,                      PULSE_TRIG_LOOP},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_dir,           (CHIP_PTR_TYPE)&pmConfPulseDir,        PULSE_DIR_LRRL,      PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_bank,          (CHIP_PTR_TYPE)&pmConfPulseBank,       ALL_BANK_MAX,        PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_inv,           (CHIP_PTR_TYPE)&pmConfPulseInv,        ONE,                 PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_trig_delay,    (CHIP_PTR_TYPE)&pmConfPulseTrigDelay,  0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_post_delay,    (CHIP_PTR_TYPE)&pmConfPulsePostDelay,  0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_mask_a,        (CHIP_PTR_TYPE)&pmConfPulseMaskA,      0xFFFF,              PFVB_NONE,                      PULSE_DATA_ON},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_mask_b,        (CHIP_PTR_TYPE)&pmConfPulseMaskB,      0xFFFF,              PFVB_NONE,                      PULSE_DATA_ON},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_init_a,        (CHIP_PTR_TYPE)&pmConfPulseInitA,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_init_b,        (CHIP_PTR_TYPE)&pmConfPulseInitB,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
 
-	{PFVT_16BIT, (uint16_t)&pf_conf.pwm_on_cnt_a,        (uint16_t)&pmConfPWMOnCntA,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pwm_on_cnt_b,        (uint16_t)&pmConfPWMOnCntB,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pwm_off_cnt_a,       (uint16_t)&pmConfPWMOffCntA,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pwm_off_cnt_b,       (uint16_t)&pmConfPWMOffCntB,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.pwm_tune_cnt,        (uint16_t)&pmConfPWMTuneCnt,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pwm_loop,            (uint16_t)&pmConfPWMLoop,         0xFF,                PFVB_NONE,                      DEFAULT_PWM_LOOP},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pwm_loop_delta,      (uint16_t)&pmConfPWMLoopDelta,    0xFF,                PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pwm_clock,           (uint16_t)&pmConfPWMClock,        CLOCK_VALUE_MAX,     PFVB_NONE,                      DEFAULT_PWM_CLOCK},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.pwm_duty,            (uint16_t)&pmConfPWMDuty,         110,                 PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_on_cnt_a,        (CHIP_PTR_TYPE)&pmConfPWMOnCntA,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_on_cnt_b,        (CHIP_PTR_TYPE)&pmConfPWMOnCntB,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_off_cnt_a,       (CHIP_PTR_TYPE)&pmConfPWMOffCntA,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_off_cnt_b,       (CHIP_PTR_TYPE)&pmConfPWMOffCntB,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_tune_cnt,        (CHIP_PTR_TYPE)&pmConfPWMTuneCnt,      0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pwm_loop,            (CHIP_PTR_TYPE)&pmConfPWMLoop,         0xFF,                PFVB_NONE,                      DEFAULT_PWM_LOOP},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pwm_loop_delta,      (CHIP_PTR_TYPE)&pmConfPWMLoopDelta,    0xFF,                PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pwm_clock,           (CHIP_PTR_TYPE)&pmConfPWMClock,        CLOCK_VALUE_MAX,     PFVB_NONE,                      DEFAULT_PWM_CLOCK},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pwm_duty,            (CHIP_PTR_TYPE)&pmConfPWMDuty,         110,                 PFVB_NONE,                      ZERO},
 #endif
 
 #ifdef SF_ENABLE_PPM
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ppm_data_offset,     (uint16_t)&pmConfPPMDataOffset,   OUTPUT_MAX-ONE,      PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ppm_data_length,     (uint16_t)&pmConfPPMDataLength,   OUTPUT_MAX,          PFVB_NONE,                      OUTPUT_MAX},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ppm_data_a,          (uint16_t)&pmConfPPMDataA,        0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ppm_data_b,          (uint16_t)&pmConfPPMDataB,        0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ppm_data_offset,     (CHIP_PTR_TYPE)&pmConfPPMDataOffset,   OUTPUT_MAX-ONE,      PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ppm_data_length,     (CHIP_PTR_TYPE)&pmConfPPMDataLength,   OUTPUT_MAX,          PFVB_NONE,                      OUTPUT_MAX},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ppm_data_a,          (CHIP_PTR_TYPE)&pmConfPPMDataA,        0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ppm_data_b,          (CHIP_PTR_TYPE)&pmConfPPMDataB,        0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      ZERO},
 #endif
 #ifdef SF_ENABLE_LPM
-	{PFVT_16BIT, (uint16_t)&pf_conf.lpm_start,           (uint16_t)&pmConfLPMStart,        0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_START},
-	{PFVT_16BIT, (uint16_t)&pf_conf.lpm_stop,            (uint16_t)&pmConfLPMStop,         0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_STOP},
-	{PFVT_16BIT, (uint16_t)&pf_conf.lpm_size,            (uint16_t)&pmConfLPMSize,         0xFFFF,              PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.lpm_relay_inv,       (uint16_t)&pmConfLPMRelayInv,     ONE,                 PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_start,           (CHIP_PTR_TYPE)&pmConfLPMStart,        0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_START},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_stop,            (CHIP_PTR_TYPE)&pmConfLPMStop,         0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_STOP},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_size,            (CHIP_PTR_TYPE)&pmConfLPMSize,         0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lpm_relay_inv,       (CHIP_PTR_TYPE)&pmConfLPMRelayInv,     ONE,                 PFVB_NONE,                      ZERO},
 #endif
 #ifdef SF_ENABLE_PTC
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ptc_0run,            (uint16_t)&pmConfPTC0Run,         PTC_RUN_LOOP,        PFVB_NONE,                      PTC_RUN_OFF},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ptc_1run,            (uint16_t)&pmConfPTC1Run,         PTC_RUN_LOOP,        PFVB_NONE,                      PTC_RUN_OFF},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ptc_0mul,            (uint16_t)&pmConfPTC0Mul,         0xFF,                PFVB_NONE,                      ONE},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.ptc_1mul,            (uint16_t)&pmConfPTC1Mul,         0xFF,                PFVB_NONE,                      ONE},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptc_0map,            (uint16_t)&pmConfPTC0Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTC_TIME_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptc_1map,            (uint16_t)&pmConfPTC1Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTC_TIME_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ptc_0run,            (CHIP_PTR_TYPE)&pmConfPTC0Run,         PTC_RUN_LOOP,        PFVB_NONE,                      PTC_RUN_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ptc_1run,            (CHIP_PTR_TYPE)&pmConfPTC1Run,         PTC_RUN_LOOP,        PFVB_NONE,                      PTC_RUN_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ptc_0mul,            (CHIP_PTR_TYPE)&pmConfPTC0Mul,         0xFF,                PFVB_NONE,                      ONE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ptc_1mul,            (CHIP_PTR_TYPE)&pmConfPTC1Mul,         0xFF,                PFVB_NONE,                      ONE},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptc_0map,            (CHIP_PTR_TYPE)&pmConfPTC0Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTC_TIME_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptc_1map,            (CHIP_PTR_TYPE)&pmConfPTC1Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTC_TIME_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
 #endif
 #ifdef SF_ENABLE_PTT
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptt_0map,            (uint16_t)&pmConfPTT0Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptt_1map,            (uint16_t)&pmConfPTT1Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptt_2map,            (uint16_t)&pmConfPTT2Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.ptt_3map,            (uint16_t)&pmConfPTT3Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptt_0map,            (CHIP_PTR_TYPE)&pmConfPTT0Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptt_1map,            (CHIP_PTR_TYPE)&pmConfPTT1Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptt_2map,            (CHIP_PTR_TYPE)&pmConfPTT2Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.ptt_3map,            (CHIP_PTR_TYPE)&pmConfPTT3Map,         0xFFFF,              (QMAP_SIZE<<13)+(PTT_TRIG_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,  0xFFFF},
 #endif
 #ifdef SF_ENABLE_DEV
-	{PFVT_8BIT,  (uint16_t)&pf_conf.dev_volt_dot,        (uint16_t)&pmProgDevVoltDot,      DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.dev_amp_dot,         (uint16_t)&pmProgDevAmpDot,       DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.dev_temp_dot,        (uint16_t)&pmProgDevTempDot,      DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.dev_volt_dot,        (CHIP_PTR_TYPE)&pmProgDevVoltDot,      DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.dev_amp_dot,         (CHIP_PTR_TYPE)&pmProgDevAmpDot,       DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.dev_temp_dot,        (CHIP_PTR_TYPE)&pmProgDevTempDot,      DEV_DOT_10000,       PFVB_NOMAP,                     ZERO},
 #endif
 #ifdef SF_ENABLE_STV
-	{PFVT_8BIT,  (uint16_t)&pf_conf.stv_warn_secs,       (uint16_t)&pmConfSTVWarnSecs,     0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.stv_warn_mode,       (uint16_t)&pmConfSTVWarnMode,     PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.stv_error_secs,      (uint16_t)&pmConfSTVErrorSecs,    0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.stv_error_mode,      (uint16_t)&pmConfSTVErrorMode,    PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.stv_max_map,         (uint16_t)&pmConfSTVMaxMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MAX_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.stv_min_map,         (uint16_t)&pmConfSTVMinMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MIN_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_warn_secs,       (CHIP_PTR_TYPE)&pmConfSTVWarnSecs,     0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_warn_mode,       (CHIP_PTR_TYPE)&pmConfSTVWarnMode,     PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_error_secs,      (CHIP_PTR_TYPE)&pmConfSTVErrorSecs,    0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_error_mode,      (CHIP_PTR_TYPE)&pmConfSTVErrorMode,    PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_max_map,         (CHIP_PTR_TYPE)&pmConfSTVMaxMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MAX_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_min_map,         (CHIP_PTR_TYPE)&pmConfSTVMinMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MIN_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 #endif
 #ifdef SF_ENABLE_VFC
-	{PFVT_16BIT, (uint16_t)&pf_conf.vfc_input_map,       (uint16_t)&pmConfVFCInputMap,     0xFFFF,              (QMAP_SIZE<<13)+(VFC_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.vfc_output_map,      (uint16_t)&pmConfVFCOutputMap,    0xFFFF,              (QMAP_SIZE<<13)+(VFC_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.vfc_input_map,       (CHIP_PTR_TYPE)&pmConfVFCInputMap,     0xFFFF,              (QMAP_SIZE<<13)+(VFC_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.vfc_output_map,      (CHIP_PTR_TYPE)&pmConfVFCOutputMap,    0xFFFF,              (QMAP_SIZE<<13)+(VFC_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 #endif
 #ifdef SF_ENABLE_SWC
-	{PFVT_8BIT,  (uint16_t)&pf_conf.swc_delay,           (uint16_t)&pmConfSWCDelay,        0xFF,                PFVB_NOMAP,                     ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.swc_mode,            (uint16_t)&pmConfSWCMode,         PULSE_MODE_PPMI,     PFVB_NOMAP,                     ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.swc_secs,            (uint16_t)&pmConfSWCSecs,         0xFFFF,              PFVB_NOMAP,                     ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_conf.swc_duty,            (uint16_t)&pmConfSWCDuty,         0xFFFF,              PFVB_NOMAP,                     DEFAULT_SYS_WARMUP_DUTY},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.swc_trig,            (uint16_t)&pmConfSWCTrig,         PTT_TRIG_VAR_SIZE-ONE,PFVB_NOMAP,                    0xFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_delay,           (CHIP_PTR_TYPE)&pmConfSWCDelay,        0xFF,                PFVB_NOMAP,                     ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_mode,            (CHIP_PTR_TYPE)&pmConfSWCMode,         PULSE_MODE_PPMI,     PFVB_NOMAP,                     ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.swc_secs,            (CHIP_PTR_TYPE)&pmConfSWCSecs,         0xFFFF,              PFVB_NOMAP,                     ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.swc_duty,            (CHIP_PTR_TYPE)&pmConfSWCDuty,         0xFFFF,              PFVB_NOMAP,                     DEFAULT_SYS_WARMUP_DUTY},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_trig,            (CHIP_PTR_TYPE)&pmConfSWCTrig,         PTT_TRIG_VAR_SIZE-ONE,PFVB_NOMAP,                    0xFF},
 #endif
 
 #ifdef SF_ENABLE_AVR
-	{PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin2_map,        (uint16_t)&pmConfAVRPin2Map,      PIN2_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN2_TRIG_IN},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin3_map,        (uint16_t)&pmConfAVRPin3Map,      PIN3_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN3_MENU0_IN},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin4_map,        (uint16_t)&pmConfAVRPin4Map,      PIN4_DOC10_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN4_MENU1_IN},
-	{PFVT_8BIT,  (uint16_t)&pf_conf.avr_pin5_map,        (uint16_t)&pmConfAVRPin5Map,      PIN5_DOC11_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN5_CLOCK_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin2_map,        (CHIP_PTR_TYPE)&pmConfAVRPin2Map,      PIN2_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN2_TRIG_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin3_map,        (CHIP_PTR_TYPE)&pmConfAVRPin3Map,      PIN3_FIRE_IN,        PFVB_NOMAP+PFVB_NOMENU,         PIN3_MENU0_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin4_map,        (CHIP_PTR_TYPE)&pmConfAVRPin4Map,      PIN4_DOC10_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN4_MENU1_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin5_map,        (CHIP_PTR_TYPE)&pmConfAVRPin5Map,      PIN5_DOC11_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN5_CLOCK_IN},
 #endif
 
 #ifdef SF_ENABLE_LCD
-	{PFVT_8BIT,  (uint16_t)&pf_conf.lcd_size,            (uint16_t)&pmConfLCDSize,         LCD_SIZE_4x20,       PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lcd_size,            (CHIP_PTR_TYPE)&pmConfLCDSize,         LCD_SIZE_4x20,       PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 #endif
 
 #ifdef SF_ENABLE_ADC
-	{PFVT_16BIT, (uint16_t)&pf_conf.adc_map,             (uint16_t)&pmConfAdcMap,          0xFFFF,              (QMAP_SIZE<<13)+(ADC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
-	{PFVT_16BIT, (uint16_t)&pf_conf.adc_jitter,          (uint16_t)&pmConfAdcJitter,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         DEFAULT_SYS_ADC_JITTER},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_map,             (CHIP_PTR_TYPE)&pmConfAdcMap,          0xFFFF,              (QMAP_SIZE<<13)+(ADC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_jitter,          (CHIP_PTR_TYPE)&pmConfAdcJitter,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         DEFAULT_SYS_ADC_JITTER},
 #endif
 #ifdef SF_ENABLE_DIC
-	{PFVT_16BIT, (uint16_t)&pf_conf.dic_map,             (uint16_t)&pmConfDicMap,          0xFFFF,              (QMAP_SIZE<<13)+(DIC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_map,             (CHIP_PTR_TYPE)&pmConfDicMap,          0xFFFF,              (QMAP_SIZE<<13)+(DIC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
 #endif
 
 // =============== pf_data vars = +64
 
-	{PFVT_32BIT, (uint16_t)&pf_data.sys_main_loop_cnt,   (uint16_t)&pmDataSysMainLoopCnt,  ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_32BIT, (uint16_t)&pf_data.sys_input_time_cnt,  (uint16_t)&pmDataSysInputTimeCnt, ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.sys_main_loop_cnt,   (CHIP_PTR_TYPE)&pmDataSysMainLoopCnt,  ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.sys_input_time_cnt,  (CHIP_PTR_TYPE)&pmDataSysInputTimeCnt, ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 #ifdef SF_ENABLE_ADC
-	{PFVT_32BIT, (uint16_t)&pf_data.adc_time_cnt,        (uint16_t)&pmDataAdcTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.adc_value,           (uint16_t)&pmDataAdcValue,        0xFFFF,              (ADC_NUM_MAX<<8)+PFVB_DT0+PFVB_NOMAP+PFVB_IDXA,  ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.adc_time_cnt,        (CHIP_PTR_TYPE)&pmDataAdcTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.adc_value,           (CHIP_PTR_TYPE)&pmDataAdcValue,        0xFFFF,              (ADC_NUM_MAX<<8)+PFVB_DT0+PFVB_NOMAP+PFVB_IDXA,  ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.adc_state,           (CHIP_PTR_TYPE)&pmDataAdcState,        ADC_STATE_DONE,      PFVB_DT0+PFVB_NOMAP,            ADC_STATE_IDLE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.adc_state_idx,       (CHIP_PTR_TYPE)&pmDataAdcStateIdx,     ADC_NUM_MAX,         PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.adc_state_value,     (CHIP_PTR_TYPE)&pmDataAdcStateValue,   0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 #ifdef SF_ENABLE_DIC
-	{PFVT_32BIT, (uint16_t)&pf_data.dic_time_cnt,        (uint16_t)&pmDataDicTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.dic_value,           (uint16_t)&pmDataDicValue,        0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.dic_time_cnt,        (CHIP_PTR_TYPE)&pmDataDicTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dic_value,           (CHIP_PTR_TYPE)&pmDataDicValue,        0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 #ifdef SF_ENABLE_DOC
-	{PFVT_8BIT,  (uint16_t)&pf_data.doc_port,            (uint16_t)&pmDataDocPort,         ONE,                 (DOC_PORT_NUM_MAX<<8)+PFVB_DT0+PFVB_IDXA,        ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.doc_port,            (CHIP_PTR_TYPE)&pmDataDocPort,         ONE,                 (DOC_PORT_NUM_MAX<<8)+PFVB_DT0+PFVB_IDXA,        ZERO},
 #endif
 #ifdef SF_ENABLE_SWC
-	{PFVT_8BIT,  (uint16_t)&pf_data.swc_mode_org,        (uint16_t)&pmDataSWCModeOrg,      PULSE_MODE_PPMI,     PFVB_DT0+PFVB_NOMAP,            ONE},
-	{PFVT_16BIT, (uint16_t)&pf_data.swc_secs_cnt,        (uint16_t)&pmDataSWCSecsCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.swc_duty_cnt,        (uint16_t)&pmDataSWCDutyCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.swc_mode_org,        (CHIP_PTR_TYPE)&pmDataSWCModeOrg,      PULSE_MODE_PPMI,     PFVB_DT0+PFVB_NOMAP,            ONE},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.swc_secs_cnt,        (CHIP_PTR_TYPE)&pmDataSWCSecsCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.swc_duty_cnt,        (CHIP_PTR_TYPE)&pmDataSWCDutyCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 #ifdef SF_ENABLE_LCD
-	{PFVT_32BIT, (uint16_t)&pf_data.lcd_time_cnt,        (uint16_t)&pmDataLcdTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.lcd_page,            (uint16_t)&pmDataLcdPage,         ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.lcd_redraw,          (uint16_t)&pmDataLcdRedraw,       ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.lcd_time_cnt,        (CHIP_PTR_TYPE)&pmDataLcdTimeCnt,      ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lcd_page,            (CHIP_PTR_TYPE)&pmDataLcdPage,         ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lcd_redraw,          (CHIP_PTR_TYPE)&pmDataLcdRedraw,       ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 #ifdef SF_ENABLE_FRQ
-	{PFVT_16BIT, (uint16_t)&pf_data.req_pwm_freq,        (uint16_t)&pmCmdReqPWMFreq,       0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.req_pwm_freq,        (CHIP_PTR_TYPE)&pmCmdReqPWMFreq,       0xFFFF,              PFVB_DT0,                       ZERO},
 #endif
 
 #ifdef SF_ENABLE_LPM
-	{PFVT_8BIT,  (uint16_t)&pf_data.lpm_state,           (uint16_t)&pmDataLPMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            LPM_IDLE},
-	{PFVT_8BIT,  (uint16_t)&pf_data.lpm_auto_cmd,        (uint16_t)&pmCmdReqAutoLPM,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_32BIT, (uint16_t)&pf_data.lpm_start_time,      (uint16_t)&pmDataLPMStartTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_32BIT, (uint16_t)&pf_data.lpm_total_time,      (uint16_t)&pmDataLPMTotalTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.lpm_result,          (uint16_t)&pmDataLPMResult,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.lpm_level,           (uint16_t)&pmDataLPMLevel,        0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_state,           (CHIP_PTR_TYPE)&pmDataLPMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            LPM_IDLE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_auto_cmd,        (CHIP_PTR_TYPE)&pmCmdReqAutoLPM,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.lpm_start_time,      (CHIP_PTR_TYPE)&pmDataLPMStartTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.lpm_total_time,      (CHIP_PTR_TYPE)&pmDataLPMTotalTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.lpm_result,          (CHIP_PTR_TYPE)&pmDataLPMResult,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.lpm_level,           (CHIP_PTR_TYPE)&pmDataLPMLevel,        0xFFFF,              PFVB_DT0,                       ZERO},
 #endif
 
 #ifdef SF_ENABLE_PTC
-	{PFVT_32BIT, (uint16_t)&pf_data.ptc_sys_cnt,         (uint16_t)&pmDataPTCSysCnt,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_0cnt,            (uint16_t)&pmDataPTC0Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_1cnt,            (uint16_t)&pmDataPTC1Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_0run_cnt,        (uint16_t)&pmDataPTC0RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_1run_cnt,        (uint16_t)&pmDataPTC1RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_0map_idx,        (uint16_t)&pmDataPTC0MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptc_1map_idx,        (uint16_t)&pmDataPTC1MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.ptc_0mul_cnt,        (uint16_t)&pmDataPTC0MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.ptc_1mul_cnt,        (uint16_t)&pmDataPTC1MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.ptc_sys_cnt,         (CHIP_PTR_TYPE)&pmDataPTCSysCnt,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0cnt,            (CHIP_PTR_TYPE)&pmDataPTC0Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1cnt,            (CHIP_PTR_TYPE)&pmDataPTC1Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0run_cnt,        (CHIP_PTR_TYPE)&pmDataPTC0RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1run_cnt,        (CHIP_PTR_TYPE)&pmDataPTC1RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0map_idx,        (CHIP_PTR_TYPE)&pmDataPTC0MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1map_idx,        (CHIP_PTR_TYPE)&pmDataPTC1MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_0mul_cnt,        (CHIP_PTR_TYPE)&pmDataPTC0MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_1mul_cnt,        (CHIP_PTR_TYPE)&pmDataPTC1MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 #ifdef SF_ENABLE_PTT
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptt_idx,             (uint16_t)&pmDataPTTIdx,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptt_cnt,             (uint16_t)&pmDataPTTCnt,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.ptt_fire,            (uint16_t)&pmDataPTTFire,         0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,  ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_idx,             (CHIP_PTR_TYPE)&pmDataPTTIdx,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_cnt,             (CHIP_PTR_TYPE)&pmDataPTTCnt,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_fire,            (CHIP_PTR_TYPE)&pmDataPTTFire,         0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,  ZERO},
 #endif
 
 #ifdef SF_ENABLE_DEV
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_volt,            (uint16_t)&pmDataDevVolt,         0xFFFF,              PFVB_DT0,                       ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_amp,             (uint16_t)&pmDataDevAmp,          0xFFFF,              PFVB_DT0,                       ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_temp,            (uint16_t)&pmDataDevTemp,         0xFFFF,              PFVB_DT0,                       ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_freq,            (uint16_t)&pmDataDevFreq,         0xFFFF,              PFVB_DT0,                       ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_freq_cnt,        (uint16_t)&pmDataDevFreqCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_data.dev_var,             (uint16_t)&pmDataDevVar,          0xFFFF,              (DEV_VAR_MAX<<8)+PFVB_DT0+PFVB_IDXA,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_volt,            (CHIP_PTR_TYPE)&pmDataDevVolt,         0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_amp,             (CHIP_PTR_TYPE)&pmDataDevAmp,          0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_temp,            (CHIP_PTR_TYPE)&pmDataDevTemp,         0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_freq,            (CHIP_PTR_TYPE)&pmDataDevFreq,         0xFFFF,              PFVB_DT0,                       ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_freq_cnt,        (CHIP_PTR_TYPE)&pmDataDevFreqCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dev_var,             (CHIP_PTR_TYPE)&pmDataDevVar,          0xFFFF,              (DEV_VAR_MAX<<8)+PFVB_DT0+PFVB_IDXA,            ZERO},
 #endif
 
 #ifdef SF_ENABLE_PWM
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_fire,          (uint16_t)&pmDataPulseFire,       0xFF,                PFVB_DT0+PFVB_TRIG,             ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_step,          (uint16_t)&pmDataPulseStep,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_data,          (uint16_t)&pmDataPulseData,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_dir_cnt,       (uint16_t)&pmDataPulseDirCnt,     0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_bank_cnt,      (uint16_t)&pmDataPulseBankCnt,    0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_trig_delay_cnt,(uint16_t)&pmDataPulseTrigDelayCnt,0xFF,               PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pulse_post_delay_cnt,(uint16_t)&pmDataPulsePostDelayCnt,0xFF,               PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_fire,          (CHIP_PTR_TYPE)&pmDataPulseFire,       0xFF,                PFVB_DT0+PFVB_TRIG,             ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_step,          (CHIP_PTR_TYPE)&pmDataPulseStep,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_data,          (CHIP_PTR_TYPE)&pmDataPulseData,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_dir_cnt,       (CHIP_PTR_TYPE)&pmDataPulseDirCnt,     0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_bank_cnt,      (CHIP_PTR_TYPE)&pmDataPulseBankCnt,    0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_trig_delay_cnt,(CHIP_PTR_TYPE)&pmDataPulseTrigDelayCnt,0xFF,               PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_post_delay_cnt,(CHIP_PTR_TYPE)&pmDataPulsePostDelayCnt,0xFF,               PFVB_DT0+PFVB_NOMAP,            ZERO},
 
-	{PFVT_8BIT,  (uint16_t)&pf_data.pwm_state,           (uint16_t)&pmDataPWMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pwm_loop_cnt,        (uint16_t)&pmDataPWMLoopCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_data.pwm_loop_max,        (uint16_t)&pmDataPWMLoopMax,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_state,           (CHIP_PTR_TYPE)&pmDataPWMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_loop_cnt,        (CHIP_PTR_TYPE)&pmDataPWMLoopCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_loop_max,        (CHIP_PTR_TYPE)&pmDataPWMLoopMax,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
 
 #ifdef SF_ENABLE_PPM
-	{PFVT_8BIT,  (uint16_t)&pf_data.ppm_idx,             (uint16_t)&pmDataPPMIdx,          0xFF,                (OUTPUT_MAX<<8)+PFVB_DT0+PFVB_NOMAP+PFVB_IDXA,  ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ppm_idx,             (CHIP_PTR_TYPE)&pmDataPPMIdx,          0xFF,                (OUTPUT_MAX<<8)+PFVB_DT0+PFVB_NOMAP+PFVB_IDXA,  ZERO},
 #endif
 
 #ifdef SF_ENABLE_MAL
-	{PFVT_16BIT, (uint16_t)&pf_data.mal_trig,            (uint16_t)&pmDataMALTrig,         0xFFFF,              (MAL_PROGRAM_MAX<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.mal_trig,            (CHIP_PTR_TYPE)&pmDataMALTrig,         0xFFFF,              (MAL_PROGRAM_MAX<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,ZERO},
 #endif
 
 // =============== pf_prog vars = +128
 
-	{PFVT_8BIT,  (uint16_t)&pf_prog.req_tx_push,         (uint16_t)&pmProgTXPush,          ONE,                 PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.req_tx_echo,         (uint16_t)&pmProgTXEcho,          ONE,                 PFVB_DT1+PFVB_NOMAP,            ONE},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.req_tx_promt,        (uint16_t)&pmProgTXPromt,         ONE,                 PFVB_DT1+PFVB_NOMAP,            ONE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.req_tx_push,         (CHIP_PTR_TYPE)&pmProgTXPush,          ONE,                 PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.req_tx_echo,         (CHIP_PTR_TYPE)&pmProgTXEcho,          ONE,                 PFVB_DT1+PFVB_NOMAP,            ONE},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.req_tx_promt,        (CHIP_PTR_TYPE)&pmProgTXPromt,         ONE,                 PFVB_DT1+PFVB_NOMAP,            ONE},
 
-	{PFVT_32BIT, (uint16_t)&pf_prog.sys_time_ticks,      (uint16_t)&pmProgSysTimeTicks,    ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_32BIT, (uint16_t)&pf_prog.sys_time_ssec,       (uint16_t)&pmProgSysTimeSsec,     ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.sys_time_ticks,      (CHIP_PTR_TYPE)&pmProgSysTimeTicks,    ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.sys_time_ssec,       (CHIP_PTR_TYPE)&pmProgSysTimeSsec,     ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 
 #ifdef SF_ENABLE_LCD
-	{PFVT_8BIT,  (uint16_t)&pf_prog.lcd_menu_state,      (uint16_t)&pmProgLcdMenuState,    0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_prog.lcd_menu_mul,        (uint16_t)&pmProgLcdMenuMul,      0xFFFF,              PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.lcd_menu_idx,        (uint16_t)&pmProgLcdMenuIdx,      0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.lcd_menu_value_idx,  (uint16_t)&pmProgLcdMenuValueIdx, 0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_32BIT, (uint16_t)&pf_prog.lcd_menu_time_cnt,   (uint16_t)&pmProgLcdMenuTimeCnt,  ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.lcd_menu_state,      (CHIP_PTR_TYPE)&pmProgLcdMenuState,    0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_prog.lcd_menu_mul,        (CHIP_PTR_TYPE)&pmProgLcdMenuMul,      0xFFFF,              PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.lcd_menu_idx,        (CHIP_PTR_TYPE)&pmProgLcdMenuIdx,      0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.lcd_menu_value_idx,  (CHIP_PTR_TYPE)&pmProgLcdMenuValueIdx, 0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.lcd_menu_time_cnt,   (CHIP_PTR_TYPE)&pmProgLcdMenuTimeCnt,  ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 #endif
 
 #ifdef SF_ENABLE_MAL
-	{PFVT_8BIT,  (uint16_t)&pf_prog.mal_pc,              (uint16_t)&pmProgMALPc,           0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.mal_state,           (uint16_t)&pmProgMALState,        0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_16BIT, (uint16_t)&pf_prog.mal_var,             (uint16_t)&pmProgMALVar,          0xFFFF,              (OUTPUT_MAX<<8)+PFVB_DT1+PFVB_NOMAP+PFVB_IDXA,  ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.mal_pc,              (CHIP_PTR_TYPE)&pmProgMALPc,           0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.mal_state,           (CHIP_PTR_TYPE)&pmProgMALState,        0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_prog.mal_var,             (CHIP_PTR_TYPE)&pmProgMALVar,          0xFFFF,              (OUTPUT_MAX<<8)+PFVB_DT1+PFVB_NOMAP+PFVB_IDXA,  ZERO},
 #endif
 
 #ifdef SF_ENABLE_STV
-	{PFVT_8BIT,  (uint16_t)&pf_prog.stv_state,           (uint16_t)&pmProgSTVState,        STV_STATE_ERROR_MIN, PFVB_DT1+PFVB_NOMAP,            STV_STATE_OKE},
-	{PFVT_32BIT, (uint16_t)&pf_prog.stv_time_cnt,        (uint16_t)&pmProgSTVTimeCnt,      0xFFFF,              PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.stv_mode_org,        (uint16_t)&pmProgSTVModeOrg,      0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (uint16_t)&pf_prog.stv_map_idx,         (uint16_t)&pmProgSTVMapIdx,       0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_state,           (CHIP_PTR_TYPE)&pmProgSTVState,        STV_STATE_ERROR_MIN, PFVB_DT1+PFVB_NOMAP,            STV_STATE_OKE},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.stv_time_cnt,        (CHIP_PTR_TYPE)&pmProgSTVTimeCnt,      0xFFFF,              PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_mode_org,        (CHIP_PTR_TYPE)&pmProgSTVModeOrg,      0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_map_idx,         (CHIP_PTR_TYPE)&pmProgSTVMapIdx,       0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 #endif
 
 };
 
 uint8_t Vars_getSize(void) {
-	return sizeof(PF_VARS)/sizeof(uint16_t)/(PFVF_DEF+ONE);
+	return sizeof(PF_VARS)/sizeof(CHIP_PTR_TYPE)/(PFVF_DEF+ONE);
 }
 uint16_t Vars_getBitsRaw(uint8_t idx) {
 	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS]));
@@ -396,7 +399,11 @@ uint16_t Vars_getDefaultValue(uint8_t idx) {
 
 uint16_t Vars_getIndexFromName(char* name) {
 	for (uint8_t i=ZERO;i < PF_VARS_SIZE;i++) {
+#ifdef SF_ENABLE_ARM_7M
+		if (strcmp(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
+#else
 		if (strcmp(name, UNPSTR((const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME])))) == ZERO) {
+#endif
 			return i;
 		}
 	}
@@ -417,7 +424,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 		idxB = ZERO;
 	}
 	if (fieldType == PFVT_16BIT) {
-		uint16_t *valuePtr = (uint16_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
+		uint16_t* valuePtr = (uint16_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -428,6 +435,7 @@ uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 		value = *(valuePtr);
 	} else if (fieldType == PFVT_8BIT) {
 		uint8_t *valuePtr = (uint8_t*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
+		//CHIP_PTR_TYPE *valuePtr = (CHIP_PTR_TYPE*)Chip_pgm_readWord(&(PF_VARS[idx][PFVF_VAR]));
 		if (indexedA) {
 			if (indexedB) {
 				valuePtr += idxMaxB * idxA + idxB;
@@ -484,48 +492,6 @@ uint8_t vfc_is_variable_mapped(uint8_t idx,uint8_t idxA) {
 #endif
 
 
-#ifdef SF_ENABLE_STV
-uint8_t stv_is_variable_mapped(uint8_t idx,uint8_t idxA,boolean isMaxMap) {
-	uint8_t maxMap = ZERO;
-	if (isMaxMap) {
-		maxMap = STV_MAX_MAP_MAX;
-	} else {
-		maxMap = STV_MIN_MAP_MAX;
-	}
-	for (uint8_t i=ZERO;i < maxMap;i++) {
-		uint16_t v = ZERO;
-		if (isMaxMap) {
-			v = pf_conf.stv_max_map[i][QMAP_VAR];
-		} else {
-			v = pf_conf.stv_min_map[i][QMAP_VAR];
-		}
-		if (v==QMAP_VAR_NONE) {
-			continue;
-		}
-		if (v != idx) {
-			continue;
-		}
-		if (Vars_isIndexA(idx)==false) {
-			return i;
-		}
-		uint16_t vi = ZERO;
-		if (isMaxMap) {
-			vi = pf_conf.stv_max_map[i][QMAP_VAR_IDX];
-		} else {
-			vi = pf_conf.stv_min_map[i][QMAP_VAR_IDX];
-		}
-		if (vi == QMAP_VAR_IDX_ALL) {
-			return i;
-		}
-		if (vi == idxA) {
-			return i;
-		}
-	}
-	return QMAP_VAR_IDX_ALL;
-}
-#endif
-
-
 
 // removes the dubbel print is set is done with serial and req_auto_push==1 
 uint16_t Vars_setValueSerial(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) {
@@ -558,25 +524,25 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	uint16_t fieldType = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE]));
 	uint16_t value_max = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_MAX]));
 	uint16_t value_min = ZERO;
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntA) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfPWMOnCntA) {
 		value_min = ONE;
 	}
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPWMOnCntB) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfPWMOnCntB) {
 		value_min = ONE;
 	}
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfSWCDuty) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfSWCDuty) {
 		value_min = ONE;
 	}
 #ifdef SF_ENABLE_PPM
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPPMDataLength) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfPPMDataLength) {
 		value_min = ONE;
 	}
 #endif
 #ifdef SF_ENABLE_PTC
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC0Mul) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfPTC0Mul) {
 		value_min = ONE;
 	}
-	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (uint16_t)&pmConfPTC1Mul) {
+	if ( Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME])) == (CHIP_PTR_TYPE)&pmConfPTC1Mul) {
 		value_min = ONE;
 	}
 #endif
@@ -688,27 +654,27 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 
 	// Some fields require extra update code;
 	uint16_t varName = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME]));
-	if ( varName == (uint16_t)&pmConfPulseMode && trig==false) {
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPulseMode && trig==false) {
 		Vars_resetData();
 	}
 #ifdef SF_ENABLE_AVR
 	if ( varName == (uint16_t)&pmConfAVRPin2Map) {
 		if (pf_conf.avr_pin2_map == PIN2_TRIG_IN || pf_conf.avr_pin2_map == PIN2_FREQ_IN || pf_conf.avr_pin2_map == PIN2_FIRE_IN) {
-			Chip_io_int_pin(ZERO,ZERO);
+			Chip_in_int_pin(ZERO,ZERO);
 		} else {
-			Chip_io_int_pin(ZERO,ONE);
+			Chip_in_int_pin(ZERO,ONE);
 		}
 	}
 	if ( varName == (uint16_t)&pmConfAVRPin3Map) {
 		if (pf_conf.avr_pin3_map == PIN3_FREQ_IN || pf_conf.avr_pin3_map == PIN3_FIRE_IN) {
-			Chip_io_int_pin(ONE,ZERO);
+			Chip_in_int_pin(ONE,ZERO);
 		} else {
-			Chip_io_int_pin(ONE,ONE);
+			Chip_in_int_pin(ONE,ONE);
 		}
 	}
 #endif
 #ifdef SF_ENABLE_PWM
-	if ( varName == (uint16_t)&pmConfPWMClock) {
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMClock) {
 		Chip_pwm_timer(PWM_REG_CLOCK,pf_conf.pwm_clock);
 	}
 #endif
@@ -718,65 +684,27 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 
 #ifdef SF_ENABLE_STV
-	uint8_t stvIdxMax = stv_is_variable_mapped(idx,idxA,true);
-	uint8_t stvIdxMin = stv_is_variable_mapped(idx,idxA,false);
+	uint8_t stvIdxMax = STV_is_variable_mapped(idx,idxA,true);
+	uint8_t stvIdxMin = STV_is_variable_mapped(idx,idxA,false);
 	if (stvIdxMax != QMAP_VAR_IDX_ALL) {
-		uint16_t warningLevel = pf_conf.stv_max_map[stvIdxMax][QMAP_VALUE_A];
-		uint16_t errorLevel   = pf_conf.stv_max_map[stvIdxMax][QMAP_VALUE_B];
-		if (errorLevel > ZERO && value >= errorLevel && pf_prog.stv_state != STV_STATE_ERROR_MAX && pf_prog.stv_state != STV_STATE_ERROR_MIN) {
-			pf_prog.stv_state            = STV_STATE_ERROR_MAX;
-			pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
-			pf_prog.stv_map_idx          = stvIdxMax;
-			if (pf_conf.stv_error_mode != 0xFF) {
-				Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_error_mode);
-			}
-		} else if (warningLevel > ZERO && value >= warningLevel && pf_prog.stv_state == STV_STATE_OKE) {
-			pf_prog.stv_state            = STV_STATE_WARNING_MAX;
-			pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
-			pf_prog.stv_map_idx          = stvIdxMax;
-			if (pf_conf.stv_warn_mode != 0xFF) {
-#ifdef SF_ENABLE_PWM
-				pf_prog.stv_mode_org         = pf_conf.pulse_mode;
-#endif
-				Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-			}
-		}
+		STV_vars_max(value,stvIdxMax);
 	}
 	if (stvIdxMin != QMAP_VAR_IDX_ALL) {
-		uint16_t warningLevel = pf_conf.stv_min_map[stvIdxMin][QMAP_VALUE_A];
-		uint16_t errorLevel   = pf_conf.stv_min_map[stvIdxMin][QMAP_VALUE_B];
-		if (errorLevel > ZERO && value <= errorLevel && pf_prog.stv_state != STV_STATE_ERROR_MIN && pf_prog.stv_state != STV_STATE_ERROR_MAX) {
-			pf_prog.stv_state            = STV_STATE_ERROR_MIN;
-			pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
-			pf_prog.stv_map_idx          = stvIdxMin;
-			if (pf_conf.stv_error_mode != 0xFF) {
-				Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_error_mode);
-			}
-		} else if (warningLevel > ZERO && value <= warningLevel && pf_prog.stv_state == STV_STATE_OKE) {
-			pf_prog.stv_state            = STV_STATE_WARNING_MIN;
-			pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
-#ifdef SF_ENABLE_PWM
-			pf_prog.stv_mode_org         = pf_conf.pulse_mode;
-#endif
-			pf_prog.stv_map_idx          = stvIdxMin;
-			if (pf_conf.stv_warn_mode != 0xFF) {
-				Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-			}
-		}
+		STV_vars_min(value,stvIdxMin);
 	}
 #endif
 #ifdef SF_ENABLE_FRQ
 #ifdef SF_ENABLE_PWM
-	if ( varName == (uint16_t)&pmCmdReqPWMFreq) {
+	if ( varName == (CHIP_PTR_TYPE)&pmCmdReqPWMFreq) {
 		Freq_requestTrainFreq(value,QMAP_VAR_IDX_ALL,QMAP_VAR_IDX_ALL);
 	}
-	if ( varName == (uint16_t)&pmConfPWMDuty && pf_data.req_pwm_freq != ZERO) {
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMDuty && pf_data.req_pwm_freq != ZERO) {
 		Freq_requestTrainFreq(pf_data.req_pwm_freq,QMAP_VAR_IDX_ALL,QMAP_VAR_IDX_ALL);
 	}
 #endif
 #endif
 #ifdef SF_ENABLE_MAL
-	if ( varName == (uint16_t)&pmDataMALTrig) {
+	if ( varName == (CHIP_PTR_TYPE)&pmDataMALTrig) {
 		mal_execute(idxA,value);
 	}
 #endif
@@ -798,10 +726,14 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 }
 
 void Vars_readConfig(void) {
+#if defined(SF_ENABLE_AVR) | defined(SF_ENABLE_AVR_MEGA)
 	Chip_eeprom_read(&pf_conf_eeprom);
+#endif
 }
 void Vars_writeConfig(void) {
+#if defined(SF_ENABLE_AVR) | defined(SF_ENABLE_AVR_MEGA)
 	Chip_eeprom_write(&pf_conf_eeprom);
+#endif
 }
 
 // Init all config and data to init state.
@@ -881,8 +813,10 @@ void Vars_resetData(void) {
 // Setup all interal variables to init state
 void Vars_setup(void) {
 	// Read or reset config to init state
-	uint8_t  pfVersion    = eeprom_read_byte((uint8_t*)ZERO);
-	uint16_t pfStructSize = eeprom_read_word((uint16_t*)ONE);
+	uint8_t  pfVersion    = Chip_eeprom_readByte((uint8_t*)ZERO);
+	uint16_t pfStructSize = ZERO;
+	pfStructSize = Chip_eeprom_readByte((uint8_t*)ONE) << 8;
+	pfStructSize += Chip_eeprom_readByte((uint8_t*)2);
 	if (pfVersion == PULSE_FIRE_VERSION && pfStructSize == sizeof(pf_conf_struct)) {
 		Vars_readConfig();
 	} else {

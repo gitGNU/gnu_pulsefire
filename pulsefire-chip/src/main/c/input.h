@@ -34,6 +34,7 @@
 void Input_loopLcd(void);
 void Input_loopDic(void);
 void Input_loopAdc(void);
+void Input_adc_int(uint16_t result);
 
 // end include
 #endif

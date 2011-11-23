@@ -25,8 +25,8 @@ CFLAGS += -Os
 #CFLAGS += -mcall-prologues // AVR cc flag
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
-CFLAGS += -fpack-struct
-CFLAGS += -fshort-enums
+#CFLAGS += -fpack-struct // warning on arm
+#CFLAGS += -fshort-enums // gives packed warning on arm
 CFLAGS += -fno-unit-at-a-time
 CFLAGS += -fno-inline-small-functions
 CFLAGS += -fno-split-wide-types
@@ -101,7 +101,7 @@ ARM_CC = ~/sat/bin/arm-none-eabi-gcc
 ARM_OBJCOPY = ~/sat/bin/arm-none-eabi-objcopy
 
 # Define all src files.
-SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./output.c ./ptc.c ./serial.c ./utils.c 
+SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./stv.c ./serial.c ./utils.c 
 
 all: atmega328p-001 \
 atmega328p-002 \
@@ -112,6 +112,7 @@ atmega328p-006 \
 atmega328p-007 \
 atmega328p-020 \
 atmega328p-021 \
+atmega328p-022 \
 atmega168p-001 \
 atmega168p-002 \
 atmega168p-003 \
@@ -439,6 +440,36 @@ atmega328p-021-isp: ISP_MCU = m328p
 atmega328p-021-isp: ISP_PROG = arduino
 atmega328p-021-isp: avr-flash
 
+
+
+atmega328p-022: MCU = atmega328p
+atmega328p-022: F_CPU = 16000000
+atmega328p-022: CFLAGS += -mmcu=$(MCU)
+atmega328p-022: PFLAGS += -DSF_ENABLE_LPM
+atmega328p-022: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-022: PFLAGS += -DSF_ENABLE_DIC
+atmega328p-022: PFLAGS += -DSF_ENABLE_DOC
+atmega328p-022: PFLAGS += -DSF_ENABLE_DEV
+atmega328p-022: PFLAGS += -DSF_ENABLE_PTC
+atmega328p-022: PFLAGS += -DSF_ENABLE_PTT
+atmega328p-022: PFLAGS += -DSF_ENABLE_STV
+atmega328p-022: PFLAGS += -DSF_ENABLE_VFC
+atmega328p-022: PFLAGS += -DSF_ENABLE_SWC
+atmega328p-022: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-022: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega328p-022: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
+atmega328p-022: TARGET = atmega328p-022
+atmega328p-022: $(TPATH)/atmega328p-022/pulsefire.hex
+$(TPATH)/atmega328p-022/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-022-isp: atmega328p-022
+atmega328p-022-isp: TARGET = atmega328p-022
+atmega328p-022-isp: ISP_MCU = m328p
+atmega328p-022-isp: ISP_PROG = arduino
+atmega328p-022-isp: avr-flash
 
 
 atmega168p-001: MCU = atmega168p

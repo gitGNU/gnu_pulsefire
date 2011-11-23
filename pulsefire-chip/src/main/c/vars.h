@@ -34,6 +34,7 @@
 #include "freq.h"
 #include "chip.h"
 #include "mal.h"
+#include "stv.h"
 
 // Defines Types
 typedef uint8_t boolean;
@@ -55,7 +56,7 @@ typedef uint8_t byte;
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
 #define PTT_TRIG_VAR_SIZE           4    // we have always 4 triggers
-#define DIC_NUM_MAX                12    // max 8 digital inputs in extended mode, +4 on pins, extra chip hw is todo
+#define DIC_NUM_MAX                16    // max 8 digital inputs in extended mode, +4 on pins, extra chip hw is todo
 #define DOC_PORT_NUM_MAX           16    // max 16 digital outputs in duel extended mode
 #define PTC_RUN_OFF                 0    // Dont run ptc
 #define PTC_RUN_LOOP               0xFF  // Loop ptc steps
@@ -79,7 +80,7 @@ typedef struct {
 	volatile uint8_t       sys_version;            // Store PulseFire version so reset_conf if changed.
 	volatile uint16_t      sys_struct_size;        // Store this stuct size so reset_conf if changed.
 #ifdef SF_ENABLE_ADC
-	volatile uint16_t      adc_jitter;         // Minmal adc value change until variable update
+	volatile uint16_t      adc_jitter;                      // Minmal adc value change until variable update
 	volatile uint16_t      adc_map[ADC_NUM_MAX][QMAP_SIZE]; // Map analog inputs to variable
 #endif
 #ifdef SF_ENABLE_DIC
@@ -185,7 +186,7 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_CIT_MEGA
-	volatile uint8_t       cit_oc1_clock;
+	volatile uint8_t       cit_oc1_clock; // test
 	volatile uint16_t      cit_oc1_a;
 	volatile uint16_t      cit_oc1_b;
 	volatile uint16_t      cit_oc1_c;
@@ -210,10 +211,13 @@ typedef struct {
 #ifdef SF_ENABLE_ADC
 	volatile uint32_t      adc_time_cnt;
 	volatile uint16_t      adc_value[ADC_NUM_MAX];
+	volatile uint8_t       adc_state;
+	volatile uint8_t       adc_state_idx;
+	volatile uint16_t      adc_state_value;
 #endif
 #ifdef SF_ENABLE_DIC
 	volatile uint32_t      dic_time_cnt;
-	volatile uint8_t       dic_value;
+	volatile uint16_t      dic_value;
 #endif
 #ifdef SF_ENABLE_DOC
 	volatile uint8_t       doc_port[DOC_PORT_NUM_MAX];
@@ -363,7 +367,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_PPM_SIZE  0
 #endif
 #ifdef SF_ENABLE_ADC
-	#define PF_VARS_ADC_SIZE  4
+	#define PF_VARS_ADC_SIZE  7
 #else
 	#define PF_VARS_ADC_SIZE  0
 #endif

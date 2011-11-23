@@ -164,16 +164,6 @@ void cmd_print_info_freq(void) {
 #endif
 
 
-// Prototype and function for specific c init location.
-void SRAM_init(void) __attribute__((naked)) __attribute__ ((section (".init1")));
-void SRAM_init(void) {
-	uint8_t *p; // Break into the C startup so I can clear SRAM to
-	uint16_t i; // known values making it easier to see how it is used
-	for (i=0x100; i < RAMEND; i++) {
-		p = (uint8_t *)i; *p = 0x5A;
-	}
-}
-
 void cmd_print_info_chip(void) {
 
 	Serial_printCharP(pmChipVersion);
@@ -185,20 +175,11 @@ void cmd_print_info_chip(void) {
 
 	Serial_printCharP(pmChipConfMax);
 	Serial_printCharP(pmGetSpaced);
-Serial_printDec(CHIP_EEPROM_SIZE);
+	Serial_printDec(CHIP_EEPROM_SIZE);
 	Serial_println();
 
-	uint32_t free_ram = ZERO;
-	uint8_t *p;
-	uint16_t i;
-	for (i=RAMEND;i>0x100;i--) {
-		p = (uint8_t *) i;
-		if (*p == 0x5A) {
-			free_ram++;
-		}
-	}
 	cmd_print_info_value_long(pmChipConfSize,        sizeof(pf_conf_struct));
-	cmd_print_info_value_long(pmChipFreeSram,        free_ram);
+	cmd_print_info_value_long(pmChipFreeSram,        Chip_free_ram());
 	cmd_print_info_value_long(pmChipCPUFreq,         F_CPU);
 	Serial_println_get_P2(pmChipCPUType, pmChipCPUTypeAVR);
 	Serial_println_get_P2(pmChipName,    pmChipNameStr);
@@ -314,19 +295,19 @@ void cmd_execute(char* cmd, char** args) {
 			for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
 				// Remove unsupported cmds
 #ifndef SF_ENABLE_PPM
-				if ( Chip_pgm_readWord((const uint16_t*)&pmCmdList[i]) == (uint16_t)&pmCmdInfoPPM) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
 #endif
 #ifndef SF_ENABLE_FRQ
-				if ( Chip_pgm_readWord((const uint16_t*)&pmCmdList[i]) == (uint16_t)&pmCmdInfoFreq) { continue; }
-				if ( Chip_pgm_readWord((const uint16_t*)&pmCmdList[i]) == (uint16_t)&pmCmdReqPWMFreq) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoFreq) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPWMFreq) { continue; }
 #endif
 #ifndef SF_ENABLE_LPM
-				if ( Chip_pgm_readWord((const uint16_t*)&pmCmdList[i]) == (uint16_t)&pmCmdReqAutoLPM) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqAutoLPM) { continue; }
 #endif
 #ifndef SF_ENABLE_MAL
-				if ( Chip_pgm_readWord((const uint16_t*)&pmCmdList[i]) == (uint16_t)&pmConfMALProgram) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALProgram) { continue; }
 #endif
-				Serial_printChar(UNPSTRA((const uint16_t*)&pmCmdList[i]));
+				Serial_printChar(UNPSTRA((const CHIP_PTR_TYPE*)&pmCmdList[i]));
 				Serial_println();
 			}
 			for (i=ZERO;i < PF_VARS_SIZE;i++) {
@@ -677,12 +658,12 @@ void cmd_parse(void) {
 }
 
 void Serial_write(uint8_t c) {
-	Chip_io_serial(c);
+	Chip_out_serial(c);
 }
 
 void Serial_rx_int(uint8_t c) {
 	if (pf_prog.req_tx_echo == ONE) {
-		Chip_io_serial(c);
+		Chip_out_serial(c);
 	}
 	if (pf_prog.cmd_process == ZERO) {
 		return; // skip serial data ???

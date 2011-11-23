@@ -23,11 +23,11 @@
 
 
 
-#include "output.h"
+#include "pwm.h"
 
 #ifdef SF_ENABLE_PWM
 // Send data to the outputs
-void int_send_output(uint16_t data) {
+void PWM_send_output(uint16_t data) {
 
 	// Reverse output data if needed.
 	uint8_t pulse_dir = pf_conf.pulse_dir;
@@ -72,11 +72,11 @@ void int_send_output(uint16_t data) {
 		data = ~data;
 	}
 
-	Chip_io_pwm(data);
+	Chip_out_pwm(data);
 }
 
 #ifdef SF_ENABLE_SWC
-boolean int_soft_warmup(void) {
+boolean PWM_soft_warmup(void) {
 	uint32_t sys_up_secs = millis()/1000;
 	if (sys_up_secs == ZERO) {
 		sys_up_secs = ONE; // very fast cpu here.
@@ -102,7 +102,7 @@ boolean int_soft_warmup(void) {
 	if (pf_data.pulse_step == ONE) {
 		pf_data.swc_duty_cnt++;
 		if (pf_data.swc_duty_cnt < startup_duty) {
-			int_send_output(PULSE_DATA_OFF);
+			PWM_send_output(PULSE_DATA_OFF);
 			return true; // wait
 		}
 	}
@@ -110,7 +110,7 @@ boolean int_soft_warmup(void) {
 }
 #endif
 
-boolean int_pulse_mode_flash(void) {
+boolean PWM_pulse_mode_flash(void) {
 	if (pf_data.pulse_data != PULSE_DATA_OFF) {
 		pf_data.pulse_data = PULSE_DATA_OFF;
 	} else {
@@ -119,9 +119,9 @@ boolean int_pulse_mode_flash(void) {
 	return true;
 }
 
-boolean int_pulse_mode_train(void) {
+boolean PWM_pulse_mode_train(void) {
 	if (pf_conf.pulse_steps == ONE) {
-		return int_pulse_mode_flash(); // small exception to make it work like expected
+		return PWM_pulse_mode_flash(); // small exception to make it work like expected
 	}
 	if (pf_data.pulse_bank_cnt==ZERO) {
 		pf_data.pulse_data = pf_conf.pulse_init_a << pf_data.pulse_step;
@@ -132,7 +132,7 @@ boolean int_pulse_mode_train(void) {
 }
 
 #ifdef SF_ENABLE_PPM
-boolean int_pulse_mode_ppm(uint8_t step_zero,boolean interleaved) {
+boolean PWM_pulse_mode_ppm(uint8_t step_zero,boolean interleaved) {
 	// Do ppm seqence shifting
 	uint16_t out_data = ZERO;
 	if (pf_data.pulse_bank_cnt==ZERO) {
@@ -175,7 +175,7 @@ boolean int_pulse_mode_ppm(uint8_t step_zero,boolean interleaved) {
 #endif
 
 #ifdef SF_ENABLE_PPM
-boolean int_pulse_mode_ppma(void) {
+boolean PWM_pulse_mode_ppma(void) {
 	// Shift all channel data out every step.
 	uint16_t out_data = ZERO;
 	uint8_t i=ZERO;
@@ -201,7 +201,7 @@ boolean int_pulse_mode_ppma(void) {
 
 // Do all work per timer step cnt
 // Timer interrupt for step on time
-void int_do_work_a(void) {
+void PWM_do_work_a(void) {
 	if (pf_data.pwm_state == PWM_STATE_STEP_DUTY) {
 		return; // waiting for step duty
 	}
@@ -249,7 +249,7 @@ void int_do_work_a(void) {
 	// Check for soft startup
 #ifdef SF_ENABLE_SWC
 	if (pf_data.swc_secs_cnt > ZERO) {
-		if (int_soft_warmup()) {
+		if (PWM_soft_warmup()) {
 			return; // wait in startup mode
 		}
 	}
@@ -263,7 +263,7 @@ void int_do_work_a(void) {
 
 	// wait for pulse post delay
 	if (pf_data.pwm_state == PWM_STATE_WAIT_POST) {
-		int_send_output(PULSE_DATA_OFF);
+		PWM_send_output(PULSE_DATA_OFF);
 		pf_data.pulse_post_delay_cnt++;
 		uint32_t pre_train_wait = ((F_CPU/pf_conf.pwm_on_cnt_a[0]/100) * pf_conf.pulse_post_delay) / pf_conf.pwm_loop;
 		if (pf_data.pulse_post_delay_cnt < pre_train_wait) {
@@ -275,7 +275,7 @@ void int_do_work_a(void) {
 
 	// use - for letting last output time correctly until off.
 	if (pf_data.pwm_state == PWM_STATE_TRIGGER_END) {
-		int_send_output(PULSE_DATA_OFF);
+		PWM_send_output(PULSE_DATA_OFF);
 		pf_data.pwm_state = PWM_STATE_IDLE;
 		return;
 	}
@@ -295,7 +295,7 @@ void int_do_work_a(void) {
 	if (off_time > ZERO) {
 		if (pf_data.pwm_state != PWM_STATE_STEP_DUTY_DONE) {
 			pf_data.pwm_state = PWM_STATE_STEP_DUTY;
-			int_send_output(PULSE_DATA_OFF);
+			PWM_send_output(PULSE_DATA_OFF);
 			Chip_pwm_timer(PWM_REG_OCRB,off_time);
 			Chip_pwm_timer(PWM_REG_TCNT,0xFFFF-8); // reset again, with some time so interrupts are enabled again, else we miss it sometimes.
 			return;
@@ -307,18 +307,18 @@ void int_do_work_a(void) {
 	boolean step_update = false;
 	switch (pf_conf.pulse_mode) {
 		case PULSE_MODE_FLASH_ZERO:
-		case PULSE_MODE_FLASH:         step_update = int_pulse_mode_flash();              break;
-		case PULSE_MODE_TRAIN:         step_update = int_pulse_mode_train();              break;
+		case PULSE_MODE_FLASH:         step_update = PWM_pulse_mode_flash();              break;
+		case PULSE_MODE_TRAIN:         step_update = PWM_pulse_mode_train();              break;
 #ifdef SF_ENABLE_PPM
-		case PULSE_MODE_PPM:           step_update = int_pulse_mode_ppm(step_zero,false); break;
-		case PULSE_MODE_PPMA:          step_update = int_pulse_mode_ppma();               break;
-		case PULSE_MODE_PPMI:          step_update = int_pulse_mode_ppm(step_zero,true);  break;
+		case PULSE_MODE_PPM:           step_update = PWM_pulse_mode_ppm(step_zero,false); break;
+		case PULSE_MODE_PPMA:          step_update = PWM_pulse_mode_ppma();               break;
+		case PULSE_MODE_PPMI:          step_update = PWM_pulse_mode_ppm(step_zero,true);  break;
 #endif
 		case PULSE_MODE_OFF:default:   pf_data.pulse_data = PULSE_DATA_OFF;               break;
 	}
 
 	// Send data to output with output filtering code.
-	int_send_output(pf_data.pulse_data);
+	PWM_send_output(pf_data.pulse_data);
 
 	// only update pulse_step when needed
 	if (step_update==false) {
@@ -353,7 +353,7 @@ void int_do_work_a(void) {
 }
 
 // Timer interrupt for step off time
-void int_do_work_b(void) {
+void PWM_do_work_b(void) {
 	if (pf_data.pwm_state != PWM_STATE_STEP_DUTY) {
 		return;
 	}
@@ -365,7 +365,7 @@ void int_do_work_b(void) {
 
 	pf_data.pwm_state = PWM_STATE_STEP_DUTY_DONE;
 	pf_data.pwm_loop_cnt = pf_data.pwm_loop_max; // skip normal wait, so we can go to next step
-	int_do_work_a();
+	PWM_do_work_a();
 }
 
 #endif

@@ -61,6 +61,12 @@ enum {
 	PWM_REG_TCNT,
 };
 enum {
+	ADC_STATE_IDLE,
+	ADC_STATE_RUN,
+	ADC_STATE_DONE
+};
+
+enum {
 	LPM_INIT,
 	LPM_IDLE,
 	LPM_START,

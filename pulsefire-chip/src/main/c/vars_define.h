@@ -80,13 +80,13 @@
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
 	#define MAL_PROGRAM_SIZE        128
 	#define MAL_PROGRAM_MAX           8
-	#define ADC_NUM_MAX               6  // todo max 16 work
+	#define ADC_NUM_MAX              16
 	#define PTC_TIME_MAP_MAX         32
 	#define PTT_TRIG_MAP_MAX         16
 	#define STV_MAX_MAP_MAX          32
 	#define STV_MIN_MAP_MAX          16
 	#define DEV_VAR_MAX              16
-	#define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support.
+	#define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support for layout issues.
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom

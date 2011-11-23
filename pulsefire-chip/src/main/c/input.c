@@ -24,21 +24,6 @@
 
 #include "input.h"
 
-#ifdef SF_ENABLE_DIC
-void check_avr_pin(uint8_t dic_bit,uint8_t result) {
-	uint8_t resultOld = (pf_data.dic_value >> dic_bit) & ONE;
-	if (result != resultOld && pf_conf.dic_map[dic_bit][QMAP_VAR] != QMAP_VAR_NONE) {
-		if (result == ZERO) { pf_data.dic_value -= (ONE << dic_bit);   // clear bit in data
-		} else {              pf_data.dic_value += (ONE << dic_bit); }   // set bit in data
-		if (result == ZERO) {
-			Vars_setValue(pf_conf.dic_map[dic_bit][QMAP_VAR],pf_conf.dic_map[dic_bit][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[dic_bit][QMAP_VALUE_A]);
-		} else {
-			Vars_setValue(pf_conf.dic_map[dic_bit][QMAP_VAR],pf_conf.dic_map[dic_bit][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[dic_bit][QMAP_VALUE_B]);
-		}
-	}
-}
-#endif
-
 // read out digital values.
 #ifdef SF_ENABLE_DIC
 void Input_loopDic(void) {
@@ -48,73 +33,19 @@ void Input_loopDic(void) {
 	}
 	pf_data.dic_time_cnt = current_time + DIC_INPUT_TIME;
 
-#ifdef SF_ENABLE_AVR
-	// Special readout of pin2 into dic2 for 1or3 digital inputs without extension
-	if (pf_conf.avr_pin2_map == PIN2_DIC2_IN) {
-		check_avr_pin(2,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN2_PIN));
-	}
-	if (pf_conf.avr_pin3_map == PIN3_DIC3_IN) {
-		check_avr_pin(3,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN));
-	}
-	if (pf_conf.avr_pin4_map == PIN4_DIC4_IN) {
-		check_avr_pin(4,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN));
-	}
-	if (pf_conf.avr_pin5_map == PIN5_DIC5_IN) {
-		check_avr_pin(5,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN5_PIN));
-	}
-	if (pf_conf.avr_pin2_map == PIN2_DIC8_IN) {
-		check_avr_pin(8,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN2_PIN));
-	}
-	if (pf_conf.avr_pin3_map == PIN3_DIC9_IN) {
-		check_avr_pin(9,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN));
-	}
-	if (pf_conf.avr_pin4_map == PIN4_DIC10_IN) {
-		check_avr_pin(10,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN));
-	}
-	if (pf_conf.avr_pin5_map == PIN5_DIC11_IN) {
-		check_avr_pin(11,digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN5_PIN));
-	}
-#endif
-
-#ifdef SF_ENABLE_EXT_LCD
-	uint8_t i=ZERO;
-	for (i=ZERO;i < 8 /* DIC_NUM_MAX */ ;i++) {
-#ifdef SF_ENABLE_EXT_LCD_DIC
-		lcd_writeMux(0x80,LCD_SEND_CMD, ((i & 6) >> ONE) );
-#else
-		if (i>ONE) {
-			break; // check only 2 inputs
-		}
-#endif
-#ifdef SF_ENABLE_AVR
-		if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
-		if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
-		if (i==4  && pf_conf.avr_pin4_map == PIN4_DIC4_IN)  { continue; }
-		if (i==5  && pf_conf.avr_pin5_map == PIN5_DIC5_IN)  { continue; }
-		if (i==8  && pf_conf.avr_pin2_map == PIN2_DIC8_IN)  { continue; }
-		if (i==9  && pf_conf.avr_pin3_map == PIN3_DIC9_IN)  { continue; }
-		if (i==10 && pf_conf.avr_pin4_map == PIN4_DIC10_IN) { continue; }
-		if (i==11 && pf_conf.avr_pin5_map == PIN5_DIC11_IN) { continue; }
-#endif
-
-		uint8_t result = ZERO;
-		if ((i & ONE) == ZERO) {
-			result = digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN);
-		} else {
-			result = digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN);
-		}
+	uint16_t dic_data = Chip_in_dic();
+	for (uint8_t i=ZERO;i < DIC_NUM_MAX ;i++) {
+		uint8_t result    = (dic_data >> i) & ONE;
 		uint8_t resultOld = (pf_data.dic_value >> i) & ONE;
 		if (result == resultOld) {
 			continue; // no change
 		}
-
 #ifdef SF_ENABLE_DEBUG
 		Serial_printCharP(PSTR("Read dic: "));Serial_printDec((int)i);
 		Serial_printCharP(PSTR(" value: "));Serial_printDec((int)result);
 		Serial_printCharP(PSTR(" old: "));Serial_printDec((int)resultOld);
 		Serial_println();
 #endif
-
 		if (result == ZERO) {
 			pf_data.dic_value -= (ONE << i); // clear bit in data
 		} else {
@@ -129,11 +60,13 @@ void Input_loopDic(void) {
 			Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_B]);
 		}
 	}
-#endif
 }
 #endif
 
-//ISR(ADC_vect) {}
+void Input_adc_int(uint16_t result) {
+	pf_data.adc_state = ADC_STATE_DONE;
+	pf_data.adc_state_value = result;
+}
 
 // read out analog values.
 #ifdef SF_ENABLE_ADC
@@ -143,9 +76,19 @@ void Input_loopAdc(void) {
 		return;
 	}
 	pf_data.adc_time_cnt = current_time + ADC_INPUT_TIME;
-	//int pin_idx = IO_EXT_ADC0_PIN;
-	uint8_t i=ZERO;
-	for (i=ZERO;i < ADC_NUM_MAX;i++) {
+
+	if (pf_data.adc_state==ADC_STATE_RUN) {
+		return; // wait more
+	}
+	if (pf_data.adc_state==ADC_STATE_IDLE) {
+		pf_data.adc_state = ADC_STATE_RUN;
+		pf_data.adc_state_idx = ZERO;
+		Chip_in_adc(ZERO);
+		return;
+	}
+
+	for (uint8_t i=pf_data.adc_state_idx;i <= ADC_NUM_MAX;i++) {
+#ifdef SF_ENABLE_AVR
 #ifdef SF_ENABLE_LCD
 #ifndef SF_ENABLE_EXT_LCD
 		if (i < 4) {
@@ -154,9 +97,22 @@ void Input_loopAdc(void) {
 		}
 #endif
 #endif
-		int valueAdc = analogRead(i);
-		//pin_idx++;
-		int valueAdcOld = pf_data.adc_value[i];
+#endif
+		if (i==ADC_NUM_MAX) {
+			pf_data.adc_state = ADC_STATE_RUN;
+			pf_data.adc_state_idx=ZERO;
+			Chip_in_adc(pf_data.adc_state_idx);
+			return;
+		}
+		if (i!=pf_data.adc_state_idx) {
+			pf_data.adc_state = ADC_STATE_RUN;
+			pf_data.adc_state_idx=i;
+			Chip_in_adc(pf_data.adc_state_idx);
+			return;
+		}
+
+		uint16_t valueAdc    = pf_data.adc_state_value; // analogRead(i);
+		uint16_t valueAdcOld = pf_data.adc_value[i];
 		pf_data.adc_value[i] = valueAdc;
 		if (valueAdc == valueAdcOld) {
 			continue; // no change
@@ -240,14 +196,10 @@ void Input_loopLcd() {
 	}
 	pf_data.sys_input_time_cnt = current_time + SYS_INPUT_TIME;
 
-#ifdef SF_ENABLE_AVR
-	if (pf_conf.avr_pin3_map != PIN3_MENU0_IN && pf_conf.avr_pin4_map != PIN4_MENU1_IN) {
-		return;// todo use dic for menu pins.
-	}
-#endif
+	uint8_t pins = Chip_in_menu();
+	uint8_t input0 = (pins & 1);
+	uint8_t input1 = (pins & 2) >> 1;
 
-	int input0 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN);
-	int input1 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN);
 	if (pf_prog.lcd_menu_state != LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
 		if (current_time < pf_prog.lcd_menu_time_cnt) {
 			return; // no input to process
@@ -396,7 +348,11 @@ void Input_loopLcd() {
 		}
 	} else if (pf_prog.lcd_menu_state == LCD_MENU_STATE_VALUE) {
 		if (input0 == ZERO && input1 == ZERO) {
-			pf_prog.lcd_menu_mul = pf_prog.lcd_menu_mul * 10;  // make up&down 10*faster
+			if (pf_prog.lcd_menu_mul==10000) {
+				pf_prog.lcd_menu_mul = ONE;
+			} else {
+				pf_prog.lcd_menu_mul = pf_prog.lcd_menu_mul * 10;  // make up&down 10*faster
+			}
 		}
 		Input_updateMenu(pf_prog.lcd_menu_idx,pf_prog.lcd_menu_value_idx,true,input1==ZERO,pf_prog.lcd_menu_mul);
 	}

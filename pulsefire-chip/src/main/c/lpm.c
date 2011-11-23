@@ -32,7 +32,7 @@ void LPM_loopRelayOutput(boolean relay_open) {
 	if (relay_open==pf_conf.lpm_relay_inv) {
 		pinLevel = ZERO;
 	}
-	Chip_io_lpm(pinLevel);
+	Chip_out_lpm(pinLevel);
 }
 
 void LPM_loop(void) {
@@ -121,7 +121,7 @@ void LPM_loop(void) {
 			if (pf_data.lpm_result == 0) {
 				pf_data.lpm_state = LPM_DONE; // timeout of calculations
 			}
-			_delay_ms(10);
+			Chip_delay(10);
 
 #ifdef SF_ENABLE_LCD
 			lcd_cursor(ZERO,ZERO);

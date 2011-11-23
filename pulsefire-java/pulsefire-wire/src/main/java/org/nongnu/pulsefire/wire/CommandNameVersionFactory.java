@@ -218,6 +218,9 @@ public class CommandNameVersionFactory {
 		
 		CommandName.sys_time_ticks.disabled=true; // note only needed on prog config ??
 		CommandName.sys_time_ssec.disabled=true;
+		CommandName.adc_state.disabled=true;
+		CommandName.adc_state_idx.disabled=true;
+		CommandName.adc_state_value.disabled=true;
 		
 		return true;
 	}

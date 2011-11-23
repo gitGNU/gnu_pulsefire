@@ -134,14 +134,21 @@ public enum CommandName {
 	
 	sys_main_loop_cnt		(CommandVariableType.DATA),
 	sys_input_time_cnt		(CommandVariableType.DATA),
+	
 	adc_time_cnt			(CommandVariableType.DATA),	
 	adc_value				(CommandVariableType.DATA),
+	adc_state				(CommandVariableType.DATA),
+	adc_state_idx			(CommandVariableType.DATA),
+	adc_state_value			(CommandVariableType.DATA),
+	
 	dic_time_cnt			(CommandVariableType.DATA),
 	dic_value				(CommandVariableType.DATA),
 	doc_port				(CommandVariableType.DATA),
+	
 	swc_mode_org			(CommandVariableType.DATA),
 	swc_secs_cnt			(CommandVariableType.DATA),
 	swc_duty_cnt			(CommandVariableType.DATA),
+	
 	lcd_time_cnt			(CommandVariableType.DATA),
 	lcd_page				(CommandVariableType.DATA),
 	lcd_redraw				(CommandVariableType.DATA),
