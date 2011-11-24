@@ -55,10 +55,6 @@ uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
 }
 
-uint16_t analogRead(uint8_t channel) {
-	return ZERO;
-}
-
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte) {
 }
 

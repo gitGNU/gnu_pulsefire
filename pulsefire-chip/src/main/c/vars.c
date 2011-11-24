@@ -142,6 +142,14 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin5_map,        (CHIP_PTR_TYPE)&pmConfAVRPin5Map,      PIN5_DOC11_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN5_CLOCK_IN},
 #endif
 
+#ifdef SF_ENABLE_AVR_MEGA
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin18_map,       (CHIP_PTR_TYPE)&pmConfAVRPin18Map,     PIN18_FIRE_IN,       PFVB_NOMAP+PFVB_NOMENU,         PIN18_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin19_map,       (CHIP_PTR_TYPE)&pmConfAVRPin19Map,     PIN19_FIRE_IN,       PFVB_NOMAP+PFVB_NOMENU,         PIN19_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin47_map,       (CHIP_PTR_TYPE)&pmConfAVRPin47Map,     PIN47_RELAY_OUT,     PFVB_NOMAP+PFVB_NOMENU,         PIN47_CLOCK_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin48_map,       (CHIP_PTR_TYPE)&pmConfAVRPin48Map,     PIN48_DOC6_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN48_MENU0_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin49_map,       (CHIP_PTR_TYPE)&pmConfAVRPin49Map,     PIN49_DOC7_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN49_MENU1_IN},
+#endif
+
 #ifdef SF_ENABLE_LCD
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lcd_size,            (CHIP_PTR_TYPE)&pmConfLCDSize,         LCD_SIZE_4x20,       PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 #endif

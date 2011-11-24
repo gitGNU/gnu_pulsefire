@@ -46,10 +46,6 @@ typedef uint8_t byte;
 #define ONE                         1    // one
 #define false                       0    // false
 #define true                        1    // true
-#define LOW                         0    // LOW
-#define HIGH                        1    // HIGH
-#define INPUT                       0    // INPU
-#define OUTPUT                      1    // OUTPUT
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
 #define PMCMDLIST_SIZE             18    // array size of other commands
 #define UNPSTR_BUFF_SIZE           64    // max string lenght
@@ -88,14 +84,22 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_AVR
-	volatile uint8_t       avr_pin2_map;           // Mapping for pin2
-	volatile uint8_t       avr_pin3_map;           // Mapping for pin3
-	volatile uint8_t       avr_pin4_map;           // Mapping for pin4
-	volatile uint8_t       avr_pin5_map;           // Mapping for pin5
+	volatile uint8_t       avr_pin2_map;    // Mapping for pin2
+	volatile uint8_t       avr_pin3_map;    // Mapping for pin3
+	volatile uint8_t       avr_pin4_map;    // Mapping for pin4
+	volatile uint8_t       avr_pin5_map;    // Mapping for pin5
+#endif
+
+#ifdef SF_ENABLE_AVR_MEGA
+	volatile uint8_t       avr_pin18_map;   // Mapping for pin18
+	volatile uint8_t       avr_pin19_map;   // Mapping for pin19
+	volatile uint8_t       avr_pin47_map;   // Mapping for pin47
+	volatile uint8_t       avr_pin48_map;   // Mapping for pin48
+	volatile uint8_t       avr_pin49_map;   // Mapping for pin49
 #endif
 
 #ifdef SF_ENABLE_LCD
-	volatile uint8_t       lcd_size;       // Lcd size type
+	volatile uint8_t       lcd_size;        // Lcd size type
 #endif
 
 #ifdef SF_ENABLE_SWC
@@ -427,7 +431,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_AVR_SIZE  0
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
-	#define PF_VARS_AVR_MEGA_SIZE  0
+	#define PF_VARS_AVR_MEGA_SIZE  5
 #else
 	#define PF_VARS_AVR_MEGA_SIZE  0
 #endif
