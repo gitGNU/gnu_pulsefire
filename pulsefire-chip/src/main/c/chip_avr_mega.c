@@ -42,7 +42,7 @@
 #define IO_MEGA_DIC_2_PIN            6  // PIN 43
 #define IO_MEGA_DIC_3_PIN            7  // PIN 42
 
-#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN37-36-35-34 = D0-D3
+#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN37-36-35-34 = D0-D3 (if no lcd then DIC8-15)
 #define IO_MEGA_LCD_CNTR_PORT    &PORTC //
 #define IO_MEGA_LCD_RS_PIN           6  // PIN 31
 #define IO_MEGA_LCD_E_PIN            7  // PIN 30
@@ -68,7 +68,14 @@
 #define IO_MEGA_EXT_S2P_E_PIN        7  // PIN 29
 
 #define IO_MEGA_ADCL_PORT        &PORTF // ANALOG 0-7
-#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15
+#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15 (if GLCD then only 8-11 12=E,13=DI,14=cs0,15=cs1)
+
+#define IO_MEGA_GLCD_PORT        &PORTK
+#define IO_MEGA_GLCD_E_PIN           7  // ANALOG-15
+#define IO_MEGA_GLCD_RS_PIN          6  // ANALOG-14
+#define IO_MEGA_GLCD_CS0_PIN         5  // ANALOG-13
+#define IO_MEGA_GLCD_CS1_PIN         4  // ANALOG-12
+
 
 
 // Prototype and function for specific c init location.
@@ -150,7 +157,7 @@ void Chip_setup(void) {
 			break;
 	}
 
-	// conf lcd port
+	// conf lcd port or high doc
 	DDRC = 0xFF; // all output
 	PORTC = ZERO;
 
@@ -196,7 +203,12 @@ void Chip_setup(void) {
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D) | (1 << ADC6D) | (1 << ADC7D); // disable digital input on adc pins
 	DIDR0 |= (1 << ADC0D) | (1 << ADC1D) | (1 << ADC2D) | (1 << ADC3D);
 	DIDR1 |= (1 << ADC8D) | (1 << ADC9D) | (1 << ADC10D) | (1 << ADC11D);
+#ifndef SF_ENABLE_GLCD
 	DIDR1 |= (1 << ADC12D) | (1 << ADC13D) | (1 << ADC14D) | (1 << ADC15D);
+#endif
+#ifdef SF_ENABLE_GLCD
+	DDRK = 0x0F; // set glcd control lines to output
+#endif
 
 	// initialize UART0
 	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
@@ -341,7 +353,7 @@ void Chip_out_serial(uint8_t data) {
 }
 
 #ifdef SF_ENABLE_EXT_LCD
-void lcd_write_s2p(uint8_t value) {
+void Chip_lcd_write_ext_s2p(uint8_t value) {
 	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_S2P_E_PIN,ZERO);
 #ifdef SF_ENABLE_EXT_LCD_DOC
 	uint16_t doc_out = ZERO;
@@ -370,20 +382,18 @@ void lcd_write_s2p(uint8_t value) {
 }
 #endif
 
-void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
+#ifdef SF_ENABLE_EXT_LCD
+void Chip_lcd_write_ext(uint8_t data,uint8_t cmd,uint8_t mux) {
 	uint8_t hn = data >> 4;
 	uint8_t ln = data & 0x0F;
-
-	//Send high nibble
-#ifdef SF_ENABLE_EXT_LCD
 	uint8_t lcd_out = hn + ((mux & 3) << 6);
 	if (cmd==LCD_SEND_DATA) {
 		lcd_out += 16; // make RS high
 	}
 	lcd_out += 32; // make E high
-	lcd_write_s2p(lcd_out);
+	Chip_lcd_write_ext_s2p(lcd_out);
 	lcd_out -= 32; // Make E low
-	lcd_write_s2p(lcd_out);
+	Chip_lcd_write_ext_s2p(lcd_out);
 	if (cmd!=LCD_SEND_INIT) {
 		asm volatile ("nop");
 		asm volatile ("nop");
@@ -392,11 +402,18 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 			lcd_out += 16; // make RS high
 		}
 		lcd_out += 32; // make E high
-		lcd_write_s2p(lcd_out);
+		Chip_lcd_write_ext_s2p(lcd_out);
 		lcd_out -= 32; // Make E low
-		lcd_write_s2p(lcd_out);
+		Chip_lcd_write_ext_s2p(lcd_out);
 	}
-#else
+}
+#endif
+
+#ifdef SF_ENABLE_LCD
+#ifndef SF_ENABLE_EXT_LCD
+void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
+	uint8_t hn = data >> 4;
+	uint8_t ln = data & 0x0F;
 	if (cmd==LCD_SEND_DATA) {
 		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_RS_PIN,ONE); // write data
 	} else {
@@ -419,9 +436,39 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 		asm volatile ("nop");
 		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_E_PIN,ZERO);
 	}
+}
+#endif
 #endif
 
-	if (cmd==LCD_SEND_DATA) {
+#ifdef SF_ENABLE_GLCD
+void Chip_lcd_write_glcd(uint8_t data,uint8_t cmd,uint8_t mux) {
+	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ZERO);
+	if ((cmd & 0x0F)==LCD_SEND_DATA) {
+		digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_RS_PIN,ONE);
+	} else {
+		digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_RS_PIN,ZERO);
+	}
+	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_CS0_PIN,(cmd >> 7) & ONE);
+	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_CS1_PIN,(cmd >> 6) & ONE);
+	Chip_delayU(30);
+	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ONE);
+	volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
+	*port=data;
+	Chip_delayU(10);
+	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ZERO);
+}
+#endif
+
+void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
+
+#ifdef SF_ENABLE_GLCD
+	Chip_lcd_write_glcd(data,cmd,mux);
+#elif SF_ENABLE_EXT_LCD
+	Chip_lcd_write_ext(data,cmd,mux);
+#elif SF_ENABLE_LCD
+	Chip_lcd_write_pins(data,cmd,mux);
+#endif
+	if ((cmd & 0x0F)==LCD_SEND_DATA) {
 		Chip_delayU(30);
 	} else {
 		Chip_delay(5); // wait for busy flag
@@ -429,8 +476,15 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 }
 
 void Chip_out_doc(uint16_t data) {
-	uint8_t docPortData = data & 0x0F;
-	PORTB = docPortData;
+	PORTB = data & 0x0F; // only write 4 bits
+
+	// Write high output only if no lcd or when lcd is extended.
+#ifndef SF_ENABLE_LCD
+	PORTC = data << 8;
+#elif SF_ENABLE_EXT_LCD
+	PORTC = data << 8;
+#endif
+
 #ifdef SF_ENABLE_DOC
 	if (pf_conf.avr_pin18_map == PIN18_DOC4_OUT) {
 		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN,pf_data.doc_port[4] > ZERO);

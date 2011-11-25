@@ -161,15 +161,15 @@ void Chip_setup(void) {
 	PORTC = 0x00;
 	// Map LCD pins
 #ifndef SF_ENABLE_EXT_LCD
-	DDRD |= (OUTPUT<<IO_DEF_LCD_RS_PIN);
-	PORTD &= ~(1 << IO_DEF_LCD_RS_PIN);
-	DDRD |= (OUTPUT<<IO_DEF_LCD_E_PIN);
-	PORTD &= ~(1 << IO_DEF_LCD_E_PIN);
-	DDRC |= (OUTPUT<<PINC0);
-	DDRC |= (OUTPUT<<PINC1);
-	DDRC |= (OUTPUT<<PINC2);
-	DDRC |= (OUTPUT<<PINC3);
-	PORTC = 0x0F;
+	DDRD  |=  (ONE<<IO_DEF_LCD_RS_PIN);
+	PORTD &= ~(ONE<<IO_DEF_LCD_RS_PIN);
+	DDRD  |=  (ONE<<IO_DEF_LCD_E_PIN);
+	PORTD &= ~(ONE<<IO_DEF_LCD_E_PIN);
+	DDRC  |=  (ONE<<PINC0);
+	DDRC  |=  (ONE<<PINC1);
+	DDRC  |=  (ONE<<PINC2);
+	DDRC  |=  (ONE<<PINC3);
+	PORTC  =  0x0F;
 #endif
 
 	DDRB  = 0xFF; // Port B is in all connection modes always output

@@ -30,6 +30,20 @@
 #include "utils.h"
 #include "freq.h"
 
+#define LCD_CMD_HOME        0x02
+#define LCD_CMD_CLEAR       0x01
+#define LCD_CMD_CURSOR      0x80
+
+#ifdef SF_ENABLE_GLCD
+#define GLCD_CMD_ON         0x3F
+#define GLCD_CMD_OFF        0x3E
+#define GLCD_CMD_ADD        0x40
+#define GLCD_CMD_PAGE       0xB8
+#define GLCD_CMD_START      0xC0
+#define GLCD_HEIGHT         64
+#define GLCD_WIDTH          128
+#endif
+
 void lcd_write(uint8_t c,uint8_t cmd);
 void lcd_home(void);
 void lcd_clear(void);

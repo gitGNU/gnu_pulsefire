@@ -29,6 +29,7 @@
 // SoftwareFlags to enable features by the build, see makefile.
 #//define SF_ENABLE_PWM              // enable pwm code       (+...) !! note no dep check
 #//define SF_ENABLE_LCD              // enable lcd output     (+3520)
+#//define SF_ENABLE_GLCD              // enable glcd output   (...) (deps on MEGA !!)
 #//define SF_ENABLE_LPM              // enable lpm code       (+2094)
 #//define SF_ENABLE_PPM              // enable ppm code       (+672) (DEP: PWM)
 #//define SF_ENABLE_ADC              // enable adc code       (+952)
