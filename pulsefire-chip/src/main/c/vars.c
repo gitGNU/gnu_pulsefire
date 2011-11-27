@@ -410,7 +410,8 @@ uint16_t Vars_getIndexFromName(char* name) {
 #ifdef SF_ENABLE_ARM_7M
 		if (strcmp(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
 #else
-		if (strcmp(name, UNPSTR((const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME])))) == ZERO) {
+		// TODO: rm _P but not with UNPSTR
+		if (strcmp_P(name, (const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
 #endif
 			return i;
 		}
@@ -735,12 +736,12 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 
 void Vars_readConfig(void) {
 #if defined(SF_ENABLE_AVR) | defined(SF_ENABLE_AVR_MEGA)
-	Chip_eeprom_read(&pf_conf_eeprom);
+	Chip_eeprom_read((void*)&pf_conf_eeprom);
 #endif
 }
 void Vars_writeConfig(void) {
 #if defined(SF_ENABLE_AVR) | defined(SF_ENABLE_AVR_MEGA)
-	Chip_eeprom_write(&pf_conf_eeprom);
+	Chip_eeprom_write((void*)&pf_conf_eeprom);
 #endif
 }
 
@@ -821,13 +822,8 @@ void Vars_resetData(void) {
 // Setup all interal variables to init state
 void Vars_setup(void) {
 	// Read or reset config to init state
-	uint8_t  pfVersion    = Chip_eeprom_readByte((uint8_t*)ZERO);
-	uint16_t pfStructSize = ZERO;
-	pfStructSize = Chip_eeprom_readByte((uint8_t*)ONE) << 8;
-	pfStructSize += Chip_eeprom_readByte((uint8_t*)2);
-	if (pfVersion == PULSE_FIRE_VERSION && pfStructSize == sizeof(pf_conf_struct)) {
-		Vars_readConfig();
-	} else {
+	Vars_readConfig(); // First read config from eeprom then check if valid for this version
+	if (pf_conf.sys_version != PULSE_FIRE_VERSION || pf_conf.sys_struct_size != sizeof(pf_conf_struct)) {
 		Vars_resetConfig(); // if newer/other/none version and/or size in flash then reset all to defaults and save.
 		Vars_writeConfig();
 	}

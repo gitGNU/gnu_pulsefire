@@ -1210,7 +1210,7 @@ $(TPATH)/atmega1280-1601/pulsefire.hex:
 atmega1280-1601-isp: atmega1280-1601
 atmega1280-1601-isp: TARGET = atmega1280-1601
 atmega1280-1601-isp: ISP_MCU = m1280
-atmega1280-1601-isp: ISP_PROG = arduino
+atmega1280-1601-isp: ISP_PROG = stk500v2
 atmega1280-1601-isp: avr-flash
 
 atmega1280-1602: MCU = atmega1280
@@ -1239,7 +1239,7 @@ $(TPATH)/atmega1280-1602/pulsefire.hex:
 atmega1280-1602-isp: atmega1280-1602
 atmega1280-1602-isp: TARGET = atmega1280-1602
 atmega1280-1602-isp: ISP_MCU = m1280
-atmega1280-1602-isp: ISP_PROG = arduino
+atmega1280-1602-isp: ISP_PROG = stk500v2
 atmega1280-1602-isp: avr-flash
 
 
@@ -1271,7 +1271,7 @@ $(TPATH)/atmega1280-1603/pulsefire.hex:
 atmega1280-1603-isp: atmega1280-1603
 atmega1280-1603-isp: TARGET = atmega1280-1603
 atmega1280-1603-isp: ISP_MCU = m1280
-atmega1280-1603-isp: ISP_PROG = arduino
+atmega1280-1603-isp: ISP_PROG = stk500v2
 atmega1280-1603-isp: avr-flash
 
 
@@ -1304,7 +1304,7 @@ $(TPATH)/atmega1280-1603/pulsefire.hex:
 atmega1280-1604-isp: atmega1280-1603
 atmega1280-1604-isp: TARGET = atmega1280-1603
 atmega1280-1604-isp: ISP_MCU = m1280
-atmega1280-1604-isp: ISP_PROG = arduino
+atmega1280-1604-isp: ISP_PROG = stk500v2
 atmega1280-1604-isp: avr-flash
 
 
@@ -1338,7 +1338,7 @@ $(TPATH)/atmega1280-1605/pulsefire.hex:
 atmega1280-1605-isp: atmega1280-1605
 atmega1280-1605-isp: TARGET = atmega1280-1605
 atmega1280-1605-isp: ISP_MCU = m1280
-atmega1280-1605-isp: ISP_PROG = arduino
+atmega1280-1605-isp: ISP_PROG = stk500v2
 atmega1280-1605-isp: avr-flash
 
 
@@ -1373,7 +1373,7 @@ $(TPATH)/atmega1280-1606/pulsefire.hex:
 atmega1280-1606-isp: atmega1280-1606
 atmega1280-1606-isp: TARGET = atmega1280-1606
 atmega1280-1606-isp: ISP_MCU = m1280
-atmega1280-1606-isp: ISP_PROG = arduino
+atmega1280-1606-isp: ISP_PROG = stk500v2
 atmega1280-1606-isp: avr-flash
 
 
@@ -1409,7 +1409,7 @@ $(TPATH)/atmega1280-1607/pulsefire.hex:
 atmega1280-1607-isp: atmega1280-1607
 atmega1280-1607-isp: TARGET = atmega1280-1607
 atmega1280-1607-isp: ISP_MCU = m1280
-atmega1280-1607-isp: ISP_PROG = arduino
+atmega1280-1607-isp: ISP_PROG = stk500v2
 atmega1280-1607-isp: avr-flash
 
 
@@ -1441,7 +1441,7 @@ $(TPATH)/atmega1280-1608/pulsefire.hex:
 atmega1280-1608-isp: atmega1280-1608
 atmega1280-1608-isp: TARGET = atmega1280-1608
 atmega1280-1608-isp: ISP_MCU = m1280
-atmega1280-1608-isp: ISP_PROG = arduino
+atmega1280-1608-isp: ISP_PROG = stk500v2
 atmega1280-1608-isp: avr-flash
 
 

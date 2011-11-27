@@ -46,11 +46,16 @@ void Input_loopDic(void) {
 		Serial_printCharP(PSTR(" old: "));Serial_printDec((int)resultOld);
 		Serial_println();
 #endif
+		uint32_t dic_value_new = pf_data.dic_value;
 		if (result == ZERO) {
-			pf_data.dic_value -= (ONE << i); // clear bit in data
+			dic_value_new -= (ONE << i); // clear bit in data
 		} else {
-			pf_data.dic_value += (ONE << i); // set bit in data
+			dic_value_new += (ONE << i); // set bit in data
 		}
+		//pf_data.dic_value = dic_value_new;
+		uint8_t dicVarIdx = Vars_getIndexFromName(UNPSTR(pmDataDicValue));
+		Vars_setValue(dicVarIdx,ZERO,ZERO,dic_value_new);
+
 		if (pf_conf.dic_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
 			continue; // no mapping
 		}
@@ -73,7 +78,7 @@ void Input_adc_int(uint16_t result) {
 void Input_loopAdc(void) {
 	uint32_t current_time = millis();
 	if (current_time < pf_data.adc_time_cnt) {
-		return;
+		//return;
 	}
 	pf_data.adc_time_cnt = current_time + ADC_INPUT_TIME;
 
@@ -113,18 +118,22 @@ void Input_loopAdc(void) {
 
 		uint16_t valueAdc    = pf_data.adc_state_value; // analogRead(i);
 		uint16_t valueAdcOld = pf_data.adc_value[i];
-		pf_data.adc_value[i] = valueAdc;
 		if (valueAdc == valueAdcOld) {
 			continue; // no change
-		}
-		if (pf_conf.adc_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
-			continue; // no mapping
 		}
 		if (pf_conf.adc_jitter > ZERO) {
 			uint16_t c = valueAdc - valueAdcOld; // only update when change is bigger then jitter treshhold
 			if (c > 0 && c < pf_conf.adc_jitter)        { continue; }
 			if (c < 0 && c > (ZERO-pf_conf.adc_jitter)) { continue; }
 		}
+
+		uint8_t adcVarIdx = Vars_getIndexFromName(UNPSTR(pmDataAdcValue));
+		Vars_setValue(adcVarIdx,i,ZERO,valueAdc);
+
+		if (pf_conf.adc_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
+			continue; // no mapping
+		}
+
 		// map to min/max value and assign to variable
 		valueAdc = mapValue(valueAdc,ZERO,ADC_VALUE_MAX,pf_conf.adc_map[i][QMAP_VALUE_A],pf_conf.adc_map[i][QMAP_VALUE_B]);
 		if (pf_conf.adc_map[i][QMAP_VAR] < PF_VARS_SIZE) {
@@ -199,6 +208,9 @@ void Input_loopLcd() {
 	uint8_t pins = Chip_in_menu();
 	uint8_t input0 = (pins & 1);
 	uint8_t input1 = (pins & 2) >> 1;
+	if (pf_prog.lcd_menu_state == LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
+		return; // nothing is pressed
+	}
 
 	if (pf_prog.lcd_menu_state != LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
 		if (current_time < pf_prog.lcd_menu_time_cnt) {

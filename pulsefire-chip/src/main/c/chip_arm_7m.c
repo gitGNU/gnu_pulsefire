@@ -48,6 +48,10 @@ uint32_t Chip_free_ram(void) {
 	return ZERO;
 }
 
+const char* Chip_cpu_type(void) {
+	return pmChipCPUTypeArm7m;
+}
+
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
 	return ZERO;
 }
@@ -56,10 +60,6 @@ void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
 }
 
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte) {
-}
-
-uint8_t Chip_eeprom_readByte(uint8_t* ee_ptr) {
-	return ZERO;
 }
 
 void Chip_eeprom_read(void* eemem) {

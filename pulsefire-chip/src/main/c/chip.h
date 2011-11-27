@@ -62,13 +62,13 @@ void Chip_delay(uint16_t delay);
 void Chip_delayU(uint16_t delay);
 void Chip_sei(void);
 uint32_t Chip_free_ram(void);
+const char* Chip_cpu_type(void);
 uint32_t millis(void);
 
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin);
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value);
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte);
 
-uint8_t Chip_eeprom_readByte(uint8_t* ee_ptr);
 void    Chip_eeprom_read(void* eemem);
 void    Chip_eeprom_write(void* eemem);
 uint8_t       Chip_pgm_readByte(const char* p);

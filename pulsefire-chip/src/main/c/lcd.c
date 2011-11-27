@@ -281,7 +281,7 @@ void lcd_setup(void) {
 		lcd_cursor(ZERO,2);
 		lcd_printCharP(pmChipNameIdStr);
 		lcd_cursor(ZERO,3);
-		lcd_printCharP(pmChipCPUTypeAVR);
+		lcd_printCharP(Chip_cpu_type());
 		lcd_printSpace();
 		lcd_print(sizeof(pf_conf_struct));
 	}

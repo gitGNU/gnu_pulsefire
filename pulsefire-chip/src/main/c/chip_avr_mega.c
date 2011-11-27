@@ -42,7 +42,7 @@
 #define IO_MEGA_DIC_2_PIN            6  // PIN 43
 #define IO_MEGA_DIC_3_PIN            7  // PIN 42
 
-#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN37-36-35-34 = D0-D3 (if no lcd then DIC8-15)
+#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN37-36-35-34 = D0-D3 (if no lcd then DIC8-15) (if glcd then 8bit data)
 #define IO_MEGA_LCD_CNTR_PORT    &PORTC //
 #define IO_MEGA_LCD_RS_PIN           6  // PIN 31
 #define IO_MEGA_LCD_E_PIN            7  // PIN 30
@@ -60,15 +60,17 @@
 #define IO_MEGA_OUT_3_PIN            3  // PIN 25
 #define IO_MEGA_OUT_4_PIN            4  // PIN 26
 #define IO_MEGA_OUT_5_PIN            5  // PIN 27
+#define IO_MEGA_OUT_6_PIN            6  // PIN 28
+#define IO_MEGA_OUT_7_PIN            7  // PIN 29
 #define IO_MEGA_EXT_OUT_DATA_PIN     0  // PIN 22 = output 0-7 and 8-15 via 2 chip casade
 #define IO_MEGA_EXT_OUT_CLK_PIN      1  // PIN 23
 #define IO_MEGA_EXT_OUT_E_PIN        2  // PIN 24
-#define IO_MEGA_EXT_S2P_DATA_PIN     5  // PIN 27 = lcd D0-D3,RS,E,mux0/1=Select digital input via dual 4to1 multiplexer
+#define IO_MEGA_EXT_S2P_DATA_PIN     5  // PIN 27 = lcd D0-D3,RS,E, doc8, doc16
 #define IO_MEGA_EXT_S2P_CLK_PIN      6  // PIN 28
 #define IO_MEGA_EXT_S2P_E_PIN        7  // PIN 29
 
 #define IO_MEGA_ADCL_PORT        &PORTF // ANALOG 0-7
-#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15 (if GLCD then only 8-11 12=E,13=DI,14=cs0,15=cs1)
+#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15 (if GLCD then limited)
 
 #define IO_MEGA_GLCD_PORT        &PORTK
 #define IO_MEGA_GLCD_E_PIN           7  // ANALOG-15
@@ -157,9 +159,14 @@ void Chip_setup(void) {
 			break;
 	}
 
-	// conf lcd port or high doc
-	DDRC = 0xFF; // all output
+#ifndef SF_ENABLE_LCD
+	DDRC = ZERO; // all input for dic
+#elif SF_ENABLE_EXT_LCD
+	DDRC = ZERO; // all input for dic
+#else
+	DDRC = 0xFF; // all output for lcd
 	PORTC = ZERO;
+#endif
 
 	// pwm output
 	DDRA  = 0xFF; // Port A is in all connection modes always output
@@ -263,6 +270,10 @@ uint32_t Chip_free_ram(void) {
 	return free_ram;
 }
 
+const char* Chip_cpu_type(void) {
+	return pmChipCPUTypeAvrMega;
+}
+
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
 	uint8_t value = *port;
 	return (value >> pin) & 0x01;
@@ -285,16 +296,12 @@ void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t data
 	}
 }
 
-uint8_t Chip_eeprom_readByte(uint8_t* ee_ptr) {
-	return eeprom_read_byte((uint8_t*)ee_ptr);
-}
-
 void Chip_eeprom_read(void* eemem) {
-	eeprom_read_block((void*)&pf_conf,(const void*)&eemem,sizeof(pf_conf_struct));
+	eeprom_read_block((void*)&pf_conf,eemem,sizeof(pf_conf_struct));
 }
 
 void Chip_eeprom_write(void* eemem) {
-	eeprom_write_block((const void*)&pf_conf,(void*)&eemem,sizeof(pf_conf_struct));
+	eeprom_write_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
 }
 
 uint8_t Chip_pgm_readByte(const char* p) {
@@ -478,13 +485,6 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 void Chip_out_doc(uint16_t data) {
 	PORTB = data & 0x0F; // only write 4 bits
 
-	// Write high output only if no lcd or when lcd is extended.
-#ifndef SF_ENABLE_LCD
-	PORTC = data << 8;
-#elif SF_ENABLE_EXT_LCD
-	PORTC = data << 8;
-#endif
-
 #ifdef SF_ENABLE_DOC
 	if (pf_conf.avr_pin18_map == PIN18_DOC4_OUT) {
 		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN,pf_data.doc_port[4] > ZERO);
@@ -555,7 +555,7 @@ void Chip_in_adc(uint8_t channel) {
 
 uint8_t Chip_in_menu(void) {
 	if (pf_conf.avr_pin48_map != PIN48_MENU0_IN && pf_conf.avr_pin49_map != PIN49_MENU1_IN) {
-		return ZERO;// todo use dic for menu pins.
+		return 0xFF;// todo use dic for menu pins.
 	}
 	uint8_t input0 = digitalRead(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN48_PIN);
 	uint8_t input1 = digitalRead(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN49_PIN);
@@ -565,6 +565,13 @@ uint8_t Chip_in_menu(void) {
 
 uint16_t Chip_in_dic(void) {
 	uint16_t result = PINL >> 4; // read upper nibble for 4 bit DIC
+
+	// Read high dic only if no lcd or when lcd is extended.
+#ifndef SF_ENABLE_LCD
+	result += PINC << 8;
+#elif SF_ENABLE_EXT_LCD
+	result += PINC << 8;
+#endif
 #ifdef SF_ENABLE_DIC
 	if (pf_conf.avr_pin18_map == PIN18_DIC4_IN) {
 		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN) << 4;

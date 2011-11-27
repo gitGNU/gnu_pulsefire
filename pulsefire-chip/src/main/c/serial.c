@@ -181,7 +181,7 @@ void cmd_print_info_chip(void) {
 	cmd_print_info_value_long(pmChipConfSize,        sizeof(pf_conf_struct));
 	cmd_print_info_value_long(pmChipFreeSram,        Chip_free_ram());
 	cmd_print_info_value_long(pmChipCPUFreq,         F_CPU);
-	Serial_println_get_P2(pmChipCPUType, pmChipCPUTypeAVR);
+	Serial_println_get_P2(pmChipCPUType,             Chip_cpu_type());
 	Serial_println_get_P2(pmChipName,    pmChipNameStr);
 	Serial_println_get_P2(pmChipNameId,  pmChipNameIdStr);
 	Serial_println_get_P2(pmChipBuild,   pmChipBuildDate);
@@ -236,7 +236,7 @@ void cmd_print_info_chip(void) {
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(pmChipFlagDEBUG);
 #endif
-	Serial_printCharP(pmChipCPUTypeAVR); // also print cpu type for avr_pinX_map module.(=last because of no space after string)
+	Serial_printCharP(Chip_cpu_type()); // also print cpu type as flag.(=last because of no space after stringc cpu type)
 	Serial_println();
 	Serial_println_done_P(pmCmdInfoChip);
 }

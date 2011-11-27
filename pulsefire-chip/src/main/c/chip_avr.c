@@ -210,7 +210,7 @@ void Chip_setup(void) {
 	TCNT0 = ZERO;
 
 	// enable adc
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) /* | (1 << ADPS1) */ | (1 << ADPS0); // div 32 if 1 then 128
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
 	ADCSRA |= (1<<ADIE); // enable interupts after conversion
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D); // disable digital input on adc pins
 #ifdef SF_ENABLE_EXT_LCD
@@ -270,6 +270,10 @@ uint32_t Chip_free_ram(void) {
 	return free_ram;
 }
 
+const char* Chip_cpu_type(void) {
+	return pmChipCPUTypeAvr;
+}
+
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
 	uint8_t value = *port;
 	return (value >> pin) & 0x01;
@@ -292,15 +296,11 @@ void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t data
 	}
 }
 
-uint8_t Chip_eeprom_readByte(uint8_t* ee_ptr) {
-	return eeprom_read_byte((uint8_t*)ee_ptr);
-}
-
 void Chip_eeprom_read(void* eemem) {
-	eeprom_read_block((void*)&pf_conf,(const void*)&eemem,sizeof(pf_conf_struct));
+	eeprom_read_block((void*)&pf_conf,eemem,sizeof(pf_conf_struct));
 }
 void Chip_eeprom_write(void* eemem) {
-	eeprom_write_block((const void*)&pf_conf,(void*)&eemem,sizeof(pf_conf_struct));
+	eeprom_write_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
 }
 
 uint8_t Chip_pgm_readByte(const char* p) {
@@ -505,12 +505,12 @@ void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 
 void Chip_in_adc(uint8_t channel) {
 	ADMUX = (1 << REFS0 ) | (channel & 0x07);
-	ADCSRA |= (1<<ADSC); // start
+	ADCSRA |= (1<<ADSC); // request start
 }
 
 uint8_t Chip_in_menu(void) {
 	if (pf_conf.avr_pin3_map != PIN3_MENU0_IN && pf_conf.avr_pin4_map != PIN4_MENU1_IN) {
-		return ZERO;// todo use dic for menu pins.
+		return 0xFF;// todo use dic for menu pins.
 	}
 	uint8_t input0 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN);
 	uint8_t input1 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN);
@@ -548,30 +548,25 @@ uint16_t Chip_in_dic(void) {
 		result += digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN5_PIN) << 11;
 	}
 
-
-	for (uint8_t i=ZERO;i < DIC_NUM_MAX/2  ;i++) {
 #ifdef SF_ENABLE_EXT_LCD_DIC
-		Chip_out_lcd(0x80,LCD_SEND_CMD, ((i & 6) >> ONE) );
-#else
-		if (i>ONE) {
-			break; // check only 2 inputs
-		}
-#endif
+	for (uint8_t i=ZERO;i < DIC_NUM_MAX/2  ;i++) {
+		Chip_out_lcd(0x80,LCD_SEND_CMD,i/2);
 		if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
 		if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
 		if (i==4  && pf_conf.avr_pin4_map == PIN4_DIC4_IN)  { continue; }
 		if (i==5  && pf_conf.avr_pin5_map == PIN5_DIC5_IN)  { continue; }
-		if (i==8  && pf_conf.avr_pin2_map == PIN2_DIC8_IN)  { continue; }
-		if (i==9  && pf_conf.avr_pin3_map == PIN3_DIC9_IN)  { continue; }
-		if (i==10 && pf_conf.avr_pin4_map == PIN4_DIC10_IN) { continue; }
-		if (i==11 && pf_conf.avr_pin5_map == PIN5_DIC11_IN) { continue; }
-
-		if ((i & ONE) == ZERO) {
-			result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN) << i;
-		} else {
-			result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN) << 1;
+		if (((result >> i) & ONE)==ZERO) {
+			if ((i & ONE)==ZERO) {
+				result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN) << i;
+			} else {
+				result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN) << i;
+			}
 		}
 	}
+#else
+	result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN) << ZERO;
+	result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN) << ONE;
+#endif
 	return result;
 #endif
 }
