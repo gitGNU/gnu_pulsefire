@@ -201,7 +201,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 			}
 		}
 	
-		g2.setPaint(UIManager.getColor("nimbusAlertYellow"));
+		g2.setPaint(UIManager.getColor("nimbusAlertYellow").darker());
 		g2.drawRect(0, 0, w-1, h-1);
 		//g2.setPaint(UIManager.getColor("nimbusRed"));
 		g2.drawString("Name:", 7, 20);

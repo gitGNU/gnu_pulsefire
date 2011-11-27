@@ -122,6 +122,12 @@ public enum CommandName {
 	avr_pin4_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin5_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	
+	avr_pin18_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin19_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin47_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin48_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin49_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	
 	swc_delay				(CommandVariableType.CONF,WireChipFlags.SWC),

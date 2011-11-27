@@ -24,38 +24,48 @@
 package org.nongnu.pulsefire.device.ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
@@ -63,7 +73,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
+import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
+import org.nongnu.pulsefire.device.flash.FlashHexReader;
+import org.nongnu.pulsefire.device.flash.FlashLogListener;
 import org.nongnu.pulsefire.device.flash.FlashManager;
+import org.nongnu.pulsefire.device.flash.FlashProgramController;
 import org.nongnu.pulsefire.device.ui.DevicePortsComboBoxModel;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -73,47 +87,66 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
  * 
  * @author Willem Cazander
  */
-public class JFlashDialog extends JDialog implements ActionListener,ListSelectionListener {
+public class JFlashDialog extends JDialog implements ActionListener,ListSelectionListener,FlashLogListener {
 	
 	private static final long serialVersionUID = -7552916322807635756L;
 	private Logger logger = null;
-	private volatile FlashManager flashManager = null;
+	private FlashControllerConfig flashConfig = null;
+	private volatile FlashProgramController flashProgramController = null;
 	private JComboBox mcuTypeBox = null;
 	private JComboBox mcuSpeedBox = null;
 	private JCheckBox buildLcdBox = null;
 	private JCheckBox buildLpmBox = null;
 	private JCheckBox buildPpmBox = null;
 	private JCheckBox buildAdcBox = null;
-	private JCheckBox buildLcdExtBox = null;
-	private JCheckBox buildLcd4Box = null;
+	private JCheckBox buildExtOutBox = null;
+	private JCheckBox buildExtOut16Box = null;
+	private JCheckBox buildExtLcdBox = null;
+	private JCheckBox buildExtDocBox = null;
 	private JComboBox portsComboBox = null;
 	private JComboBox progComboBox = null;
+	private JCheckBox progDebugBox = null; 
 	private JProgressBar flashProgressBar = null;
+	private JTextArea flashLog = null;
+	private DateFormat flashLogTimeFormat = null;
 	private JButton cancelButton = null;
 	private JButton flashButton = null;
+	private JButton saveButton = null;
 	private DeviceImagesTableModel tableModel = null;
 	private JTable table = null;
 	private JLabel burnName = null;
-	private JLabel burnProg = null;
 	private String[] columnNames = new String[] {"name","speed",
 			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
 			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL"};
 			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
-		setTitle("Flash");
 		logger = Logger.getLogger(JFlashDialog.class.getName());
-
+		setTitle("Flash");
+		setMinimumSize(new Dimension(640,480));
+		setPreferredSize(new Dimension(999,666));
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				clearAndHide();
+			}
+		});
 		JPanel mainPanel = new JPanel();
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		mainPanel.setLayout(new BorderLayout());
-		
+		mainPanel.add(createPanelTop(),BorderLayout.NORTH);
+		mainPanel.add(createPanelCenter(),BorderLayout.CENTER);
+		mainPanel.add(createPanelBottom(),BorderLayout.SOUTH);
+		getContentPane().add(mainPanel);
+	}
+	
+	private JPanel createPanelTop() {
 		JPanel tableOption = JComponentFactory.createJFirePanel("Filter options");
 		tableOption.setLayout(new SpringLayout());
 		
 		JLabel mcuText = new JLabel("mcu:");
 		tableOption.add(mcuText);
-		mcuTypeBox = new JComboBox(new String[] {"ALL","atmega328p","atmega168p","mega"});
+		mcuTypeBox = new JComboBox(new String[] {"ALL","atmega328p","atmega168p","atmega1280"});
 		mcuTypeBox.addActionListener(this);
 		tableOption.add(mcuTypeBox);
 
@@ -129,11 +162,17 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		buildPpmBox.addActionListener(this);
 		tableOption.add(buildPpmBox);	
 
-		JLabel lcdExtText = new JLabel("lcd_ext:");
-		tableOption.add(lcdExtText);
-		buildLcdExtBox = new JCheckBox();
-		buildLcdExtBox.addActionListener(this);
-		tableOption.add(buildLcdExtBox);	
+		JLabel extOutText = new JLabel("ext_out:");
+		tableOption.add(extOutText);
+		buildExtOutBox = new JCheckBox();
+		buildExtOutBox.addActionListener(this);
+		tableOption.add(buildExtOutBox);
+		
+		JLabel extLcdText = new JLabel("ext_lcd:");
+		tableOption.add(extLcdText);
+		buildExtLcdBox = new JCheckBox();
+		buildExtLcdBox.addActionListener(this);
+		tableOption.add(buildExtLcdBox);
 		
 		JLabel speedText = new JLabel("speed:");
 		tableOption.add(speedText);
@@ -153,20 +192,28 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		buildAdcBox.addActionListener(this);
 		tableOption.add(buildAdcBox);
 		
-		JLabel lcd4Text = new JLabel("lcd_4row:");
-		tableOption.add(lcd4Text);
-		buildLcd4Box = new JCheckBox();
-		buildLcd4Box.addActionListener(this);
-		tableOption.add(buildLcd4Box);	
+		JLabel extOut16Text = new JLabel("ext_o16:");
+		tableOption.add(extOut16Text);
+		buildExtOut16Box = new JCheckBox();
+		buildExtOut16Box.addActionListener(this);
+		tableOption.add(buildExtOut16Box);
 		
-		SpringLayoutGrid.makeCompactGrid(tableOption,2,8);
+		JLabel extDocText = new JLabel("ext_doc:");
+		tableOption.add(extDocText);
+		buildExtDocBox = new JCheckBox();
+		buildExtDocBox.addActionListener(this);
+		tableOption.add(buildExtDocBox);	
+		
+		SpringLayoutGrid.makeCompactGrid(tableOption,2,10);
 		
 		JPanel optionWrapPanel = new JPanel();
 		optionWrapPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		optionWrapPanel.add(tableOption);
-		mainPanel.add(optionWrapPanel,BorderLayout.NORTH);
 		
-		//JPanel tablePanel = new JPanel();
+		return optionWrapPanel;
+	}
+	
+	private JScrollPane createPanelCenter() {
 		tableModel = new DeviceImagesTableModel();
 		table = new JTable(tableModel);
 		table.getTableHeader().setReorderingAllowed(false);
@@ -186,65 +233,74 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		ToolTipManager.sharedInstance().unregisterComponent(table.getTableHeader());
 
 		JScrollPane scroll = new JScrollPane(table);
-		mainPanel.add(scroll,BorderLayout.CENTER);
-		
+		return scroll;
+	}
+	
+	private JPanel createPanelBottom() {
 		JPanel burnPanel = JComponentFactory.createJFirePanel("Burn");
-		burnPanel.setLayout(new BorderLayout());
+		burnPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		JPanel burnInfoPanel = new JPanel();
-		burnInfoPanel.setLayout(new SpringLayout());
-		burnInfoPanel.add(new JLabel("name:"));
-		burnName = new JLabel();
-		burnInfoPanel.add(burnName);
-		burnInfoPanel.add(new JLabel("prog:"));
-		burnProg = new JLabel();
-		burnInfoPanel.add(burnProg);
-		SpringLayoutGrid.makeCompactGrid(burnInfoPanel,2,2);
-		burnPanel.add(burnInfoPanel,BorderLayout.NORTH);
-		
-		JPanel burnOptionWrapPanel = new JPanel();
-		burnOptionWrapPanel.setLayout(new BoxLayout(burnOptionWrapPanel, BoxLayout.PAGE_AXIS));
+		//JPanel burnOptionWrapPanel = new JPanel();
 		JPanel burnOptionPanel = new JPanel();
 		burnOptionPanel.setLayout(new SpringLayout());
-		burnOptionPanel.add(new JLabel("Port"));
+		burnOptionPanel.add(new JLabel("Name:"));
+		burnName = new JLabel();
+		burnOptionPanel.add(burnName);
+		burnOptionPanel.add(new JLabel("Port:"));
 		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
 		portsComboBox = new JComboBox(portModel);
 		portsComboBox.addPopupMenuListener(portModel);
 		burnOptionPanel.add(portsComboBox);
-		burnOptionPanel.add(new JLabel("Programer"));
-		progComboBox = new JComboBox();
+		burnOptionPanel.add(new JLabel("Programer:"));
+		progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
 		burnOptionPanel.add(progComboBox);
-		SpringLayoutGrid.makeCompactGrid(burnOptionPanel,2,2);
-		burnOptionWrapPanel.add(burnOptionPanel);
+		burnOptionPanel.add(new JLabel("logDebug:"));
+		progDebugBox = new JCheckBox();
+		burnOptionPanel.add(progDebugBox);
+		SpringLayoutGrid.makeCompactGrid(burnOptionPanel,4,2);
+		burnPanel.add(burnOptionPanel);
+		//burnPanel.add(burnOptionWrapPanel,BorderLayout.CENTER);
+		
 		JPanel burnProgressPanel = new JPanel();
+		burnProgressPanel.setLayout(new GridLayout(1,1));
+		burnProgressPanel.setBorder(BorderFactory.createEmptyBorder(6,0,12,0));
 		flashProgressBar = new JProgressBar();
 		flashProgressBar.setStringPainted(true);
 		burnProgressPanel.add(flashProgressBar);
-		burnOptionWrapPanel.add(burnProgressPanel);
-		burnPanel.add(burnOptionWrapPanel,BorderLayout.CENTER);
-
+		
+		JPanel logPanel = JComponentFactory.createJFirePanel("Burn Log");
+		flashLogTimeFormat = new SimpleDateFormat("HH:mm:ss");
+		flashLog = new JTextArea(7,30);
+		flashLog.setMargin(new Insets(2, 2, 2, 2));
+		flashLog.setAutoscrolls(true);
+		flashLog.setEditable(false);
+		JScrollPane consoleScrollPane = new JScrollPane(flashLog);
+		consoleScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		consoleScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		consoleScrollPane.getViewport().setOpaque(false);
+		logPanel.add(consoleScrollPane);
+		updateText("Ready to flash.");
+		
 		JPanel burnActionPanel = new JPanel();
 		burnActionPanel.setBorder(BorderFactory.createEmptyBorder());
+		burnActionPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		saveButton = new JButton("Export");
+		saveButton.addActionListener(this);
+		burnActionPanel.add(saveButton);
 		flashButton = new JButton("Flash");
 		flashButton.addActionListener(this);
 		burnActionPanel.add(flashButton);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 		burnActionPanel.add(cancelButton);
-		burnPanel.add(burnActionPanel,BorderLayout.SOUTH);
 		
 		JPanel burnWrapPanel = new JPanel();
-		burnWrapPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		burnWrapPanel.add(burnPanel);
-		mainPanel.add(burnWrapPanel,BorderLayout.SOUTH);
-		
-		getContentPane().add(mainPanel);		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
-				clearAndHide();
-			}
-		});
+		burnWrapPanel.setLayout(new BorderLayout());
+		burnWrapPanel.add(burnProgressPanel,BorderLayout.PAGE_START);
+		burnWrapPanel.add(burnPanel,BorderLayout.CENTER);
+		burnWrapPanel.add(logPanel,BorderLayout.LINE_END);
+		burnWrapPanel.add(burnActionPanel,BorderLayout.PAGE_END);
+		return burnWrapPanel;
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -252,11 +308,42 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			clearAndHide();
 			return;
 		}
+		if (e.getSource()==saveButton) {
+			if (burnName.getText().isEmpty()) {
+				return;
+			}
+			JFileChooser fileSelect = new JFileChooser();
+			fileSelect.setSelectedFile(new File("pulsefire-"+burnName.getText()+".hex"));
+			int returnVal = fileSelect.showSaveDialog((JButton)e.getSource());
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				saveToFile(burnName.getText(),fileSelect.getSelectedFile());
+			}
+		}
 		if (e.getSource()==flashButton) {
+			if (burnName.getText().isEmpty()) {
+				return;
+			}
+			if (flashLog.getText().length()>32) {
+				flashLog.setText(""); // clear log for second flash 
+			}
 			flashButton.setEnabled(false);
-			flashManager = new FlashManager();
-			flashManager.setPort(portsComboBox.getSelectedItem().toString());
-			flashManager.setProtocol(burnProg.getText());
+			
+			String hexResource = "firmware/"+burnName.getText()+"/pulsefire.hex";
+			byte[] flashData = null;
+			try {
+				flashData = new FlashHexReader().loadHex(hexResource);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return;
+			}
+			
+			flashConfig = new FlashControllerConfig();
+			flashConfig.setPort(portsComboBox.getSelectedItem().toString());
+			flashConfig.setPortProtocol(progComboBox.getSelectedItem().toString());
+			flashConfig.setLogDebug(progDebugBox.isSelected());
+			flashConfig.setFlashData(flashData);
+			flashProgramController = FlashManager.createFlashController(flashConfig);
 			FlashThread t = new FlashThread();t.start();
 			ProgressThread p = new ProgressThread();p.start();
 			return;
@@ -264,19 +351,54 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		tableModel.refilterData();
 	}
 
+	private void saveToFile(String burnName,File file) {
+		try {
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			if (cl==null) {
+				cl = this.getClass().getClassLoader();
+			}
+			InputStream is = cl.getResourceAsStream("firmware/"+burnName+"/pulsefire.hex");
+			OutputStream os = new FileOutputStream(file);
+			byte[] buf = new byte[4096];
+			int cnt = is.read(buf);
+			while (cnt > 0) {
+				os.write(buf, 0, cnt);
+				cnt = is.read(buf);
+			}
+			os.close();
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void updateText(String data) {	
+		flashLog.append(flashLogTimeFormat.format(new Date()));
+		flashLog.append(" # ");
+		flashLog.append(data);
+		flashLog.append("\n");
+		flashLog.repaint();
+		flashLog.setCaretPosition(flashLog.getText().length()); // auto scroll to end
+	}
+	
+	@Override
+	public void flashLogMessage(String message) {
+		updateText(message);
+	}
+	
 	class FlashThread extends Thread {
 		@Override
 		public void run() {
 			try {
-				String hexResource = "firmware/"+burnName.getText()+"/pulsefire.hex";
-				logger.info("Start flash thread with hex: "+hexResource);
-				flashManager.loadHex(hexResource);
-				flashManager.flash();
+				logger.info("Start flash thread.");
+				flashProgramController.addFlashLogListener(JFlashDialog.this);
+				flashProgramController.flash(flashConfig);
 			} catch (Exception e1) {
 				flashProgressBar.setString(e1.getMessage());
 				e1.printStackTrace();
 			} finally {
-				flashManager = null;
+				flashProgramController.removeFlashLogListener(JFlashDialog.this);
+				flashProgramController = null;
 				logger.fine("Stopped flash thread.");
 			}
 		}
@@ -285,8 +407,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		@Override
 		public void run() {
 			logger.fine("Start progress thread.");
-			while (flashManager!=null) {
-				int progress = flashManager.getProgress();
+			while (flashProgramController!=null) {
+				int progress = flashProgramController.getProgress();
 				logger.finer("Flash progress: "+progress);
 				flashProgressBar.getModel().setValue(progress);
 				try {
@@ -310,7 +432,11 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		}
 		BuildOption option = tableModel.getBuildOptions().get(table.getSelectedRow());
 		burnName.setText(option.name);
-		burnProg.setText(option.ispProg);
+		if ("stk500v2".equals(option.ispProg)) {
+			progComboBox.setSelectedIndex(1);
+		} else {
+			progComboBox.setSelectedIndex(0);
+		}
 	}
 	
 	
@@ -355,10 +481,16 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				if (buildAdcBox.isSelected() && checkFlag(option,"ADC")==false) {
 					continue;
 				}
-				if (buildLcdExtBox.isSelected() && checkFlag(option,"EXT_LCD")==false) {
+				if (buildExtOutBox.isSelected() && checkFlag(option,"EXT_OUT")==false) {
 					continue;
 				}
-				if (buildLcd4Box.isSelected() && "4".equals(getFlagOption(option,"LCD_SIZE_ROW"))==false) {
+				if (buildExtOut16Box.isSelected() && checkFlag(option,"EXT_OUT_16BIT")==false) {
+					continue;
+				}
+				if (buildExtLcdBox.isSelected() && checkFlag(option,"EXT_LCD")==false) {
+					continue;
+				}
+				if (buildExtDocBox.isSelected() && checkFlag(option,"EXT_LCD_DOC")==false) {
 					continue;
 				}
 				if (mcuTypeBox.getSelectedIndex()>0) {
@@ -430,6 +562,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			}
 			return false;
 		}
+		/*
 		private String getFlagOption(BuildOption option,String checkOption) {
 			for (String flag:option.options) {
 				if (flag.contains(checkOption)) {
@@ -441,6 +574,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			}
 			return "";
 		}
+		*/
 	}
 	
 	public class BuildOption {

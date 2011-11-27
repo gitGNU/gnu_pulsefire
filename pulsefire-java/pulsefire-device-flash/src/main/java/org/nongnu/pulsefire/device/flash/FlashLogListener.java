@@ -21,41 +21,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui;
-
-import java.awt.GridLayout;
-
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.ui.components.JCommandDial;
-import org.nongnu.pulsefire.wire.CommandName;
+package org.nongnu.pulsefire.device.flash;
 
 /**
- * JTopPanelPPM
+ * FlashLogListener receives flash log messages.
  * 
  * @author Willem Cazander
  */
-public class JTopPanelPPM extends JPanel {
+public interface FlashLogListener {
 
-	private static final long serialVersionUID = 6457118049184561842L;
-
-	public JTopPanelPPM() {
-		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		setLayout(new GridLayout(1,0));
-		JPanel borderPanel = JComponentFactory.createJFirePanel("PPM");
-		add(borderPanel);
-		
-		JPanel ppmPanel = new JPanel();
-		ppmPanel.setLayout(new SpringLayout());
-		borderPanel.add(ppmPanel);
-		JCommandDial dial = null;
-		dial = new JCommandDial(CommandName.ppm_data_len);
-		ppmPanel.add(dial);
-		dial = new JCommandDial(CommandName.ppm_data_offset);
-		ppmPanel.add(dial);
-		
-		SpringLayoutGrid.makeCompactGrid(ppmPanel,2,1);
-	}
+	/**
+	 * Logs an message of the flash controller
+	 * @param message
+	 */
+	public void flashLogMessage(String message);
 }

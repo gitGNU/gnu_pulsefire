@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.flash.AbstractFlashProgramController;
+import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
 
 /**
  * AbstractStk500Controller is the base for stk500 based flash devices.
@@ -65,6 +66,7 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 	}
 	
 	protected void rebootDevice() {
+		logMessage("Reboot device.");
 		serialPort.setRTS(false);
 		serialPort.setDTR(false);
 		try {
@@ -89,21 +91,22 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		output.close();
 		input.close();
 		serialPort.close();
+		logMessage("Disconnected from port.");
 	}
 	
-	protected void connectPort(String port) {
+	protected void connectPort(FlashControllerConfig flashControllerConfig) {
 		Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
 		while (e.hasMoreElements()) {
-			CommPortIdentifier o = (CommPortIdentifier)e.nextElement();
+			e.nextElement();// always reloop the ports before opening.
 		}
 		try {
-			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
+			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(flashControllerConfig.getPort());
 			serialPort = (SerialPort) cpi.open("FlashManager", 2000);
 			serialPort.setSerialPortParams(115200,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 			serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE); 
 			input = new BufferedInputStream(serialPort.getInputStream());
 			output = new BufferedOutputStream(serialPort.getOutputStream());
-			//logger.info("Connected to port: "+serialPort.getName());		
+			logMessage("Connected to port: "+serialPort.getName());		
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -112,4 +115,9 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		}
 	}
 
+	protected void logConfig(FlashControllerConfig flashControllerConfig) {
+		logMessage("Flash data size: "+flashControllerConfig.getFlashData().length);
+		logMessage("Flash protocol: "+flashControllerConfig.getPortProtocol());
+		logMessage("Flash verify: "+flashControllerConfig.isFlashVerify());
+	}
 }

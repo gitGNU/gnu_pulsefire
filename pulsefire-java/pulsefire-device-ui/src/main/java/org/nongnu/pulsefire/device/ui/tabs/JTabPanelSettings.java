@@ -50,7 +50,8 @@ import org.nongnu.pulsefire.device.ui.components.JFlashDialog;
 public class JTabPanelSettings extends AbstractTabPanel {
 
 	private static final long serialVersionUID = -1646229038565969537L;
-
+	private JButton burnButton = null;
+	
 	public JTabPanelSettings() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
@@ -167,6 +168,8 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		consoleLines.addItem("500");
 		consoleLines.addItem("1000");
 		consoleLines.addItem("2000");
+		consoleLines.addItem("5000");
+		consoleLines.addItem("10000");
 		consoleLines.setSelectedItem(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
 		consoleLines.addActionListener(new ActionListener() {
 			@Override
@@ -181,8 +184,8 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.SCOPE_ENABLE));
 
 		panel.add(JComponentFactory.createJLabel("Flash Chip"));
-		JButton flashButton = new JButton("Burn");
-		flashButton.addActionListener(new ActionListener() {
+		burnButton = new JButton("Burn");
+		burnButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFlashDialog flashDialog = new JFlashDialog(PulseFireUI.getInstance().getMainFrame());
@@ -191,7 +194,7 @@ public class JTabPanelSettings extends AbstractTabPanel {
 				flashDialog.setVisible(true);
 			}
 		});
-		panel.add(flashButton);
+		panel.add(burnButton);
 		
 		SpringLayoutGrid.makeCompactGrid(panel,6,2);
 		return panel;
@@ -201,5 +204,17 @@ public class JTabPanelSettings extends AbstractTabPanel {
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();
+	}
+	
+	@Override
+	public void deviceConnect() {
+		burnButton.setEnabled(false);
+		super.deviceConnect();
+	}
+
+	@Override
+	public void deviceDisconnect() {
+		super.deviceDisconnect();
+		burnButton.setEnabled(true);
 	}
 }

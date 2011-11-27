@@ -13,6 +13,8 @@ Version 1.0:
 - Moved all chip IO functions to chip.h
 - Upped max digital inputs from 8 to 16.
 - Created Arduino MEGA support(non-tested).
+- Made adc_value and dic_value use auto push for gui update.
+- Fixed main loop speed bug was in Input_loopLcd().
 
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.

@@ -58,6 +58,7 @@ public class JTabPanelPTC extends AbstractTabPanel {
 	
 	private JPanel createTimeConfPanel0 () {
 		JPanel panel = JComponentFactory.createJFirePanel("Config Timer 0");
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JLabel("Run Times"));
 		panel.add(new JCommandDial(CommandName.ptc_0run));
 		panel.add(new JLabel("Time Multi"));
@@ -67,6 +68,7 @@ public class JTabPanelPTC extends AbstractTabPanel {
 	
 	private JPanel createTimeConfPanel1 () {
 		JPanel panel = JComponentFactory.createJFirePanel("Config Timer 1");
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JLabel("Run Times"));
 		panel.add(new JCommandDial(CommandName.ptc_1run));
 		panel.add(new JLabel("Time Multi"));

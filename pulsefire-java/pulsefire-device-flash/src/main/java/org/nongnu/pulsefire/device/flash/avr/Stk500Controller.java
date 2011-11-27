@@ -24,7 +24,8 @@
 package org.nongnu.pulsefire.device.flash.avr;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
 
 /**
  * Stk500Controller encode and decodes stk500 messages and flash the device.
@@ -33,11 +34,7 @@ import java.util.logging.Logger;
  */
 public class Stk500Controller extends AbstractStk500Controller {
 
-	private Logger logger = null;
-	
-	public Stk500Controller() {
-		logger = Logger.getLogger(Stk500Controller.class.getName());
-	}
+	private boolean logDebug = false;
 	
 	public void prepareMessagePrefix(FlashMessage msg,FlashCommandToken command) {
 		msg.addRequestCommand(command);
@@ -67,7 +64,10 @@ public class Stk500Controller extends AbstractStk500Controller {
 			buf.append(hex);
 		}
 		output.flush();
-		logger.info("Send data: "+buf);
+		if (logDebug) {
+			logMessage("Send data: "+buf);
+		}
+		logger.finer("Send data: "+buf);
 		
 		int timeout = 1000;
 		while(input.available()==0) {
@@ -100,13 +100,22 @@ public class Stk500Controller extends AbstractStk500Controller {
 			}
 			buf.append(hex);
 		}
-		logger.info("Read data: "+buf);
+		if (logDebug) {
+			logMessage("Read data: "+buf);
+		}
+		logger.finer("Read data: "+buf);
 		return message;
 	}
 	
 	
-	public void flash() throws IOException {
-		connectPort(getPort());
+	public void flash(FlashControllerConfig flashControllerConfig) throws IOException {
+		if (flashControllerConfig==null) {
+			throw new NullPointerException("Can't flash with null config.");
+		}
+		flashControllerConfig.verifyConfig(); // check the config
+		logConfig(flashControllerConfig);
+		connectPort(flashControllerConfig);
+		logDebug = flashControllerConfig.isLogDebug();
 		if (output==null) {
 			return;
 		}
@@ -122,20 +131,19 @@ public class Stk500Controller extends AbstractStk500Controller {
 		
 		// Check if we are connected
 		FlashMessage msg = doFlashCommand(Stk500Command.STK_GET_SYNC);
-		
-		logger.info("got: "+msg.getResponse().size());
 		if (msg.getResponse().size()!=2) {
-			logger.info("not synced got !=2 bytes: "+msg.getResponse().size());
+			logMessage("not synced got !=2 bytes: "+msg.getResponse().size());
 			return;
 		}
 		if (msg.getResponse().get(0) != Stk500Command.STK_INSYNC.getToken()) {
-			logger.info("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500Command.STK_INSYNC.getToken()));
+			logMessage("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500Command.STK_INSYNC.getToken()));
 			return;
 		}
 		if (msg.getResponse().get(1) != Stk500Command.STK_OK.getToken()) {
-			logger.info("not connected; got: "+msg.getResponse().get(1));
+			logMessage("not connected; got: "+msg.getResponse().get(1));
 			return;
 		}
+		logMessage("Connected and in sync with device.");
 		progress = 6;
 		
 		FlashMessage version = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
@@ -163,14 +171,17 @@ public class Stk500Controller extends AbstractStk500Controller {
 		
 		
 		progress = 10;
-		byte[] dataBytes = getFlashData();
+		byte[] dataBytes = flashControllerConfig.getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
+		logMessage("Start flashing.");
 		
 		for (int i=0;i<=pages;i++) {
 			progress = new Float((90.0f/pages)*i).intValue()+10;
-			int address = (i*pageSize)/2; 
-			logger.info("Set address to: "+Integer.toHexString(address));
+			int address = (i*pageSize)/2;
+			if (flashControllerConfig.isLogDebug()) {
+				logMessage("Set address: "+Integer.toHexString(address));
+			}
 			doFlashCommand(Stk500Command.STK_LOAD_ADDRESS,address,address>>8);
 			
 			FlashMessage flash = new FlashMessage();
@@ -192,130 +203,8 @@ public class Stk500Controller extends AbstractStk500Controller {
 			flash = sendFlashMessage(flash);
 			// check
 		}
+		logMessage("Flashing is done.");
 		disconnectPort();
 		progress = 100;
 	}
-	
-	/*
-	@Override
-	public void flash() throws IOException {
-		connectPort(getPort());
-		if (output==null) {
-			return;
-		}
-		rebootDevice();
-
-		// Sync serial with device
-		for (int i = 0; i < 5; i++) {
-			output.write(FlashCommand.STK_GET_SYNC.getOpCode());
-			output.write(FlashCommand.CRC_EOP.getOpCode());
-			output.flush();
-			input.read();
-			input.read();
-		}
-		
-		// Check if we are connected
-		output.write(FlashCommand.STK_GET_SYNC.getOpCode());
-		output.write(FlashCommand.CRC_EOP.getOpCode());
-		output.flush();
-		int response = input.read();
-		logger.info("got: "+response+" hex: "+Integer.toHexString(response));
-		if (response != FlashCommand.STK_INSYNC.getOpCode()) {
-			logger.info("not in sync; got: "+response+" hex: "+Integer.toHexString(response)+" wanted: "+Integer.toHexString(FlashCommand.STK_INSYNC.getOpCode()));
-			return;
-		}
-		response = input.read();
-		logger.info("got: "+response+" hex: "+Integer.toHexString(response));
-		if (response != FlashCommand.STK_OK.getOpCode()) {
-			logger.info("not connected; got: "+response);
-			return;
-		}
-		
-		
-		output.write(FlashCommand.STK_GET_PARAMETER.getOpCode());
-		output.write(0x80);
-		output.write(FlashCommand.CRC_EOP.getOpCode());
-		output.flush();
-
-		
-		response = input.read();
-		logger.info("got2A: "+response+" hex: "+Integer.toHexString(response));
-		response = input.read();
-		logger.info("got2B: "+response+" hex: "+Integer.toHexString(response));
-		response = input.read();
-		logger.info("got2C: "+response+" hex: "+Integer.toHexString(response));
-		
-		byte[] dataBytes = getFlashData();
-		int pageSize = 0x80;
-		int pages = dataBytes.length/pageSize;
-		
-		for (int i=0;i<=pages;i++) {
-			
-			int address = (i*pageSize)/2; 
-			logger.info("Set address to: "+Integer.toHexString(address));
-			
-			output.write(FlashCommand.STK_LOAD_ADDRESS.getOpCode());
-			output.write(address);     // pageSize is bytes, address is in word !
-			output.write(address>>8);
-			output.write(FlashCommand.CRC_EOP.getOpCode());
-			output.flush();
-			response = input.read();
-			logger.info("gotA: "+response+" hex: "+Integer.toHexString(response));
-			response = input.read();
-			logger.info("gotA: "+response+" hex: "+Integer.toHexString(response));
-			
-			output.write(FlashCommand.STK_PROG_PAGE.getOpCode());
-			output.write(0);
-			output.write(pageSize);
-			output.write(0x46); // F = flash memory
-			output.flush();
-			System.out.print("data: ");
-			for (int d=0;d<pageSize;d++) {
-				byte byteData = 0;
-				int addr = (i*pageSize);
-				if ((addr+d)<dataBytes.length) {
-					byteData = dataBytes[addr+d];
-				}
-				output.write(byteData);
-				output.flush();
-				
-				String hex = Integer.toHexString(byteData);
-				if (hex.length()==1) {
-					hex = "0"+hex;
-				}
-				if (hex.startsWith("ffffff")) {
-					hex = hex.substring(6);
-				}
-				System.out.print(""+hex);
-			}
-			System.out.println("");
-			output.write(FlashCommand.CRC_EOP.getOpCode());
-			output.flush();
-			
-			//logger.info("waiting on prog");
-			while(input.available()==0) {
-				//System.out.println(" bytes: "+input.available());
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			response = input.read();
-			//logger.info("gotU: "+response+" hex: "+Integer.toHexString(response));
-			if (response != FlashCommand.STK_INSYNC.getOpCode()) {
-				logger.info("Error: "+response+" hex: "+Integer.toHexString(response)+" wanted: "+Integer.toHexString(FlashCommand.STK_INSYNC.getOpCode()));
-				break;
-			}
-			response = input.read();
-			//logger.info("gotU: "+response+" hex: "+Integer.toHexString(response));
-			if (response != FlashCommand.STK_OK.getOpCode()) {
-				logger.info("Error: "+response);
-				break;
-			}
-		}
-		disconnectPort();
-	}
-	*/
-
 }

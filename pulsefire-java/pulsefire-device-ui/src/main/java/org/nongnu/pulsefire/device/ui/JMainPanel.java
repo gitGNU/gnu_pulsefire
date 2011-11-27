@@ -35,17 +35,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.ui.tabs.JTabFirePanel;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelChannels;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPWM;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelInput;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelLPM;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMAL;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTC;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTT;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPins;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSTV;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelScope;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSettings;
@@ -67,8 +67,9 @@ public class JMainPanel extends JPanel {
 	public JMainPanel() {
 		
 		tabPanels = new ArrayList<JTabFirePanel>(10);
-		tabPanels.add(new JTabPanelChannels());
+		tabPanels.add(new JTabPanelPWM());
 		tabPanels.add(new JTabPanelSystem());
+		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
 		tabPanels.add(new JTabPanelSTV());
 		tabPanels.add(new JTabPanelPTC());
@@ -91,13 +92,9 @@ public class JMainPanel extends JPanel {
 	
 	private JPanel createTop() {
 		JPanel top = new JPanel();
-		//top.setOpaque(false);
-		top.setLayout(new SpringLayout());
+		top.setLayout(new GridLayout(1,2));
 		top.add(new JTopPanelSerial());
-		top.add(new JTopPanelPulse());
-		top.add(new JTopPanelPwm());
-		top.add(new JTopPanelPPM());
-		SpringLayoutGrid.makeCompactGrid(top,1,4,0,0,0,0);
+		top.add(new JTopPanelStatus());
 		return top;
 	}
 	
@@ -117,7 +114,7 @@ public class JMainPanel extends JPanel {
 		JPanel sp1 = createBottomInfo();
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setResizeWeight(0.4);
+		splitPane.setResizeWeight(0.4);	
 		sp0.setMinimumSize(new Dimension(200, 100));
 		sp1.setMinimumSize(new Dimension(200, 100));
 		return splitPane;
@@ -139,7 +136,7 @@ public class JMainPanel extends JPanel {
 			//scrollPane.getViewport().setOpaque(false);
 			tabbedPane.addTab(panel.getTabName(),panel.getTabIcon(),scrollPane,panel.getTabTooltip());
 		}
-		tabbedPane.setEnabledAt(7, false);
+		tabbedPane.setEnabledAt(8, false); // mal is not done
 		center.add(tabbedPane);
 		return center;
 	}

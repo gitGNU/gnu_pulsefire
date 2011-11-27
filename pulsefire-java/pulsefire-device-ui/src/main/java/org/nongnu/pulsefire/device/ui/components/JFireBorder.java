@@ -63,7 +63,7 @@ public class JFireBorder implements Border,MouseListener {
 	}
 	
 	public Insets getBorderInsets(Component c) {
-		 return new Insets(getTitleHeight(c)+1, 1, radius, 1);
+		 return new Insets(getTitleHeight(c)+1, 1, radius-2, 1);
 	}
 
 	public boolean isBorderOpaque() {

@@ -83,7 +83,7 @@ public class JComponentFactory {
 	
 	static public JPanel createJFirePanel(String name) {
 		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		JFireBorder fireBorder = new JFireBorder(name,panel);
 		panel.setBorder(fireBorder);
 		return panel;

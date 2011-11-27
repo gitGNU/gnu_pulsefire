@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -104,6 +105,7 @@ public class JFireQMapTable extends JPanel {
 		varIdx.setPreferredWidth(55);
 		varIdx.setCellEditor(new MapVariableIdxInputCellEditor());
 		
+		setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		setLayout(new BorderLayout());
 		add(qmapTable.getTableHeader(), BorderLayout.PAGE_START);
 		add(qmapTable, BorderLayout.CENTER);

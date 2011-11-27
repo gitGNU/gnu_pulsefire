@@ -30,7 +30,6 @@ package org.nongnu.pulsefire.wire;
  */
 public enum WireChipFlags {
 
-	AVR,
 	PWM,
 	LCD,
 	LPM,
@@ -45,7 +44,12 @@ public enum WireChipFlags {
 	VFC,
 	FRQ,
 	SWC,
-	MAL;
+	MAL,
+	
+	/* CPU FLAGS */
+	AVR,
+	AVR_MEGA,
+	ARM_7M;
 	
 	public boolean isFlagActive(Command cmd) {
 		if (cmd==null) {

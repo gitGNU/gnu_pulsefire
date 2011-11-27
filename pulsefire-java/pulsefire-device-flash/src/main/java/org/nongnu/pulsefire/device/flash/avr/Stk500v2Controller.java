@@ -25,14 +25,17 @@ package org.nongnu.pulsefire.device.flash.avr;
 
 import java.io.IOException;
 
+import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
+
 /**
  * Stk500v2Controller encode and decodes stk500v2 messages and flash the device.
  * 
  * @author Willem Cazander
  */
 public class Stk500v2Controller extends AbstractStk500Controller {
-
-	int messageSeqenceNumber = 1;
+	
+	private boolean logDebug = false;
+	private int messageSeqenceNumber = 1;
 	
 	@Override
 	public void prepareMessagePrefix(FlashMessage msg, FlashCommandToken command) {
@@ -84,7 +87,10 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 			buf.append(hex);
 		}
 		output.flush();
-		logger.info("Send data: "+buf);
+		if (logDebug) {
+			logMessage("Send data: "+buf);
+		}
+		logger.finer("Send data: "+buf);
 		
 		int timeout = 1000;
 		while(input.available()==0) {
@@ -125,15 +131,23 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 			}
 			buf.append(hex);
 		}
-		logger.info("Read data: "+buf);
 		int checksum = input.read();
-		logger.info("Got checksum return: "+checksum);
 		
+		if (logDebug) {
+			logMessage("Read data: "+buf+" sum: "+checksum);
+		}
+		logger.finer("Read data: "+buf+" sum: "+checksum);
 		return message;
 	}
 	
-	public void flash() throws IOException {
-		connectPort(getPort());
+	public void flash(FlashControllerConfig flashControllerConfig) throws IOException {
+		if (flashControllerConfig==null) {
+			throw new NullPointerException("Can't flash with null config.");
+		}
+		flashControllerConfig.verifyConfig(); // check the config
+		logConfig(flashControllerConfig);
+		connectPort(flashControllerConfig);
+		logDebug = flashControllerConfig.isLogDebug();
 		if (output==null) {
 			return;
 		}
@@ -188,14 +202,17 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		enterIsp = sendFlashMessage(enterIsp);
 		
 		progress = 10;
-		byte[] dataBytes = getFlashData();
+		byte[] dataBytes = flashControllerConfig.getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
+		logMessage("Start flashing.");
 		
 		for (int i=0;i<=pages;i++) {
 			progress = new Float((90.0f/pages)*i).intValue()+10;
-			int address = (i*pageSize)/2; 
-			logger.info("Set address to: "+Integer.toHexString(address));
+			int address = (i*pageSize)/2;
+			if (flashControllerConfig.isLogDebug()) {
+				logMessage("Set address to: "+Integer.toHexString(address));
+			}
 			doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,address,address>>8);
 			
 			FlashMessage flash = new FlashMessage();
@@ -223,6 +240,15 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 			flash = sendFlashMessage(flash);
 			// check
 		}
+		logMessage("Flashing is done.");
+		
+		FlashMessage leaveIsp = new FlashMessage();
+		prepareMessagePrefix(leaveIsp,Stk500v2Command.CMD_LEAVE_PROGMODE_ISP);
+		leaveIsp.getRequest().add(0x01);
+		leaveIsp.getRequest().add(0x01);
+		prepareMessagePostfix(leaveIsp,Stk500v2Command.CMD_LEAVE_PROGMODE_ISP);
+		leaveIsp = sendFlashMessage(leaveIsp);
+		
 		disconnectPort();
 		progress = 100;
 	}

@@ -32,13 +32,8 @@ import java.io.IOException;
  */
 public interface FlashProgramController {
 
-	public void setPort(String port);
-	public String getPort();
-	public void setPortParameter(String para);
-	public String getPortParameter();
-	public void setFlashData(byte[] data);
-	public byte[] getFlashData();
-
-	public void flash() throws IOException;
+	public void addFlashLogListener(FlashLogListener flashLogListener);
+	public void removeFlashLogListener(FlashLogListener flashLogListener);
+	public void flash(FlashControllerConfig flashControllerConfig) throws IOException;
 	public int getProgress();
 }

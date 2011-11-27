@@ -59,6 +59,7 @@ public class JTabPanelSTV extends AbstractTabPanel {
 	
 	private JPanel createMaxConfPanel() {
 		JPanel panel = JComponentFactory.createJFirePanel("Warning Config");
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JLabel("Warn Secs"));
 		panel.add(new JCommandDial(CommandName.stv_warn_secs));
 		panel.add(new JLabel("Warn Mode"));
@@ -68,6 +69,7 @@ public class JTabPanelSTV extends AbstractTabPanel {
 	
 	private JPanel createMinConfPanel() {
 		JPanel panel = JComponentFactory.createJFirePanel("Error Config");
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JLabel("Error Secs"));
 		panel.add(new JCommandDial(CommandName.stv_error_secs));
 		panel.add(new JLabel("Error Mode"));

@@ -78,20 +78,25 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		connectButtton.addActionListener(this);
 		connectButtton.requestFocusInWindow();
 		serialPanel.add(connectButtton);
+		SpringLayoutGrid.makeCompactGrid(serialPanel,2,2);
 		
-		serialPanel.add(JComponentFactory.createJLabel(this,"version"));
+		JPanel serialInfoPanel = new JPanel();
+		serialInfoPanel.setLayout(new SpringLayout());
+		borderPanel.add(serialInfoPanel);
+		
+		serialInfoPanel.add(JComponentFactory.createJLabel(this,"version"));
 		versionLabel = new JLabel("");
-		serialPanel.add(versionLabel);
+		serialInfoPanel.add(versionLabel);
 		
 		serialTxCounter = new JLabel();
-		serialPanel.add(JComponentFactory.createJLabel(this,"serialTxCounter"));
-		serialPanel.add(serialTxCounter);
+		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialTxCounter"));
+		serialInfoPanel.add(serialTxCounter);
 		
 		serialRxCounter = new JLabel();
-		serialPanel.add(JComponentFactory.createJLabel(this,"serialRxCounter"));
-		serialPanel.add(serialRxCounter);
+		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialRxCounter"));
+		serialInfoPanel.add(serialRxCounter);
+		SpringLayoutGrid.makeCompactGrid(serialInfoPanel,3,2);
 		
-		SpringLayoutGrid.makeCompactGrid(serialPanel,5,2);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 		updateSerialCounter();
@@ -137,7 +142,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		connectDialog = null;
 		portsComboBox.setEnabled(false);
 		connectButtton.setText("Disconnect");
-		versionLabel.setText(""+PulseFireUI.getInstance().getDeviceManager().getDeviceVersion());
+		versionLabel.setText(""+new Float(PulseFireUI.getInstance().getDeviceManager().getDeviceVersion())/10);
 		PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.DEVICE_PORT.name(),""+portsComboBox.getSelectedItem());
 		PulseFireUI.getInstance().saveSettings();
 	}

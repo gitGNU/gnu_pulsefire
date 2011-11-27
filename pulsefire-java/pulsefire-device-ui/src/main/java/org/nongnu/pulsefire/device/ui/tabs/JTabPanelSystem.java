@@ -103,19 +103,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 
 		ioPanel.add(JComponentFactory.createJLabel("Output Steps"));
 		ioPanel.add(new JCommandComboBox(CommandName.pulse_steps));
-		
-		ioPanel.add(JComponentFactory.createJLabel("Pin2 Mapping"));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin2_map));
-		
-		ioPanel.add(JComponentFactory.createJLabel("Pin3 Mapping"));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin3_map));
-		
-		ioPanel.add(JComponentFactory.createJLabel("Pin4 Mapping"));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin4_map));
-		
-		ioPanel.add(JComponentFactory.createJLabel("Pin5 Mapping"));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin5_map));
-		
+
 		ioPanel.add(JComponentFactory.createJLabel("Lcd Size"));
 		ioPanel.add(new JCommandComboBox(CommandName.lcd_size));
 		
@@ -126,7 +114,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 		ioPanel.add(JComponentFactory.createJLabel("Dev temp dot"));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
 		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,11,2);
+		SpringLayoutGrid.makeCompactGrid(ioPanel,7,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

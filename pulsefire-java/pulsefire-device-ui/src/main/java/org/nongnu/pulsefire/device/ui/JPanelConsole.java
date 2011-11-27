@@ -72,7 +72,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		
 		// Config console output
 		consoleLog = new JTextArea(10,50);
-		consoleLog.setMargin(new Insets(5, 5, 5, 5));
+		consoleLog.setMargin(new Insets(2, 2, 2, 2));
 		consoleLog.setAutoscrolls(true);
 		consoleLog.setEditable(false);
 		JScrollPane consoleScrollPane = new JScrollPane(consoleLog);

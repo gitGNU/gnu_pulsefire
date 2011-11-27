@@ -23,6 +23,9 @@
 
 package org.nongnu.pulsefire.device.flash;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * AbstractFlashProgramController holds all the basics of the FlashProgramController fields and methods.
  * 
@@ -30,51 +33,11 @@ package org.nongnu.pulsefire.device.flash;
  */
 abstract public class AbstractFlashProgramController implements FlashProgramController {
 
-	protected String port = null;
-	protected String portParameter = null;
-	protected byte[] flashData = null;
+	protected List<FlashLogListener> flashLogListeners = null;
 	protected int progress = 0;
-	
-	/**
-	 * @return the port
-	 */
-	public String getPort() {
-		return port;
-	}
-	
-	/**
-	 * @param port the port to set
-	 */
-	public void setPort(String port) {
-		this.port = port;
-	}
-	
-	/**
-	 * @return the portParameter
-	 */
-	public String getPortParameter() {
-		return portParameter;
-	}
-	
-	/**
-	 * @param portParameter the portParameter to set
-	 */
-	public void setPortParameter(String portParameter) {
-		this.portParameter = portParameter;
-	}
-	
-	/**
-	 * @return the flashData
-	 */
-	public byte[] getFlashData() {
-		return flashData;
-	}
-	
-	/**
-	 * @param flashData the flashData to set
-	 */
-	public void setFlashData(byte[] flashData) {
-		this.flashData = flashData;
+
+	public AbstractFlashProgramController() {
+		flashLogListeners = new ArrayList<FlashLogListener>(3);
 	}
 	
 	/**
@@ -82,5 +45,20 @@ abstract public class AbstractFlashProgramController implements FlashProgramCont
 	 */
 	public int getProgress() {
 		return progress;
+	}
+	
+	public void addFlashLogListener(FlashLogListener flashLogListener) {
+		flashLogListeners.add(flashLogListener);
+	}
+	
+	public void removeFlashLogListener(FlashLogListener flashLogListener) {
+		flashLogListeners.remove(flashLogListener);
+	}
+
+	protected void logMessage(String message) {
+		for (int i=flashLogListeners.size()-1;i>=0;i--) {
+			FlashLogListener l = flashLogListeners.get(i);
+			l.flashLogMessage(message);
+		}
 	}
 }

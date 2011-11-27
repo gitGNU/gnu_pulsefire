@@ -185,6 +185,53 @@ public class CommandNameVersionFactory {
 				"PIN5_DOC5_OUT",
 				"PIN5_DOC11_OUT"
 			};
+	
+		CommandName.avr_pin18_map.listValues = new String[] {
+				"PIN18_OFF",
+				"PIN18_TRIG_IN",
+				"PIN18_RELAY_OUT",
+				"PIN18_DIC4_IN",
+				"PIN18_DIC6_IN",
+				"PIN18_DOC4_OUT",
+				"PIN18_DOC6_OUT",
+				"PIN18_FREQ_IN",
+				"IN18_FIRE_IN" 
+			};
+		CommandName.avr_pin19_map.listValues = new String[] {
+				"PIN19_OFF",
+				"PIN19_TRIG_IN",
+				"PIN19_RELAY_OUT",
+				"PIN19_DIC5_IN",
+				"PIN19_DIC7_IN",
+				"PIN19_DOC5_OUT",
+				"PIN19_DOC7_OUT",
+				"PIN19_FREQ_IN",
+				"PIN19_FIRE_IN"
+			};
+		CommandName.avr_pin47_map.listValues = new String[] {
+				"PIN47_OFF",
+				"PIN47_CLOCK_IN",
+				"PIN47_RELAY_OUT"
+			};
+		CommandName.avr_pin48_map.listValues = new String[] {
+				"PIN48_OFF",
+				"PIN48_MENU0_IN",
+				"PIN48_RELAY_OUT",
+				"PIN48_DIC4_IN",
+				"PIN48_DIC6_IN",
+				"PIN48_DOC4_OUT",
+				"PIN48_DOC6_OUT"
+			};
+		CommandName.avr_pin49_map.listValues = new String[] {
+				"PIN49_OFF",
+				"PIN49_MENU1_IN",
+				"PIN49_RELAY_OUT",
+				"PIN49_DIC5_IN",
+				"PIN49_DIC7_IN",
+				"PIN49_DOC5_OUT",
+				"PIN49_DOC7_OUT"
+			};
+		
 		CommandName.swc_mode.magicTopListValue = true;
 		CommandName.swc_mode.listValues = WirePulseMode.getModeList("KEEP");
 		CommandName.swc_trig.magicTopListValue = true;
@@ -206,7 +253,7 @@ public class CommandNameVersionFactory {
 		
 		for (CommandName cn:CommandName.values()) {
 			if (cn.chipFlagDependency!=null && cn.chipFlagDependency==WireChipFlags.PWM) {
-				cn.chipFlagDependency=null; // remove PWM flag dep in 0.9 and older
+				cn.chipFlagDependency=null; // remove PWM flag dep in 0.9 and older because it was not there
 			}
 		}
 		
@@ -215,12 +262,6 @@ public class CommandNameVersionFactory {
 		CommandName.dev_temp_dot.disabled=true;
 		CommandName.lpm_relay_inv.disabled=true;
 		CommandName.lcd_size.disabled=true;
-		
-		CommandName.sys_time_ticks.disabled=true; // note only needed on prog config ??
-		CommandName.sys_time_ssec.disabled=true;
-		CommandName.adc_state.disabled=true;
-		CommandName.adc_state_idx.disabled=true;
-		CommandName.adc_state_value.disabled=true;
 		
 		return true;
 	}

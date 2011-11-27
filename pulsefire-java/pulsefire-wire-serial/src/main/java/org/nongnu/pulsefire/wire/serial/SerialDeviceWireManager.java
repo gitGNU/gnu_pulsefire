@@ -148,6 +148,10 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 		if (serialThread==null) {
 			return; // already diconnected
 		}
+		// close nicely so serial buffers to do not get floodded.
+		requestCommand(new Command(CommandName.req_tx_push,	"0")).waitForResponse(); // disable auto push
+		//requestCommand(new Command(CommandName.req_tx_promt,"1")).waitForResponse(); // turn promt on
+		//requestCommand(new Command(CommandName.req_tx_echo,"1")).waitForResponse();  // turn echo on
 		serialThread.shutdown();
 		serialThread = null;
 		super.disconnect();

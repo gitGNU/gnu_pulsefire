@@ -107,6 +107,7 @@ public class JTabPanelVariables extends AbstractTabPanel {
 	
 	private JPanel createTopPanelFilter() {
 		JPanel filterPanel = JComponentFactory.createJFirePanel("Filter");
+		filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		filterPanel.add(new JLabel("Filter"));
 		JComboBox filterBox = new JComboBox(WireChipFlags.values());
 		filterBox.addItem("ALL");
@@ -133,8 +134,9 @@ public class JTabPanelVariables extends AbstractTabPanel {
 	
 	private JPanel createTopPanelPulling() {
 		JPanel pullPanel = JComponentFactory.createJFirePanel("Pulling");
+		pullPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pullPanel.add(new JLabel("Refresh"));
-		JComboBox refreshBox = new JComboBox(new Integer[] {10*60*1000,5*60*1000,1*60*1000,30*1000,10*1000,5*1000});
+		JComboBox refreshBox = new JComboBox(new Integer[] {10*60*1000,5*60*1000,1*60*1000,30*1000,10*1000,5*1000,1000});
 		refreshBox.setSelectedIndex(4);
 		refreshBox.addActionListener(new ActionListener() {
 			@Override
