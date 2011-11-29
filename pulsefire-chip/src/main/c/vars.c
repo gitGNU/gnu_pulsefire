@@ -46,7 +46,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
   PF_VARS_PPM_SIZE+PF_VARS_ADC_SIZE+PF_VARS_DIC_SIZE+
   PF_VARS_DOC_SIZE+PF_VARS_DEV_SIZE+PF_VARS_PTC_SIZE+
   PF_VARS_PTT_SIZE+PF_VARS_STV_SIZE+PF_VARS_VFC_SIZE+
-  PF_VARS_MAL_SIZE+PF_VARS_FRQ_SIZE+PF_VARS_SWC_SIZE][PFVF_DEF+ONE] CHIP_PROGMEM = {
+  PF_VARS_MAL_SIZE+PF_VARS_SWC_SIZE][PFVF_DEF+ONE] CHIP_PROGMEM = {
 
 #ifdef SF_ENABLE_PWM
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_enable,        (CHIP_PTR_TYPE)&pmConfPulseEnable,     ONE,                  PFVB_NONE,                      ONE},
@@ -190,9 +190,6 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lcd_page,            (CHIP_PTR_TYPE)&pmDataLcdPage,         ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lcd_redraw,          (CHIP_PTR_TYPE)&pmDataLcdRedraw,       ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
-#ifdef SF_ENABLE_FRQ
-	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.req_pwm_freq,        (CHIP_PTR_TYPE)&pmCmdReqPWMFreq,       0xFFFF,              PFVB_DT0,                       ZERO},
-#endif
 
 #ifdef SF_ENABLE_LPM
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_state,           (CHIP_PTR_TYPE)&pmDataLPMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            LPM_IDLE},
@@ -241,6 +238,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_state,           (CHIP_PTR_TYPE)&pmDataPWMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_loop_cnt,        (CHIP_PTR_TYPE)&pmDataPWMLoopCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_loop_max,        (CHIP_PTR_TYPE)&pmDataPWMLoopMax,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.pwm_req_freq,        (CHIP_PTR_TYPE)&pmDataPWMReqFreq,      0xFFFF,              PFVB_DT0,                       ZERO},
 #endif
 
 #ifdef SF_ENABLE_PPM
@@ -702,15 +700,13 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 		STV_vars_min(value,stvIdxMin);
 	}
 #endif
-#ifdef SF_ENABLE_FRQ
 #ifdef SF_ENABLE_PWM
-	if ( varName == (CHIP_PTR_TYPE)&pmCmdReqPWMFreq) {
-		Freq_requestTrainFreq(value,QMAP_VAR_IDX_ALL,QMAP_VAR_IDX_ALL);
+	if ( varName == (CHIP_PTR_TYPE)&pmDataPWMReqFreq) {
+		Freq_requestTrainFreq(value,QMAP_VAR_IDX_ALL);
 	}
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMDuty && pf_data.req_pwm_freq != ZERO) {
-		Freq_requestTrainFreq(pf_data.req_pwm_freq,QMAP_VAR_IDX_ALL,QMAP_VAR_IDX_ALL);
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMDuty && pf_data.pwm_req_freq != ZERO) {
+		Freq_requestTrainFreq(pf_data.pwm_req_freq,QMAP_VAR_IDX_ALL);
 	}
-#endif
 #endif
 #ifdef SF_ENABLE_MAL
 	if ( varName == (CHIP_PTR_TYPE)&pmDataMALTrig) {

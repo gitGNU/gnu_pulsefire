@@ -374,7 +374,6 @@ void lcd_loop(void) {
 		pf_data.lcd_redraw = ONE;
 	}
 #ifdef SF_ENABLE_PWM
-#ifdef SF_ENABLE_FRQ
 	lcd_printChar("HZ: ");
 	uint32_t freq = calc_pwm_freq(ZERO);
 	uint32_t freqHigh = freq/FREQ_MUL;
@@ -385,9 +384,6 @@ void lcd_loop(void) {
 	lcd_printSpace();
 	lcd_printSpace(); // cleans if freq goes fast from big number to small number
 	lcd_printSpace(); // todo make better
-#else
-	lcd_printCharP(pmPulseFire); // without HZ there is space for our name here.
-#endif
 #else
 	lcd_printCharP(pmPulseFire); // without HZ there is space for our name here.
 #endif

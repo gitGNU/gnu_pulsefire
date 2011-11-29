@@ -78,7 +78,7 @@ int main(void) {
 #ifdef SF_ENABLE_PTC
 		PTC_loop();
 #endif
-#ifdef SF_ENABLE_FRQ
+#ifdef SF_ENABLE_PWM
 		Freq_loop();
 #endif
 	}

@@ -40,7 +40,6 @@
 #//define SF_ENABLE_PTT              // enable ptt timers     (+...)
 #//define SF_ENABLE_STV              // enable stv code       (+...)
 #//define SF_ENABLE_VFC              // enable vfc code       (+...)
-#//define SF_ENABLE_FRQ              // enable req_freq_* cmd (+1044)
 #//define SF_ENABLE_SWC              // enable soft warmup   (+480) (DEP: PWM)
 #//define SF_ENABLE_MAL              // enable mal code       (+2250)
 #//define SF_ENABLE_DEBUG          // enable some debug     (+1044)

@@ -25,7 +25,7 @@
 
 #include "freq.h"
 
-#ifdef SF_ENABLE_FRQ
+#ifdef SF_ENABLE_PWM
 uint8_t convert_clock(uint8_t clockScaleMode) {
 	int clockScale = 1;
 	switch (clockScaleMode) {
@@ -39,7 +39,6 @@ uint8_t convert_clock(uint8_t clockScaleMode) {
 	return clockScale;
 }
 
-#ifdef SF_ENABLE_PWM
 uint32_t calc_pwm_speed(uint8_t idx) {
 	uint8_t clockScaleMode = TCCR1B; // todo mask 3 bit
 	uint8_t clockScale = convert_clock(clockScaleMode);
@@ -61,7 +60,7 @@ uint32_t calc_pwm_freq(uint8_t idx) {
 static int CLK_SCALE[] = {1,8,64,256,1024 };
 
 
-void Freq_requestTrainFreq(uint32_t freq,uint8_t idx,uint8_t duty) {
+void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 	// note freq is in 10 so 1123 = 112.3 Hz !!
 	freq *= 2; // double to hz.
 	//freq *= pf_conf.pulse_steps; // multiply to one output.
@@ -101,9 +100,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx,uint8_t duty) {
 	}
 
 	// Get argu duty or global and calc compb value and set for index or all.
-	if (duty == QMAP_VAR_IDX_ALL) {
-		duty = pf_conf.pwm_duty;
-	}
+	uint8_t duty = pf_conf.pwm_duty;
 	uint16_t compbValue = (compaValue / 100) * duty;
 	if (compaValue < 1000) {
 		compbValue = (compaValue * duty) / 100; // reverse calc for more persision in high range
@@ -116,18 +113,26 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx,uint8_t duty) {
 		Vars_setValue(pwmOffCntIdx,idx,0,compbValue);
 	}
 }
-#endif
 
 void Freq_loop(void) {
-	if (pf_conf.avr_pin2_map == PIN2_FREQ_IN || pf_conf.avr_pin3_map == PIN3_FREQ_IN) {
-		uint32_t current_time = millis();
-		if (current_time < pf_data.dev_freq_time_cnt) {
-			return;
-		}
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataDevFreq)),ZERO,ZERO,pf_data.dev_freq_cnt);
-		pf_data.dev_freq_time_cnt = current_time + 1000; // check every second
-		pf_data.dev_freq_cnt = ZERO;
+#ifdef SF_ENABLE_AVR
+	if ((pf_conf.avr_pin2_map != PIN2_FREQ_IN) & (pf_conf.avr_pin3_map != PIN3_FREQ_IN)) {
+		return;
 	}
+#endif
+#ifdef SF_ENABLE_AVR_MEGA
+	if ((pf_conf.avr_pin18_map != PIN18_FREQ_IN) & (pf_conf.avr_pin19_map != PIN19_FREQ_IN)) {
+		return;
+	}
+#endif
+
+	uint32_t current_time = millis();
+	if (current_time < pf_data.dev_freq_time_cnt) {
+		return;
+	}
+	Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataDevFreq)),ZERO,ZERO,pf_data.dev_freq_cnt);
+	pf_data.dev_freq_time_cnt = current_time + 1000; // check every second
+	pf_data.dev_freq_cnt = ZERO;
 }
 #endif
 

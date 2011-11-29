@@ -237,10 +237,6 @@ typedef struct {
 	volatile uint32_t      lcd_time_cnt;
 #endif
 
-#ifdef SF_ENABLE_FRQ
-	volatile uint16_t      req_pwm_freq;
-#endif
-
 #ifdef SF_ENABLE_LPM
 	volatile uint8_t       lpm_state;
 	volatile uint8_t       lpm_auto_cmd;
@@ -289,6 +285,7 @@ typedef struct {
 	volatile uint8_t       pwm_state;               // Interal state of pwm
 	volatile uint8_t       pwm_loop_cnt;            // Pwm loop counter for this step
 	volatile uint8_t       pwm_loop_max;            // The init loop counter for pulse, gets refresh from conf every pulse
+	volatile uint16_t      pwm_req_freq;            // The last requested pwm freq.
 #endif
 
 #ifdef SF_ENABLE_PPM
@@ -351,7 +348,7 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  32
+	#define PF_VARS_PWM_SIZE  33
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif
@@ -414,11 +411,6 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_MAL_SIZE  4
 #else
 	#define PF_VARS_MAL_SIZE  0
-#endif
-#ifdef SF_ENABLE_FRQ
-	#define PF_VARS_FRQ_SIZE  1
-#else
-	#define PF_VARS_FRQ_SIZE  0
 #endif
 #ifdef SF_ENABLE_SWC
 	#define PF_VARS_SWC_SIZE  8

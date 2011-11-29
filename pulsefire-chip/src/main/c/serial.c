@@ -142,7 +142,6 @@ void cmd_print_info_value_long(const char* dstring,uint32_t value) {
 }
 
 // Print all calculated values
-#ifdef SF_ENABLE_FRQ
 void cmd_print_info_freq(void) {  
 #ifdef SF_ENABLE_PWM
 	for (uint8_t i=ZERO;i<pf_conf.pulse_steps;i++) {
@@ -161,8 +160,6 @@ void cmd_print_info_freq(void) {
 #endif
 	Serial_println_done_P(pmCmdInfoFreq);
 }
-#endif
-
 
 void cmd_print_info_chip(void) {
 
@@ -220,9 +217,6 @@ void cmd_print_info_chip(void) {
 #endif
 #ifdef SF_ENABLE_PTT
 	Serial_printCharP(pmChipFlagPTT);
-#endif
-#ifdef SF_ENABLE_FRQ
-	Serial_printCharP(pmChipFlagFRQ);
 #endif
 #ifdef SF_ENABLE_SWC
 	Serial_printCharP(pmChipFlagSWC);
@@ -297,8 +291,7 @@ void cmd_execute(char* cmd, char** args) {
 #ifndef SF_ENABLE_PPM
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
 #endif
-#ifndef SF_ENABLE_FRQ
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoFreq) { continue; }
+#ifndef SF_ENABLE_PWM
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPWMFreq) { continue; }
 #endif
 #ifndef SF_ENABLE_LPM
@@ -361,10 +354,8 @@ void cmd_execute(char* cmd, char** args) {
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoChip)) == ZERO) {
 		cmd_print_info_chip();
 
-#ifdef SF_ENABLE_FRQ
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoFreq)) == ZERO) {
 		cmd_print_info_freq();
-#endif
 
 #ifdef SF_ENABLE_PPM
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPPM)) == ZERO) {
@@ -428,7 +419,6 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_println_done_P(pmCmdInfoProg);
 #endif
 
-#ifdef SF_ENABLE_FRQ
 #ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqPWMFreq)) == ZERO) {
 		if (args[0] == NULL) {
@@ -440,17 +430,14 @@ void cmd_execute(char* cmd, char** args) {
 		}
 		uint16_t freqFull  = atou16(args[0]);
 		uint16_t idx = 0xFF;
-		uint16_t duty = 0xFF;
 		if (args[1] != NULL) { idx  = atou16(args[1]); }
-		if (args[2] != NULL) { duty = atou16(args[2]); }
-		Freq_requestTrainFreq(freqFull,idx,duty);
+		Freq_requestTrainFreq(freqFull,idx);
 		Serial_printCharP(pmCmdReqPWMFreq);
 		Serial_printCharP(pmSetSpaced);
 		Serial_printDec(freqFull);
 		Serial_printCharP(pmSetSpaced);
 		Serial_printDec(calc_pwm_freq(ZERO));
 		Serial_println();
-#endif
 #endif
 
 #ifdef SF_ENABLE_LPM
