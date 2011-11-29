@@ -127,6 +127,11 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		JButton editButton = new JButton("Edit");
 		JButton addButton = new JButton("Add");
 		JButton delButton = new JButton("Delete");
+		
+		editButton.setEnabled(false);
+		addButton.setEnabled(false);
+		delButton.setEnabled(false);
+		
 		tableActions.add(editButton);
 		tableActions.add(addButton);
 		tableActions.add(delButton);
@@ -136,6 +141,10 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		testActions.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JButton startButton = new JButton("Start");
 		JButton stopButton = new JButton("Stop");
+		
+		startButton.setEnabled(false);
+		stopButton.setEnabled(false);
+		
 		testActions.add(startButton);
 		testActions.add(stopButton);
 		panel.add(testActions,BorderLayout.NORTH);
@@ -213,8 +222,8 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 			data = new ArrayList<LpmTestStep>(100);
 			
 			LpmTestStep s = new LpmTestStep();
-			s.setCommandName(CommandName.adc_map);
-			s.setCommandArgument("12 123 33 34 4");
+			s.setCommandName(CommandName.pwm_clock);
+			s.setCommandArgument("1 5 1 34 4");
 			s.setOrder(1);
 			s.setId(1);
 			

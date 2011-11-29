@@ -36,7 +36,7 @@ public enum CommandName {
 	info_conf				(CommandVariableType.INFO),
 	info_data				(CommandVariableType.INFO),
 	info_prog				(CommandVariableType.INFO),
-	info_freq				(CommandVariableType.INFO,WireChipFlags.FRQ),
+	info_freq				(CommandVariableType.INFO),
 	info_ppm				(CommandVariableType.INFO,WireChipFlags.PPM),
 	info_chip				(CommandVariableType.INFO),
 	
@@ -45,7 +45,7 @@ public enum CommandName {
 	reset_chip				(CommandVariableType.CMD),
 	
 	req_pulse_fire			(CommandVariableType.CMD),
-	req_pwm_freq			(CommandVariableType.CMD,WireChipFlags.FRQ),
+	req_pwm_freq			(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_auto_lpm			(CommandVariableType.CMD,WireChipFlags.LPM),
 	req_tx_push				(CommandVariableType.CMD),
 	req_tx_echo				(CommandVariableType.CMD),
@@ -196,6 +196,7 @@ public enum CommandName {
 	pwm_state				(CommandVariableType.DATA),
 	pwm_loop_cnt			(CommandVariableType.DATA),
 	pwm_loop_max			(CommandVariableType.DATA),
+	pwm_req_freq			(CommandVariableType.DATA),
 	ppm_idx					(CommandVariableType.DATA),
 	mal_trig				(CommandVariableType.DATA),
 	

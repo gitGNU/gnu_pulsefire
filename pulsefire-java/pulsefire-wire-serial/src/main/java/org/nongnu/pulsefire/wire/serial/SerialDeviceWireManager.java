@@ -64,12 +64,12 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			while(e.hasMoreElements()) {
 				CommPortIdentifier cpi = (CommPortIdentifier)e.nextElement();
 				if(cpi.getPortType()==CommPortIdentifier.PORT_SERIAL) {
-					logger.info("Serial Port Found: "+cpi.getName());
 					result.add(cpi.getName());
 				}
 			}
 		} catch (Throwable e) { // missing lib in jvm path...so no ports
 		}
+		logger.info("Total ports found: "+result.size());
 		return result;
 	}
 
@@ -79,13 +79,14 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 		if (isConnected()) {
 			disconnect();
 		}
+		long startTime = System.currentTimeMillis();
 		sendCommandQueue.clear();
 		connectPhase = "Opening port";connectProgress = 1;
 		// This does the System rescanning, so HOT usb remove and plugin-in can be supported.
 		Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
 		while (e.hasMoreElements()) {
 			CommPortIdentifier o = (CommPortIdentifier)e.nextElement();
-			logger.finer("Port: "+o.getName());
+			logger.finer("Rescan port: "+o.getName());
 		}
 		
 		boolean done = false;
@@ -135,6 +136,8 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			// Let do rest of connect by abstract parent
 			boolean result = doSafeConnect(infoChip);
 			done = true;
+			long stopTime = System.currentTimeMillis();
+			logger.info("Succesfully connected in "+(stopTime-startTime)+" ms.");
 			return result;
 		} finally {
 			if (done==false) {

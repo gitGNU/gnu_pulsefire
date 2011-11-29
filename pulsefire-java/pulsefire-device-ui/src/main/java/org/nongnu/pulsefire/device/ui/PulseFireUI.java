@@ -28,14 +28,18 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Properties;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
@@ -59,23 +63,50 @@ import org.nongnu.pulsefire.wire.serial.SerialDeviceWireManager;
  */
 public class PulseFireUI extends SingleFrameApplication {
 
+	static private final String STORAGE_FILE = "pulsefire-settings.xml";
 	private DeviceWireManagerController deviceManagerController = null;
 	private PulseFireTimeData timeData = null;
 	private EventTimeManager eventTimeManager = null;
 	private PulseFireDataLogManager dataLogManager = null;
 	private boolean fullScreen = false;
 	private Properties settings = null;
-	private Logger logger = null;
 	private long startTimeTotal = System.currentTimeMillis();
+	private Logger logger = null;
 	
 	static public void main(String[] args) {
 		Application.launch(PulseFireUI.class, args);
 	}
 	
 	/**
+	 * Real nasty hack to silent rxtx on startup.
+	 */
+	private void initSerialLib() {
+		PrintStream out = System.out;
+		try {
+			final StringBuffer buf = new StringBuffer(40);
+			System.setOut(new PrintStream(new OutputStream() {
+				public void write(int b) {
+					buf.append(Character.toChars(b));
+				}
+			}));
+			Class<?> clazz = Class.forName("gnu.io.CommPortIdentifier");
+			clazz.getMethod("getPortIdentifiers").invoke(null);
+			for (String line:buf.toString().split("\n")) {
+				if (line.contains("Version")) {
+					logger.info(line); // only log the lib versions. 
+				}
+			}
+		} catch (Exception e1) {
+			logger.warning("Could not init serial lib: "+e1.getMessage());
+		} finally {
+			System.setOut(out);
+		}
+	}
+	
+	/**
 	 * Does some native lib loading because if is different in each final deployment everment :(
 	 */
-	private void fixNativeLib(boolean jniCopy,boolean jniCopyOs) {
+	private void loadSerialLib(boolean jniCopy,boolean jniCopyOs) {
 		try {
 			if (isWebStart()) {
 				// in webstart lib comes from jar and we need to load it extra
@@ -121,16 +152,47 @@ public class PulseFireUI extends SingleFrameApplication {
 				break; // only do one
 			}
 			System.loadLibrary("rxtxSerial"); // copy once from jar resource and load native lib.
-
 		} catch (Throwable t) {
 			t.printStackTrace();	
 		}
 	}
 	
+	private void setupLogging() {
+		File logConfig = new File("logfile.properties");
+		if (logConfig.exists()) {
+			InputStream in = null;
+			try {
+				in = new FileInputStream(logConfig);
+				LogManager.getLogManager().readConfiguration(in);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (in!=null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else {
+			Logger rootLogger = Logger.getAnonymousLogger();
+			while (rootLogger.getParent()!=null) {
+				rootLogger = rootLogger.getParent();
+			}
+			for (Handler h:rootLogger.getHandlers()) {
+				h.setFormatter(new PatternLogFormatter());
+			}
+		}
+		
+	}
+	
 	protected void initialize(String[] args) {
 		super.initialize(args);
 		long startTime = System.currentTimeMillis();
+		setupLogging(); // init logging with config
 		logger = Logger.getLogger(PulseFireUI.class.getName());
+		logger.info("Starting PulseFire-UI");
 
 		boolean jniCopy = false;
 		boolean jniCopyOs = false;
@@ -146,10 +208,13 @@ public class PulseFireUI extends SingleFrameApplication {
 				jniCopyOs = true;
 			}
 		}
-		fixNativeLib(jniCopy,jniCopyOs);
+		loadSerialLib(jniCopy,jniCopyOs);
+		initSerialLib();
 		
 		try {
-			settings = (Properties)getContext().getLocalStorage().load("pulsefire-settings.xml");
+			settings = (Properties)getContext().getLocalStorage().load(STORAGE_FILE);
+			logger.info("Loaded "+STORAGE_FILE+" with "+settings.size()+" settings.");
+			
 		} catch (IOException e) {
 			logger.warning("Could not load settings error: "+e.getMessage());
 		}
@@ -163,31 +228,15 @@ public class PulseFireUI extends SingleFrameApplication {
 		timeData = new PulseFireTimeData();
 		dataLogManager = new PulseFireDataLogManager();
 		dataLogManager.start();
-		installColorsLaF();
+		String colorName = installColorsLaF();
+		logger.info("Color schema selected: "+colorName);
 		long stopTime = System.currentTimeMillis();
 		logger.info("PulseFireUI initialized in "+(stopTime-startTime)+" ms.");
 	}
 	
 	protected void startup() {
 		long startTime = System.currentTimeMillis();
-		addExitListener(new ExitListener() {
-			public boolean canExit(EventObject e) {
-				return true;
-			}
-			public void willExit(EventObject event) {
-				logger.info("Shutdown PulseFireUI requested.");
-				dataLogManager.stop();
-				eventTimeManager.shutdown();
-				PulseFireUI.getInstance().getDeviceManager().disconnect();
-				for (int i=0;i<20;i++) {
-					try { Thread.sleep(100); } catch (InterruptedException e) {}
-					if (PulseFireUI.getInstance().getDeviceManager().isConnected()==false) {
-						break;
-					}
-				}
-				logger.info("PulseFireUI is stopped.");
-			}
-		});
+		addExitListener(new ShutdownManager());
 		
 		FrameView mainView = getMainView();
 		mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
@@ -209,7 +258,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");
 	}
 	
-	private void installColorsLaF() {
+	private String installColorsLaF() {
 		UIManager.put("TabbedPane.font",		Font.decode("SansSerif-BOLD-12"));
 		UIManager.put("TitledBorder.font",		Font.decode("SansSerif-BOLD-16"));
 		UIManager.put("FireDial.font",			Font.decode("SansSerif-9"));
@@ -222,7 +271,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		InputStream in = cl.getResourceAsStream("org/nongnu/pulsefire/device/ui/resources/colors/"+colorName+".properties");
 		if (in==null) {
 			logger.warning("Color schema not found: "+colorName);
-			return;
+			return "unknown";
 		}
 		try {
 			Properties p = new Properties();
@@ -232,7 +281,6 @@ public class PulseFireUI extends SingleFrameApplication {
 				Color colorValue = Color.decode(value);
 				UIManager.put(key,colorValue);
 			}
-			logger.info("Color schema loaded: "+colorName);
 		} catch (IOException e) {
 			logger.warning("Could not load color schema: "+colorName+" error: "+e.getMessage());
 		} finally {
@@ -241,6 +289,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			} catch (IOException e) {
 			}
 		}
+		return colorName;
 	}
 	
 	static public PulseFireUI getInstance() {
@@ -281,7 +330,7 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	public void saveSettings() {
 		try {
-			getContext().getLocalStorage().save(settings,"pulsefire-settings.xml");
+			getContext().getLocalStorage().save(settings,STORAGE_FILE);
 		} catch (IOException e) {
 			logger.warning("Could not save settings error: "+e.getMessage());
 		}
@@ -293,6 +342,29 @@ public class PulseFireUI extends SingleFrameApplication {
 			return true;
 		} catch (Exception e) {
 			return false;	
+		}
+	}
+	
+	class ShutdownManager implements ExitListener {
+		@Override
+		public boolean canExit(EventObject e) {
+			return true;
+		}
+		@Override
+		public void willExit(EventObject event) {
+			logger.info("Shutdown requested.");
+			long startTime = System.currentTimeMillis();
+			dataLogManager.stop();
+			eventTimeManager.shutdown();
+			PulseFireUI.getInstance().getDeviceManager().disconnect();
+			for (int i=0;i<20;i++) {
+				try { Thread.sleep(100); } catch (InterruptedException e) {}
+				if (PulseFireUI.getInstance().getDeviceManager().isConnected()==false) {
+					break;
+				}
+			}
+			long stopTime = System.currentTimeMillis();
+			logger.info("PulseFireUI stopped in "+(stopTime-startTime)+" ms.");
 		}
 	}
 }

@@ -243,6 +243,8 @@ public class CommandNameVersionFactory {
 				"NONE"
 			};
 		
+		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
+		CommandName.freq_pwm_data.maxIndexB=3;
 		return true;
 	}
 

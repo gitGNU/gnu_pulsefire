@@ -93,7 +93,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		//wrap.setLayout(new SpringLayout());
-		wrap.setLayout(new BorderLayout());
+		//wrap.setLayout(new BorderLayout());
 		wrap.add(createScope(),BorderLayout.CENTER);
 		wrap.add(createScopeOptions(),BorderLayout.LINE_END);
 		//SpringLayoutGrid.makeCompactGrid(wrap,1,2);
@@ -133,12 +133,14 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		
 		timeDial = new JFireDial("time",1,32768,32768);
 		timeDial.addDialListener(this);
+		timeDial.setEnabled(false);
 		inputPanel.add(timeDial);
 		optionPanel.add(inputPanel);
 		
 		for (int i=0;i<3;i++) {
 			JPanel channelPanel = JComponentFactory.createJFirePanel("Channel A");
 			JFireDial gainChannel = new JFireDial("gainA",-100,100,0);
+			gainChannel.setEnabled(false);
 			channelPanel.add(gainChannel);
 			optionPanel.add(channelPanel);
 		}

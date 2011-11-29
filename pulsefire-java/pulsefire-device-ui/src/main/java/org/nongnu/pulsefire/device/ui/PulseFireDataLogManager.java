@@ -258,6 +258,7 @@ public class PulseFireDataLogManager {
 		
 		private void writeHeader() throws IOException {
 			out.append('#');
+			out.append("epoch,time,");
 			for (CommandName cn:CommandName.values()) {
 				if (CommandVariableType.DATA.equals(cn.getType())==false) {
 					continue;

@@ -23,6 +23,9 @@
 @echo off
 setlocal enableextensions
 
+:: Run in app dir
+cd /d %~dp0
+
 :: Config variables
 set JAVA_OPTS=-Xms64m -Xmx256m
 set MAIN_CLASS=org.nongnu.pulsefire.device.ui.PulseFireUI

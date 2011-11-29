@@ -70,12 +70,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <includes>
         <include>authors.txt</include>
         <include>licence.txt</include>
-        <include>readme.txt</include>
         <include>versions.txt</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.basedir}/src/main/scripts</directory>
+      <directory>${project.parent.parent.basedir}/src/build/files/</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>readme.txt</include>
+        <include>logfile.properties</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.parent.parent.basedir}/src/build/scripts/</directory>
       <outputDirectory>/</outputDirectory>
       <fileMode>755</fileMode>
     </fileSet>

@@ -22,6 +22,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# Run in app dir
+cd `dirname $0`;
+
 # Config variables
 JAVA="java";
 JAVA_OPTS="-Xms64m -Xmx256m";

@@ -42,7 +42,6 @@ public enum WireChipFlags {
 	PTC,
 	PTT,
 	VFC,
-	FRQ,
 	SWC,
 	MAL,
 	

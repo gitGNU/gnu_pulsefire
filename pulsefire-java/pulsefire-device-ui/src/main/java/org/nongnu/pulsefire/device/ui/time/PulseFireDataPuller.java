@@ -46,6 +46,7 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 		if (run) {
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog));
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
 		}
 	}
 

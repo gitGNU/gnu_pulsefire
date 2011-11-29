@@ -68,6 +68,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		add(fireDial);
 	}
 	
+	@Override
 	public void dialAdjusted( DialEvent e ) {
 		int v = e.getValue();
 		command.setArgu0(""+v);
@@ -76,6 +77,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		}
 		deviceManager.requestCommand(command);
 	}
+	
 	@Override
 	public void commandReceived(Command command) {
 		if (fireDial.isMouseDialing()) {
@@ -116,5 +118,9 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 
 	@Override
 	public void deviceDisconnect() {
+	}
+	
+	public JFireDial getFireDial() {
+		return fireDial;
 	}
 }

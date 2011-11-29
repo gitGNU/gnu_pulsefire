@@ -390,7 +390,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		@Override
 		public void run() {
 			try {
-				logger.info("Start flash thread.");
+				logger.fine("Start flash thread.");
 				flashProgramController.addFlashLogListener(JFlashDialog.this);
 				flashProgramController.flash(flashConfig);
 			} catch (Exception e1) {
@@ -469,6 +469,9 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		public void refilterData() {
 			data.clear();
 			for (BuildOption option:dataFull) {
+				if(option.name!=null && option.name.startsWith("arm")) {
+					continue; // skip test arm builds for now
+				}
 				if (buildLcdBox.isSelected() && checkFlag(option,"LCD")==false) {
 					continue;
 				}

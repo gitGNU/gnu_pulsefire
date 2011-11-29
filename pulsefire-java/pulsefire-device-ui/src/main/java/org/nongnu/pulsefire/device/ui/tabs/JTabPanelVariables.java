@@ -81,7 +81,7 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createVars("Conf",CommandVariableType.CONF));
 		wrap.add(createVars("Data",CommandVariableType.DATA));
-		wrap.add(createVars("Prog/Chip",CommandVariableType.PROG));	
+		wrap.add(createVars("Prog/Chip/Freq",CommandVariableType.PROG));	
 		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
 		
 		JPanel topPanel = new JPanel();
@@ -213,21 +213,34 @@ public class JTabPanelVariables extends AbstractTabPanel {
 			if (type.equals(CommandVariableType.PROG)) {
 				Map<CommandName, Command> chipMap = deviceData.getTypeMap(CommandVariableType.CHIP);
 				cmdMap.putAll(chipMap);
+				Map<CommandName, Command> freqMap = deviceData.getTypeMap(CommandVariableType.FREQ);
+				cmdMap.putAll(freqMap);
 			}
 			for (CommandName name:cmdMap.keySet()) {
 				result.put(name.name(), cmdMap.get(name));
 			}
 			if (filterIndexed) {
 				for (CommandName cmd:CommandName.values()) {
-					if (cmd.isIndexedA() && cmd.getType().equals(type)) {
-						for (int i=0;i<cmd.getMaxIndexA();i++) {
-							String key = cmd.name();
-							if (i<10) {
-								key = key+"0"+i;
-							} else {
-								key = key+i;
-							}
-							result.put(key,deviceData.getDeviceParameterIndexed(cmd,i));
+					if (cmd.isIndexedA()==false) {
+						continue;
+					}
+					if (type.equals(CommandVariableType.PROG)) {
+						if ((cmd.getType().equals(type) | cmd.getType().equals(CommandVariableType.CHIP) | cmd.getType().equals(CommandVariableType.FREQ))==false) {
+							continue;
+						}
+					} else if (cmd.getType().equals(type)==false) {
+						continue;
+					}
+					for (int i=0;i<cmd.getMaxIndexA();i++) {
+						String key = cmd.name();
+						if (i<10) {
+							key = key+"0"+i;
+						} else {
+							key = key+i;
+						}
+						Command cmdIdx = deviceData.getDeviceParameterIndexed(cmd,i);
+						if (cmdIdx!=null) {
+							result.put(key,cmdIdx);
 						}
 					}
 				}
@@ -262,7 +275,7 @@ public class JTabPanelVariables extends AbstractTabPanel {
 			Collections.sort(keys);
 			Command cmd = cmdMap.get(keys.get(row));
 			if (cmd==null) {
-				return "";
+				return "ErrNoCmd";
 			}
 			if (col==0) {
 				return keys.get(row);

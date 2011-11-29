@@ -92,14 +92,15 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		Command version = getDeviceData().getDeviceParameter(CommandName.chip_version);
 		if (version==null) {
 			disconnect();
-			logger.info("Could not get "+CommandName.chip_version.name());
+			logger.warning("Could not get "+CommandName.chip_version.name());
 			connectPhase = "Err on "+CommandName.chip_version.name();
 			return false;
 		}
 		int deviceVersion = new Double(Double.parseDouble(version.getArgu0())*10).intValue();
+		logger.info("Chip version: "+deviceVersion);
 		if (CommandNameVersionFactory.configCommandName(deviceVersion)==false) {
 			disconnect();
-			logger.info("Version not supported: "+deviceVersion);
+			logger.warning("Version not supported: "+deviceVersion);
 			connectPhase = "Version not supported: "+deviceVersion;
 			return false;
 		}
