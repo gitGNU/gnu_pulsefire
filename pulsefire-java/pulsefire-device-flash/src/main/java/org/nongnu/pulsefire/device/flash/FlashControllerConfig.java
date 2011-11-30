@@ -33,6 +33,7 @@ public class FlashControllerConfig {
 	private String port = null;
 	private String portParameter = null;
 	private String portProtocol = null;
+	private int deviceSignature = -1;
 	private byte[] flashData = null;
 	private boolean flashVerify = false;
 	private boolean flashErase = false;
@@ -40,8 +41,9 @@ public class FlashControllerConfig {
 	
 	public FlashControllerConfig() {
 	}
-	public FlashControllerConfig(String port,byte[] flashData) {
+	public FlashControllerConfig(String port,String portProtocol,byte[] flashData) {
 		setPort(port);
+		setPortProtocol(portProtocol);
 		setFlashData(flashData);
 	}
 	
@@ -153,5 +155,19 @@ public class FlashControllerConfig {
 	 */
 	public void setLogDebug(boolean logDebug) {
 		this.logDebug = logDebug;
+	}
+	
+	/**
+	 * @return the deviceSignature
+	 */
+	public int getDeviceSignature() {
+		return deviceSignature;
+	}
+	
+	/**
+	 * @param deviceSignature the deviceSignature to set
+	 */
+	public void setDeviceSignature(int deviceSignature) {
+		this.deviceSignature = deviceSignature;
 	}
 }

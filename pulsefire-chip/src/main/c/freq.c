@@ -40,7 +40,7 @@ uint8_t convert_clock(uint8_t clockScaleMode) {
 }
 
 uint32_t calc_pwm_speed(uint8_t idx) {
-	uint8_t clockScaleMode = TCCR1B; // todo mask 3 bit
+	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
 	uint8_t clockScale = convert_clock(clockScaleMode);
 	uint32_t freqTrain = F_CPU / clockScale / (pf_conf.pwm_on_cnt_a[idx]+pf_conf.pwm_on_cnt_a[idx]);
 	return freqTrain;

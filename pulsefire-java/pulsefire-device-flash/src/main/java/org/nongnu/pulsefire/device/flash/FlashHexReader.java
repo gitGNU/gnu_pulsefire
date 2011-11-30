@@ -51,7 +51,11 @@ public class FlashHexReader {
 		if (cl==null) {
 			cl = this.getClass().getClassLoader();
 		}
-		return readHexData(cl.getResourceAsStream(hexResource));
+		InputStream input = cl.getResourceAsStream(hexResource);
+		if (input==null) {
+			throw new NullPointerException("Could not find resource "+hexResource+" in classpath.");
+		}
+		return readHexData(input);
 	}
 	
 	public byte[] readHexData(InputStream input) throws IOException {

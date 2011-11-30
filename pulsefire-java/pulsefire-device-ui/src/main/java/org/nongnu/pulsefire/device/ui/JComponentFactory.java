@@ -29,7 +29,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.nongnu.pulsefire.device.ui.components.JFireBorder;
@@ -86,6 +88,11 @@ public class JComponentFactory {
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		JFireBorder fireBorder = new JFireBorder(name,panel);
 		panel.setBorder(fireBorder);
+		
 		return panel;
+	}
+	
+	static public void showWarningDialog(JComponent parent,String title,String message) {
+		JOptionPane.showMessageDialog(parent,message,title,JOptionPane.WARNING_MESSAGE);
 	}
 }

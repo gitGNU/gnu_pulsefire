@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -323,19 +324,26 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			if (burnName.getText().isEmpty()) {
 				return;
 			}
-			if (flashLog.getText().length()>32) {
-				flashLog.setText(""); // clear log for second flash 
-			}
-			flashButton.setEnabled(false);
+
 			
 			String hexResource = "firmware/"+burnName.getText()+"/pulsefire.hex";
 			byte[] flashData = null;
 			try {
 				flashData = new FlashHexReader().loadHex(hexResource);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (Exception hexException) {
+				logger.log(Level.WARNING,hexException.getMessage(),hexException);
+				JComponentFactory.showWarningDialog(this.getRootPane(), "Hex data error", "There has been an error in loading or parsing the flash hex data correctly.\nMessage: "+hexException.getMessage());
 				return;
+			}
+			
+			portsComboBox.setEnabled(false);
+			progComboBox.setEnabled(false);
+			progDebugBox.setEnabled(false);
+			flashButton.setEnabled(false);
+			cancelButton.setEnabled(false);
+			table.setEnabled(false);
+			if (flashLog.getText().length()>32) {
+				flashLog.setText(""); // clear log for second flash 
 			}
 			
 			flashConfig = new FlashControllerConfig();
@@ -367,8 +375,10 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			}
 			os.close();
 			is.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception saveException) {
+			logger.log(Level.WARNING,saveException.getMessage(),saveException);
+			JComponentFactory.showWarningDialog(this.getRootPane(), "Save file error", "There has been an error in saving the flash hex data correctly.\nMessage: "+saveException.getMessage());
+			return;
 		}
 	}
 	
@@ -393,9 +403,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				logger.fine("Start flash thread.");
 				flashProgramController.addFlashLogListener(JFlashDialog.this);
 				flashProgramController.flash(flashConfig);
-			} catch (Exception e1) {
-				flashProgressBar.setString(e1.getMessage());
-				e1.printStackTrace();
+			} catch (Exception runException) {
+				logger.log(Level.WARNING,runException.getMessage(),runException);
 			} finally {
 				flashProgramController.removeFlashLogListener(JFlashDialog.this);
 				flashProgramController = null;
@@ -417,7 +426,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				}
 			}
 			flashProgressBar.getModel().setValue(0);
+			portsComboBox.setEnabled(true);
+			progComboBox.setEnabled(true);
+			progDebugBox.setEnabled(true);
 			flashButton.setEnabled(true);
+			cancelButton.setEnabled(true);
+			table.setEnabled(true);
 			logger.fine("Stopped progress thread.");
 		}
 	}

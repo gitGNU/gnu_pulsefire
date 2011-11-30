@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandRequest;
@@ -88,8 +89,8 @@ public class SerialDeviceWireThread extends Thread {
 				}
 				pollCommandRequest();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception runException) {
+			logger.log(Level.WARNING,runException.getMessage(),runException);
 		} finally {
 			logger.info("Closing port: "+serialPort.getName());
 			try { reader.close(); } catch (IOException e) {}
@@ -152,10 +153,9 @@ public class SerialDeviceWireThread extends Thread {
 			writer.flush();
 			sendCommand = send;
 			deviceManager.fireDataSend(writeOut);
-		} catch (IOException io) {
+		} catch (IOException sendException) {
+			logger.log(Level.WARNING,sendException.getMessage(),sendException);
 			deviceManager.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -256,8 +256,8 @@ public class SerialDeviceWireThread extends Thread {
 					deviceManager.requestCommand(new Command(CommandName.info_prog));
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception parseException) {
+			logger.log(Level.WARNING,parseException.getMessage(),parseException);
 		}
 	}
 	

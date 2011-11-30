@@ -154,7 +154,6 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 			Command cmd = CommandWire.decodeCommand(consoleInput.getText());
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
 		} catch (Exception e) {
-			e.printStackTrace();
 			updateText(e.getMessage(),"## Err:");
 		}
 		consoleInput.setText("");

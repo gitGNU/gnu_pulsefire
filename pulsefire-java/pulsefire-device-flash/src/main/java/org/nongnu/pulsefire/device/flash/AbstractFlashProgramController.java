@@ -39,7 +39,7 @@ abstract public class AbstractFlashProgramController implements FlashProgramCont
 	public AbstractFlashProgramController() {
 		flashLogListeners = new ArrayList<FlashLogListener>(3);
 	}
-	
+
 	/**
 	 * Returns the progress of flashing
 	 */

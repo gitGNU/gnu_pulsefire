@@ -138,4 +138,13 @@ public enum Stk500v2Command implements FlashCommandToken {
 	public Integer getToken() {
 		return token;
 	}
+	
+	static public Stk500v2Command valueOfToken(Integer token) {
+		for (Stk500v2Command c:values()) {
+			if (c.getToken().equals(token)) {
+				return c;
+			}
+		}
+		return null;
+	}
 }

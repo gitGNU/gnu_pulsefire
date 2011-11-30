@@ -24,7 +24,11 @@
 package org.nongnu.pulsefire.device.flash;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.nongnu.pulsefire.device.flash.avr.Stk500Controller;
 import org.nongnu.pulsefire.device.flash.avr.Stk500v2Controller;
@@ -36,41 +40,98 @@ import org.nongnu.pulsefire.device.flash.avr.Stk500v2Controller;
  */
 public class FlashManager {
 
-	static public void main(String argu[]) {
-		try {
-			FlashControllerConfig config = new FlashControllerConfig();
-			for(String arg:argu) {
-				if (arg.startsWith("-v")) {
-					config.setLogDebug(true);
-				}
-				if (arg.startsWith("-V")) {
-					config.setFlashVerify(true);
-				}
-				if (arg.startsWith("-t=")) {
-					config.setPortProtocol(arg.substring(3));
-				}
-				if (arg.startsWith("-p=")) {
-					config.setPort(arg.substring(3));
-				}
-				if (arg.startsWith("-pp=")) {
-					config.setPortParameter(arg.substring(4));
-				}
-				if (arg.startsWith("-f=")) {
-					config.setFlashData(new FlashHexReader().loadHex(new File(arg.substring(3))));
-				}
-			}
-			FlashProgramController fm = createFlashController(config);
-			fm.addFlashLogListener(new FlashLogListener() {
-				@Override
-				public void flashLogMessage(String message) {
-					System.out.println(message);
-				}
-			});
-			fm.flash(config);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+	static public void main(String argu[]) throws Exception {
+		if (argu.length<6) {
+			System.out.println("\nUsage:\n"+
+					"  -P <port>     Serial port.\n"+
+					"  -c <proto>    Programmer protocol.\n"+
+					"  -f <file>     Flash hex file.\n"+
+					"Optional:\n"+
+					"  -v            Verbose output.\n"+
+					"  -V            Verify flash.\n"+
+					"  -PP <param>   Port parameters.\n"+
+					"  -s <sign>     Device signature in hex.\n"+
+					"");
+			return;
 		}
+		
+		List<String> arguList = new ArrayList<String>(argu.length);
+		for (String a:argu) { arguList.add(a); } 
+		Iterator<String> arguIterator = arguList.iterator();
+		FlashControllerConfig config = new FlashControllerConfig();
+		
+		while (arguIterator.hasNext()) {
+			String arg = arguIterator.next();
+			if ("-v".equals(arg)) {
+				config.setLogDebug(true);
+				continue;
+			}
+			if ("-V".equals(arg)) {
+				config.setFlashVerify(true);
+				continue;
+			}
+			if ("-P".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -P given");
+					return;
+				}
+				config.setPort(arguIterator.next());
+				continue;
+			}
+			if ("-PP".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -PP given");
+					return;
+				}
+				config.setPortParameter(arguIterator.next());
+				continue;
+			}
+			if ("-c".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -c given");
+					return;
+				}
+				config.setPortProtocol(arguIterator.next());
+				continue;
+			}
+			if ("-f".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -f given");
+					return;
+				}
+				File hexFile = new File(arguIterator.next());
+				try {
+					config.setFlashData(new FlashHexReader().loadHex(hexFile));
+				} catch (FileNotFoundException e) {
+					System.out.println("Hex file not found: "+hexFile.getAbsolutePath());
+					return;
+				} catch (IOException e) {
+					System.out.println("Error reading hex file: "+e.getMessage());
+					return;
+				}
+				continue;
+			}
+			if ("-s".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -s given");
+					return;
+				}
+				String devSignStr = arguIterator.next();
+				if (devSignStr.startsWith("0x")) {
+					devSignStr = devSignStr.substring(2);
+				}
+				int deviceSign = Integer.parseInt(devSignStr, 16);
+				config.setDeviceSignature(deviceSign);
+			}
+		}
+		FlashProgramController fm = createFlashController(config);
+		fm.addFlashLogListener(new FlashLogListener() {
+			@Override
+			public void flashLogMessage(String message) {
+				System.out.println(message);
+			}
+		});
+		fm.flash(config);
 	}
 
 	static public FlashProgramController createFlashController(FlashControllerConfig flashControllerConfig) {

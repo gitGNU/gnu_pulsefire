@@ -34,6 +34,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceData;
@@ -49,8 +51,13 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  */
 public class PulseFireDataLogManager {
 
+	private Logger logger = null;
 	private LogDataWriter logDataWriter = null;
 	private LogPullWriter logPullWriter = null;
+	
+	public PulseFireDataLogManager() {
+		logger = Logger.getLogger(PulseFireDataLogManager.class.getName());
+	}
 	
 	public void start() {
 		Boolean logFileAppend = PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.LOG_FILE_APPEND);
@@ -64,7 +71,7 @@ public class PulseFireDataLogManager {
 				}
 				logDataWriter = new LogDataWriter(logFile,logFileAppend);
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				logger.log(Level.WARNING,ioe.getMessage(),ioe);
 				return;
 			}
 			PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(logDataWriter);
@@ -83,7 +90,7 @@ public class PulseFireDataLogManager {
 				}
 				logPullWriter = new LogPullWriter(logFile,logFileAppend);
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				logger.log(Level.WARNING,ioe.getMessage(),ioe);
 				return;
 			}
 			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_data, logPullWriter);
@@ -146,14 +153,14 @@ public class PulseFireDataLogManager {
 					out.flush();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.log(Level.WARNING,e.getMessage(),e);
 			} finally {
 				try {
 					if (out!=null) {
 						out.close();
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.log(Level.WARNING,e.getMessage(),e);
 				}
 			}
 		}
@@ -244,14 +251,14 @@ public class PulseFireDataLogManager {
 					out.flush();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.log(Level.WARNING,e.getMessage(),e);
 			} finally {
 				try {
 					if (out!=null) {
 						out.close();
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.log(Level.WARNING,e.getMessage(),e);
 				}
 			}
 		}

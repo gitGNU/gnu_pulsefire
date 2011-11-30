@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.flash.AbstractFlashProgramController;
 import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
+import org.nongnu.pulsefire.device.flash.FlashException;
 
 /**
  * AbstractStk500Controller is the base for stk500 based flash devices.
@@ -81,20 +82,32 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		}
 	}
 	
-	protected void disconnectPort() throws IOException {
+	protected void disconnectPort() throws FlashException  {
 		if (serialPort==null) {
 			return;
 		}
 		if (input==null) {
 			return;
 		}
-		output.close();
-		input.close();
-		serialPort.close();
+		try {
+			output.close();
+		} catch (IOException e) {
+		}
+		try {
+			input.close();
+		} catch (IOException e) {
+		}
+		try {
+			serialPort.close();
+		} catch (Exception e) {
+		}
+		output = null;
+		input = null;
+		serialPort = null;
 		logMessage("Disconnected from port.");
 	}
 	
-	protected void connectPort(FlashControllerConfig flashControllerConfig) {
+	protected void connectPort(FlashControllerConfig flashControllerConfig) throws FlashException {
 		Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
 		while (e.hasMoreElements()) {
 			e.nextElement();// always reloop the ports before opening.
@@ -108,10 +121,7 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 			output = new BufferedOutputStream(serialPort.getOutputStream());
 			logMessage("Connected to port: "+serialPort.getName());		
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} finally {
-			
+			throw new FlashException("Error while connect to port: "+e1.getMessage(),e1);
 		}
 	}
 
@@ -119,5 +129,32 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		logMessage("Flash data size: "+flashControllerConfig.getFlashData().length);
 		logMessage("Flash protocol: "+flashControllerConfig.getPortProtocol());
 		logMessage("Flash verify: "+flashControllerConfig.isFlashVerify());
+	}
+	
+	abstract protected void flashSafe(FlashControllerConfig flashControllerConfig) throws IOException,FlashException;
+	
+	protected void flashSafeDisconnect(FlashControllerConfig flashControllerConfig) {
+		// hook point for clean up.
+	}
+	
+	public void flash(FlashControllerConfig flashControllerConfig) throws IOException,FlashException {
+		try {
+			flashSafe(flashControllerConfig);
+		} catch (IOException ie) {
+			logMessage("IOError: "+ie.getMessage());
+			throw ie;
+		} catch (FlashException flashException) {
+			logMessage("Error: "+flashException.getMessage());
+			throw flashException;
+		} catch (Exception codeException) {
+			logMessage("CError: "+codeException.getMessage());
+			throw new FlashException(codeException.getMessage(),codeException);
+		} finally {
+			try {
+				flashSafeDisconnect(flashControllerConfig);
+			} finally {
+				disconnectPort(); // always disconnect
+			}
+		}
 	}
 }

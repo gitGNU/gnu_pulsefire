@@ -23,6 +23,8 @@
 
 package org.nongnu.pulsefire.device.ui;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -40,8 +42,10 @@ public class PatternLogFormatter extends Formatter {
 
 	private final String lineSeperator;
 	private final MessageFormat logFormat;
+	private final MessageFormat logErrorFormat;
 	private final DateFormat dateFormat;
 	static private final String DEFAULT_LOG_FORMAT = "%d %l [%C.%s] %m%r";
+	static private final String DEFAULT_LOG_ERROR_FORMAT = "%d %l [%C.%s] %m%r%S";
 	static private final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	static private final String[] LOG_OPTIONS = { 
 		"%d", /* Formated date string */
@@ -52,17 +56,21 @@ public class PatternLogFormatter extends Formatter {
 		"%s", /* Source method */
 		"%c", /* Source Class */
 		"%C", /* Source Class Simple */
+		"%S", /* Stacktrace */
 		"%r", /* Return/newline */
 		};
 	
 	public PatternLogFormatter() {
 		String logFormatStr = LogManager.getLogManager().getProperty(getClass().getName()+".log_pattern");
+		String logFormatErrorStr = LogManager.getLogManager().getProperty(getClass().getName()+".log_error_pattern");
 		String logDateStr = LogManager.getLogManager().getProperty(getClass().getName()+".date_pattern");
+		
 		if (logDateStr!=null && logDateStr.isEmpty()==false) {
 			dateFormat = new SimpleDateFormat(logDateStr);
 		} else {
 			dateFormat = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 		}
+		
 		if (logFormatStr==null || logFormatStr.isEmpty()) {
 			logFormatStr = DEFAULT_LOG_FORMAT;
 		}
@@ -73,12 +81,24 @@ public class PatternLogFormatter extends Formatter {
 			logFormatStr = logFormatStr.replace(LOG_OPTIONS[i], "{"+i+"}");
 		}
 		logFormat = new MessageFormat(logFormatStr);
+		
+		if (logFormatErrorStr==null || logFormatErrorStr.isEmpty()) {
+			logFormatErrorStr = DEFAULT_LOG_ERROR_FORMAT;
+		}
+		if (logFormatErrorStr.contains("{") || logFormatErrorStr.contains("}")) {
+			throw new IllegalArgumentException("Curly braces not allowed in log pattern.");
+		}
+		for (int i=0;i<LOG_OPTIONS.length;i++) {
+			logFormatErrorStr = logFormatErrorStr.replace(LOG_OPTIONS[i], "{"+i+"}");
+		}
+		logErrorFormat = new MessageFormat(logFormatErrorStr);
+		
 		lineSeperator = String.format("%n"); // Used platform dependent seperator
 	}
 
 	@Override
 	public String format(LogRecord record) {
-		String[] logFields = new String[9];
+		String[] logFields = new String[10];
 		logFields[1] = record.getLevel().toString();
 		logFields[2] = record.getLoggerName();
 		logFields[3] = record.getMessage();
@@ -94,10 +114,21 @@ public class PatternLogFormatter extends Formatter {
 		} else {
 			logFields[7] = logFields[6];
 		}
-		logFields[8] = lineSeperator;
+		logFields[8] = record.getThrown()!=null  ? createStackTrace(record.getThrown())  : "";
+		logFields[9] = lineSeperator;
 		synchronized (logFormat) {
 			logFields[0] = dateFormat.format(new Date(record.getMillis())); // dateFormat is guarded by the logFormat lock.
-			return logFormat.format(logFields);
+			if (record.getThrown()==null) {
+				return logFormat.format(logFields);
+			} else {
+				return logErrorFormat.format(logFields);
+			}
 		}
-	}	
+	}
+	
+	private String createStackTrace(Throwable t) {
+		StringWriter buf = new StringWriter();
+		t.printStackTrace(new PrintWriter(buf));
+		return buf.getBuffer().toString();
+	}
 }

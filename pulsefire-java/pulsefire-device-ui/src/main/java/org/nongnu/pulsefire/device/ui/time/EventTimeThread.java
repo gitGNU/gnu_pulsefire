@@ -24,6 +24,7 @@
 package org.nongnu.pulsefire.device.ui.time;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -54,8 +55,8 @@ public class EventTimeThread extends Thread {
 					trig.setTimeNextRun(trig.getRunStartTime()+trig.getTimeStep());
 					try {
 						trig.getRunnable().run();
-					} catch (Exception e) {
-						e.printStackTrace();
+					} catch (Exception triggerException) {
+						logger.log(Level.WARNING,triggerException.getMessage(),triggerException);
 					} finally {
 						trig.setRunStopTime(System.currentTimeMillis());
 						trig.setRunCounter(trig.getRunCounter()+1);
@@ -65,8 +66,8 @@ public class EventTimeThread extends Thread {
 					}
 				}
 			}
-		} catch (Exception eCore) {
-			eCore.printStackTrace();
+		} catch (Exception coreException) {
+			logger.log(Level.WARNING,coreException.getMessage(),coreException);
 		}
 	}
 	

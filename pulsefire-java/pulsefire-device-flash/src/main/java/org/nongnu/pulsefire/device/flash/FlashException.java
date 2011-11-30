@@ -23,17 +23,20 @@
 
 package org.nongnu.pulsefire.device.flash;
 
-import java.io.IOException;
-
 /**
- * FlashProgramController is an interface to flash devices.
+ * FlashException happens when there is an exception.
  * 
  * @author Willem Cazander
  */
-public interface FlashProgramController {
+public class FlashException extends Exception {
 
-	public void addFlashLogListener(FlashLogListener flashLogListener);
-	public void removeFlashLogListener(FlashLogListener flashLogListener);
-	public void flash(FlashControllerConfig flashControllerConfig) throws IOException,FlashException;
-	public int getProgress();
+	private static final long serialVersionUID = 6935774672121212468L;
+
+	public FlashException(String message) {
+		super(message);
+	}
+	
+	public FlashException(String message,Exception e) {
+		super(message,e);
+	}
 }

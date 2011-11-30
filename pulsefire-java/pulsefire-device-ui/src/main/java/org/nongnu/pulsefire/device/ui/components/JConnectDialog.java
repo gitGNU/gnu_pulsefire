@@ -27,6 +27,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -48,10 +50,12 @@ public class JConnectDialog extends JDialog implements MouseListener {
 	
 	private static final long serialVersionUID = 3128697350365724499L;
 	private JProgressBar bar = null;
+	private Logger logger = null;
 	
 	public JConnectDialog(JFrame parentFrame,String port) {
 		super(parentFrame,"Connect",true);
 		
+		logger = Logger.getLogger(JConnectDialog.class.getName());
 		bar = new JProgressBar(0, 100);
 		bar.setStringPainted(true);
 		
@@ -122,8 +126,8 @@ public class JConnectDialog extends JDialog implements MouseListener {
 		public void run() {
 			try {
 				PulseFireUI.getInstance().getDeviceManager().connect(port);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Exception connectException) {
+				logger.log(Level.WARNING,connectException.getMessage(),connectException);
 			}
 		}
 	}
@@ -138,7 +142,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try { Thread.sleep(333); } catch (InterruptedException e) { e.printStackTrace(); }
+				try { Thread.sleep(333); } catch (InterruptedException e) {}
 				setVisible(false);
 				dispose();
 			}

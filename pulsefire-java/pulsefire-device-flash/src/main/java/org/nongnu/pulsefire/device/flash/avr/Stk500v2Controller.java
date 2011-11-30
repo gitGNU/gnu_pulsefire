@@ -24,8 +24,11 @@
 package org.nongnu.pulsefire.device.flash.avr;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
+import org.nongnu.pulsefire.device.flash.FlashException;
 
 /**
  * Stk500v2Controller encode and decodes stk500v2 messages and flash the device.
@@ -88,20 +91,18 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		}
 		output.flush();
 		if (logDebug) {
-			logMessage("Send data: "+buf);
+			logMessage("Send data: "+buf+" ("+Stk500v2Command.valueOfToken(message.getRequest().get(5))+")");
 		}
-		logger.finer("Send data: "+buf);
 		
-		int timeout = 1000;
+		int timeout = 500;
 		while(input.available()==0) {
 			timeout--;
 			if (timeout==0) {
 				throw new IOException("timeout on read.");
 			}
 			try {
-				Thread.sleep(50);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
 		
@@ -136,13 +137,12 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		if (logDebug) {
 			logMessage("Read data: "+buf+" sum: "+checksum);
 		}
-		logger.finer("Read data: "+buf+" sum: "+checksum);
 		return message;
 	}
 	
-	public void flash(FlashControllerConfig flashControllerConfig) throws IOException {
+	protected void flashSafe(FlashControllerConfig flashControllerConfig) throws IOException,FlashException {
 		if (flashControllerConfig==null) {
-			throw new NullPointerException("Can't flash with null config.");
+			throw new FlashException("Can't flash with null config.");
 		}
 		flashControllerConfig.verifyConfig(); // check the config
 		logConfig(flashControllerConfig);
@@ -162,28 +162,45 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		progress = 3;
 		
 		// Check if we are connected
-		/*
-		FlashMessage msg = doFlashCommand(Stk500v2Command.CMD_SIGN_ON);
-		
-		logger.info("got: "+msg.getResponse().size());
-		if (msg.getResponse().size()!=2) {
-			logger.info("not synced got !=2 bytes: "+msg.getResponse().size());
-			return;
+		FlashMessage msg = doFlashCommand(Stk500v2Command.CMD_SIGN_ON);		
+		if (msg.getResponse().size()<4) {
+			throw new FlashException("not synced got less then 4 bytes: "+msg.getResponse().size());
 		}
-		if (msg.getResponse().get(0) != Stk500Command.STK_INSYNC.getToken()) {
-			logger.info("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500Command.STK_INSYNC.getToken()));
-			return;
+		if (msg.getResponse().get(0) != Stk500v2Command.TOKEN.getToken()) {
+			throw new FlashException("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500v2Command.TOKEN.getToken()));
 		}
-		if (msg.getResponse().get(1) != Stk500Command.STK_OK.getToken()) {
-			logger.info("not connected; got: "+msg.getResponse().get(1));
-			return;
+		if (msg.getResponse().get(1) != Stk500v2Command.CMD_SIGN_ON.getToken()) {
+			throw new FlashException("not connected; got: "+msg.getResponse().get(1));
 		}
+		if (msg.getResponse().get(2) != Stk500v2Command.STATUS_CMD_OK.getToken()) {
+			throw new FlashException("not connected; got: "+msg.getResponse().get(2));
+		}
+		logMessage("Synced communication.");
+		StringBuilder buf = new StringBuilder(10);
+		for (int i=4;i<msg.getResponse().size();i++) {
+			buf.append(Character.toChars(msg.getResponse().get(i)));
+		}
+		logMessage("Programmer: "+buf);
 		
-		*/
-		FlashMessage cmdOsc = doFlashCommand(Stk500v2Command.CMD_OSCCAL);
+		FlashMessage versionHw = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_HW_VER.getToken());
+		FlashMessage versionSwMajor = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SW_MAJOR.getToken());
+		FlashMessage versionSwMinor = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SW_MINOR.getToken());
+		logMessage("Hardware verion: "+(versionHw.getResponse().get(3) + (versionHw.getResponse().get(2)<<8)));
+		logMessage("Firmware verion: "+(versionSwMajor.getResponse().get(3) + (versionSwMajor.getResponse().get(2)<<8))+"."+
+				(versionSwMinor.getResponse().get(3) + (versionSwMinor.getResponse().get(2)<<8)));
+
+		FlashMessage topCard = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_TOPCARD_DETECT.getToken());
+		logMessage("Topcard: "+Integer.toHexString(topCard.getResponse().get(3)));
+		FlashMessage vTarget = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_VTARGET.getToken());
+		double voltageTarget = new Double(vTarget.getResponse().get(3))/10;
+		logMessage("Vtarget: "+voltageTarget);
+		FlashMessage sckTime = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SCK_DURATION.getToken());
+		FlashMessage vAdjust = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_VADJUST.getToken());
+		FlashMessage oscP = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_PSCALE.getToken());
+		FlashMessage oscC = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_CMATCH.getToken());
 		
-		FlashMessage version = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_HW_VER.getToken());
-		
+		FlashMessage resetPol = doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
+
 		progress = 9;
 		FlashMessage enterIsp = new FlashMessage();
 		prepareMessagePrefix(enterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
@@ -200,6 +217,59 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		enterIsp.getRequest().add(0x00); // cmd4
 		prepareMessagePostfix(enterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
 		enterIsp = sendFlashMessage(enterIsp);
+		logMessage("AVR device initialized");
+		
+		FlashMessage deviceId0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x30,0x00,0x00,0x00);
+		FlashMessage deviceId1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x30,0x00,0x01,0x00);
+		FlashMessage deviceId2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x30,0x00,0x02,0x00);
+		int deviceId = deviceId2.getResponse().get(6) + (deviceId1.getResponse().get(6)<<8) + (deviceId0.getResponse().get(6)<<16);
+		logMessage("Device signature: "+Integer.toHexString(deviceId));
+		if (flashControllerConfig.getDeviceSignature()>0 && flashControllerConfig.getDeviceSignature()!=deviceId) {
+			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
+		}
+		
+		FlashMessage lFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
+		FlashMessage lFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
+		FlashMessage lFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
+		logMessage("lfuse value: "+Integer.toHexString(lFuse2.getResponse().get(6)));
+		
+		FlashMessage hFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
+		FlashMessage hFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
+		FlashMessage hFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
+		logMessage("hfuse value: "+Integer.toHexString(hFuse2.getResponse().get(6)));
+		
+		FlashMessage eFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
+		FlashMessage eFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
+		FlashMessage eFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
+		logMessage("efuse value: "+Integer.toHexString(eFuse2.getResponse().get(6) & 0x07)); // only lower 3 bits for efuse
+		
+		// Erase flash
+		if (flashControllerConfig.isFlashErase()) {
+			logMessage("Erase flash memery.");
+			FlashMessage eraseFlash0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFC,0x00);
+			FlashMessage eraseFlash1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFD,0x00);
+			FlashMessage eraseFlash2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFE,0x00);
+			FlashMessage eraseFlash3 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFF,0x00);
+		}
+		
+		// Chip erase
+		FlashMessage eraseChip0 = doFlashCommand(Stk500v2Command.CMD_CHIP_ERASE_ISP,0x09,0x00,0xAC,0x9F,0x7F,0x00);
+		FlashMessage eraseChipReset = doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
+		FlashMessage eraseEnterIsp = new FlashMessage();
+		prepareMessagePrefix(eraseEnterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
+		eraseEnterIsp.getRequest().add(0xC8); // timeout in ms
+		eraseEnterIsp.getRequest().add(0x64); // stabDelay
+		eraseEnterIsp.getRequest().add(0x19); // cmdexeDelay
+		eraseEnterIsp.getRequest().add(0x20); // syncLoops
+		eraseEnterIsp.getRequest().add(0x00); // byteDelay
+		eraseEnterIsp.getRequest().add(0x53); // pollValue
+		eraseEnterIsp.getRequest().add(0x03); // pollIndex
+		eraseEnterIsp.getRequest().add(0xAC); // cmd1
+		eraseEnterIsp.getRequest().add(0x53); // cmd2
+		eraseEnterIsp.getRequest().add(0x00); // cmd3
+		eraseEnterIsp.getRequest().add(0x00); // cmd4
+		prepareMessagePostfix(eraseEnterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
+		eraseEnterIsp = sendFlashMessage(eraseEnterIsp);
 		
 		progress = 10;
 		byte[] dataBytes = flashControllerConfig.getFlashData();
@@ -242,6 +312,43 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		}
 		logMessage("Flashing is done.");
 		
+		if (flashControllerConfig.isFlashVerify()) {
+			logMessage("Reading flash for verify.");
+			List<Integer> readBytes = new ArrayList<Integer>(flashControllerConfig.getFlashData().length);
+			for (int i=0;i<=pages;i++) {
+				//progress = new Float((90.0f/pages)*i).intValue()+10;
+				int address = (i*pageSize)/2;
+				if (flashControllerConfig.isLogDebug()) {
+					logMessage("Set address: "+Integer.toHexString(address));
+				}
+				doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,address,address>>8);
+				
+				FlashMessage flash = new FlashMessage();
+				prepareMessagePrefix(flash,Stk500v2Command.CMD_READ_FLASH_ISP);
+				flash.getRequest().add(0);
+				flash.getRequest().add(pageSize);
+				flash.getRequest().add(0x46); // F = flash memory
+				prepareMessagePostfix(flash,Stk500v2Command.CMD_READ_FLASH_ISP);
+				flash = sendFlashMessage(flash);
+				for (int ii=2;ii<flash.getResponse().size();ii++) {
+					Integer data = flash.getResponse().get(ii);
+					readBytes.add(data);
+				}
+			}
+			logMessage("Verify flash data...");
+			for (int ii=0;ii<flashControllerConfig.getFlashData().length;ii++) {
+				byte burnData = flashControllerConfig.getFlashData()[ii];
+				if (ii>readBytes.size()) {
+					throw new FlashException("Missing backread bytes to verify");
+				}
+				byte readData = readBytes.get(ii).byteValue();
+				if (burnData!=readData) {
+					throw new FlashException("Mismatch on address: "+Integer.toHexString(ii)+" expected: "+Integer.toHexString(burnData)+" got: "+Integer.toHexString(readData));
+				}
+			}
+			logMessage("Verified "+readBytes.size()+" bytes flash oke.");
+		}
+		
 		FlashMessage leaveIsp = new FlashMessage();
 		prepareMessagePrefix(leaveIsp,Stk500v2Command.CMD_LEAVE_PROGMODE_ISP);
 		leaveIsp.getRequest().add(0x01);
@@ -249,7 +356,6 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		prepareMessagePostfix(leaveIsp,Stk500v2Command.CMD_LEAVE_PROGMODE_ISP);
 		leaveIsp = sendFlashMessage(leaveIsp);
 		
-		disconnectPort();
 		progress = 100;
 	}
 }

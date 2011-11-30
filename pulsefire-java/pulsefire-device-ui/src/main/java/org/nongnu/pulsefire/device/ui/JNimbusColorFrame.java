@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -55,19 +57,21 @@ import javax.swing.UIManager;
 public class JNimbusColorFrame extends JFrame {
 
 	private static final long serialVersionUID = 5416437245805376356L;
+	private Logger logger = null;
 	private JFrame[] colorFrames = null;
-    private static List<String> NIMBUS_PRIMARY_COLORS = Arrays.asList(
-            "text", "control", "nimbusBase", "nimbusOrange", "nimbusGreen", "nimbusRed", "nimbusInfoBlue",
-            "nimbusAlertYellow", "nimbusFocus", "nimbusSelectedText", "nimbusSelectionBackground",
-            "nimbusDisabledText", "nimbusLightBackground", "info");
-    private static List<String> NIMBUS_SECONDARY_COLORS = Arrays.asList(
-            "textForeground", "textBackground", "background",
-            "nimbusBlueGrey", "nimbusBorder", "nimbusSelection", "infoText", "menuText", "menu", "scrollbar",
-            "controlText", "controlHighlight", "controlLHighlight", "controlShadow", "controlDkShadow", "textHighlight",
-            "textHighlightText", "textInactiveText", "desktop", "activeCaption", "inactiveCaption");
+	private static List<String> NIMBUS_PRIMARY_COLORS = Arrays.asList(
+			"text", "control", "nimbusBase", "nimbusOrange", "nimbusGreen", "nimbusRed", "nimbusInfoBlue",
+			"nimbusAlertYellow", "nimbusFocus", "nimbusSelectedText", "nimbusSelectionBackground",
+			"nimbusDisabledText", "nimbusLightBackground", "info");
+	private static List<String> NIMBUS_SECONDARY_COLORS = Arrays.asList(
+			"textForeground", "textBackground", "background",
+			"nimbusBlueGrey", "nimbusBorder", "nimbusSelection", "infoText", "menuText", "menu", "scrollbar",
+			"controlText", "controlHighlight", "controlLHighlight", "controlShadow", "controlDkShadow", "textHighlight",
+			"textHighlightText", "textInactiveText", "desktop", "activeCaption", "inactiveCaption");
 	private List<ColorModel> models = new ArrayList<ColorModel>(100);
-    
+
 	public JNimbusColorFrame(JFrame mainFrame) {
+		logger = Logger.getLogger(JNimbusColorFrame.class.getName());
 		colorFrames = new JFrame[2];
 		colorFrames[0] = this;
 		colorFrames[1] = mainFrame;
@@ -232,8 +236,8 @@ public class JNimbusColorFrame extends JFrame {
 					}
 					try {
 						UIManager.setLookAndFeel(UIManager.getLookAndFeel().getClass().getName());
-					} catch (Exception e) {
-						e.printStackTrace();
+					} catch (Exception lafException) {
+						logger.log(Level.WARNING,lafException.getMessage(),lafException);
 					}
 				}
 			});

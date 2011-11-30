@@ -24,8 +24,11 @@
 package org.nongnu.pulsefire.device.flash.avr;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
+import org.nongnu.pulsefire.device.flash.FlashException;
 
 /**
  * Stk500Controller encode and decodes stk500 messages and flash the device.
@@ -65,20 +68,18 @@ public class Stk500Controller extends AbstractStk500Controller {
 		}
 		output.flush();
 		if (logDebug) {
-			logMessage("Send data: "+buf);
+			logMessage("Send data: "+buf+" ("+Stk500Command.valueOfToken(message.getRequest().get(0))+")");
 		}
-		logger.finer("Send data: "+buf);
 		
-		int timeout = 1000;
+		int timeout = 500;
 		while(input.available()==0) {
 			timeout--;
 			if (timeout==0) {
 				throw new IOException("timeout on read.");
 			}
 			try {
-				Thread.sleep(50);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
 		
@@ -86,8 +87,29 @@ public class Stk500Controller extends AbstractStk500Controller {
 		if (message.getRequest().get(0) == Stk500Command.STK_GET_PARAMETER.getToken()) {
 			responseSize = 3; // extra read
 		}
+		if (message.getRequest().get(0) == Stk500Command.STK_UNIVERSAL.getToken()) {
+			responseSize = 3; // extra read
+		}
+		if (message.getRequest().get(0) == Stk500Command.STK_READ_SIGN.getToken()) {
+			responseSize = 4; // extra read
+		}
+		if (message.getRequest().get(0) == Stk500Command.STK_READ_PAGE.getToken()) {
+			responseSize = 0x80+2; // extra read
+		}
 		buf = new StringBuilder(30);
 		for (int i=0;i<responseSize;i++) {
+		//while (true) {
+			timeout = 500;
+			while(input.available()==0) {
+				timeout--;
+				if (timeout==0) {
+					throw new IOException("timeout on read.");
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+				}
+			}
 			int data = input.read();
 			message.getResponse().add(data);
 			
@@ -99,18 +121,21 @@ public class Stk500Controller extends AbstractStk500Controller {
 				hex = hex.substring(6);
 			}
 			buf.append(hex);
+			
+			//if (data == Stk500Command.STK_OK.getToken()) {
+			//	break; // end of response
+			//}
 		}
 		if (logDebug) {
 			logMessage("Read data: "+buf);
 		}
-		logger.finer("Read data: "+buf);
 		return message;
 	}
 	
 	
-	public void flash(FlashControllerConfig flashControllerConfig) throws IOException {
+	protected void flashSafe(FlashControllerConfig flashControllerConfig) throws IOException,FlashException {
 		if (flashControllerConfig==null) {
-			throw new NullPointerException("Can't flash with null config.");
+			throw new FlashException("Can't flash with null config.");
 		}
 		flashControllerConfig.verifyConfig(); // check the config
 		logConfig(flashControllerConfig);
@@ -132,43 +157,76 @@ public class Stk500Controller extends AbstractStk500Controller {
 		// Check if we are connected
 		FlashMessage msg = doFlashCommand(Stk500Command.STK_GET_SYNC);
 		if (msg.getResponse().size()!=2) {
-			logMessage("not synced got !=2 bytes: "+msg.getResponse().size());
-			return;
+			throw new FlashException("not synced got !=2 bytes: "+msg.getResponse().size());
 		}
 		if (msg.getResponse().get(0) != Stk500Command.STK_INSYNC.getToken()) {
-			logMessage("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500Command.STK_INSYNC.getToken()));
-			return;
+			throw new FlashException("not in sync; got: "+msg.getResponse().get(0)+" hex: "+Integer.toHexString(msg.getResponse().get(0))+" wanted: "+Integer.toHexString(Stk500Command.STK_INSYNC.getToken()));
 		}
 		if (msg.getResponse().get(1) != Stk500Command.STK_OK.getToken()) {
-			logMessage("not connected; got: "+msg.getResponse().get(1));
-			return;
+			throw new FlashException("not connected; got: "+msg.getResponse().get(1));
 		}
-		logMessage("Connected and in sync with device.");
+		logMessage("Synced communication.");
 		progress = 6;
 		
-		FlashMessage version = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
+		logMessage("Programmer: Arduino");
+		
+		FlashMessage versionHw = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
+		FlashMessage versionSwMajor = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x81);
+		FlashMessage versionSwMinor = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x82);
+		logMessage("Hardware verion: "+(versionHw.getResponse().get(0)));
+		logMessage("Firmware verion: "+(versionSwMajor.getResponse().get(0))+"."+(versionSwMinor.getResponse().get(0)));
 
-		/*
-		output.write(FlashCommand.STK_GET_PARAMETER.getOpCode());
-		output.write(0x81);
-		output.write(FlashCommand.CRC_EOP.getOpCode());
-		output.write(FlashCommand.STK_GET_PARAMETER.getOpCode());
-		output.write(0x83);
-		output.write(FlashCommand.CRC_EOP.getOpCode());
-		output.write(FlashCommand.STK_GET_PARAMETER.getOpCode());
-		output.write(0x98);
-		output.write(FlashCommand.CRC_EOP.getOpCode());		
-		output.flush();
+		FlashMessage vtarget = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x84);
+		FlashMessage varef = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x85);
+		FlashMessage osc0 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x86);
+		FlashMessage osc1 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x87);
+		FlashMessage sck = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x89);
+		double voltageTarget = new Double(vtarget.getResponse().get(0))/10;
+		logMessage("Vtarget: "+voltageTarget);
 		
+		//FlashMessage deviceFlags = doFlashCommand(Stk500Command.STK_SET_DEVICE,0x86,0x00,0x00,0x01,0x01,0x01,0x01,0x03,0xFF,0xFF,0xFF,0xFF,0x00,0x80,0x04,0x00,0x00,0x00,0x80,0x00);
+		//FlashMessage deviceFlagsExt = doFlashCommand(Stk500Command.STK_SET_DEVICE_EXT,0x05,0x04,0xd7,0xc2,0x00);
+
+		FlashMessage enterProg = doFlashCommand(Stk500Command.STK_ENTER_PROGMODE);
+		logMessage("AVR device initialized");
 		
-		response = input.read();
-		logger.info("got2A: "+response+" hex: "+Integer.toHexString(response));
-		response = input.read();
-		logger.info("got2B: "+response+" hex: "+Integer.toHexString(response));
-		response = input.read();
-		logger.info("got2C: "+response+" hex: "+Integer.toHexString(response));
-		*/
+		FlashMessage deviceSign = doFlashCommand(Stk500Command.STK_READ_SIGN);
+		int deviceId = deviceSign.getResponse().get(3) + (deviceSign.getResponse().get(2)<<8) + (deviceSign.getResponse().get(1)<<16);
+		logMessage("Device signature: "+Integer.toHexString(deviceId));
+		if (flashControllerConfig.getDeviceSignature()>0 && flashControllerConfig.getDeviceSignature()!=deviceId) {
+			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
+		}
 		
+		FlashMessage lFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
+		FlashMessage lFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
+		FlashMessage lFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
+		logMessage("lfuse value: "+Integer.toHexString(lFuse2.getResponse().get(1)));
+		
+		FlashMessage hFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
+		FlashMessage hFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
+		FlashMessage hFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
+		logMessage("hfuse value: "+Integer.toHexString(hFuse2.getResponse().get(1)));
+		
+		FlashMessage eFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
+		FlashMessage eFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
+		FlashMessage eFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
+		logMessage("efuse value: "+Integer.toHexString(eFuse2.getResponse().get(1) & 0x07));
+		
+		// Erase flash
+		if (flashControllerConfig.isFlashErase()) {
+			logMessage("Erase flash memery.");
+			FlashMessage eraseFlash0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFC,0x00);
+			FlashMessage eraseFlash1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFD,0x00);
+			FlashMessage eraseFlash2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFE,0x00);
+			FlashMessage eraseFlash3 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFF,0x00);
+		}
+		
+		// Chip erase
+		//FlashMessage eraseChip0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xAC,0x80,0x00,0x00);
+		//FlashMessage eraseChipGet0 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x81);
+		//FlashMessage eraseChipGet1 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x82);
+		//FlashMessage deviceFlags2 = doFlashCommand(Stk500Command.STK_SET_DEVICE,0x86,0x00,0x00,0x01,0x01,0x01,0x01,0x03,0xFF,0xFF,0xFF,0xFF,0x00,0x80,0x04,0x00,0x00,0x00,0x80,0x00);
+		//FlashMessage deviceFlagsExt2 = doFlashCommand(Stk500Command.STK_SET_DEVICE_EXT,0x05,0x04,0xd7,0xc2,0x00);
 		
 		progress = 10;
 		byte[] dataBytes = flashControllerConfig.getFlashData();
@@ -204,7 +262,42 @@ public class Stk500Controller extends AbstractStk500Controller {
 			// check
 		}
 		logMessage("Flashing is done.");
-		disconnectPort();
+		if (flashControllerConfig.isFlashVerify()) {
+			logMessage("Reading flash for verify.");
+			List<Integer> readBytes = new ArrayList<Integer>(flashControllerConfig.getFlashData().length);
+			for (int i=0;i<=pages;i++) {
+				//progress = new Float((90.0f/pages)*i).intValue()+10;
+				int address = (i*pageSize)/2;
+				if (flashControllerConfig.isLogDebug()) {
+					logMessage("Set address: "+Integer.toHexString(address));
+				}
+				doFlashCommand(Stk500Command.STK_LOAD_ADDRESS,address,address>>8);
+				
+				FlashMessage flash = new FlashMessage();
+				prepareMessagePrefix(flash,Stk500Command.STK_READ_PAGE);
+				flash.getRequest().add(0);
+				flash.getRequest().add(pageSize);
+				flash.getRequest().add(0x46); // F = flash memory
+				prepareMessagePostfix(flash,Stk500Command.STK_READ_PAGE);
+				flash = sendFlashMessage(flash);
+				for (int ii=2;ii<flash.getResponse().size();ii++) {
+					Integer data = flash.getResponse().get(ii);
+					readBytes.add(data);
+				}
+			}
+			logMessage("Verify flash data...");
+			for (int ii=0;ii<flashControllerConfig.getFlashData().length;ii++) {
+				byte burnData = flashControllerConfig.getFlashData()[ii];
+				if (ii>readBytes.size()) {
+					throw new FlashException("Missing backread bytes to verify");
+				}
+				byte readData = readBytes.get(ii).byteValue();
+				if (burnData!=readData) {
+					throw new FlashException("Mismatch on address: "+Integer.toHexString(ii)+" expected: "+Integer.toHexString(burnData)+" got: "+Integer.toHexString(readData));
+				}
+			}
+			logMessage("Verified "+readBytes.size()+" bytes flash oke.");
+		}
 		progress = 100;
 	}
 }
