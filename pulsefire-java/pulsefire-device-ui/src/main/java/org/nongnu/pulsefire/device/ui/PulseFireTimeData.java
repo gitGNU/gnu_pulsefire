@@ -116,6 +116,11 @@ public class PulseFireTimeData implements DeviceConnectListener {
 
 	@Override
 	public void deviceConnect() {
+		// this is bad design redone asp
+		if (onceAdd) {
+			return;
+		}
+		onceAdd = true;
 		for (CommandName name:CommandName.values()) {
 			if (name.isMappable()) {
 				logger.fine("Adding timedata for: "+name);
@@ -124,7 +129,8 @@ public class PulseFireTimeData implements DeviceConnectListener {
 			}
 		}
 	}
-
+	private boolean onceAdd = false;
+	
 	@Override
 	public void deviceDisconnect() {
 		timeDataQueueMap.clear();

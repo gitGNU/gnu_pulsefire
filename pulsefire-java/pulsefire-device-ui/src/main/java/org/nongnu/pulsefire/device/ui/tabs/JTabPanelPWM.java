@@ -43,6 +43,7 @@ import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
@@ -366,6 +367,7 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		freqDialPanel.setLayout(new SpringLayout());
 		splitPanel.add(freqDialPanel);
 		final JFireDial freqReqDial = new JFireDial("freq",1,65535,32768);
+		JComponentEnableStateListener.attach(freqReqDial, CommandName.req_pwm_freq);
 		freqDialPanel.add(JComponentFactory.createJPanelJWrap(freqReqDial));
 		freqDialPanel.add(new JCommandDial(CommandName.pwm_duty));
 		SpringLayoutGrid.makeCompactGrid(freqDialPanel,1,2);
@@ -375,9 +377,11 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		splitPanel.add(pulsePanel);
 		pulsePanel.add(JComponentFactory.createJLabel("Channel:"));
 		final JComboBox freqChannelBox = new JComboBox(new String[] {"ALL","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"});
+		JComponentEnableStateListener.attach(freqChannelBox, CommandName.req_pwm_freq);
 		pulsePanel.add(freqChannelBox);
 		pulsePanel.add(JComponentFactory.createJLabel("Freq:"));
 		JButton freqReqButton = new JButton("Request"); 
+		JComponentEnableStateListener.attach(freqReqButton, CommandName.req_pwm_freq);
 		pulsePanel.add(freqReqButton);
 		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,2);
 		

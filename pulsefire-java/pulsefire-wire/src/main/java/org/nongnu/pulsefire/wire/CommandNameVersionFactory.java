@@ -258,7 +258,8 @@ public class CommandNameVersionFactory {
 				cn.chipFlagDependency=null; // remove PWM flag dep in 0.9 and older because it was not there
 			}
 		}
-		
+		CommandName.pwm_duty.disabled=true;
+		CommandName.req_pwm_freq.disabled=true; // req_pwm_freq works different in 0.9
 		CommandName.dev_volt_dot.disabled=true;
 		CommandName.dev_amp_dot.disabled=true;
 		CommandName.dev_temp_dot.disabled=true;

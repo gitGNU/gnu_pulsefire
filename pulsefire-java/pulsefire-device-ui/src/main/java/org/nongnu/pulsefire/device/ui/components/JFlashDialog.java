@@ -106,7 +106,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private JCheckBox buildExtDocBox = null;
 	private JComboBox portsComboBox = null;
 	private JComboBox progComboBox = null;
-	private JCheckBox progDebugBox = null; 
+	private JCheckBox progVerboseBox = null; 
+	private JCheckBox progVerifyBox = null;
 	private JProgressBar flashProgressBar = null;
 	private JTextArea flashLog = null;
 	private DateFormat flashLogTimeFormat = null;
@@ -116,6 +117,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private DeviceImagesTableModel tableModel = null;
 	private JTable table = null;
 	private JLabel burnName = null;
+	private JLabel burnDeviceId = null;
 	private String[] columnNames = new String[] {"name","speed",
 			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
 			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL"};
@@ -123,7 +125,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
 		logger = Logger.getLogger(JFlashDialog.class.getName());
-		setTitle("Flash");
+		setTitle("Flash chip firmware");
 		setMinimumSize(new Dimension(640,480));
 		setPreferredSize(new Dimension(999,666));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -241,12 +243,14 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		JPanel burnPanel = JComponentFactory.createJFirePanel("Burn");
 		burnPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		//JPanel burnOptionWrapPanel = new JPanel();
 		JPanel burnOptionPanel = new JPanel();
 		burnOptionPanel.setLayout(new SpringLayout());
 		burnOptionPanel.add(new JLabel("Name:"));
 		burnName = new JLabel();
 		burnOptionPanel.add(burnName);
+		burnOptionPanel.add(new JLabel("DeviceId:"));
+		burnDeviceId = new JLabel();
+		burnOptionPanel.add(burnDeviceId);
 		burnOptionPanel.add(new JLabel("Port:"));
 		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
 		portsComboBox = new JComboBox(portModel);
@@ -255,12 +259,14 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		burnOptionPanel.add(new JLabel("Programer:"));
 		progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
 		burnOptionPanel.add(progComboBox);
-		burnOptionPanel.add(new JLabel("logDebug:"));
-		progDebugBox = new JCheckBox();
-		burnOptionPanel.add(progDebugBox);
-		SpringLayoutGrid.makeCompactGrid(burnOptionPanel,4,2);
+		burnOptionPanel.add(new JLabel("logVerbose:"));
+		progVerboseBox = new JCheckBox();
+		burnOptionPanel.add(progVerboseBox);
+		burnOptionPanel.add(new JLabel("flashVerify:"));
+		progVerifyBox = new JCheckBox();
+		burnOptionPanel.add(progVerifyBox);
+		SpringLayoutGrid.makeCompactGrid(burnOptionPanel,6,2);
 		burnPanel.add(burnOptionPanel);
-		//burnPanel.add(burnOptionWrapPanel,BorderLayout.CENTER);
 		
 		JPanel burnProgressPanel = new JPanel();
 		burnProgressPanel.setLayout(new GridLayout(1,1));
@@ -271,7 +277,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		
 		JPanel logPanel = JComponentFactory.createJFirePanel("Burn Log");
 		flashLogTimeFormat = new SimpleDateFormat("HH:mm:ss");
-		flashLog = new JTextArea(7,30);
+		flashLog = new JTextArea(10,40);
 		flashLog.setMargin(new Insets(2, 2, 2, 2));
 		flashLog.setAutoscrolls(true);
 		flashLog.setEditable(false);
@@ -338,19 +344,24 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			
 			portsComboBox.setEnabled(false);
 			progComboBox.setEnabled(false);
-			progDebugBox.setEnabled(false);
+			progVerboseBox.setEnabled(false);
+			progVerifyBox.setEnabled(false);
 			flashButton.setEnabled(false);
 			cancelButton.setEnabled(false);
 			table.setEnabled(false);
 			if (flashLog.getText().length()>32) {
 				flashLog.setText(""); // clear log for second flash 
 			}
-			
 			flashConfig = new FlashControllerConfig();
 			flashConfig.setPort(portsComboBox.getSelectedItem().toString());
 			flashConfig.setPortProtocol(progComboBox.getSelectedItem().toString());
-			flashConfig.setLogDebug(progDebugBox.isSelected());
+			flashConfig.setLogDebug(progVerboseBox.isSelected());
+			flashConfig.setFlashVerify(progVerifyBox.isSelected());
 			flashConfig.setFlashData(flashData);
+			String deviceId = burnDeviceId.getText();
+			if (deviceId!=null && deviceId.isEmpty()==false && deviceId.startsWith("0x")) {
+				flashConfig.setDeviceSignature(Integer.parseInt(burnDeviceId.getText().substring(2),16));
+			}
 			flashProgramController = FlashManager.createFlashController(flashConfig);
 			FlashThread t = new FlashThread();t.start();
 			ProgressThread p = new ProgressThread();p.start();
@@ -428,7 +439,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			flashProgressBar.getModel().setValue(0);
 			portsComboBox.setEnabled(true);
 			progComboBox.setEnabled(true);
-			progDebugBox.setEnabled(true);
+			progVerboseBox.setEnabled(true);
+			progVerifyBox.setEnabled(true);
 			flashButton.setEnabled(true);
 			cancelButton.setEnabled(true);
 			table.setEnabled(true);
@@ -450,6 +462,16 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			progComboBox.setSelectedIndex(1);
 		} else {
 			progComboBox.setSelectedIndex(0);
+		}
+		// update small hard codes chip device id table
+		if (option.name.startsWith("atmega168p")) {
+			burnDeviceId.setText("0x1e940b");
+		} else if (option.name.startsWith("atmega328p")) {
+			burnDeviceId.setText("0x1e950f");
+		} else if (option.name.startsWith("atmega1280")) {
+			burnDeviceId.setText("0x1e9703");
+		} else {
+			burnDeviceId.setText("");
 		}
 	}
 	

@@ -223,7 +223,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		FlashMessage deviceId1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x30,0x00,0x01,0x00);
 		FlashMessage deviceId2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x30,0x00,0x02,0x00);
 		int deviceId = deviceId2.getResponse().get(6) + (deviceId1.getResponse().get(6)<<8) + (deviceId0.getResponse().get(6)<<16);
-		logMessage("Device signature: "+Integer.toHexString(deviceId));
+		logMessage("Device signature: 0x"+Integer.toHexString(deviceId));
 		if (flashControllerConfig.getDeviceSignature()>0 && flashControllerConfig.getDeviceSignature()!=deviceId) {
 			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
 		}
@@ -231,17 +231,17 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		FlashMessage lFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
-		logMessage("lfuse value: "+Integer.toHexString(lFuse2.getResponse().get(6)));
+		logMessage("lfuse value: 0x"+Integer.toHexString(lFuse2.getResponse().get(6)));
 		
 		FlashMessage hFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
-		logMessage("hfuse value: "+Integer.toHexString(hFuse2.getResponse().get(6)));
+		logMessage("hfuse value: 0x"+Integer.toHexString(hFuse2.getResponse().get(6)));
 		
 		FlashMessage eFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
-		logMessage("efuse value: "+Integer.toHexString(eFuse2.getResponse().get(6) & 0x07)); // only lower 3 bits for efuse
+		logMessage("efuse value: 0x"+Integer.toHexString(eFuse2.getResponse().get(6) & 0x07)); // only lower 3 bits for efuse
 		
 		// Erase flash
 		if (flashControllerConfig.isFlashErase()) {
@@ -276,14 +276,14 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
 		logMessage("Start flashing.");
+		float flashTotalPercentage = 90.0f;
+		if (flashControllerConfig.isFlashVerify()) {
+			flashTotalPercentage = 80.0f;
+		}
+		doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,0,0);
 		
 		for (int i=0;i<=pages;i++) {
-			progress = new Float((90.0f/pages)*i).intValue()+10;
-			int address = (i*pageSize)/2;
-			if (flashControllerConfig.isLogDebug()) {
-				logMessage("Set address to: "+Integer.toHexString(address));
-			}
-			doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,address,address>>8);
+			progress = new Float((flashTotalPercentage/pages)*i).intValue()+10;
 			
 			FlashMessage flash = new FlashMessage();
 			prepareMessagePrefix(flash,Stk500v2Command.CMD_PROGRAM_FLASH_ISP);
@@ -314,23 +314,19 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		
 		if (flashControllerConfig.isFlashVerify()) {
 			logMessage("Reading flash for verify.");
+			doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,0,0);
 			List<Integer> readBytes = new ArrayList<Integer>(flashControllerConfig.getFlashData().length);
 			for (int i=0;i<=pages;i++) {
-				//progress = new Float((90.0f/pages)*i).intValue()+10;
-				int address = (i*pageSize)/2;
-				if (flashControllerConfig.isLogDebug()) {
-					logMessage("Set address: "+Integer.toHexString(address));
-				}
-				doFlashCommand(Stk500v2Command.CMD_LOAD_ADDRESS,0,0,address,address>>8);
+				progress = new Float((10.0f/pages)*i).intValue()+90;
 				
 				FlashMessage flash = new FlashMessage();
 				prepareMessagePrefix(flash,Stk500v2Command.CMD_READ_FLASH_ISP);
-				flash.getRequest().add(0);
+				flash.getRequest().add(0x00);
 				flash.getRequest().add(pageSize);
-				flash.getRequest().add(0x46); // F = flash memory
+				flash.getRequest().add(0x20);
 				prepareMessagePostfix(flash,Stk500v2Command.CMD_READ_FLASH_ISP);
 				flash = sendFlashMessage(flash);
-				for (int ii=2;ii<flash.getResponse().size();ii++) {
+				for (int ii=3;ii<flash.getResponse().size()-1;ii++) {
 					Integer data = flash.getResponse().get(ii);
 					readBytes.add(data);
 				}

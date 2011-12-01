@@ -173,15 +173,15 @@ public class Stk500Controller extends AbstractStk500Controller {
 		FlashMessage versionHw = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
 		FlashMessage versionSwMajor = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x81);
 		FlashMessage versionSwMinor = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x82);
-		logMessage("Hardware verion: "+(versionHw.getResponse().get(0)));
-		logMessage("Firmware verion: "+(versionSwMajor.getResponse().get(0))+"."+(versionSwMinor.getResponse().get(0)));
+		logMessage("Hardware verion: "+(versionHw.getResponse().get(1)));
+		logMessage("Firmware verion: "+(versionSwMajor.getResponse().get(1))+"."+(versionSwMinor.getResponse().get(1)));
 
 		FlashMessage vtarget = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x84);
 		FlashMessage varef = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x85);
 		FlashMessage osc0 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x86);
 		FlashMessage osc1 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x87);
 		FlashMessage sck = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x89);
-		double voltageTarget = new Double(vtarget.getResponse().get(0))/10;
+		double voltageTarget = new Double(vtarget.getResponse().get(1))/10;
 		logMessage("Vtarget: "+voltageTarget);
 		
 		//FlashMessage deviceFlags = doFlashCommand(Stk500Command.STK_SET_DEVICE,0x86,0x00,0x00,0x01,0x01,0x01,0x01,0x03,0xFF,0xFF,0xFF,0xFF,0x00,0x80,0x04,0x00,0x00,0x00,0x80,0x00);
@@ -192,7 +192,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 		
 		FlashMessage deviceSign = doFlashCommand(Stk500Command.STK_READ_SIGN);
 		int deviceId = deviceSign.getResponse().get(3) + (deviceSign.getResponse().get(2)<<8) + (deviceSign.getResponse().get(1)<<16);
-		logMessage("Device signature: "+Integer.toHexString(deviceId));
+		logMessage("Device signature: 0x"+Integer.toHexString(deviceId));
 		if (flashControllerConfig.getDeviceSignature()>0 && flashControllerConfig.getDeviceSignature()!=deviceId) {
 			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
 		}
@@ -200,17 +200,17 @@ public class Stk500Controller extends AbstractStk500Controller {
 		FlashMessage lFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
-		logMessage("lfuse value: "+Integer.toHexString(lFuse2.getResponse().get(1)));
+		logMessage("lfuse value: 0x"+Integer.toHexString(lFuse2.getResponse().get(1)));
 		
 		FlashMessage hFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
-		logMessage("hfuse value: "+Integer.toHexString(hFuse2.getResponse().get(1)));
+		logMessage("hfuse value: 0x"+Integer.toHexString(hFuse2.getResponse().get(1)));
 		
 		FlashMessage eFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
-		logMessage("efuse value: "+Integer.toHexString(eFuse2.getResponse().get(1) & 0x07));
+		logMessage("efuse value: 0x"+Integer.toHexString(eFuse2.getResponse().get(1) & 0x07));
 		
 		// Erase flash
 		if (flashControllerConfig.isFlashErase()) {
@@ -233,9 +233,13 @@ public class Stk500Controller extends AbstractStk500Controller {
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
 		logMessage("Start flashing.");
+		float flashTotalPercentage = 90.0f;
+		if (flashControllerConfig.isFlashVerify()) {
+			flashTotalPercentage = 80.0f;
+		}
 		
 		for (int i=0;i<=pages;i++) {
-			progress = new Float((90.0f/pages)*i).intValue()+10;
+			progress = new Float((flashTotalPercentage/pages)*i).intValue()+10;
 			int address = (i*pageSize)/2;
 			if (flashControllerConfig.isLogDebug()) {
 				logMessage("Set address: "+Integer.toHexString(address));
@@ -266,7 +270,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 			logMessage("Reading flash for verify.");
 			List<Integer> readBytes = new ArrayList<Integer>(flashControllerConfig.getFlashData().length);
 			for (int i=0;i<=pages;i++) {
-				//progress = new Float((90.0f/pages)*i).intValue()+10;
+				progress = new Float((10.0f/pages)*i).intValue()+90;
 				int address = (i*pageSize)/2;
 				if (flashControllerConfig.isLogDebug()) {
 					logMessage("Set address: "+Integer.toHexString(address));
