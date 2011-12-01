@@ -63,6 +63,20 @@ public class CommandNameVersionFactory {
 	
 	static private boolean configCurrentVersion() {
 		
+		// small reset hack because protocol is in classpath, will rewrite for multiple versions support in one classpath
+		for (CommandName cmd:CommandName.values()) {
+			cmd.maxValue = 65535;
+			cmd.maxIndexA = -1;
+			cmd.maxIndexB = -1;
+			cmd.mapIndex = -1;
+			cmd.mapIndexTrigger = false;
+			cmd.disabled = false;
+			cmd.listValues = null;
+			cmd.magicTopListValue = false;
+			cmd.aliasName = null;
+			cmd.pulseModeDependency = null;
+		}
+		
 		CommandName.pulse_mode.listValues = WirePulseMode.getModeList();
 		CommandName.pulse_steps.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_steps.listValues = new String[] {
