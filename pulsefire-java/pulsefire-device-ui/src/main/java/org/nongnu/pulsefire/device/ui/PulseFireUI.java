@@ -192,7 +192,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		long startTime = System.currentTimeMillis();
 		setupLogging(); // init logging with config
 		logger = Logger.getLogger(PulseFireUI.class.getName());
-		logger.info("Starting PulseFire-UI");
+		logger.info("Starting PulseFire-UI version: "+PulseFireUIVersion.VERSION);
 
 		boolean jniCopy = false;
 		boolean jniCopyOs = false;
@@ -241,6 +241,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		FrameView mainView = getMainView();
 		mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
 		mainView.setComponent(new JMainPanel());
+		mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+PulseFireUIVersion.VERSION);
 		// //new JFireGlassPane(mainView.getFrame());
 			
 		if (fullScreen) {
