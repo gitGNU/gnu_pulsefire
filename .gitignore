@@ -37,6 +37,8 @@ pom.xml.releaseBackup
 pom.xml.backup
 pom.xml.branch
 pom.xml.tag
+# Ignore version plugin backup
+pom.xml.versionsBackup
 
 # Ignore manual makefile builds
 /pulsefire-chip/src/main/c/build
