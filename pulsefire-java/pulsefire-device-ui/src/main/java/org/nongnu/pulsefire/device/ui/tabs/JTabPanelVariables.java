@@ -136,7 +136,7 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		JPanel pullPanel = JComponentFactory.createJFirePanel("Pulling");
 		pullPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pullPanel.add(new JLabel("Refresh"));
-		JComboBox refreshBox = new JComboBox(new Integer[] {10*60*1000,5*60*1000,1*60*1000,30*1000,10*1000,5*1000,1000});
+		JComboBox refreshBox = new JComboBox(new Integer[] {10*60*1000,5*60*1000,1*60*1000,30*1000,10*1000,5000,4000,3000,2000});
 		refreshBox.setSelectedIndex(4);
 		refreshBox.addActionListener(new ActionListener() {
 			@Override

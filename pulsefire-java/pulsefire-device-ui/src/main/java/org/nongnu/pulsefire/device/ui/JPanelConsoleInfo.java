@@ -123,6 +123,10 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				d.add(name);
 				continue;
 			}
+			if (name==CommandName.pwm_off_cnt_a) {
+				d.add(name);
+				continue;
+			}
 			if (name.name().startsWith("pulse")) {
 				continue;
 			}
@@ -142,6 +146,21 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				continue;
 			}
 			if (name.name().startsWith("ptt")) {
+				continue;
+			}
+			if (name.name().startsWith("lcd")) {
+				continue;
+			}
+			if (name.name().startsWith("mal")) {
+				continue;
+			}
+			if (name.name().startsWith("swc")) {
+				continue;
+			}
+			if (name.name().startsWith("sys")) {
+				continue;
+			}
+			if (name.name().startsWith("adc") && name.name().startsWith("adc_value")==false) {
 				continue;
 			}
 			d.add(name);

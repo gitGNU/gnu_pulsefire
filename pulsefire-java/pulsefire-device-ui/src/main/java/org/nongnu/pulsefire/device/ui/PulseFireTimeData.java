@@ -38,6 +38,7 @@ import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
+import org.nongnu.pulsefire.wire.CommandVariableType;
 
 /**
  * PulseFireTimeData
@@ -122,7 +123,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 		}
 		onceAdd = true;
 		for (CommandName name:CommandName.values()) {
-			if (name.isMappable()) {
+			if (name.isMappable() | name.getType().equals(CommandVariableType.DATA) | name.getType().equals(CommandVariableType.PROG)) {
 				logger.fine("Adding timedata for: "+name);
 				getKeyFromName(name); // creates quee
 				PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(name, new DataCommandListener());
