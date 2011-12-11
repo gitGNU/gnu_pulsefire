@@ -143,7 +143,15 @@ atmega1280-1604 \
 atmega1280-1605 \
 atmega1280-1606 \
 atmega1280-1607 \
-atmega1280-1608
+atmega1280-1608 \
+atmega2560-1601 \
+atmega2560-1602 \
+atmega2560-1603 \
+atmega2560-1604 \
+atmega2560-1605 \
+atmega2560-1606 \
+atmega2560-1607 \
+atmega2560-1608
 
 #
 #====================================
@@ -1201,7 +1209,7 @@ $(TPATH)/atmega1280-1601/pulsefire.hex:
 atmega1280-1601-isp: atmega1280-1601
 atmega1280-1601-isp: TARGET = atmega1280-1601
 atmega1280-1601-isp: ISP_MCU = m1280
-atmega1280-1601-isp: ISP_PROG = stk500v2
+atmega1280-1601-isp: ISP_PROG = stk500
 atmega1280-1601-isp: avr-flash
 
 atmega1280-1602: MCU = atmega1280
@@ -1230,7 +1238,7 @@ $(TPATH)/atmega1280-1602/pulsefire.hex:
 atmega1280-1602-isp: atmega1280-1602
 atmega1280-1602-isp: TARGET = atmega1280-1602
 atmega1280-1602-isp: ISP_MCU = m1280
-atmega1280-1602-isp: ISP_PROG = stk500v2
+atmega1280-1602-isp: ISP_PROG = stk500
 atmega1280-1602-isp: avr-flash
 
 
@@ -1262,7 +1270,7 @@ $(TPATH)/atmega1280-1603/pulsefire.hex:
 atmega1280-1603-isp: atmega1280-1603
 atmega1280-1603-isp: TARGET = atmega1280-1603
 atmega1280-1603-isp: ISP_MCU = m1280
-atmega1280-1603-isp: ISP_PROG = stk500v2
+atmega1280-1603-isp: ISP_PROG = stk500
 atmega1280-1603-isp: avr-flash
 
 
@@ -1295,7 +1303,7 @@ $(TPATH)/atmega1280-1603/pulsefire.hex:
 atmega1280-1604-isp: atmega1280-1603
 atmega1280-1604-isp: TARGET = atmega1280-1603
 atmega1280-1604-isp: ISP_MCU = m1280
-atmega1280-1604-isp: ISP_PROG = stk500v2
+atmega1280-1604-isp: ISP_PROG = stk500
 atmega1280-1604-isp: avr-flash
 
 
@@ -1329,7 +1337,7 @@ $(TPATH)/atmega1280-1605/pulsefire.hex:
 atmega1280-1605-isp: atmega1280-1605
 atmega1280-1605-isp: TARGET = atmega1280-1605
 atmega1280-1605-isp: ISP_MCU = m1280
-atmega1280-1605-isp: ISP_PROG = stk500v2
+atmega1280-1605-isp: ISP_PROG = stk500
 atmega1280-1605-isp: avr-flash
 
 
@@ -1364,7 +1372,7 @@ $(TPATH)/atmega1280-1606/pulsefire.hex:
 atmega1280-1606-isp: atmega1280-1606
 atmega1280-1606-isp: TARGET = atmega1280-1606
 atmega1280-1606-isp: ISP_MCU = m1280
-atmega1280-1606-isp: ISP_PROG = stk500v2
+atmega1280-1606-isp: ISP_PROG = stk500
 atmega1280-1606-isp: avr-flash
 
 
@@ -1400,7 +1408,7 @@ $(TPATH)/atmega1280-1607/pulsefire.hex:
 atmega1280-1607-isp: atmega1280-1607
 atmega1280-1607-isp: TARGET = atmega1280-1607
 atmega1280-1607-isp: ISP_MCU = m1280
-atmega1280-1607-isp: ISP_PROG = stk500v2
+atmega1280-1607-isp: ISP_PROG = stk500
 atmega1280-1607-isp: avr-flash
 
 
@@ -1432,8 +1440,271 @@ $(TPATH)/atmega1280-1608/pulsefire.hex:
 atmega1280-1608-isp: atmega1280-1608
 atmega1280-1608-isp: TARGET = atmega1280-1608
 atmega1280-1608-isp: ISP_MCU = m1280
-atmega1280-1608-isp: ISP_PROG = stk500v2
+atmega1280-1608-isp: ISP_PROG = stk500
 atmega1280-1608-isp: avr-flash
+
+
+atmega2560-1601: MCU = atmega2560
+atmega2560-1601: F_CPU = 16000000
+atmega2560-1601: CFLAGS += -mmcu=$(MCU)
+atmega2560-1601: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1601: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1601: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1601: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1601: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1601: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1601: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1601: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1601: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1601: TARGET = atmega2560-1601
+atmega2560-1601: $(TPATH)/atmega2560-1601/pulsefire.hex
+$(TPATH)/atmega2560-1601/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1601-isp: atmega2560-1601
+atmega2560-1601-isp: TARGET = atmega2560-1601
+atmega2560-1601-isp: ISP_MCU = m2560
+atmega2560-1601-isp: ISP_PROG = stk500v2
+atmega2560-1601-isp: avr-flash
+
+atmega2560-1602: MCU = atmega2560
+atmega2560-1602: F_CPU = 16000000
+atmega2560-1602: CFLAGS += -mmcu=$(MCU)
+atmega2560-1602: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1602: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1602: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1602: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1602: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1602: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1602: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1602: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1602: TARGET = atmega2560-1602
+atmega2560-1602: $(TPATH)/atmega2560-1602/pulsefire.hex
+$(TPATH)/atmega2560-1602/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1602-isp: atmega2560-1602
+atmega2560-1602-isp: TARGET = atmega2560-1602
+atmega2560-1602-isp: ISP_MCU = m2560
+atmega2560-1602-isp: ISP_PROG = stk500v2
+atmega2560-1602-isp: avr-flash
+
+
+atmega2560-1603: MCU = atmega2560
+atmega2560-1603: F_CPU = 16000000
+atmega2560-1603: CFLAGS += -mmcu=$(MCU)
+atmega2560-1603: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1603: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1603: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1603: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1603: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1603: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1603: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1603: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1603: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1603: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1603: TARGET = atmega2560-1603
+atmega2560-1603: $(TPATH)/atmega2560-1603/pulsefire.hex
+$(TPATH)/atmega2560-1603/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1603-isp: atmega2560-1603
+atmega2560-1603-isp: TARGET = atmega2560-1603
+atmega2560-1603-isp: ISP_MCU = m2560
+atmega2560-1603-isp: ISP_PROG = stk500v2
+atmega2560-1603-isp: avr-flash
+
+
+atmega2560-1604: MCU = atmega2560
+atmega2560-1604: F_CPU = 16000000
+atmega2560-1604: CFLAGS += -mmcu=$(MCU)
+atmega2560-1604: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1604: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1604: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1604: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1604: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1604: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1604: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1604: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1604: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1604: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1604: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
+atmega2560-1604: TARGET = atmega2560-1603
+atmega2560-1604: $(TPATH)/atmega2560-1603/pulsefire.hex
+$(TPATH)/atmega2560-1603/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1604-isp: atmega2560-1603
+atmega2560-1604-isp: TARGET = atmega2560-1603
+atmega2560-1604-isp: ISP_MCU = m2560
+atmega2560-1604-isp: ISP_PROG = stk500v2
+atmega2560-1604-isp: avr-flash
+
+
+atmega2560-1605: MCU = atmega2560
+atmega2560-1605: F_CPU = 16000000
+atmega2560-1605: CFLAGS += -mmcu=$(MCU)
+atmega2560-1605: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1605: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1605: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1605: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1605: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1605: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1605: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1605: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1605: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
+atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_LCD
+atmega2560-1605: TARGET = atmega2560-1605
+atmega2560-1605: $(TPATH)/atmega2560-1605/pulsefire.hex
+$(TPATH)/atmega2560-1605/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1605-isp: atmega2560-1605
+atmega2560-1605-isp: TARGET = atmega2560-1605
+atmega2560-1605-isp: ISP_MCU = m2560
+atmega2560-1605-isp: ISP_PROG = stk500v2
+atmega2560-1605-isp: avr-flash
+
+
+atmega2560-1606: MCU = atmega2560
+atmega2560-1606: F_CPU = 16000000
+atmega2560-1606: CFLAGS += -mmcu=$(MCU)
+atmega2560-1606: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1606: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1606: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1606: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1606: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1606: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1606: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1606: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1606: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
+atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_LCD
+atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
+atmega2560-1606: TARGET = atmega2560-1606
+atmega2560-1606: $(TPATH)/atmega2560-1606/pulsefire.hex
+$(TPATH)/atmega2560-1606/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1606-isp: atmega2560-1606
+atmega2560-1606-isp: TARGET = atmega2560-1606
+atmega2560-1606-isp: ISP_MCU = m2560
+atmega2560-1606-isp: ISP_PROG = stk500v2
+atmega2560-1606-isp: avr-flash
+
+
+atmega2560-1607: MCU = atmega2560
+atmega2560-1607: F_CPU = 16000000
+atmega2560-1607: CFLAGS += -mmcu=$(MCU)
+atmega2560-1607: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1607: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1607: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1607: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1607: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1607: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1607: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1607: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
+atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD
+atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
+atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC_16BIT
+atmega2560-1607: TARGET = atmega2560-1607
+atmega2560-1607: $(TPATH)/atmega2560-1607/pulsefire.hex
+$(TPATH)/atmega2560-1607/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1607-isp: atmega2560-1607
+atmega2560-1607-isp: TARGET = atmega2560-1607
+atmega2560-1607-isp: ISP_MCU = m2560
+atmega2560-1607-isp: ISP_PROG = stk500v2
+atmega2560-1607-isp: avr-flash
+
+
+atmega2560-1608: MCU = atmega2560
+atmega2560-1608: F_CPU = 16000000
+atmega2560-1608: CFLAGS += -mmcu=$(MCU)
+atmega2560-1608: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1608: PFLAGS += -DSF_ENABLE_GLCD
+atmega2560-1608: PFLAGS += -DSF_ENABLE_LPM
+atmega2560-1608: PFLAGS += -DSF_ENABLE_PPM
+atmega2560-1608: PFLAGS += -DSF_ENABLE_PWM
+atmega2560-1608: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_DIC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_DOC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_DEV
+atmega2560-1608: PFLAGS += -DSF_ENABLE_PTC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_PTT
+atmega2560-1608: PFLAGS += -DSF_ENABLE_STV
+atmega2560-1608: PFLAGS += -DSF_ENABLE_VFC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_SWC
+atmega2560-1608: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1608: TARGET = atmega2560-1608
+atmega2560-1608: $(TPATH)/atmega2560-1608/pulsefire.hex
+$(TPATH)/atmega2560-1608/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega2560-1608-isp: atmega2560-1608
+atmega2560-1608-isp: TARGET = atmega2560-1608
+atmega2560-1608-isp: ISP_MCU = m2560
+atmega2560-1608-isp: ISP_PROG = stk500v2
+atmega2560-1608-isp: avr-flash
+
 
 
 arm-lpc1343-7201: MCU = cortex-m3

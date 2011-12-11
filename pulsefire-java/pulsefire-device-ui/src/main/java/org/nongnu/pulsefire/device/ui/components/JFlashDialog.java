@@ -120,7 +120,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private JLabel burnDeviceId = null;
 	private String[] columnNames = new String[] {"name","speed",
 			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
-			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL"};
+			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL","GLCD"};
 			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
@@ -149,7 +149,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		
 		JLabel mcuText = new JLabel("mcu:");
 		tableOption.add(mcuText);
-		mcuTypeBox = new JComboBox(new String[] {"ALL","atmega328p","atmega168p","atmega1280"});
+		mcuTypeBox = new JComboBox(new String[] {"ALL","atmega328p","atmega168p","atmega1280","atmega2560"});
 		mcuTypeBox.addActionListener(this);
 		tableOption.add(mcuTypeBox);
 
@@ -463,13 +463,15 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		} else {
 			progComboBox.setSelectedIndex(0);
 		}
-		// update small hard codes chip device id table
+		// dirty update small hard codes chip device id table
 		if (option.name.startsWith("atmega168p")) {
 			burnDeviceId.setText("0x1e940b");
 		} else if (option.name.startsWith("atmega328p")) {
 			burnDeviceId.setText("0x1e950f");
 		} else if (option.name.startsWith("atmega1280")) {
 			burnDeviceId.setText("0x1e9703");
+		} else if (option.name.startsWith("atmega2560")) {
+			burnDeviceId.setText("0x1e9801");
 		} else {
 			burnDeviceId.setText("");
 		}
@@ -590,6 +592,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			case 18:	return checkFlag(option,"VFC");
 			case 19:	return checkFlag(option,"SWC");
 			case 20:	return checkFlag(option,"MAL");
+			case 21:	return checkFlag(option,"GLCD");
 			}
 		}
 		

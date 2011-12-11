@@ -213,11 +213,13 @@ public class PulseFireUI extends SingleFrameApplication {
 		
 		try {
 			settings = (Properties)getContext().getLocalStorage().load(STORAGE_FILE);
-			logger.info("Loaded "+STORAGE_FILE+" with "+settings.size()+" settings.");
+			if (settings!=null) {
+				logger.info("Loaded "+STORAGE_FILE+" with "+settings.size()+" settings.");
+			}
 			
 		} catch (IOException e) {
 			logger.warning("Could not load settings error: "+e.getMessage());
-		}
+		} 
 		if (settings==null) {
 			settings = new Properties();
 		}
