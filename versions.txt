@@ -1,7 +1,7 @@
 
 === PulseFire versions ===
 
-Version 1.0:
+Version 1.0-Beta1:
 - Converted project code to real C project.
 - Removed Arduino C libary dependeny.
 - Added SF_ENABLE_PWM flag to fully remove software pwm code.

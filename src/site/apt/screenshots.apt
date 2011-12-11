@@ -21,20 +21,21 @@
 ~~ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ~~
 
-Install PulseFire
+Screenshots
 
-	There are 3 type of downloads;
+* Pwm overview panel
 	
-UI-launch4j
+[images/pulsefire-ui-pwm.png] pulsefire-ui-pwm
 
-  This is for win32/win64
-  
-UI-dist
+* Flash firmware dialog
 
-  Distribition for all os'es so linux32/64 win32/64 osx etc.
-  
-project-src
+[images/pulsefire-ui-flash.png] pulsefire-ui-flash
 
-  Packages source of full build tree, this is if you want to build without git.
-  
+* Inputs mapping panel
+
+[images/pulsefire-ui-inputs.png] pulsefire-ui-inputs
+
+* Variables info panel
+
+[images/pulsefire-ui-vars.png] pulsefire-ui-vars
 

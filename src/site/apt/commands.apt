@@ -72,13 +72,11 @@ reset_chip         - Reset the devices and so resets the program.
 
 ------
 req_pulse_fire     - Requests software pulse trigger
-req_pwm_freq <hz*100> [output] [duty]
+req_pwm_freq <hz*100> [output]
                    - Request freqency of train pulse this will change pwm_compa,pwm_compb,pwm_clock,etc
                      Examples;
                          req_pwm_freq 500 - Sets all outputs to 50hz with pwm_duty.
                          req_pwm_freq 5000 2 - Sets output 2 to 500hz with pwm_duty
-                         req_pwm_freq 500 3 20 - Sets output 3 to 50hz with 20% duty.
-                         req_pwm_freq 500 255 30 - Sets all outputs to 50hz with 30% duty.
                        
 req_auto_lpm       - Requests automatic lpm messurement
 req_tx_push        - Enable config update changes to be pushed to serial automaticly.(1=On,0=off(def))
@@ -203,6 +201,23 @@ enum {PIN4_OFF,PIN4_MENU1_IN,PIN4_RELAY_OUT,PIN4_DIC4_IN,PIN4_DIC10_IN,PIN4_DOC4
 enum {PIN5_OFF,PIN5_CLOCK_IN,PIN5_RELAY_OUT,PIN5_DIC5_IN,PIN5_DIC11_IN,PIN5_DOC5_OUT,PIN5_DOC11_OUT };
 ------
 
+* AVR MEGA
+
+------
+avr_pin18_map       - Switch the mapping of pin18.
+avr_pin19_map       - Switch the mapping of pin19
+avr_pin47_map       - Switch the mapping of pin47
+avr_pin48_map       - Switch the mapping of pin48
+avr_pin49_map       - Switch the mapping of pin49
+
+enum {PIN18_OFF,PIN18_TRIG_IN, PIN18_RELAY_OUT,PIN18_DIC4_IN,PIN18_DIC6_IN,PIN18_DOC4_OUT,PIN18_DOC6_OUT, PIN18_FREQ_IN,PIN18_FIRE_IN };
+enum {PIN19_OFF,PIN19_TRIG_IN, PIN19_RELAY_OUT,PIN19_DIC5_IN,PIN19_DIC7_IN,PIN19_DOC5_OUT,PIN19_DOC7_OUT, PIN19_FREQ_IN,PIN19_FIRE_IN };
+enum {PIN47_OFF,PIN47_CLOCK_IN,PIN47_RELAY_OUT };
+enum {PIN48_OFF,PIN48_MENU0_IN,PIN48_RELAY_OUT,PIN48_DIC4_IN,PIN48_DIC6_IN,PIN48_DOC4_OUT,PIN48_DOC6_OUT };
+enum {PIN49_OFF,PIN49_MENU1_IN,PIN49_RELAY_OUT,PIN49_DIC5_IN,PIN49_DIC7_IN,PIN49_DOC5_OUT,PIN49_DOC7_OUT };
+------
+
+
 * Inputs
 
 ------
@@ -211,3 +226,11 @@ adc_jitter        - Analog jitter removal
 dic_map           - Maps digital inputs to config variables with on and off value and indexed value
 ------
 
+
+
+* Etc
+
+------
+lcd_size          - Supports 3 type of lcd 
+
+------

@@ -1,0 +1,91 @@
+~~
+~~ Copyright (c) 2011, Willem Cazander
+~~ All rights reserved.
+~~
+~~ Redistribution and use in source and binary forms, with or without modification, are permitted provided
+~~ that the following conditions are met:
+~~ 
+~~ * Redistributions of source code must retain the above copyright notice, this list of conditions and the
+~~   following disclaimer.
+~~ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+~~   the following disclaimer in the documentation and/or other materials provided with the distribution.
+~~ 
+~~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+~~ EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+~~ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+~~ THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+~~ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+~~ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+~~ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+~~ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+~~ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+~~
+
+PulseFire Features
+
+* Generic
+------
+  - Savable config in eeprom for standalone usage.
+  - All diffent chip data is resetable.
+  - Diffent size lcd support.
+  - Experimental GLCD support. (MEGA only)
+  - Soft warmup modes for software pwm.
+  - Configable generic pin connection modes.
+  - Multiple extented connection modes with extra chips.
+  - Two programmable step timers which can change any config variable.
+  - Multiple trigger step timers to change config variables.
+  - Virtual feedback config from config variable to config variable.
+------
+
+* Software pwm
+------
+  - 1 to 16 outputs
+  - 3 different pulse modes
+  - Internal and External trigging with delays.
+  - Pulse direction in both ways and auto reverse.
+  - Inverting output signel level LOW VS HIGH.
+  - Per output masking.
+  - Per output on time step value.
+  - Per output off time step value.
+  - Per output software time step tuning.
+  - Two banks of config data.
+------
+
+* Programmable Pulse Modulator
+------
+  - 3 different pulse modes for ppm.
+  - Variable bit pattern length max 16 bits.
+  - Per ouput bit pattern config.
+------
+
+* Inputs
+------
+  - Analog and Digital inputs.
+  - Per input action is mappable to a internal config variables.
+  - Per input value range adjustment.
+  - Analog value jitter removal.
+  - Auto push data to ui for realtime viewing.
+------
+
+* Safety
+------
+  - Maximum and minimum treshold values.
+  - Dynamicly assign trashold values to config variables.
+  - Changes pulse mode when treshold is triggered.
+  - Minimal time delay in safety mode.
+  - LCD message when entering safety mode.
+------
+
+* PulseFire-UI
+------
+  - Easy modification of almost any config variable.
+  - Pulled readout of all internal variables.
+  - Console log to see all messages to and from pulsefire chip.
+  - All mappable steps made easy with drop downs.
+  - Realtime viewing al input data.
+  - Most variable are automaticly graphed over time.
+  - Log serial commands and/or pulled variables to file.
+  - Custom nightly work compatible color themes.
+  - Comes with prebuild pulsefire chip firmwares.
+  - Comes with simple flash dialog to flash firmware to device.
+------
