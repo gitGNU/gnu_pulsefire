@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <parent>
     <artifactId>pulsefire-rxtx</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1-SNAPSHOT</version>
+    <version>1.0.0-Beta1</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-rxtx-lib</artifactId>
@@ -60,7 +60,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <configuration>
               <target>
                 <echo>Unzip rxtx java jar into new maven build artifact.</echo>
-                <unzip src="src/main/lib/RXTXcomm.jar" dest="target/classes"/>
+                <unzip src="src/main/lib/RXTXcomm.jar" dest="target/classes" />
               </target>
             </configuration>
           </execution>

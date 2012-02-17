@@ -3,7 +3,7 @@
   <parent>
     <artifactId>pulsefire-root</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1-SNAPSHOT</version>
+    <version>1.0.0-Beta1</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-chip</artifactId>
@@ -36,20 +36,20 @@
             </goals>
             <configuration>
               <tasks>
-                <mkdir dir="target/classes/firmware"/>
-                <copy file="src/main/c/makefile" todir="target/classes/firmware"/>
-                <mkdir dir="target/firmware-build"/>
+                <mkdir dir="target/classes/firmware" />
+                <copy file="src/main/c/makefile" todir="target/classes/firmware" />
+                <mkdir dir="target/firmware-build" />
                 <exec dir="src/main/c" executable="make" failonerror="true">
-                  <arg value="clean"/>
-                  <arg value="TPATH=../../../target/firmware-build"/>
+                  <arg value="clean" />
+                  <arg value="TPATH=../../../target/firmware-build" />
                 </exec>
                 <exec dir="src/main/c" executable="make" failonerror="true">
-                  <arg value="all"/>
-                  <arg value="TPATH=../../../target/firmware-build"/>
+                  <arg value="all" />
+                  <arg value="TPATH=../../../target/firmware-build" />
                 </exec>
                 <copy todir="target/classes/firmware">
                   <fileset dir="target/firmware-build">
-                    <include name="**/*.hex"/><!-- We want only hex files in artifact, note switch to jar packing filtering is better for cmd builds -->
+                    <include name="**/*.hex" /><!-- We want only hex files in artifact, note switch to jar packing filtering is better for cmd builds -->
                   </fileset>
                 </copy>
               </tasks>

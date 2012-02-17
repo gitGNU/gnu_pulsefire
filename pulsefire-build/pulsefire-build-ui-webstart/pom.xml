@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <parent>
     <artifactId>pulsefire-build</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1-SNAPSHOT</version>
+    <version>1.0.0-Beta1</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-build-ui-webstart</artifactId>
@@ -94,9 +94,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <configuration>
               <target>
                 <echo>Copy jnlp app into site.</echo>
-                <unzip
-                  src="target/pulsefire-device-ui-${project.version}.zip"
-                  dest="../../../target/staging/pulsefire-root/jnlp/" />
+                <unzip src="target/pulsefire-device-ui-${project.version}.zip" dest="../../../target/staging/pulsefire-root/jnlp/" />
                </target>
             </configuration>
             <goals>

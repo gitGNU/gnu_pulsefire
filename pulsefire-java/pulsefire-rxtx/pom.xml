@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <parent>
     <artifactId>pulsefire-java</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1-SNAPSHOT</version>
+    <version>1.0.0-Beta1</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-rxtx</artifactId>
@@ -72,13 +72,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </goals>
             <configuration>
               <target>
-                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath"/>
+                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                 <if>
                   <available file="src/main/jni" type="dir" />
                   <then>
                     <echo message="Coping jni files to classes directory." />
                     <copy todir="target/classes">
-                      <fileset dir="src/main/jni"/>
+                      <fileset dir="src/main/jni" />
                     </copy>
                   </then>
                 </if>
