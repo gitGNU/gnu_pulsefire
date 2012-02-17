@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <parent>
     <artifactId>pulsefire-rxtx</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1</version>
+    <version>1.0.0-Beta2-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-rxtx-mac-10.5</artifactId>

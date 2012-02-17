@@ -25,7 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.nongnu.pulsefire</groupId>
   <artifactId>pulsefire-root</artifactId>
-  <version>1.0.0-Beta1</version>
+  <version>1.0.0-Beta2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>pulsefire-root</name>
   <description>pulsefire-root is the root maven project for the pulsefire build modules.</description>
@@ -61,10 +61,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <module>pulsefire-chip</module>
   </modules>
   <distributionManagement>
+  <!--  DISABLED for release else if will deploy site also. 
     <site>
       <id>cvs-savannah-site</id>
       <url>scm:cvs:ext:cvs.savannah.nongnu.org:/web/pulsefire:pulsefire</url>
     </site>
+     -->
     <repository>
       <id>releases</id>
       <name>Savannah releases</name>

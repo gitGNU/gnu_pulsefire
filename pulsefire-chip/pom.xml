@@ -3,10 +3,11 @@
   <parent>
     <artifactId>pulsefire-root</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta1</version>
+    <version>1.0.0-Beta2-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-chip</artifactId>
+  <version>1.0.0-Beta1</version>
   <name>pulsefire-chip</name>
   <description>pulsefire-chip build and packages all the firmwares.</description>
   <build>
