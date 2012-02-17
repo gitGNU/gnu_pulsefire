@@ -51,6 +51,9 @@ pom.xml.versionsBackup
 *.gif
 *.pdf
 
+# Ignore ~ backup files.
+*~
+
 # Ignore netbeans directory
 nbproject
 
