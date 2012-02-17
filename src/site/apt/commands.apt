@@ -222,6 +222,7 @@ enum {PIN49_OFF,PIN49_MENU1_IN,PIN49_RELAY_OUT,PIN49_DIC5_IN,PIN49_DIC7_IN,PIN49
 
 ------
 adc_map           - Maps analog inputs to config variables with range correction and indexed value
+adc_enable        - Bitfield for enabling analog inputs. (default is all OFF !!)
 adc_jitter        - Analog jitter removal
 dic_map           - Maps digital inputs to config variables with on and off value and indexed value
 ------

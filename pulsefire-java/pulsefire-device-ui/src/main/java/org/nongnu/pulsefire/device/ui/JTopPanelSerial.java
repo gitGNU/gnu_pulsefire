@@ -144,7 +144,6 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		connectButtton.setText("Disconnect");
 		versionLabel.setText(""+new Float(PulseFireUI.getInstance().getDeviceManager().getDeviceVersion())/10);
 		PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.DEVICE_PORT.name(),""+portsComboBox.getSelectedItem());
-		PulseFireUI.getInstance().saveSettings();
 	}
 
 	@Override

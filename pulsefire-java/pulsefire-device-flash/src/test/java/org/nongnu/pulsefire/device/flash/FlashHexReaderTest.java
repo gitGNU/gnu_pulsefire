@@ -21,24 +21,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.wire;
+package org.nongnu.pulsefire.device.flash;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
-public class WireCommandTest extends TestCase {
+/**
+ * FlashHexReaderTest does simple test with read/writer of hex files.
+ * 
+ * @author Willem Cazander
+ */
+public class FlashHexReaderTest extends TestCase {
 
-	CommandWire wire = new CommandWire();
+	static String SAMPLE_HEX_RESOURCE = "org/nongnu/pulsefire/device/flash/sample.hex";
 	
-	public void testDecodeSimple() throws Exception {
-		Command cmd = CommandWire.decodeCommand("chip_name=test123");
-		assertEquals(CommandName.chip_name, cmd.getCommandName());
-		assertEquals("test123", cmd.getArgu0());
+	public void testRead() throws Exception {
+		FlashHexReader hex = new FlashHexReader();
+		byte[] data = hex.loadHex(SAMPLE_HEX_RESOURCE);
 	}
 	
-	public void testEncodeSimple() throws Exception {
-		Command cmd = new Command(CommandName.chip_name);
-		cmd.setArgu0("test123");
-		String line = CommandWire.encodeCommand(cmd);
-		assertEquals("chip_name test123", line);
+	public void testWrite() throws Exception {
+		FlashHexReader hex = new FlashHexReader();
+		byte[] data = hex.loadHex(SAMPLE_HEX_RESOURCE);
+		File tmp = File.createTempFile("test-write", ".hex");
+		hex.writeHexData(data, new FileOutputStream(tmp));
+		tmp.delete();
 	}
 }

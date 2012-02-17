@@ -460,6 +460,28 @@ void cmd_execute(char* cmd, char** args) {
 		}
 		Serial_println();
 #endif
+
+#ifdef SF_ENABLE_PTT
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqPTTFire)) == ZERO) {
+		if (args[0] == NULL) {
+			Serial_printCharP(pmCmdReqPTTFire);
+			Serial_printCharP(pmGetSpaced);
+			Serial_printDec(ZERO);
+			Serial_println();
+			return;
+		}
+		uint16_t trigIdx  = atou16(args[0]);
+		if (trigIdx>PTT_TRIG_VAR_SIZE) {
+			trigIdx=ZERO;
+		}
+		pf_data.ptt_fire[trigIdx] = ONE;
+		Serial_printCharP(pmCmdReqPTTFire);
+		Serial_printDec(trigIdx);
+		Serial_printCharP(pmGetSpaced);
+		Serial_printDec(ZERO);
+		Serial_println();
+#endif
+
  
 	} else if (strcmp(cmd,UNPSTR(pmProgTXPush)) == ZERO) {
 		Serial_printCharP(pmProgTXPush);

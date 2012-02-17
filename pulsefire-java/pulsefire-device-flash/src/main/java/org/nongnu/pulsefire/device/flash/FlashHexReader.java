@@ -23,6 +23,7 @@
 
 package org.nongnu.pulsefire.device.flash;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -41,6 +45,7 @@ import java.nio.charset.Charset;
 public class FlashHexReader {
 	
 	static private int INTEGER_HEX = 16;
+	private Charset charset = Charset.forName("US-ASCII");
 	
 	public byte[] loadHex(File hexFile) throws FileNotFoundException, IOException {
 		return readHexData(new FileInputStream(hexFile));	
@@ -59,10 +64,10 @@ public class FlashHexReader {
 	}
 	
 	public byte[] readHexData(InputStream input) throws IOException {
-		ByteArrayOutputStream resultData = new ByteArrayOutputStream(32768);;
+		ByteArrayOutputStream resultData = new ByteArrayOutputStream(32768);
 		LineNumberReader reader = null;
 		try {
-			reader = new LineNumberReader(new InputStreamReader(input,Charset.forName("US-ASCII")));
+			reader = new LineNumberReader(new InputStreamReader(input,charset));
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				if (line.startsWith(":")==false) {
@@ -97,5 +102,87 @@ public class FlashHexReader {
 			}
 		}
 		return resultData.toByteArray();
+	}
+	
+	/**
+	 * Small hacky method to write then.
+	 * @param data
+	 * @param output
+	 * @throws IOException
+	 */
+	public void writeHexData(byte[] data,OutputStream output) throws IOException {
+		Writer writer = new BufferedWriter(new OutputStreamWriter(output,charset));
+		try {
+			int lineSize = 16;			
+			for (int i=0;i<data.length;i=i+lineSize) {
+				writer.append(':');
+				if (i+lineSize>data.length) {
+					lineSize = data.length-i;
+				}
+				String sizeStr = Integer.toHexString(lineSize).toUpperCase();
+				if (sizeStr.length()==1) {
+					writer.append("0");
+				}
+				writer.append(sizeStr); // 16 bytes
+				String address = Integer.toHexString(i).toUpperCase();
+				if (address.length()==1) {
+					writer.append("000");
+				} else if (address.length()==2) {
+					writer.append("00");
+				} else if (address.length()==3) {
+					writer.append("0");
+				}
+				writer.append(address);
+				byte recordType = 0;
+				byte checksumParsed = new Integer(lineSize+(i&0xFF)+(i>>8)+recordType).byteValue();
+				writer.append("00"); // record type
+				for (int ii=i;ii<(i+lineSize) && ii<data.length;ii++) {
+					String dataStr = Integer.toHexString(data[ii]).toUpperCase();
+					if (dataStr.length()==1) {
+						writer.append("0");
+					}
+					if (dataStr.length()==8) {
+						dataStr = dataStr.substring(6);
+					}
+					writer.append(dataStr);
+					checksumParsed += data[ii];
+				}
+				checksumParsed = new Integer((checksumParsed % 255) * 0xFF).byteValue();
+				String checkSumStr = Integer.toHexString(checksumParsed).toUpperCase();
+				if (checkSumStr.length()==1) {
+					writer.append("0");
+				}
+				if (checkSumStr.length()==8) {
+					checkSumStr = checkSumStr.substring(6);
+				}
+				writer.append(checkSumStr);
+				writer.append("\n");
+				writer.flush();
+			}
+			writer.append(":00000001FF");
+			writer.append("\n");
+			writer.flush();
+		} finally {
+			if (writer!=null) {
+				writer.close();
+			}
+			if (output!=null) {
+				output.close();
+			}
+		}
+	}
+
+	/**
+	 * @return the charset
+	 */
+	public Charset getCharset() {
+		return charset;
+	}
+
+	/**
+	 * @param charset the charset to set
+	 */
+	public void setCharset(Charset charset) {
+		this.charset = charset;
 	}
 }

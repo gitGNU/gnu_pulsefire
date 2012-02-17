@@ -35,7 +35,17 @@ void Input_loopDic(void) {
 
 	uint16_t dic_data = Chip_in_dic();
 	for (uint8_t i=ZERO;i < DIC_NUM_MAX ;i++) {
+		if ( ((pf_conf.dic_enable >> i) & ONE) == ZERO ) {
+			continue; // Enable bit per input
+		}
 		uint8_t result    = (dic_data >> i) & ONE;
+		if ( ((pf_conf.dic_inv >> i) & ONE) > ZERO ) {
+			if (result > ZERO) {
+				result = ZERO;	// invert input
+			} else {
+				result = ONE;
+			}
+		}
 		uint8_t resultOld = (pf_data.dic_value >> i) & ONE;
 		if (result == resultOld) {
 			continue; // no change
@@ -52,8 +62,7 @@ void Input_loopDic(void) {
 		} else {
 			dic_value_new += (ONE << i); // set bit in data
 		}
-		//pf_data.dic_value = dic_value_new;
-		uint8_t dicVarIdx = Vars_getIndexFromName(UNPSTR(pmDataDicValue));
+		uint8_t dicVarIdx = Vars_getIndexFromName(UNPSTR(pmDataDicValue)); // set via index to print to serial.
 		Vars_setValue(dicVarIdx,ZERO,ZERO,dic_value_new);
 
 		if (pf_conf.dic_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
@@ -62,7 +71,9 @@ void Input_loopDic(void) {
 		if (result == ZERO) {
 			Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_A]);
 		} else {
-			Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_B]);
+			if ( ((pf_conf.dic_sync >> i) & ONE) == ZERO ) { // only trigger to zero.
+				Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_B]);
+			}
 		}
 	}
 }
@@ -114,6 +125,9 @@ void Input_loopAdc(void) {
 			pf_data.adc_state_idx=i;
 			Chip_in_adc(pf_data.adc_state_idx);
 			return;
+		}
+		if ( ((pf_conf.adc_enable >> i) & ONE) == ZERO ) {
+			continue; // Enable bit per input
 		}
 
 		uint16_t valueAdc    = pf_data.adc_state_value; // analogRead(i);

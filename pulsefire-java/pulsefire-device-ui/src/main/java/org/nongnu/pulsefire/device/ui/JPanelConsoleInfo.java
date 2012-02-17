@@ -86,7 +86,7 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 	private void redoPanel() {
 		int w = getSize().width;
 		int h = getSize().height;
-		int wMin = 220;
+		int wMin = 200;
 		int hMin = 100;
 		int gW = w/wMin;
 		int gH = h/hMin;

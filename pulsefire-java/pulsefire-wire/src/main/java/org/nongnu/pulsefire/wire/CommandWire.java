@@ -32,7 +32,8 @@ package org.nongnu.pulsefire.wire;
  */
 public class CommandWire {
 	
-	static public Command decodeCommand(String line) {
+	static public Command decodeCommand(String lineRaw) throws CommandWireException {
+		String line = lineRaw;
 		
 		// parse based on commandType
 		String commandName = null;
@@ -60,9 +61,11 @@ public class CommandWire {
 		String idx = null;
 		if (Character.isDigit(last)) {
 			int index = commandName.length()-1;
-			char lastOne = commandName.charAt(commandName.length()-2);
-			if (Character.isDigit(lastOne)) {
-				index--;
+			if (commandName.length() > 1) {
+				char lastOne = commandName.charAt(commandName.length()-2);
+				if (Character.isDigit(lastOne)) {
+					index--;
+				}
 			}
 			idx = commandName.substring(index); // append idx as argu0
 			commandName = commandName.substring(0,index);
@@ -82,7 +85,7 @@ public class CommandWire {
 			}
 		}
 		if (result==null) {
-			throw new IllegalStateException("Could not find command for: "+commandName);
+			throw new CommandWireException("Could not find command for: '"+commandName+"' in line: '"+lineRaw+"'");
 		}
 		
 		if (result.getCommandName().isIndexedB()) {

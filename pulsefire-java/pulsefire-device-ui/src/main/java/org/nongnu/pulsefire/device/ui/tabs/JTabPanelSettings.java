@@ -98,7 +98,6 @@ public class JTabPanelSettings extends AbstractTabPanel {
 					File file = fc.getSelectedFile();
 					cmdFile.setText(file.getAbsolutePath());
 					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.LOG_CMD_FILE.name(), file.getAbsolutePath());
-					PulseFireUI.getInstance().saveSettings();
 				}
 			}
 		});
@@ -129,7 +128,51 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		});
 		panel.add(pullButton);
 				
-		SpringLayoutGrid.makeCompactGrid(panel,7,3);
+		
+		panel.add(JComponentFactory.createJLabel("avrdude cmd"));
+		final JTextField avrdudeFile = new JTextField(35);
+		avrdudeFile.setEnabled(false);
+		avrdudeFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD));
+		panel.add(avrdudeFile);
+		JButton avrdudeButton = new JButton("file");
+		avrdudeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog((JButton)e.getSource());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					avrdudeFile.setText(file.getAbsolutePath());
+					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.AVRDUDE_CMD.name(), file.getAbsolutePath());
+					PulseFireUI.getInstance().saveSettings();
+				}
+			}
+		});
+		panel.add(avrdudeButton);
+		
+		panel.add(JComponentFactory.createJLabel("avrdude conf"));
+		final JTextField avrdudeConfFile = new JTextField(35);
+		avrdudeConfFile.setEnabled(false);
+		avrdudeConfFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG));
+		panel.add(avrdudeConfFile);
+		JButton avrdudeConfButton = new JButton("file");
+		avrdudeConfButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog((JButton)e.getSource());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					avrdudeConfFile.setText(file.getAbsolutePath());
+					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.AVRDUDE_CONFIG.name(), file.getAbsolutePath());
+					PulseFireUI.getInstance().saveSettings();
+				}
+			}
+		});
+		panel.add(avrdudeConfButton);
+		
+		
+		SpringLayoutGrid.makeCompactGrid(panel,9,3);
 		
 		return panel;
 	}
@@ -138,6 +181,9 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		
 		JPanel panel = JComponentFactory.createJFirePanel("Interface");
 		panel.setLayout(new SpringLayout());
+		
+		panel.add(JComponentFactory.createJLabel("NOTE"));
+		panel.add(JComponentFactory.createJLabel("Change requires restart"));
 		
 		panel.add(JComponentFactory.createJLabel("UI Colors"));
 		JComboBox colors = new JComboBox();
@@ -149,7 +195,6 @@ public class JTabPanelSettings extends AbstractTabPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.LAF_COLORS.name(), ""+((JComboBox)e.getSource()).getSelectedItem());
-				PulseFireUI.getInstance().saveSettings();
 			}
 		});
 		panel.add(colors);
@@ -175,7 +220,6 @@ public class JTabPanelSettings extends AbstractTabPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.CONSOLE_LINES.name(), ""+((JComboBox)e.getSource()).getSelectedItem());
-				PulseFireUI.getInstance().saveSettings();
 			}
 		});
 		panel.add(consoleLines);
@@ -196,7 +240,7 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		});
 		panel.add(burnButton);
 		
-		SpringLayoutGrid.makeCompactGrid(panel,6,2);
+		SpringLayoutGrid.makeCompactGrid(panel,7,2);
 		return panel;
 	}
 	

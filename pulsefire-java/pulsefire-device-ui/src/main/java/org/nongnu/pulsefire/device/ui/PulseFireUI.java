@@ -327,8 +327,20 @@ public class PulseFireUI extends SingleFrameApplication {
 		return settings.getProperty(key.name(),key.getDefaultValue());
 	}
 	
+	public void setSettingString(PulseFireUISettingKeys key,String value) {
+		settings.setProperty(key.name(),value);
+	}
+	
 	public Boolean getSettingBoolean(PulseFireUISettingKeys key) {
 		return new Boolean(getSettingString(key));
+	}
+	
+	public Integer getSettingInteger(PulseFireUISettingKeys key) {
+		return new Integer(getSettingString(key));
+	}
+	
+	public void setSettingInteger(PulseFireUISettingKeys key,Integer value) {
+		setSettingString(key, ""+value);
 	}
 	
 	public void saveSettings() {
@@ -357,6 +369,11 @@ public class PulseFireUI extends SingleFrameApplication {
 		public void willExit(EventObject event) {
 			logger.info("Shutdown requested.");
 			long startTime = System.currentTimeMillis();
+			
+			setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM,((JMainPanel)getMainView().getComponent()).bottomSplitPane.getDividerLocation());
+			setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG,((JMainPanel)getMainView().getComponent()).bottomLogSplitPane.getDividerLocation());
+			saveSettings();
+			
 			dataLogManager.stop();
 			eventTimeManager.shutdown();
 			PulseFireUI.getInstance().getDeviceManager().disconnect();

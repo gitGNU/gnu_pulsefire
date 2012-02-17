@@ -37,6 +37,7 @@ import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JFireGraph;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -74,11 +75,13 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 		
 		resultPanel.add(new JLabel("Size:"));
 		sizeBox = new JComboBox(new String[] {"Large","Medium","Small"});
+		sizeBox.setSelectedIndex(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE));
 		sizeBox.addActionListener(this);
 		resultPanel.add(sizeBox);
 		
 		resultPanel.add(new JLabel("Columns:"));
 		columnBox = new JComboBox(new Integer[] {2,3,4,5,6,7,8,9,10,11,12,13});
+		columnBox.setSelectedIndex(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.GRAPH_COLS));
 		columnBox.addActionListener(this);
 		resultPanel.add(columnBox);
 		
@@ -123,7 +126,7 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 		for (Component c:graphPanel.getComponents()) {
 			if (c instanceof JFireGraph) {
 				if (sizeBox.getSelectedIndex()==0) {
-					c.setPreferredSize(new Dimension(440,220));
+					c.setPreferredSize(new Dimension(400,200));
 				} else if (sizeBox.getSelectedIndex()==1) {
 					c.setPreferredSize(new Dimension(300,150));
 				} else if (sizeBox.getSelectedIndex()==2) {
@@ -149,8 +152,10 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		if (sizeBox.equals(e.getSource())) {
 			resizeGraphs();
+			PulseFireUI.getInstance().setSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE,sizeBox.getSelectedIndex());
 		} else if (columnBox.equals(e.getSource())) {
 			makeGraphGrid();
+			PulseFireUI.getInstance().setSettingInteger(PulseFireUISettingKeys.GRAPH_COLS,columnBox.getSelectedIndex());
 		}
 		graphPanel.revalidate();
 		super.deviceConnect();

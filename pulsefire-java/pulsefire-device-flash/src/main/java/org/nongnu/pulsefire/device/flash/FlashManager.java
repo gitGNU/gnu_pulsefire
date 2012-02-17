@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.nongnu.pulsefire.device.flash.avr.Stk500Controller;
 import org.nongnu.pulsefire.device.flash.avr.Stk500v2Controller;
+import org.nongnu.pulsefire.device.flash.avrdude.AvrdudeController;
 
 /**
  * FlashManager can load the hex file and flash devices based on settings.
@@ -51,6 +52,8 @@ public class FlashManager {
 					"  -V            Verify flash.\n"+
 					"  -PP <param>   Port parameters.\n"+
 					"  -s <sign>     Device signature in hex.\n"+
+					"  -nfc <cmd>    Native flash command as fallback.\n"+
+					"                For use prefix protocol with native-<proto>.\n"+
 					"");
 			return;
 		}
@@ -123,6 +126,14 @@ public class FlashManager {
 				int deviceSign = Integer.parseInt(devSignStr, 16);
 				config.setDeviceSignature(deviceSign);
 			}
+			if ("-nfc".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for -nfc given");
+					return;
+				}
+				String cmdStr = arguIterator.next();
+				config.setNativeFlashCmd(cmdStr);
+			}
 		}
 		FlashProgramController fm = createFlashController(config);
 		fm.addFlashLogListener(new FlashLogListener() {
@@ -146,8 +157,17 @@ public class FlashManager {
 			backendController = new Stk500Controller();
 		} else if ("stk500v2".equals(flashControllerConfig.getPortProtocol())) {
 			backendController = new Stk500v2Controller();
+		} else if ("native-stk500".equals(flashControllerConfig.getPortProtocol())) {
+			flashControllerConfig.setPortProtocol("stk500v1");
+			backendController = new AvrdudeController();
+		} else if ("native-arduino".equals(flashControllerConfig.getPortProtocol())) {
+			flashControllerConfig.setPortProtocol("stk500v1");
+			backendController = new AvrdudeController();
+		} else if ("native-stk500v2".equals(flashControllerConfig.getPortProtocol())) {
+			flashControllerConfig.setPortProtocol("stk500v2");
+			backendController = new AvrdudeController();
 		} else {
-			throw new IllegalStateException("Unknow port protocol: "+flashControllerConfig.getPortProtocol());
+			throw new IllegalStateException("Unknow port protocol: "+flashControllerConfig.getPortProtocol());			
 		}
 		return backendController;
 	}

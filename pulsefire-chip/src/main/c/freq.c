@@ -42,7 +42,7 @@ uint8_t convert_clock(uint8_t clockScaleMode) {
 uint32_t calc_pwm_speed(uint8_t idx) {
 	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
 	uint8_t clockScale = convert_clock(clockScaleMode);
-	uint32_t freqTrain = F_CPU / clockScale / (pf_conf.pwm_on_cnt_a[idx]+pf_conf.pwm_on_cnt_a[idx]);
+	uint32_t freqTrain = F_CPU / clockScale / (pf_conf.pwm_on_cnt_a[idx]+pf_conf.pwm_off_cnt_a[idx]);
 	return freqTrain;
 }
 uint32_t calc_pwm_loop(uint8_t idx) {
@@ -71,7 +71,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 	uint8_t pwmOffCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOffCntA));
 
 	// use pwm_loop to divede by 10 and make bigger so _delta works nice.
-	uint16_t pwmLoop = FREQ_MUL * pf_conf.pulse_steps;
+	uint16_t pwmLoop = pf_conf.pulse_steps; // * FREQ_MUL
 	// freq to low for prescale+tcnt so must use higher train_loop
 	if ( F_CPU/1024/freq > 0xFF00)       { pwmLoop *= 2;
 		if ( F_CPU/1024/freq/2 > 0xFF00)   { pwmLoop *= 2;

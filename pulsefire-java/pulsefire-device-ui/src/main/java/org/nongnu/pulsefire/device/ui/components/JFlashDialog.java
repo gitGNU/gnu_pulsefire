@@ -81,6 +81,8 @@ import org.nongnu.pulsefire.device.flash.FlashManager;
 import org.nongnu.pulsefire.device.flash.FlashProgramController;
 import org.nongnu.pulsefire.device.ui.DevicePortsComboBoxModel;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 
 /**
@@ -118,6 +120,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private JTable table = null;
 	private JLabel burnName = null;
 	private JLabel burnDeviceId = null;
+	private String nativeFlashCmd = null;
+	private String nativeFlashConfig = null;
 	private String[] columnNames = new String[] {"name","speed",
 			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
 			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL","GLCD"};
@@ -125,6 +129,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
 		logger = Logger.getLogger(JFlashDialog.class.getName());
+		nativeFlashCmd = PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD);
+		nativeFlashConfig = PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG);
 		setTitle("Flash chip firmware");
 		setMinimumSize(new Dimension(640,480));
 		setPreferredSize(new Dimension(999,666));
@@ -257,7 +263,11 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		portsComboBox.addPopupMenuListener(portModel);
 		burnOptionPanel.add(portsComboBox);
 		burnOptionPanel.add(new JLabel("Programer:"));
-		progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
+		if (nativeFlashCmd!=null && nativeFlashCmd.isEmpty()==false && nativeFlashConfig!=null && nativeFlashConfig.isEmpty()==false) {
+			progComboBox = new JComboBox(new String[] {"arduino","stk500v2","native-arduino","native-stk500v2"});
+		} else {
+			progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
+		}
 		burnOptionPanel.add(progComboBox);
 		burnOptionPanel.add(new JLabel("logVerbose:"));
 		progVerboseBox = new JCheckBox();
@@ -277,7 +287,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		
 		JPanel logPanel = JComponentFactory.createJFirePanel("Burn Log");
 		flashLogTimeFormat = new SimpleDateFormat("HH:mm:ss");
-		flashLog = new JTextArea(10,40);
+		flashLog = new JTextArea(10,50);
 		flashLog.setMargin(new Insets(2, 2, 2, 2));
 		flashLog.setAutoscrolls(true);
 		flashLog.setEditable(false);
@@ -361,6 +371,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			String deviceId = burnDeviceId.getText();
 			if (deviceId!=null && deviceId.isEmpty()==false && deviceId.startsWith("0x")) {
 				flashConfig.setDeviceSignature(Integer.parseInt(burnDeviceId.getText().substring(2),16));
+			}
+			if (nativeFlashCmd!=null && nativeFlashCmd.isEmpty()==false) {
+				flashConfig.setNativeFlashCmd(nativeFlashCmd);
+			}
+			if (nativeFlashConfig!=null && nativeFlashConfig.isEmpty()==false) {
+				flashConfig.setNativeFlashConfig(nativeFlashConfig);
 			}
 			flashProgramController = FlashManager.createFlashController(flashConfig);
 			FlashThread t = new FlashThread();t.start();

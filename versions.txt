@@ -14,6 +14,8 @@ Version 1.0-Beta1:
 - Upped max digital inputs from 8 to 16.
 - Created Arduino MEGA support(non-tested).
 - Made adc_value and dic_value use auto push for gui update.
+- Added adc_enable bitfield to enable input readouts.
+- Added dic_enable/dic_inv/dic_sync bitfield per digital input.
 - Fixed main loop speed bug was in Input_loopLcd().
 - Removed SF_ENABLE_FRQ flag info_freq is always rest is moved to pwm flag.
 - Changed req_pwm_freq from 3 to 2 parameters removed duty uses always pwm_duty now.

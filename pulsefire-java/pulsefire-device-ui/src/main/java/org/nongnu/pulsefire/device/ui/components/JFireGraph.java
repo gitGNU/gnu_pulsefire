@@ -96,8 +96,6 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setPaint(gridColor);
 		
-		int w = getWidth();
-		int h = getHeight();
 		double maxValue = getSize().height;
 		double maxRValue = 0.0;
 		double minRValue = 100000;
@@ -131,8 +129,13 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		if (minRValue == 100000) {
 			minRValue = 0;
 		}
-		double xScale = (w - 2*PAD)/(timeData.size()+1);  
-		double yScale = (h - 2*PAD)/maxValue;  
+		int w = getWidth();
+		int h = getHeight();
+		double xScale = 1.0;
+		if (timeData.isEmpty()==false) {
+			xScale = (w - 2*PAD)/timeData.size();
+		}
+		double yScale = (h - 2*PAD)/(maxValue+10);  
 		
 		int yLines = 10;
 		int xLines = 20;
@@ -143,22 +146,14 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		for (int x=0;x<=xLines;x++) {
 			g2.drawLine((int)((w/xLines)*x), 0, (int)((w/xLines)*x), h);
 		}
-		
-		/*
-		for (int y=0;y<=yLines;y++) {
-			g2.drawLine(0,(int)((h/yLines)*y*yScale), w, (int)((h/yLines)*y*yScale));
-		}
-		for (int x=0;x<=xLines;x++) {
-			g2.drawLine((int)((w/xLines)*x*xScale), 0, (int)((w/xLines)*x*xScale), h);
-		}
-*/
+
 		int x0 = PAD;  
 		int y0 = h-PAD;  
 
 		int x1 = -1;  
 		int y1 = -1;
 		int dataPoint = 0;
-		int j = 0;
+		int j = 1;
 		
 		if (commandName.isIndexedA()==false) {
 			for (TimeData t:timeData) {
@@ -166,7 +161,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 				dataPoint = t.dataPoint;
 				int x = x0 + (int)(xScale * (j+1));  
 				int y = y0 - (int)(yScale * dataPoint);
-				g2.fillOval(x-2, y-2, 4, 4);
+				//g2.fillOval(x-2, y-2, 4, 4);
 				if (x1!=-1) {
 					g2.drawLine(x1, y1, x, y);
 				}
@@ -190,7 +185,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 					dataPoint = t.dataPointIdx[i];
 					int x = x0 + (int)(xScale * (j+1));  
 					int y = y0 - (int)(yScale * dataPoint);
-					g2.fillOval(x-2, y-2, 4, 4);
+					//g2.fillOval(x-2, y-2, 4, 4);
 					if (x1!=-1) {
 						g2.drawLine(x1, y1, x, y);
 					}
@@ -201,13 +196,21 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 			}
 		}
 	
-		g2.setPaint(UIManager.getColor("nimbusAlertYellow").darker());
+		Color back = getBackground();
+		Color trans = new Color(back.getRed(), back.getGreen(), back.getBlue(), 150);
+		g2.setPaint(trans);
+		g2.fillRect(0, 0, 150, 70);
+	
+		g2.setPaint(gridColor);
 		g2.drawRect(0, 0, w-1, h-1);
-		//g2.setPaint(UIManager.getColor("nimbusRed"));
+		
+		g2.setPaint(UIManager.getColor("text"));
 		g2.drawString("Name:", 7, 20);
 		g2.drawString(commandName.name(), 50, 20);
-		g2.drawString("Value:", 7, 35);
-		g2.drawString(""+dataPoint, 50, 35);
+		if (commandName.isIndexedA()==false) {
+			g2.drawString("Value:", 7, 35);
+			g2.drawString(""+dataPoint, 50, 35);
+		}
 		g2.drawString("Min:", 7, 50);
 		g2.drawString(""+minRValue, 50, 50);
 		g2.drawString("Max:", 7, 65);

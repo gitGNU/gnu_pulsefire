@@ -156,10 +156,14 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_ADC
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_map,             (CHIP_PTR_TYPE)&pmConfAdcMap,          0xFFFF,              (QMAP_SIZE<<13)+(ADC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_enable,          (CHIP_PTR_TYPE)&pmConfAdcEnable,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_jitter,          (CHIP_PTR_TYPE)&pmConfAdcJitter,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         DEFAULT_SYS_ADC_JITTER},
 #endif
 #ifdef SF_ENABLE_DIC
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_map,             (CHIP_PTR_TYPE)&pmConfDicMap,          0xFFFF,              (QMAP_SIZE<<13)+(DIC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_enable,          (CHIP_PTR_TYPE)&pmConfDicEnable,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_inv,             (CHIP_PTR_TYPE)&pmConfDicInv,          0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_sync,            (CHIP_PTR_TYPE)&pmConfDicSync,         0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 #endif
 
 // =============== pf_data vars = +64

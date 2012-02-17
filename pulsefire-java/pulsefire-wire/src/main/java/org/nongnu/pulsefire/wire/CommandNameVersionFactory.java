@@ -259,6 +259,7 @@ public class CommandNameVersionFactory {
 		
 		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
 		CommandName.freq_pwm_data.maxIndexB=3;
+		CommandName.req_ptt_fire.maxIndexA=3;
 		return true;
 	}
 
@@ -274,11 +275,16 @@ public class CommandNameVersionFactory {
 		}
 		CommandName.pwm_duty.disabled=true;
 		CommandName.req_pwm_freq.disabled=true; // req_pwm_freq works different in 0.9
+		CommandName.req_ptt_fire.disabled=true;
 		CommandName.dev_volt_dot.disabled=true;
 		CommandName.dev_amp_dot.disabled=true;
 		CommandName.dev_temp_dot.disabled=true;
 		CommandName.lpm_relay_inv.disabled=true;
 		CommandName.lcd_size.disabled=true;
+		CommandName.adc_enable.disabled=true;
+		CommandName.dic_enable.disabled=true;
+		CommandName.dic_inv.disabled=true;
+		CommandName.dic_sync.disabled=true;
 		
 		return true;
 	}

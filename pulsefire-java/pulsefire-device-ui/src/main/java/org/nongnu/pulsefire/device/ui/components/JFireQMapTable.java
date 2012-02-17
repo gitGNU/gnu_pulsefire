@@ -68,12 +68,10 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JFireQMapTable extends JPanel {
 
 	private static final long serialVersionUID = 6413723813214593946L;
-	//private CommandVariableName commandName;
 	private DeviceConfigVariableTableModel tableModel = null;
 	private JTable qmapTable = null;
 	
 	public JFireQMapTable(CommandName commandName,String colNameA,String colNameB) {
-		//this.commandName=commandName;
 		
 		tableModel = new DeviceConfigVariableTableModel(commandName,colNameA,colNameB);
 		qmapTable = new JTable(tableModel);

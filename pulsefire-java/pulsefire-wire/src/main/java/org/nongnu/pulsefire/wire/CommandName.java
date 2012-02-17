@@ -47,6 +47,7 @@ public enum CommandName {
 	req_pulse_fire			(CommandVariableType.CMD),
 	req_pwm_freq			(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_auto_lpm			(CommandVariableType.CMD,WireChipFlags.LPM),
+	req_ptt_fire			(CommandVariableType.CMD,WireChipFlags.PTT),
 	req_tx_push				(CommandVariableType.CMD),
 	req_tx_echo				(CommandVariableType.CMD),
 	req_tx_promt			(CommandVariableType.CMD),
@@ -114,8 +115,13 @@ public enum CommandName {
 	vfc_output_map			(CommandVariableType.CONF,WireChipFlags.VFC),
 	
 	adc_map					(CommandVariableType.CONF,WireChipFlags.ADC),
+	adc_enable				(CommandVariableType.CONF,WireChipFlags.ADC),
 	adc_jitter				(CommandVariableType.CONF,WireChipFlags.ADC),
+	
 	dic_map					(CommandVariableType.CONF,WireChipFlags.DIC),
+	dic_enable				(CommandVariableType.CONF,WireChipFlags.DIC),
+	dic_inv					(CommandVariableType.CONF,WireChipFlags.DIC),
+	dic_sync				(CommandVariableType.CONF,WireChipFlags.DIC),
 	
 	avr_pin2_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin3_map			(CommandVariableType.CONF,WireChipFlags.AVR),

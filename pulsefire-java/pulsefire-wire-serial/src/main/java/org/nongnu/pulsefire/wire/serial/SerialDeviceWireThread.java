@@ -37,6 +37,7 @@ import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 import org.nongnu.pulsefire.wire.CommandNameVersionFactory;
 import org.nongnu.pulsefire.wire.CommandWire;
+import org.nongnu.pulsefire.wire.CommandWireException;
 
 import gnu.io.SerialPort;
 
@@ -225,13 +226,24 @@ public class SerialDeviceWireThread extends Thread {
 			scannedInput = scannedInput.substring(4);
 			t = 3;
 		}
+		Command cmd = null;
 		try {
-			Command cmd = CommandWire.decodeCommand(scannedInput);
+			cmd = CommandWire.decodeCommand(scannedInput);
 			logger.finer("Got cmd: "+cmd.getCommandName()+" with argu0: "+cmd.getArgu0());
 			if (sendCommand!=null && sendCommand.getRequest().getCommandName().equals(cmd.getCommandName())) {
 				sendCommand.setResponse(cmd);
 				sendCommand = null;
 			}
+		} catch (CommandWireException cwe) {
+			logger.log(Level.WARNING,cwe.getMessage());
+		} catch (Exception parseException) {
+			logger.log(Level.WARNING,parseException.getMessage(),parseException);
+		}
+		if (cmd==null) {
+			return;
+		}
+		
+		try {
 			updateDeviceData(cmd,t);
 			if (t==0) {
 				deviceManager.fireCommandReceived(cmd);
@@ -256,9 +268,10 @@ public class SerialDeviceWireThread extends Thread {
 					deviceManager.requestCommand(new Command(CommandName.info_prog));
 				}
 			}
-		} catch (Exception parseException) {
-			logger.log(Level.WARNING,parseException.getMessage(),parseException);
+		} catch (Exception updateException) {
+			logger.log(Level.WARNING,updateException.getMessage(),updateException);
 		}
+		
 	}
 	
 	private void updateDeviceData(Command cmd,int t) {

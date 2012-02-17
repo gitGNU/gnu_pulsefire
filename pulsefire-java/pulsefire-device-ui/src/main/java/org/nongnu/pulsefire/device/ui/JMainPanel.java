@@ -63,6 +63,9 @@ public class JMainPanel extends JPanel {
 	private static final long serialVersionUID = -9173866662540287337L;
 	private List<JTabFirePanel> tabPanels = null;
 	private JTabbedPane tabbedPane = null;
+	//public JSplitPane contentSplitPane = null;
+	public JSplitPane bottomSplitPane = null;
+	public JSplitPane bottomLogSplitPane = null;
 	
 	public JMainPanel() {
 		
@@ -101,23 +104,25 @@ public class JMainPanel extends JPanel {
 	private JSplitPane createContentSplit() {
 		JPanel sp0 = createCenterContent();
 		JSplitPane sp1 = createBottomSplit();
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,sp0,sp1);
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setResizeWeight(0.7);
+		bottomSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,sp0,sp1);
+		bottomSplitPane.setOneTouchExpandable(true);
+		bottomSplitPane.setResizeWeight(0.7);
+		bottomSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM));
 		sp0.setMinimumSize(new Dimension(100, 350));
 		sp1.setMinimumSize(new Dimension(200, 150));
-		return splitPane;
+		return bottomSplitPane;
 	}
 	
 	private JSplitPane createBottomSplit() {
 		JPanel sp0 = createBottomConsole();
 		JPanel sp1 = createBottomInfo();
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
-		splitPane.setOneTouchExpandable(true);
-		splitPane.setResizeWeight(0.4);	
+		bottomLogSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
+		bottomLogSplitPane.setOneTouchExpandable(true);
+		bottomLogSplitPane.setResizeWeight(0.4);
+		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG));
 		sp0.setMinimumSize(new Dimension(200, 100));
 		sp1.setMinimumSize(new Dimension(200, 100));
-		return splitPane;
+		return bottomLogSplitPane;
 	}
 	
 	private JPanel createCenterContent() {

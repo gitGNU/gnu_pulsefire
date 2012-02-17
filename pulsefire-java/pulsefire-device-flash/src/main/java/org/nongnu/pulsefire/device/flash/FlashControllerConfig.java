@@ -38,6 +38,8 @@ public class FlashControllerConfig {
 	private boolean flashVerify = false;
 	private boolean flashErase = false;
 	private boolean logDebug = false;
+	private String nativeFlashCmd = null;
+	private String nativeFlashConfig = null;
 	
 	public FlashControllerConfig() {
 	}
@@ -169,5 +171,33 @@ public class FlashControllerConfig {
 	 */
 	public void setDeviceSignature(int deviceSignature) {
 		this.deviceSignature = deviceSignature;
+	}
+	
+	/**
+	 * @return the nativeFlashCmd
+	 */
+	public String getNativeFlashCmd() {
+		return nativeFlashCmd;
+	}
+	
+	/**
+	 * @param nativeFlashCmd the nativeFlashCmd to set
+	 */
+	public void setNativeFlashCmd(String nativeFlashCmd) {
+		this.nativeFlashCmd = nativeFlashCmd;
+	}
+	
+	/**
+	 * @return the nativeFlashConfig
+	 */
+	public String getNativeFlashConfig() {
+		return nativeFlashConfig;
+	}
+	
+	/**
+	 * @param nativeFlashConfig the nativeFlashConfig to set
+	 */
+	public void setNativeFlashConfig(String nativeFlashConfig) {
+		this.nativeFlashConfig = nativeFlashConfig;
 	}
 }

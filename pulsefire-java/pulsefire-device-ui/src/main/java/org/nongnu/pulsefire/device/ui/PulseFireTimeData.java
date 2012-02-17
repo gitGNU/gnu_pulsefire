@@ -48,24 +48,23 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
 public class PulseFireTimeData implements DeviceConnectListener {
 
 	private Logger logger = null;
-	private Map<TimeDataKey,Queue<TimeData>> timeDataQueueMap = null;
+	private Map<CommandName,TimeDataKey> timeDataQueueMap = null;
 	
 	public PulseFireTimeData() {
 		logger = Logger.getLogger(PulseFireTimeData.class.getName());
-		timeDataQueueMap = Collections.synchronizedMap(new HashMap<TimeDataKey,Queue<TimeData>>(20));
+		timeDataQueueMap = Collections.synchronizedMap(new HashMap<CommandName,TimeDataKey>(20));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(new EventTimeTrigger("refreshTimeData",new DataCommandAutoAdd(),1000));
 	}
 	
 	public TimeDataKey getKeyFromName(CommandName name) {
-		for (TimeDataKey k:timeDataQueueMap.keySet()) {
-			if (k.name.equals(name)) {
-				return k;
-			}
+		TimeDataKey result = timeDataQueueMap.get(name);
+		if (result!=null) {
+			return result;
 		}
 		TimeDataKey key = new TimeDataKey();
 		key.name=name;
-		timeDataQueueMap.put(key,new LinkedBlockingQueue<TimeData>());
+		timeDataQueueMap.put(name,key);
 		return key;
 	}
 	
@@ -85,20 +84,15 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	
 	public List<CommandName> getTimeDataKeys() {
 		List<CommandName>  result = new ArrayList<CommandName>(10);
-		for (TimeDataKey k:timeDataQueueMap.keySet()) {
-			result.add(k.name);
-		}
+		result.addAll(timeDataQueueMap.keySet());
 		Collections.sort(result);
 		return result;
 	}
 	
 	public List<TimeData> getTimeData(CommandName name) {
 		TimeDataKey k = getKeyFromName(name);
-		Queue<TimeData> q = timeDataQueueMap.get(k);
 		List<TimeData> result = new ArrayList<TimeData>(300);
-		if (q!=null) {
-			result.addAll(q);
-		}
+		result.addAll(k.timeDataQueue);
 		return result;
 	}
 	
@@ -107,6 +101,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 		TimeData timeDataLast = null;
 		public List<TimeDataListener> timeDataListeners = new ArrayList<TimeDataListener>(4);
 		public Color dataColorIdx[] = new Color[32];
+		public Queue<TimeData> timeDataQueue = new LinkedBlockingQueue<TimeData>();
 	}
 	
 	public class TimeData {
@@ -140,7 +135,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	class DataCommandAutoAdd implements Runnable {
 		@Override
 		public void run() {
-			for (TimeDataKey key:timeDataQueueMap.keySet()) {
+			for (TimeDataKey key:timeDataQueueMap.values()) {
 				long now = System.currentTimeMillis();
 				if (key.timeDataLast!=null && (now-key.timeDataLast.receivedTime)>1000) {
 					TimeData timeData = new TimeData();
@@ -148,7 +143,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 					timeData.dataPoint=key.timeDataLast.dataPoint;
 					timeData.dataPointIdx=key.timeDataLast.dataPointIdx.clone();
 					key.timeDataLast = timeData;
-					Queue<TimeData> q = timeDataQueueMap.get(key);
+					Queue<TimeData> q = key.timeDataQueue;
 					q.add(timeData);
 					if (q.size()>(100)) {
 						q.poll();
@@ -166,26 +161,27 @@ public class PulseFireTimeData implements DeviceConnectListener {
 		public void commandReceived(Command command) {
 			long now = System.currentTimeMillis();
 			TimeDataKey k = getKeyFromName(command.getCommandName());
-			Queue<TimeData> q = timeDataQueueMap.get(k);
+			Queue<TimeData> q = k.timeDataQueue;
 			TimeData timeData = null;
 			if (q.isEmpty()) {
 				timeData = new TimeData();
 				timeData.receivedTime=now;
 				q.add(timeData);
 			}
-			if (k.timeDataLast!=null && (now-k.timeDataLast.receivedTime)>1000) {
-				timeData = k.timeDataLast; 
+			//if (k.timeDataLast!=null && (now-k.timeDataLast.receivedTime)<1000) {
+			//	return;
+				//timeData = k.timeDataLast; 
 				//timeData.receivedTime=now;
 				//timeData.dataPointIdx=k.timeDataLast.dataPointIdx.clone();
 				//q.add(timeData);
-			} else {
+			//} else {
 				timeData = new TimeData();
 				timeData.receivedTime=now;
 				if (k.timeDataLast!=null) {
 					timeData.dataPointIdx=k.timeDataLast.dataPointIdx.clone();
 				}
 				q.add(timeData);
-			}
+			//}
 			if (command.getCommandName().isIndexedA()) {
 				timeData.dataPointIdx[new Integer(command.getArgu1())]=new Integer(command.getArgu0());
 			} else {

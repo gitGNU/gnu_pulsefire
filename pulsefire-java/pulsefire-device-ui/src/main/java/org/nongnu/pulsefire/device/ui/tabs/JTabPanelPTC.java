@@ -29,10 +29,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.DeviceData;
+import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
+import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -40,10 +45,12 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPTC extends AbstractTabPanel {
+public class JTabPanelPTC extends AbstractTabPanel implements DeviceCommandListener {
 
 	private static final long serialVersionUID = -1646229038565969537L;
-
+	private JLabel statusLabelTimer0 = null;
+	private JLabel statusLabelTimer1 = null;
+	
 	public JTabPanelPTC() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
@@ -54,6 +61,12 @@ public class JTabPanelPTC extends AbstractTabPanel {
 		wrap.add(createTimePanel1());
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
 		add(wrap);
+		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
+		deviceManager.addDeviceCommandListener(CommandName.info_data, this);
+		//deviceManager.addDeviceCommandListener(CommandName.ptc_0cnt, this);
+		//deviceManager.addDeviceCommandListener(CommandName.ptc_0map_idx, this);
+		//deviceManager.addDeviceCommandListener(CommandName.ptc_1cnt, this);
+		//deviceManager.addDeviceCommandListener(CommandName.ptc_1map_idx, this);
 	}
 	
 	private JPanel createTimeConfPanel0 () {
@@ -63,6 +76,8 @@ public class JTabPanelPTC extends AbstractTabPanel {
 		panel.add(new JCommandDial(CommandName.ptc_0run));
 		panel.add(new JLabel("Time Multi"));
 		panel.add(new JCommandDial(CommandName.ptc_0mul));
+		statusLabelTimer0 = new JLabel();
+		panel.add(statusLabelTimer0);
 		return panel;
 	}
 	
@@ -73,6 +88,8 @@ public class JTabPanelPTC extends AbstractTabPanel {
 		panel.add(new JCommandDial(CommandName.ptc_1run));
 		panel.add(new JLabel("Time Multi"));
 		panel.add(new JCommandDial(CommandName.ptc_1mul));
+		statusLabelTimer1 = new JLabel();
+		panel.add(statusLabelTimer1);
 		return panel;
 	}
 	
@@ -91,5 +108,21 @@ public class JTabPanelPTC extends AbstractTabPanel {
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();
+	}
+	
+	@Override
+	public void commandReceived(Command command) {
+		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
+		StringBuilder buf = new StringBuilder(100);
+		buf.append(CommandName.ptc_0cnt.name());
+		buf.append(": ");
+		buf.append(deviceData.getDeviceParameter(CommandName.ptc_0cnt).getArgu0());
+		statusLabelTimer0.setText(buf.toString());
+		
+		buf = new StringBuilder(100);
+		buf.append(CommandName.ptc_1cnt.name());
+		buf.append(": ");
+		buf.append(deviceData.getDeviceParameter(CommandName.ptc_1cnt).getArgu0());
+		statusLabelTimer1.setText(buf.toString());
 	}
 }

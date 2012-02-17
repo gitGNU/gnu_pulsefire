@@ -88,7 +88,7 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 		if (command.getCommandName().equals(CommandName.adc_value)) {
 			StringBuilder buf = new StringBuilder(100);
 			int crIdx = 0;
-			for (int i=CommandName.adc_value.getMaxIndexA();i>0;i--) {
+			for (int i=CommandName.adc_value.getMaxIndexA();i>=0;i--) {
 				Command cmd = deviceData.getDeviceParameterIndexed(command, i);
 				if (cmd==null) {
 					continue;

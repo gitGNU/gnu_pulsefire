@@ -77,9 +77,13 @@ typedef struct {
 	volatile uint16_t      sys_struct_size;        // Store this stuct size so reset_conf if changed.
 #ifdef SF_ENABLE_ADC
 	volatile uint16_t      adc_jitter;                      // Minmal adc value change until variable update
+	volatile uint16_t      adc_enable;                      // Per input enable bit field.
 	volatile uint16_t      adc_map[ADC_NUM_MAX][QMAP_SIZE]; // Map analog inputs to variable
 #endif
 #ifdef SF_ENABLE_DIC
+	volatile uint16_t      dic_enable;                      // Per input enable bit field.
+	volatile uint16_t      dic_inv;                         // Per input invert bit field.
+	volatile uint16_t      dic_sync;                        // Per input sync bit field if true then mapping if run on change event else trigger to zero.
 	volatile uint16_t      dic_map[DIC_NUM_MAX][QMAP_SIZE];  // Map digital input channel to variable
 #endif
 
@@ -344,7 +348,7 @@ extern pf_data_struct       pf_data;
 extern pf_prog_struct       pf_prog;
 extern pf_conf_struct       pf_conf;
 
-// Dynamicly calculate PF_VARS size bases on SF_ENABLE_* flags.
+// Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
@@ -368,12 +372,12 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_PPM_SIZE  0
 #endif
 #ifdef SF_ENABLE_ADC
-	#define PF_VARS_ADC_SIZE  7
+	#define PF_VARS_ADC_SIZE  8
 #else
 	#define PF_VARS_ADC_SIZE  0
 #endif
 #ifdef SF_ENABLE_DIC
-	#define PF_VARS_DIC_SIZE  3
+	#define PF_VARS_DIC_SIZE  6
 #else
 	#define PF_VARS_DIC_SIZE  0
 #endif
