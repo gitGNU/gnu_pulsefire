@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-build</artifactId>
-  <version>1.0.0-Beta1</version>
   <name>pulsefire-build</name>
   <description>pulsefire-build is parent for all different build assamblies.</description>
   <packaging>pom</packaging>
