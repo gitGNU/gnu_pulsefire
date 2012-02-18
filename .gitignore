@@ -45,7 +45,6 @@ pom.xml.versionsBackup
 
 # Ignore C/java/images binary files
 *.o
-*.hex
 *.dat
 *.bmp
 *.gif
