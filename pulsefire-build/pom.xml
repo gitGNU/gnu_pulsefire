@@ -48,9 +48,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </pluginManagement>
   </build>
   <modules>
-  	<module>pulsefire-build-ui-webstart</module>
-  	<module>pulsefire-build-ui-launch4j</module>
-  	<module>pulsefire-build-ui-dist</module>
-  	<module>pulsefire-build-project-src</module>
+    <module>pulsefire-build-ui-launch4j</module>
+    <module>pulsefire-build-ui-dist</module>
+    <module>pulsefire-build-project-src</module>
   </modules>
 </project>
