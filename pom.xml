@@ -421,10 +421,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <!-- rmed assembly:assembly javadoc:javadoc  -->
-          <goals>clean install</goals>
+          <goals>clean install -P notest</goals>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
+  <profiles>
+    <profile>
+      <id>notest</id>
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+    </profile> 
+  </profiles>
 </project>
