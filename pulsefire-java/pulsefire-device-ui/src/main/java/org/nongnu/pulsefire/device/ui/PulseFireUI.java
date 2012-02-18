@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Properties;
@@ -68,6 +69,7 @@ public class PulseFireUI extends SingleFrameApplication {
 	private PulseFireTimeData timeData = null;
 	private EventTimeManager eventTimeManager = null;
 	private PulseFireDataLogManager dataLogManager = null;
+	private PulseFireUIBuildInfo buildInfo = null;
 	private boolean fullScreen = false;
 	private Properties settings = null;
 	private long startTimeTotal = System.currentTimeMillis();
@@ -157,6 +159,34 @@ public class PulseFireUI extends SingleFrameApplication {
 		}
 	}
 	
+	private void setupBuildInfo() {
+		if (buildInfo!=null) {
+			return;
+		}
+		try {
+			Class<?> infoClass = Class.forName(PulseFireUIBuildInfo.class.getPackage().getName()+"."+PulseFireUIBuildInfo.class.getSimpleName()+"Impl");
+			buildInfo = (PulseFireUIBuildInfo)infoClass.newInstance();
+			return;
+		} catch (Exception e) {
+			logger.warning("Could not load build info impl fallback to local one.");
+		}
+		buildInfo = new PulseFireUIBuildInfo() {
+			@Override
+			public String getVersion() {
+				return "0.0.0-NoInfo2";
+			}
+
+			@Override
+			public String getBuildDate() {
+				return new Date().toString();
+			}
+			
+		};
+	}
+	
+	/**
+	 * Config logging and setup logger object.
+	 */
 	private void setupLogging() {
 		File logConfig = new File("logfile.properties");
 		if (logConfig.exists()) {
@@ -184,15 +214,15 @@ public class PulseFireUI extends SingleFrameApplication {
 				h.setFormatter(new PatternLogFormatter());
 			}
 		}
-		
+		logger = Logger.getLogger(PulseFireUI.class.getName());
 	}
 	
 	protected void initialize(String[] args) {
 		super.initialize(args);
 		long startTime = System.currentTimeMillis();
-		setupLogging(); // init logging with config
-		logger = Logger.getLogger(PulseFireUI.class.getName());
-		logger.info("Starting PulseFire-UI version: "+PulseFireUIVersion.VERSION);
+		setupLogging();   // init logging with config
+		setupBuildInfo(); // Get build version info
+		logger.info("Starting PulseFire-UI version: "+buildInfo.getVersion()+" build: "+buildInfo.getBuildDate());
 
 		boolean jniCopy = false;
 		boolean jniCopyOs = false;
@@ -243,7 +273,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		FrameView mainView = getMainView();
 		mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
 		mainView.setComponent(new JMainPanel());
-		mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+PulseFireUIVersion.VERSION);
+		mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+buildInfo.getVersion());
 		// //new JFireGlassPane(mainView.getFrame());
 			
 		if (fullScreen) {
