@@ -617,7 +617,7 @@ ISR(INT2_vect) {
 		return;
 	}
 	if (pf_conf.avr_pin19_map == PIN19_FIRE_IN) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ZERO);
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
 	}
 }
@@ -637,7 +637,7 @@ ISR(INT3_vect) {
 		return;
 	}
 	if (pf_conf.avr_pin18_map == PIN18_FIRE_IN) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ZERO);
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
 	}
 }

@@ -34,7 +34,7 @@ public enum PulseFireUISettingKeys {
 	AUTO_CONNECT("false"),
 	DEVICE_PORT(""),
 	LIMIT_CHANNELS("true"),
-	CONSOLE_LINES("300"),
+	CONSOLE_LINES("500"),
 	SCOPE_ENABLE("false"),
 	AVRDUDE_CMD(""),
 	AVRDUDE_CONFIG(""),

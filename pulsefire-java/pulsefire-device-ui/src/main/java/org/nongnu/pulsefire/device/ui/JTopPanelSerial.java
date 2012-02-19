@@ -76,7 +76,13 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		serialPanel.add(JComponentFactory.createJLabel(this, "connect"));
 		connectButtton = new JButton("Connect");
 		connectButtton.addActionListener(this);
-		connectButtton.requestFocusInWindow();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				connectButtton.requestFocusInWindow();
+			}
+		});
+		
 		serialPanel.add(connectButtton);
 		SpringLayoutGrid.makeCompactGrid(serialPanel,2,2);
 		

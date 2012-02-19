@@ -207,8 +207,6 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		
 		panel.add(JComponentFactory.createJLabel("Console lines"));
 		JComboBox consoleLines = new JComboBox();
-		consoleLines.addItem("100");
-		consoleLines.addItem("200");
 		consoleLines.addItem("300");
 		consoleLines.addItem("500");
 		consoleLines.addItem("1000");

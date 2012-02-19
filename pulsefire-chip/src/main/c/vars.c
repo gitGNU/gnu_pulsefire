@@ -705,6 +705,9 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 #endif
 #ifdef SF_ENABLE_PWM
+	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseFire && value > ZERO && pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
+		pf_data.pwm_state = PWM_STATE_RUN;
+	}
 	if ( varName == (CHIP_PTR_TYPE)&pmDataPWMReqFreq) {
 		Freq_requestTrainFreq(value,QMAP_VAR_IDX_ALL);
 	}

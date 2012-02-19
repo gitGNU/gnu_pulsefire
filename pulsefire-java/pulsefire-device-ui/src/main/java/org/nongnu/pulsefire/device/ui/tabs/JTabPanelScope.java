@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -51,7 +51,6 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -59,19 +58,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
 import javax.swing.ToolTipManager;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JFireDial;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
-import org.nongnu.pulsefire.device.ui.components.JFlashDialog.BuildOption;
-import org.nongnu.pulsefire.device.ui.components.JFlashDialog.DeviceImagesTableModel;
 
 /**
  * JTabPanelScope
@@ -81,6 +76,7 @@ import org.nongnu.pulsefire.device.ui.components.JFlashDialog.DeviceImagesTableM
 public class JTabPanelScope extends AbstractTabPanel implements ActionListener,DialListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
+	private Logger logger = null;
 	private JScopePanel scopePanel = null;
 	private JButton startButton = null;
 	private JButton channelsButton = null;
@@ -90,6 +86,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 	private JFireDial timeDial = null;
 	
 	public JTabPanelScope() {
+		logger = Logger.getLogger(JTabPanelScope.class.getName());
 		captureManager = new CaptureManager();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
@@ -188,6 +185,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 			thread = new Thread(this);
 			thread.setName("Capture");
 			thread.start();
+			logger.info("Starting capture thread.");
 		}
 
 		public boolean isRunning() {
@@ -195,6 +193,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 		}
 		
 		public void stop() {
+			logger.info("Stopping capture thread.");
 			thread = null;
 		}
 		
@@ -242,7 +241,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 				if((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) {
 					break;
 				}
-				System.out.println("Readed bytes: "+numBytesRead);
+				//System.out.println("Readed bytes: "+numBytesRead);
 				out.write(data, 0, numBytesRead);
 				
 				
@@ -250,9 +249,9 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 				ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
 
 				audioInputStream = new AudioInputStream(bais, format, audioBytes.length / frameSizeInBytes);
-				long milliseconds = (long)((audioInputStream.getFrameLength() * 1000) / format.getFrameRate());
-				double duration = milliseconds / 1000.0;
-				System.out.println("time: "+duration);
+				//long milliseconds = (long)((audioInputStream.getFrameLength() * 1000) / format.getFrameRate());
+				//double duration = milliseconds / 1000.0;
+				//System.out.println("time: "+duration);
 
 				try {
 					audioInputStream.reset();
@@ -370,7 +369,7 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 			double y_last0 = 0;
 			double y_last1 = 0;
 			int numChannels = format.getChannels();
-			System.out.println("frames_per_pixel: "+frames_per_pixel);
+			//System.out.println("frames_per_pixel: "+frames_per_pixel);
 			for (double x = 0; x < w && audioData != null; x++) {
 				if (numChannels==1) {
 					int idx = (int) (frames_per_pixel * numChannels * x);

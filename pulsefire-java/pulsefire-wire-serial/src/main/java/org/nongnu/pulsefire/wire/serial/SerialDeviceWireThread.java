@@ -211,10 +211,14 @@ public class SerialDeviceWireThread extends Thread {
 		if (scannedInput.isEmpty()) {
 			return;
 		}
+		if (scannedInput.contains("=")==false) {
+			return; // all command except help output data have = char in it.
+		}
 		// fix for auto-echo fast connect to chip
 		if (scannedInput.startsWith(CommandName.info_chip.name()+CommandName.chip_version)) {
 			scannedInput=scannedInput.substring(CommandName.info_chip.name().length(),scannedInput.length());
 		}
+		
 		int t = 0;
 		if (scannedInput.startsWith("max.")) {
 			scannedInput = scannedInput.substring(4);

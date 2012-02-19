@@ -19,6 +19,7 @@ Version 1.0-Beta1:
 - Fixed main loop speed bug was in Input_loopLcd().
 - Removed SF_ENABLE_FRQ flag info_freq is always rest is moved to pwm flag.
 - Changed req_pwm_freq from 3 to 2 parameters removed duty uses always pwm_duty now.
+- Fixed internal event pulse_fire trigger.
 
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.

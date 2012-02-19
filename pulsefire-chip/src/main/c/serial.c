@@ -412,7 +412,6 @@ void cmd_execute(char* cmd, char** args) {
 
 #ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseFire)) == ZERO) {
-
 		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
 			pf_data.pwm_state = PWM_STATE_RUN;
 		}

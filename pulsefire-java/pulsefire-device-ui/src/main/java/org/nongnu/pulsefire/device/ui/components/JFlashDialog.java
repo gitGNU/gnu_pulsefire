@@ -510,7 +510,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			dataFull = new ArrayList<BuildOption>(100);
 			try {
 				dataFull.addAll(readBuildOptionsResource("firmware/makefile"));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				logger.warning("Could not load resource makefile.");
 			}
 			refilterData();

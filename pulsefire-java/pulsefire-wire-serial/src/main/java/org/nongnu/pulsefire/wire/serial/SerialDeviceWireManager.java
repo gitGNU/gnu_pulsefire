@@ -110,8 +110,8 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			
 			// Let arduino boot max 10 secs for promt. (note sometimes we do not get prompt)
 			connectPhase = "Arduino booting";connectProgress = 5;
-			for (int i=0;i<100;i++) {
-				Thread.sleep(100);
+			for (int i=0;i<10;i++) {
+				Thread.sleep(1000);
 				if (serialThread==null) {
 					return false;
 				}

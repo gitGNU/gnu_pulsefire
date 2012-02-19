@@ -36,6 +36,7 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 
 	private volatile boolean run = false;
+	private volatile boolean runOnce = true;
 	
 	public PulseFireDataPuller() {
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
@@ -47,17 +48,23 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
+			if (runOnce) {
+				runOnce = false; // request one time extra info_conf so if some cmds where jammed we get them here.
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf));
+			}
 		}
 	}
 
 	@Override
 	public void deviceConnect() {
 		run = true;
+		runOnce = true;
 	}
 
 	@Override
 	public void deviceDisconnect() {
 		run = false;
+		runOnce = true;
 	}
 
 }

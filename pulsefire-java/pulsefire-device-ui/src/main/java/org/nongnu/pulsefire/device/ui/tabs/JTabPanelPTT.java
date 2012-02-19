@@ -24,10 +24,7 @@
 package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -38,6 +35,7 @@ import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -105,21 +103,11 @@ public class JTabPanelPTT extends AbstractTabPanel implements DeviceCommandListe
 	private JPanel createTriggerTestPanel() {
 		JPanel header = JComponentFactory.createJFirePanel("Trigger Tests");
 		JPanel wrap = new JPanel();
-		wrap.add(new JLabel("Test fire: "));
-		
-		JButton trig0 = new JButton("Trigger0");
-		trig0.addActionListener(new TriggerTest(CommandName.req_ptt_fire,0));
-		wrap.add(trig0);
-		JButton trig1 = new JButton("Trigger1");
-		trig1.addActionListener(new TriggerTest(CommandName.req_ptt_fire,1));
-		wrap.add(trig1);
-		JButton trig2 = new JButton("Trigger2");
-		trig2.addActionListener(new TriggerTest(CommandName.req_ptt_fire,2));
-		wrap.add(trig2);
-		JButton trig3 = new JButton("Trigger3");
-		trig3.addActionListener(new TriggerTest(CommandName.req_ptt_fire,3));
-		wrap.add(trig3);
-		
+		wrap.add(new JLabel("Fire: "));
+		wrap.add(new JCommandButton("Trigger0",CommandName.req_ptt_fire,0));
+		wrap.add(new JCommandButton("Trigger1",CommandName.req_ptt_fire,1));
+		wrap.add(new JCommandButton("Trigger2",CommandName.req_ptt_fire,2));
+		wrap.add(new JCommandButton("Trigger3",CommandName.req_ptt_fire,3));		
 		header.add(wrap);
 		return header;
 	}
@@ -129,21 +117,6 @@ public class JTabPanelPTT extends AbstractTabPanel implements DeviceCommandListe
 		return this.getClass();
 	}
 
-	class TriggerTest implements ActionListener {
-		CommandName cmd = null;
-		int index = 0;
-		public TriggerTest(CommandName cmd,int index) {
-			this.cmd=cmd;
-			this.index=index;
-		}
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			Command command = new Command(cmd);
-			command.setArgu0(""+index);
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(command);
-		}
-	}
-	
 	@Override
 	public void commandReceived(Command command) {
 		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();

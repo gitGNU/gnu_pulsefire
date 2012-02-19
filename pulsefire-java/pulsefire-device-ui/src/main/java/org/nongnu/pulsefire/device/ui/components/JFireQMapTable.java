@@ -259,6 +259,9 @@ public class JFireQMapTable extends JPanel {
 				boolean isSelected, int rowIndex, int colIndex) {
 			this.rowIndex=rowIndex;
 			this.colIndex=colIndex;
+			if (value==null) {
+				return component;
+			}
 			if (value.toString().isEmpty()) {
 				return component;
 			}
@@ -335,8 +338,15 @@ public class JFireQMapTable extends JPanel {
 				component.setText("");
 				return component;
 			}
+			Integer valueInt = null;
+			try {
+				valueInt = new Integer((String)value);
+			} catch (NumberFormatException nfe) {
+				component.setText("NONE");
+				return component;
+			}
 			for (CommandName var:CommandName.values()) {
-				if (var.isMappable() && new Integer((String)value).equals(var.getMapIndex())) {
+				if (var.isMappable() && valueInt.equals(var.getMapIndex())) {
 					component.setText(var.name());
 					return component;
 				}
@@ -358,14 +368,19 @@ public class JFireQMapTable extends JPanel {
 		}
 		
 		public Component getTableCellEditorComponent(JTable table, Object value,boolean isSelected, int rowIndex, int vColIndex) {
-						
+			Integer valueInt = null;
+			try {
+				valueInt = new Integer(value.toString());
+			} catch (NumberFormatException nfe) {
+				return component;
+			}
 			for (int i=0;i<component.getItemCount();i++) {
 				String varName = (String)component.getItemAt(i);
 				if ("NONE".equals(varName)) {
 					continue;
 				}
 				CommandName var = CommandName.valueOf(varName);
-				if (var.isMappable() && new Integer(var.getMapIndex()).equals(new Integer(value.toString()))) {
+				if (var.isMappable() && valueInt.equals(var.getMapIndex())) {
 					component.setSelectedIndex(i);
 				}
 			}
