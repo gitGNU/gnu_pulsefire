@@ -67,7 +67,7 @@ public class DeviceCommandRequest {
 			return; // multi line info cmds ends with done
 		}
 		if (request.getArgu0().equals(response.getArgu0())==false) {
-			throw new IllegalStateException("Response argument is different excepted: "+request.getArgu0()+" raw:"+request.getLineRaw()+" got: "+response.getLineRaw());
+			throw new IllegalStateException("Response argument is different excepted: '"+request.getArgu0()+"' raw: '"+request.getLineRaw()+"' got: '"+response.getLineRaw()+"'");
 		}
 	}
 	

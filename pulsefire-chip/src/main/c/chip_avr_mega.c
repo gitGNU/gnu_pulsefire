@@ -605,10 +605,11 @@ uint16_t Chip_in_dic(void) {
 ISR(INT2_vect) {
 	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig != PULSE_TRIG_EXT) {
-			return;
+		if (pf_conf.pulse_trig == PULSE_TRIG_EXT) {
+			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) {
+			pf_data.pwm_state = PWM_STATE_RUN;
 		}
-		pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
 #endif
 		return;
 	}
@@ -625,10 +626,11 @@ ISR(INT2_vect) {
 ISR(INT3_vect) {
 	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig != PULSE_TRIG_EXT) {
-			return;
+		if (pf_conf.pulse_trig == PULSE_TRIG_EXT) {
+			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) { 
+			pf_data.pwm_state = PWM_STATE_RUN;
 		}
-		pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
 #endif
 		return;
 	}

@@ -42,18 +42,22 @@ uint8_t convert_clock(uint8_t clockScaleMode) {
 uint32_t calc_pwm_speed(uint8_t idx) {
 	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
 	uint8_t clockScale = convert_clock(clockScaleMode);
-	uint32_t freqTrain = F_CPU / clockScale / (pf_conf.pwm_on_cnt_a[idx]+pf_conf.pwm_off_cnt_a[idx]);
+	uint32_t pulseOn   = pf_conf.pwm_on_cnt_a[idx];
+	uint32_t pulseOff  = pf_conf.pwm_off_cnt_a[idx]; // convert to 32bit to prevent overflow
+	uint32_t freqCycle = 2*(pulseOn+pulseOff);
+	uint32_t freqTrain = ((F_CPU / clockScale) * FREQ_MUL) / freqCycle;
 	return freqTrain;
 }
 uint32_t calc_pwm_loop(uint8_t idx) {
-	return (calc_pwm_speed(idx) * FREQ_MUL) / pf_conf.pwm_loop;
+	return calc_pwm_speed(idx) / pf_conf.pwm_loop;
 }
 uint32_t calc_pwm_freq(uint8_t idx) {
 	uint8_t outs = pf_conf.pulse_steps;
 	if (pf_conf.pulse_mode == PULSE_MODE_FLASH) {
 		outs = ONE;
 	}
-	return calc_pwm_loop(idx) / outs;
+	uint32_t cycleHz = calc_pwm_loop(idx) / outs;
+	return (cycleHz * 2); // goto hz.
 }
 
 #define CLK_SCALE_SIZE (sizeof CLK_SCALE / sizeof CLK_SCALE[0])
@@ -61,7 +65,7 @@ static int CLK_SCALE[] = {1,8,64,256,1024 };
 
 
 void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
-	// note freq is in 10 so 1123 = 112.3 Hz !!
+	// note freq is in 100 so 1123 = 11.23 Hz !!
 	freq *= 2; // double to hz.
 	//freq *= pf_conf.pulse_steps; // multiply to one output.
 
@@ -73,16 +77,17 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 	// use pwm_loop to divede by 10 and make bigger so _delta works nice.
 	uint16_t pwmLoop = pf_conf.pulse_steps; // * FREQ_MUL
 	// freq to low for prescale+tcnt so must use higher train_loop
-	if ( F_CPU/1024/freq > 0xFF00)       { pwmLoop *= 2;
-		if ( F_CPU/1024/freq/2 > 0xFF00)   { pwmLoop *= 2;
-			if ( F_CPU/1024/freq/4 > 0xFF00) { pwmLoop *= 2; }
+	uint32_t preFreq = (F_CPU*10)/1024/freq; // 1024 is max clock diveder
+	if ( preFreq > 0xFF00)       { pwmLoop *= 2;
+		if ( preFreq/2 > 0xFF00)   { pwmLoop *= 2;
+			if ( preFreq/4 > 0xFF00) { pwmLoop *= 2; }
 		}
 	}
 	Vars_setValue(pwmLoopIdx,0,0,pwmLoop);
 
 	// Search for best clock divider
 	for (uint8_t i = ZERO; i < CLK_SCALE_SIZE; i++) {
-		uint32_t tcntDivCalc = F_CPU/CLK_SCALE[i]/freq;
+		uint32_t tcntDivCalc = (F_CPU*10)/CLK_SCALE[i]/freq;
 		if (tcntDivCalc < 0xFF00) {
 			Vars_setValue(pwmClockIdx,0,0,i+ONE); // update pwm_clock
 			break;
@@ -90,7 +95,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 	}
 
 	// Calc compa and set for index or set all
-	uint16_t compaValue = F_CPU/CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
+	uint16_t compaValue = (F_CPU*10)/CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
 	if (idx == QMAP_VAR_IDX_ALL) {
 		for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
 			Vars_setValue(pwmOnCntIdx,i,0,compaValue);

@@ -59,6 +59,7 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 		this.addActionListener(this);
 		JComponentEnableStateListener.attach(this,commandName);
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
+		setToolTipText(commandName.name());
 	}
 	
 	@Override

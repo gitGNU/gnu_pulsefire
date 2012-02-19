@@ -53,6 +53,7 @@ import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JFireBorderChild;
 import org.nongnu.pulsefire.device.ui.components.JFireDial;
+import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -367,7 +368,16 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		freqDialPanel.setLayout(new SpringLayout());
 		splitPanel.add(freqDialPanel);
 		final JFireDial freqReqDial = new JFireDial("freq",1,65535,32768);
+		freqReqDial.setDotIndex(2);
 		JComponentEnableStateListener.attach(freqReqDial, CommandName.req_pwm_freq);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pwm_req_freq, new DeviceCommandListener() {
+			@Override
+			public void commandReceived(Command command) {
+				if (command.getArgu0()!=null && command.getArgu0().isEmpty()==false) {
+					freqReqDial.setValue(new Integer(command.getArgu0()));
+				}
+			}
+		});
 		freqDialPanel.add(JComponentFactory.createJPanelJWrap(freqReqDial));
 		freqDialPanel.add(new JCommandDial(CommandName.pwm_duty));
 		SpringLayoutGrid.makeCompactGrid(freqDialPanel,1,2);

@@ -56,11 +56,12 @@ public class JFireDial extends JComponent  {
 	private boolean entered = false;
 	private String name = null;
 	private Popup popupContainer = null;
-	private int value;
-	private int valueOld;
-	private int valueMin;
-	private int valueMax;
-	private int radiusSize;
+	private int value = 0;
+	private int valueOld = 0;
+	private int valueMin = 0;
+	private int valueMax = 0;
+	private int radiusSize = 0;
+	private int dotIndex = -1;
 	
 	public JFireDial(String name) {
 		this(name,0,100,0);
@@ -222,7 +223,20 @@ public class JFireDial extends JComponent  {
 			g2.setColor(UIManager.getColor("nimbusOrange"));
 			g2.drawString(name, 4, h-4);
 		} else {
-			g2.drawString(""+getValue(), 4, h-4);
+			String valueStr = ""+getValue();
+			if (dotIndex>0) {
+				if (valueStr.length()>dotIndex) {
+					int idx = valueStr.length()-dotIndex;
+					String dotValue = valueStr.substring(idx,valueStr.length());
+					if (dotValue.length()==1) {
+						dotValue = "0"+dotValue;
+					}
+					valueStr = valueStr.substring(0,idx)+"."+dotValue;
+				} else {
+					valueStr = "0."+valueStr;
+				}
+			}
+			g2.drawString(valueStr, 4, h-4);
 		}
 
 		//double deg = th*(180/Math.PI);
@@ -292,5 +306,19 @@ public class JFireDial extends JComponent  {
 	}
 	public interface DialListener extends EventListener {
 		void dialAdjusted(DialEvent e);
+	}
+	
+	/**
+	 * @return the dotIndex
+	 */
+	public int getDotIndex() {
+		return dotIndex;
+	}
+
+	/**
+	 * @param dotIndex the dotIndex to set
+	 */
+	public void setDotIndex(int dotIndex) {
+		this.dotIndex = dotIndex;
 	}
 }

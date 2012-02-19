@@ -414,6 +414,8 @@ void cmd_execute(char* cmd, char** args) {
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseFire)) == ZERO) {
 		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
 			pf_data.pwm_state = PWM_STATE_RUN;
+		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) {
+			pf_data.pwm_state = PWM_STATE_RUN;
 		}
 		Serial_println_done_P(pmCmdInfoProg);
 #endif
@@ -430,6 +432,7 @@ void cmd_execute(char* cmd, char** args) {
 		uint16_t freqFull  = atou16(args[0]);
 		uint16_t idx = 0xFF;
 		if (args[1] != NULL) { idx  = atou16(args[1]); }
+		pf_data.pwm_req_freq = freqFull;
 		Freq_requestTrainFreq(freqFull,idx);
 		Serial_printCharP(pmCmdReqPWMFreq);
 		Serial_printCharP(pmSetSpaced);

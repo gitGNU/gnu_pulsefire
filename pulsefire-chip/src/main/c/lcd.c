@@ -380,6 +380,9 @@ void lcd_loop(void) {
 	uint32_t freqLow  = freq%FREQ_MUL;
 	lcd_print((uint16_t)freqHigh);
 	lcd_printDot();
+	if (freqLow<10) {
+		lcd_print(ZERO);
+	}
 	lcd_print((uint16_t)freqLow);
 	lcd_printSpace();
 	lcd_printSpace(); // cleans if freq goes fast from big number to small number

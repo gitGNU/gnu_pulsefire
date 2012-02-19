@@ -90,7 +90,8 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_trig.listValues = new String[] {
 				"INT_LOOP",
 				"INT_FIRE",
-				"EXT_PIN2"
+				"EXT_PIN",
+				"EXT+FIRE"
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
@@ -273,6 +274,11 @@ public class CommandNameVersionFactory {
 				cn.chipFlagDependency=null; // remove PWM flag dep in 0.9 and older because it was not there
 			}
 		}
+		CommandName.pulse_trig.listValues = new String[] {
+				"INT_LOOP",
+				"INT_FIRE",
+				"EXT_PIN"
+			};
 		CommandName.pwm_duty.disabled=true;
 		CommandName.req_pwm_freq.disabled=true; // req_pwm_freq works different in 0.9
 		CommandName.req_ptt_fire.disabled=true;

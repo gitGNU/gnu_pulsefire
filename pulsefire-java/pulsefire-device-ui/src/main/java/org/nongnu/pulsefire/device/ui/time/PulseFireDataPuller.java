@@ -37,6 +37,7 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 
 	private volatile boolean run = false;
 	private volatile boolean runOnce = true;
+	private volatile boolean runPause = false;
 	
 	public PulseFireDataPuller() {
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
@@ -44,7 +45,7 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 	
 	@Override
 	public void run() {
-		if (run) {
+		if (run & runPause==false) {
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
@@ -67,4 +68,17 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 		runOnce = true;
 	}
 
+	/**
+	 * @return the runPause
+	 */
+	public boolean isRunPause() {
+		return runPause;
+	}
+
+	/**
+	 * @param runPause the runPause to set
+	 */
+	public void setRunPause(boolean runPause) {
+		this.runPause = runPause;
+	}
 }

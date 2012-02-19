@@ -62,7 +62,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 		6,
 	#endif
 	                                                                                                                      PFVB_NONE,                      DEFAULT_PULSE_STEPS},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_trig,          (CHIP_PTR_TYPE)&pmConfPulseTrig,       PULSE_TRIG_EXT,      PFVB_NONE,                      PULSE_TRIG_LOOP},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_trig,          (CHIP_PTR_TYPE)&pmConfPulseTrig,       PULSE_TRIG_EXT_FIRE, PFVB_NONE,                      PULSE_TRIG_LOOP},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_dir,           (CHIP_PTR_TYPE)&pmConfPulseDir,        PULSE_DIR_LRRL,      PFVB_NONE,                      ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_bank,          (CHIP_PTR_TYPE)&pmConfPulseBank,       ALL_BANK_MAX,        PFVB_NONE,                      ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_inv,           (CHIP_PTR_TYPE)&pmConfPulseInv,        ONE,                 PFVB_NONE,                      ZERO},
@@ -705,8 +705,12 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 #endif
 #ifdef SF_ENABLE_PWM
-	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseFire && value > ZERO && pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
-		pf_data.pwm_state = PWM_STATE_RUN;
+	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseFire && value > ZERO && ( | ) {
+		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
+			pf_data.pwm_state = PWM_STATE_RUN;
+		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) { 
+			pf_data.pwm_state = PWM_STATE_RUN;
+		}
 	}
 	if ( varName == (CHIP_PTR_TYPE)&pmDataPWMReqFreq) {
 		Freq_requestTrainFreq(value,QMAP_VAR_IDX_ALL);

@@ -69,7 +69,6 @@ public class CommandWire {
 			}
 			idx = commandName.substring(index); // append idx as argu0
 			commandName = commandName.substring(0,index);
-			
 		}
 		Command result = null;
 		for (CommandName cmd:CommandName.values()) {
@@ -88,9 +87,9 @@ public class CommandWire {
 			throw new CommandWireException("Could not find command for: '"+commandName+"' in line: '"+lineRaw+"'");
 		}
 		
-		if (result.getCommandName().isIndexedB()) {
+		if (result.getCommandName().isIndexedB() && idx!=null) {
 			line = idx+" "+line;
-		} else if (result.getCommandName().isIndexedA()) {
+		} else if (result.getCommandName().isIndexedA() && idx!=null) {
 			line = line+" "+idx;
 		}
 		

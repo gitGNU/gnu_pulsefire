@@ -60,7 +60,7 @@ typedef uint8_t byte;
 #define QMAP_VAR_NONE            0xFFFF  // Mapping idx value of adc/dic to indicate no mapping
 #define QMAP_VAR_IDX_ALL           0xFF  // Used for selecting all values of var if var is indexed.
 #define CLOCK_VALUE_MAX             8    // max value for clock selection
-#define FREQ_MUL                    10   // freq is in 10 so 1112 = 111.2 Hz.
+#define FREQ_MUL                   100   // freq is in 100 so 11112 = 111.12 Hz.
 #define OUTPUT_MAX                  16   // Max support for 16 outputs.
 #define SERIAL_SPEED              115200 // Connect with this speed.
 #define CMD_BUFF_SIZE               40   // max command length
