@@ -44,8 +44,15 @@ public class JCommandButton extends JButton implements ActionListener {
 	private Command command = null;
 	
 	public JCommandButton(String name,CommandName commandName) {
+		this(name,commandName,null);
+	}
+	
+	public JCommandButton(String name,CommandName commandName,Integer index) {
 		super(name);
 		command = new Command(commandName);
+		if (index != null) {
+			command.setArgu0(index.toString());
+		}
 		addActionListener(this);
 		JComponentEnableStateListener.attach(this,commandName);
 	}

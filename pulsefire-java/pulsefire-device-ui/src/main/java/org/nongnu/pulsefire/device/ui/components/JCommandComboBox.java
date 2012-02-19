@@ -46,6 +46,7 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 	private static final long serialVersionUID = -8483163326183468077L;
 	private DeviceWireManager deviceManager = null;
 	private Command command = null;
+	volatile private boolean noEvent = false;
 	
 	public JCommandComboBox(CommandName commandName) {
 		this(commandName,commandName.getListValues());
@@ -71,7 +72,9 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 				} else {
 					command.setArgu0(new Integer(i).toString());
 				}
-				deviceManager.requestCommand(command);
+				if (noEvent==false) {
+					deviceManager.requestCommand(command);
+				}
 				return;
 			}
 		}
@@ -80,9 +83,14 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 	public void commandReceived(Command command) {
 		if (getItemCount()==1) {
 			// init
-			removeAllItems();
-			for (String i:command.getCommandName().getListValues()) {
-				addItem(i);
+			try {
+				noEvent = true;
+				removeAllItems();
+				for (String i:command.getCommandName().getListValues()) {
+					addItem(i);
+				}
+			} finally {
+				noEvent = false;
 			}
 		}
 		Integer idx = Integer.parseInt(command.getArgu0());
@@ -93,7 +101,12 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 			if (idx>=getItemCount()) {
 				throw new IllegalStateException("Idx: "+idx+" is larger then: "+getItemCount()+" of "+command.getCommandName().name());
 			}
-			setSelectedIndex(idx);
+			try {
+				noEvent = true;
+				setSelectedIndex(idx);
+			} finally {
+				noEvent = false;
+			}
 		}
 		
 	}
@@ -105,7 +118,12 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 
 	@Override
 	public void deviceDisconnect() {
-		removeAllItems();
-		addItem("    ");
+		try {
+			noEvent = true;
+			removeAllItems();
+			addItem("    ");
+		} finally {
+			noEvent = false;
+		}
 	}
 }

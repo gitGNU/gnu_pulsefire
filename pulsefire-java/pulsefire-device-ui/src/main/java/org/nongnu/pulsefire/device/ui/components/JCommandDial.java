@@ -47,6 +47,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 	private DeviceWireManager deviceManager = null;
 	private Command command = null;
 	private int idx = -1;
+	volatile private boolean noEvent = false;
 	
 	public JCommandDial(CommandName commandName) {
 		this(commandName,-1);
@@ -75,7 +76,9 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		if (idx!=-1) {
 			command.setArgu1(""+idx);
 		}
-		deviceManager.requestCommand(command);
+		if (noEvent==false) {
+			deviceManager.requestCommand(command);
+		}
 	}
 	
 	@Override
@@ -104,7 +107,12 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 				return; // this cmd is for some other channel
 			}
 		}
-		fireDial.setValue(valueNew);
+		try {
+			noEvent = true;
+			fireDial.setValue(valueNew);
+		} finally {
+			noEvent = false;
+		}
 	}
 
 	@Override

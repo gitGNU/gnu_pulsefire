@@ -47,6 +47,7 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 	private Command command = null;
 	private int bit = -1;
 	private int idx = -1;
+	volatile private boolean noEvent = false;
 
 	public JCommandCheckBox(CommandName commandName) {
 		this(commandName,-1,-1);
@@ -69,6 +70,9 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if (noEvent) {
+			return;
+		}
 		boolean selected = isSelected();
 		String argu0 = "0";
 		if (selected) {
@@ -118,12 +122,22 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 			if (selectedNew==selectedBox) {
 				return; // no change
 			}
-			setSelected(selectedNew);
+			try {
+				noEvent = true;
+				setSelected(selectedNew);
+			} finally {
+				noEvent = false;
+			}
 		} else {
 			if (idx == -1) {
 				int andBits = 1 << bit;
 				int data = new Integer(command.getArgu0());
-				setSelected((data & andBits)>0);
+				try {
+					noEvent = true;
+					setSelected((data & andBits)>0);
+				} finally {
+					noEvent = false;
+				}
 			} else {
 				if (command.getArgu1()==null) {
 					return;
@@ -137,7 +151,12 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 				}
 				int andBits = 1 << bit;
 				int data = new Integer(cmd.getArgu0());
-				setSelected((data & andBits)>0);
+				try {
+					noEvent = true;
+					setSelected((data & andBits)>0);
+				} finally {
+					noEvent = false;
+				}
 			}
 			
 		}
