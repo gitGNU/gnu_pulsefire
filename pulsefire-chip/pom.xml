@@ -3,7 +3,7 @@
   <parent>
     <artifactId>pulsefire-root</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta7</version>
+    <version>1.0.0-Beta8-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-chip</artifactId>
