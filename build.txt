@@ -36,7 +36,7 @@ make clean all;
 cd project-root/;
 mvn clean package;
 mvn -B -Dusername=<scm_username> clean install release:clean release:prepare release:perform;
-src/build/rel-up.sh <scm_username>
+src/build/gnu-up.sh <scm_username> <version>
 
 -- Make site --
 

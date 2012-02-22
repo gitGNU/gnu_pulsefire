@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <excludes>
         <exclude>**/*.log</exclude>
         <exclude>**/${project.build.directory}/**</exclude>
+        <exclude>**/pulsefire-chip/src/main/c/build/**</exclude>
       </excludes>
     </fileSet>
   </fileSets>
