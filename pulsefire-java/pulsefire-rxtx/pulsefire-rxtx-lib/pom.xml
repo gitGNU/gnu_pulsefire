@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <parent>
     <artifactId>pulsefire-rxtx</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
-    <version>1.0.0-Beta6-SNAPSHOT</version>
+    <version>1.0.0-Beta6</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>pulsefire-rxtx-lib</artifactId>
