@@ -121,7 +121,7 @@ void STV_loop(void) {
 #ifdef SF_ENABLE_STV
 uint8_t STV_is_variable_mapped(uint8_t idx,uint8_t idxA,uint8_t isMaxMap) {
 	uint8_t maxMap = ZERO;
-	if (isMaxMap==ZERO) {
+	if (isMaxMap) {
 		maxMap = STV_MAX_MAP_MAX;
 	} else {
 		maxMap = STV_MIN_MAP_MAX;

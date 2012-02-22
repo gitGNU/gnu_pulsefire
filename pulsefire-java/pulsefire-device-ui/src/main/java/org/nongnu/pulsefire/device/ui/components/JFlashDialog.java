@@ -129,8 +129,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
 		logger = Logger.getLogger(JFlashDialog.class.getName());
-		nativeFlashCmd = PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD);
-		nativeFlashConfig = PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG);
+		nativeFlashCmd = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD);
+		nativeFlashConfig = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG);
 		setTitle("Flash chip firmware");
 		setMinimumSize(new Dimension(640,480));
 		setPreferredSize(new Dimension(999,666));
@@ -147,6 +147,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		mainPanel.add(createPanelCenter(),BorderLayout.CENTER);
 		mainPanel.add(createPanelBottom(),BorderLayout.SOUTH);
 		getContentPane().add(mainPanel);
+		pack();
+		setLocationRelativeTo(aFrame);
 	}
 	
 	private JPanel createPanelTop() {
@@ -340,9 +342,9 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			if (burnName.getText().isEmpty()) {
 				return;
 			}
-
 			
 			String hexResource = "firmware/"+burnName.getText()+"/pulsefire.hex";
+			logger.info("Start chip flash of: "+hexResource);
 			byte[] flashData = null;
 			try {
 				flashData = new FlashHexReader().loadHex(hexResource);

@@ -40,6 +40,7 @@ import org.nongnu.pulsefire.device.ui.PulseFireTimeData;
 import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeData;
 import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeDataKey;
 import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeDataListener;
+import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -58,7 +59,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 	public JFireGraph(CommandName commandName) {
 		this.commandName=commandName;
 		this.timeDataStore=PulseFireUI.getInstance().getTimeData();
-		this.gridColor = UIManager.getColor("nimbusGreen");
+		this.gridColor = UIManager.getColor("nimbusGreen").darker();
 		setPreferredSize(new Dimension(440,220));
 		setMinimumSize(new Dimension(80,40));
 		setBorder(BorderFactory.createEmptyBorder());
@@ -75,14 +76,17 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 			idx = idx/2;
 		}
 		idx++; // skip 0
+		random=new Random();
 		int red=random.nextInt(idx*16);
 		if (red<33) {
 			red+=random.nextInt(133);
 		}
+		random=new Random();
 		int green=random.nextInt(idx*16);
 		if (green<33) {
 			green+=random.nextInt(166);
 		}
+		random=new Random();
 		int blue=random.nextInt(idx*16);
 		if (blue<33) {
 			blue+=random.nextInt(199);
@@ -156,7 +160,8 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		int j = 1;
 		
 		if (commandName.isIndexedA()==false) {
-			for (TimeData t:timeData) {
+			for (int tt=0;tt<timeData.size();tt++) {
+				TimeData t = timeData.get(tt);
 				g2.setPaint(Color.GREEN);
 				dataPoint = t.dataPoint;
 				int x = x0 + (int)(xScale * (j+1));  
@@ -209,7 +214,46 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		g2.drawString(commandName.name(), 50, 20);
 		if (commandName.isIndexedA()==false) {
 			g2.drawString("Value:", 7, 35);
-			g2.drawString(""+dataPoint, 50, 35);
+			
+			String valueStr = ""+dataPoint;
+			int dotIndex = 0;
+			if (CommandName.dev_amp==commandName) {
+				Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.dev_amp_dot);
+				if (cmd!=null && cmd.getArgu0()!=null && cmd.getArgu0().isEmpty()==false) {
+					dotIndex = new Integer(cmd.getArgu0());
+				}
+			}
+			if (CommandName.dev_volt==commandName) {
+				Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.dev_volt_dot);
+				if (cmd!=null && cmd.getArgu0()!=null && cmd.getArgu0().isEmpty()==false) {
+					dotIndex = new Integer(cmd.getArgu0());
+				}
+			}
+			if (CommandName.dev_temp==commandName) {
+				Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.dev_temp_dot);
+				if (cmd!=null && cmd.getArgu0()!=null && cmd.getArgu0().isEmpty()==false) {
+					dotIndex = new Integer(cmd.getArgu0());
+				}
+			}
+			if (dotIndex>0) {
+				int idx = valueStr.length()-dotIndex;
+				if (idx<0) {
+					idx = 0;
+				}
+				String dotValue = valueStr.substring(idx,valueStr.length());
+				if (dotValue.length()<dotIndex) {
+					int zeros = dotIndex-dotValue.length(); 
+					for (int i=0;i<zeros;i++) {
+						dotValue = "0"+dotValue;	
+					}
+				}
+				String numberValue = valueStr.substring(0,idx);
+				if (numberValue.isEmpty()) {
+					numberValue = "0";
+				}
+				valueStr = numberValue+"."+dotValue;
+			}
+			g2.drawString(valueStr, 50, 35);
 		}
 		g2.drawString("Min:", 7, 50);
 		g2.drawString(""+minRValue, 50, 50);

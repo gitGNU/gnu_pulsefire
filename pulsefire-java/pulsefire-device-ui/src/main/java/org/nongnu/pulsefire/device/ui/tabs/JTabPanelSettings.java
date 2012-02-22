@@ -27,11 +27,14 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
@@ -39,8 +42,13 @@ import javax.swing.SpringLayout;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingManager;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
 import org.nongnu.pulsefire.device.ui.components.JFlashDialog;
+import org.nongnu.pulsefire.wire.CommandName;
+import org.nongnu.pulsefire.wire.CommandVariableType;
 
 /**
  * JTabPanelSettings
@@ -56,145 +64,126 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
-		wrap.add(JComponentFactory.createJPanelJWrap(createSettingsUI()));
-		wrap.add(JComponentFactory.createJPanelJWrap(createSettingsLogFile()));
-		SpringLayoutGrid.makeCompactGrid(wrap,1,2);
+		
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new SpringLayout());
+		leftPanel.add(createSettingsLogFile(0));
+		leftPanel.add(createSettingsLogFile(1));
+		leftPanel.add(createSettingsLogFile(2));
+		SpringLayoutGrid.makeCompactGrid(leftPanel,3,1);
+		wrap.add(leftPanel);
+		
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		JPanel wrapRightPanel = new JPanel();
+		wrapRightPanel.setLayout(new SpringLayout());
+		wrapRightPanel.add(createFlashPanel());
+		wrapRightPanel.add(createSettingsUI());
+		SpringLayoutGrid.makeCompactGrid(wrapRightPanel,2,1);
+		rightPanel.add(wrapRightPanel);
+		wrap.add(rightPanel);
+		
+		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
 	}
 	
-	private JPanel createSettingsLogFile() {
-		JPanel panel = JComponentFactory.createJFirePanel("Logging");
+	private JPanel createSettingsLogFile(int loggerId) {
+		final String logId = "LOG"+loggerId+"_";
+		final PulseFireUISettingManager config = PulseFireUI.getInstance().getSettingsManager();
+		JPanel panel = JComponentFactory.createJFirePanel("Logger"+loggerId);
 		
 		panel.setLayout(new SpringLayout());
 		
-		panel.add(JComponentFactory.createJLabel("File append"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LOG_FILE_APPEND));
+		panel.add(JComponentFactory.createJLabel("Enable"));
+		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.valueOf(logId+"ENABLE")));
+		panel.add(new JLabel());
+
+		panel.add(JComponentFactory.createJLabel("Timestamp"));
+		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.valueOf(logId+"TIMESTAMP")));
 		panel.add(new JLabel());
 		
-		panel.add(JComponentFactory.createJLabel("cmd enable"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LOG_CMD_ENABLE));
+		panel.add(JComponentFactory.createJLabel("Filename"));
+		panel.add(JComponentFactory.createSettingsJTextField(PulseFireUISettingKeys.valueOf(logId+"FILENAME")));
 		panel.add(new JLabel());
 		
-		panel.add(JComponentFactory.createJLabel("cmd rx"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LOG_CMD_RX));
-		panel.add(new JLabel());
-		
-		panel.add(JComponentFactory.createJLabel("cmd tx"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LOG_CMD_TX));
-		panel.add(new JLabel());
-				
-		panel.add(JComponentFactory.createJLabel("cmd file"));
-		final JTextField cmdFile = new JTextField(35);
+		panel.add(JComponentFactory.createJLabel("Path"));
+		final JTextField cmdFile = new JTextField(25);
 		cmdFile.setEnabled(false);
-		cmdFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.LOG_CMD_FILE));
+		cmdFile.setText(config.getSettingString(PulseFireUISettingKeys.valueOf(logId+"PATH")));
 		panel.add(cmdFile);
-		JButton cmdButton = new JButton("file");
+		JButton cmdButton = new JButton("path");
 		cmdButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int returnVal = fc.showOpenDialog((JButton)e.getSource());
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					cmdFile.setText(file.getAbsolutePath());
-					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.LOG_CMD_FILE.name(), file.getAbsolutePath());
+					config.setSettingString(PulseFireUISettingKeys.valueOf(logId+"PATH"), file.getAbsolutePath());
 				}
 			}
 		});
 		panel.add(cmdButton);
 		
-		panel.add(JComponentFactory.createJLabel("pull enable"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LOG_PULL_ENABLE));
+		panel.add(JComponentFactory.createJLabel("Speed"));
+		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.valueOf(logId+"SPEED"),new String[] {"1000","2000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
 		panel.add(new JLabel());
 		
-		panel.add(JComponentFactory.createJLabel("pull file"));
-		final JTextField pullFile = new JTextField(35);
-		pullFile.setEnabled(false);
-		pullFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.LOG_PULL_FILE));
-		panel.add(pullFile);
-		JButton pullButton = new JButton("file");
+		panel.add(JComponentFactory.createJLabel("Fields"));
+		final JTextField logFields = new JTextField(25);
+		logFields.setEnabled(false);
+		List<CommandName> list = CommandName.decodeCommandList(config.getSettingString(PulseFireUISettingKeys.valueOf(logId+"FIELDS")));
+		logFields.setText("columns: "+list.size());
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.valueOf(logId+"FIELDS"),new PulseFireUISettingListener() {
+			@Override
+			public void settingUpdated(PulseFireUISettingKeys key, String value) {
+				List<CommandName> list = CommandName.decodeCommandList(value);
+				logFields.setText("columns: "+list.size());
+			}
+		});
+		panel.add(logFields);
+		JButton pullButton = new JButton("Fields");
 		pullButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog((JButton)e.getSource());
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					pullFile.setText(file.getAbsolutePath());
-					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.LOG_PULL_FILE.name(), file.getAbsolutePath());
-					PulseFireUI.getInstance().saveSettings();
+				List<CommandName> commands = new ArrayList<CommandName>(100);
+				for (CommandName cn:CommandName.values()) {
+					if (CommandVariableType.CMD==cn.getType()) {
+						continue;
+					}
+					if (CommandVariableType.INFO==cn.getType()) {
+						continue;
+					}
+					commands.add(cn);
 				}
+				JCommandSettingListDialog dialog = new JCommandSettingListDialog(
+						PulseFireUI.getInstance().getMainFrame(),
+						"Select Logger Fields",
+						"Select the fields to log to file.",
+						PulseFireUISettingKeys.valueOf(logId+"FIELDS"),
+						commands,commands);
+				dialog.setVisible(true);
 			}
 		});
 		panel.add(pullButton);
-				
-		
-		panel.add(JComponentFactory.createJLabel("avrdude cmd"));
-		final JTextField avrdudeFile = new JTextField(35);
-		avrdudeFile.setEnabled(false);
-		avrdudeFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD));
-		panel.add(avrdudeFile);
-		JButton avrdudeButton = new JButton("file");
-		avrdudeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog((JButton)e.getSource());
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					avrdudeFile.setText(file.getAbsolutePath());
-					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.AVRDUDE_CMD.name(), file.getAbsolutePath());
-					PulseFireUI.getInstance().saveSettings();
-				}
-			}
-		});
-		panel.add(avrdudeButton);
-		
-		panel.add(JComponentFactory.createJLabel("avrdude conf"));
-		final JTextField avrdudeConfFile = new JTextField(35);
-		avrdudeConfFile.setEnabled(false);
-		avrdudeConfFile.setText(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG));
-		panel.add(avrdudeConfFile);
-		JButton avrdudeConfButton = new JButton("file");
-		avrdudeConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog((JButton)e.getSource());
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					avrdudeConfFile.setText(file.getAbsolutePath());
-					PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.AVRDUDE_CONFIG.name(), file.getAbsolutePath());
-					PulseFireUI.getInstance().saveSettings();
-				}
-			}
-		});
-		panel.add(avrdudeConfButton);
-		
-		
-		SpringLayoutGrid.makeCompactGrid(panel,9,3);
+
+		SpringLayoutGrid.makeCompactGrid(panel,6,3);
 		
 		return panel;
 	}
 	
 	private JPanel createSettingsUI() {
-		
 		JPanel panel = JComponentFactory.createJFirePanel("Interface");
 		panel.setLayout(new SpringLayout());
 		
-		panel.add(JComponentFactory.createJLabel("NOTE"));
-		panel.add(JComponentFactory.createJLabel("Change requires restart"));
-		
 		panel.add(JComponentFactory.createJLabel("UI Colors"));
-		JComboBox colors = new JComboBox();
-		colors.addItem("dark-red");
-		colors.addItem("light-blue");
-		colors.addItem("black-white");
-		colors.setSelectedItem(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.LAF_COLORS));
+		JComboBox colors = JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.LAF_COLORS,new String[] {"dark-red","light-blue","black-white"});
 		colors.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.LAF_COLORS.name(), ""+((JComboBox)e.getSource()).getSelectedItem());
+				JOptionPane.showMessageDialog(PulseFireUI.getInstance().getMainFrame(), "This setting is activated on next run of application.","Requires restart",JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		panel.add(colors);
@@ -206,39 +195,89 @@ public class JTabPanelSettings extends AbstractTabPanel {
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.AUTO_CONNECT));
 		
 		panel.add(JComponentFactory.createJLabel("Console lines"));
-		JComboBox consoleLines = new JComboBox();
-		consoleLines.addItem("300");
-		consoleLines.addItem("500");
-		consoleLines.addItem("1000");
-		consoleLines.addItem("2000");
-		consoleLines.addItem("5000");
-		consoleLines.addItem("10000");
-		consoleLines.setSelectedItem(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
-		consoleLines.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PulseFireUI.getInstance().getSettings().setProperty(PulseFireUISettingKeys.CONSOLE_LINES.name(), ""+((JComboBox)e.getSource()).getSelectedItem());
-			}
-		});
-		panel.add(consoleLines);
+		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.CONSOLE_LINES,new String[] {"300","500","1000","2000","5000","10000","20000","50000"}));
 		
 		panel.add(JComponentFactory.createJLabel("Audio Scope"));
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.SCOPE_ENABLE));
-
+		
+		panel.add(JComponentFactory.createJLabel("Pull Speed"));
+		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.PULL_SPEED,new String[] {"2000","3000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
+		
+		SpringLayoutGrid.makeCompactGrid(panel,6,2);
+		return panel;
+	}
+	
+	private JPanel createFlashPanel() {
+		final PulseFireUISettingManager config = PulseFireUI.getInstance().getSettingsManager();
+		JPanel panel = JComponentFactory.createJFirePanel("Flash");
+		panel.setLayout(new SpringLayout());
+		
 		panel.add(JComponentFactory.createJLabel("Flash Chip"));
 		burnButton = new JButton("Burn");
 		burnButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFlashDialog flashDialog = new JFlashDialog(PulseFireUI.getInstance().getMainFrame());
-				flashDialog.pack();
-				flashDialog.setLocationRelativeTo(PulseFireUI.getInstance().getMainFrame());
 				flashDialog.setVisible(true);
 			}
 		});
+		panel.add(new JLabel());
 		panel.add(burnButton);
 		
-		SpringLayoutGrid.makeCompactGrid(panel,7,2);
+		/*
+		panel.add(JComponentFactory.createJLabel("Flash Chip"));
+		JButton burnZipButton = new JButton("BurnZip");
+		burnZipButton.setEnabled(false);
+		panel.add(new JLabel());
+		panel.add(burnZipButton);
+		*/
+		
+		panel.add(JComponentFactory.createJLabel("avrdude cmd"));
+		final JTextField avrdudeFile = new JTextField(25);
+		avrdudeFile.setEnabled(false);
+		avrdudeFile.setText(config.getSettingString(PulseFireUISettingKeys.AVRDUDE_CMD));
+		panel.add(avrdudeFile);
+		JButton avrdudeButton = new JButton("file");
+		avrdudeButton.setToolTipText("Avrdude values are only needed if normal flash does not work or is to slow.");
+		avrdudeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog((JButton)e.getSource());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					avrdudeFile.setText(file.getAbsolutePath());
+					config.setSettingString(PulseFireUISettingKeys.AVRDUDE_CMD, file.getAbsolutePath());
+					config.saveSettings();
+				}
+			}
+		});
+		panel.add(avrdudeButton);
+		
+		panel.add(JComponentFactory.createJLabel("avrdude conf"));
+		final JTextField avrdudeConfFile = new JTextField(25);
+		avrdudeConfFile.setEnabled(false);
+		avrdudeConfFile.setText(config.getSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG));
+		panel.add(avrdudeConfFile);
+		JButton avrdudeConfButton = new JButton("file");
+		avrdudeConfButton.setToolTipText("Avrdude values are only needed if normal flash does not work or is to slow.");
+		avrdudeConfButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog((JButton)e.getSource());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					avrdudeConfFile.setText(file.getAbsolutePath());
+					config.setSettingString(PulseFireUISettingKeys.AVRDUDE_CONFIG, file.getAbsolutePath());
+					config.saveSettings();
+				}
+			}
+		});
+		panel.add(avrdudeConfButton);
+		
+		SpringLayoutGrid.makeCompactGrid(panel,3,3);
+		
 		return panel;
 	}
 	

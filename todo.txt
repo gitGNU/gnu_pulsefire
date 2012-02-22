@@ -1,6 +1,5 @@
 TODO LIST:
 - When using 16 pwm outputs last output step had extratime.
-- Added SF_ENABLE_EXT_MEGA to test it
 - Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
 - invert per output

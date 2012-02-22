@@ -45,8 +45,11 @@ public interface DeviceWireManager {
 	// api
 	public DeviceCommandRequest requestCommand(Command command);
 	public void addDeviceDataListener(DeviceDataListener dataListener);
+	public void removeDeviceDataListener(DeviceDataListener dataListener);
 	public void addDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener);
+	public void removeDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener);
 	public void addDeviceConnectListener(DeviceConnectListener connectListener);
+	public void removeDeviceConnectListener(DeviceConnectListener connectListener);
 	
 	
 	// meta info

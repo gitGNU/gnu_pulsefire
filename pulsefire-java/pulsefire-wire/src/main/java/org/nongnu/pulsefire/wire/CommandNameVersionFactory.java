@@ -91,7 +91,7 @@ public class CommandNameVersionFactory {
 				"INT_LOOP",
 				"INT_FIRE",
 				"EXT_PIN",
-				"EXT+FIRE"
+				"EXT_FIRE"
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
@@ -123,7 +123,9 @@ public class CommandNameVersionFactory {
 		CommandName.pwm_tune_cnt.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_loop.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_loop_delta.pulseModeDependency = WirePulseMode.valuesOn();
-		CommandName.pwm_duty.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pwm_req_idx.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pwm_req_duty.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pwm_req_freq.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_clock.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_clock.listValues = new String[] {
 				"STOP",
@@ -134,6 +136,12 @@ public class CommandNameVersionFactory {
 				"ON_1024",
 				"ON_EXTF",
 				"ON_EXTR"
+			};
+		CommandName.pwm_req_idx.magicTopListValue = true; // last value is 255 value
+		CommandName.pwm_req_idx.listValues = new String[] {
+				"0","1", "2", "3", "4", "5", "6", "7",
+				"8","9","10","11","12","13","14","15",
+				"ALL"
 			};
 		CommandName.ppm_data_offset.pulseModeDependency = WirePulseMode.valuesPPM();
 		CommandName.ppm_data_len.pulseModeDependency = WirePulseMode.valuesPPM();
@@ -279,9 +287,9 @@ public class CommandNameVersionFactory {
 				"INT_FIRE",
 				"EXT_PIN"
 			};
-		CommandName.pwm_duty.disabled=true;
-		CommandName.req_pwm_freq.disabled=true; // req_pwm_freq works different in 0.9
-		CommandName.req_ptt_fire.disabled=true;
+		CommandName.pwm_req_freq.disabled=true;
+		CommandName.pwm_req_idx.disabled=true;
+		CommandName.pwm_req_duty.aliasName="pwm_duty";
 		CommandName.dev_volt_dot.disabled=true;
 		CommandName.dev_amp_dot.disabled=true;
 		CommandName.dev_temp_dot.disabled=true;
@@ -291,6 +299,9 @@ public class CommandNameVersionFactory {
 		CommandName.dic_enable.disabled=true;
 		CommandName.dic_inv.disabled=true;
 		CommandName.dic_sync.disabled=true;
+		CommandName.req_ptt_fire.disabled=true;
+		CommandName.req_mal_fire.disabled=true;
+		CommandName.mal_fire.aliasName="mal_trig";
 		
 		return true;
 	}

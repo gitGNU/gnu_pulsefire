@@ -182,6 +182,9 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	public void addDeviceDataListener(DeviceDataListener dataListener) {
 		dataListeners.add(dataListener);
 	}
+	public void removeDeviceDataListener(DeviceDataListener dataListener) {
+		dataListeners.remove(dataListener);
+	}
 	public void addDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener) {
 		List<DeviceCommandListener> list = commandListeners.get(cn);
 		if (list==null) {
@@ -190,8 +193,18 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		}
 		list.add(commandListener);
 	}
+	public void removeDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener) {
+		List<DeviceCommandListener> list = commandListeners.get(cn);
+		if (list==null) {
+			return;
+		}
+		list.remove(commandListener);
+	}
 	public void addDeviceConnectListener(DeviceConnectListener connectListener) {
 		connectListeners.add(connectListener);
+	}
+	public void removeDeviceConnectListener(DeviceConnectListener connectListener) {
+		connectListeners.remove(connectListener);
 	}
 	
 	

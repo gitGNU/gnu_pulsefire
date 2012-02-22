@@ -26,13 +26,16 @@ package org.nongnu.pulsefire.device.ui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.nongnu.pulsefire.device.ui.components.JFireBorder;
 
@@ -57,16 +60,50 @@ public class JComponentFactory {
 	
 	static public JCheckBox createSettingsJCheckBox(final PulseFireUISettingKeys key) {
 		JCheckBox c = new JCheckBox();
-		c.setSelected(PulseFireUI.getInstance().getSettingBoolean(key));
+		c.setSelected(PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key));
 		c.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PulseFireUI.getInstance().getSettings().setProperty(key.name(), ""+((JCheckBox)e.getSource()).isSelected());
-				PulseFireUI.getInstance().saveSettings();
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, ""+((JCheckBox)e.getSource()).isSelected());
+				PulseFireUI.getInstance().getSettingsManager().saveSettings();
 			}
 		});
 		return c;
 	}
+	
+	static public JComboBox createSettingsJComboBox(final PulseFireUISettingKeys key,Object[] items) {
+		JComboBox comboBox = new JComboBox(items);
+		comboBox.setSelectedItem(PulseFireUI.getInstance().getSettingsManager().getSettingString(key));
+		comboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, ""+((JComboBox)e.getSource()).getSelectedItem());
+			}
+		});
+		return comboBox;
+	}
+	
+	static public JTextField createSettingsJTextField(final PulseFireUISettingKeys key) {
+		final JTextField textField = new JTextField(25);
+		textField.setText(PulseFireUI.getInstance().getSettingsManager().getSettingString(key));
+		textField.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, textField.getText());
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
+			}
+		});
+		textField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, textField.getText());
+			}
+		});
+		return textField;
+	}
+	
 	
 	static public JPanel createJPanelJWrap(JComponent comp) {
 		JPanel panel = new JPanel();

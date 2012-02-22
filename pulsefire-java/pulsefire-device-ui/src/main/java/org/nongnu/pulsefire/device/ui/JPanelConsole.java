@@ -50,23 +50,23 @@ import org.nongnu.pulsefire.wire.CommandWire;
  * 
  * @author Willem Cazander
  */
-public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceConnectListener,ActionListener {
+public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceConnectListener,ActionListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -8155913876470234844L;
 	private JTextArea consoleLog = null;
 	private JTextField consoleInput = null;
 	private int consoleLogLines = 0;
-	private int consoleLogLinesMax = 255;
+	volatile private int consoleLogLinesMax = 255;
 	private DateFormat timeFormat = null;
 	
 	public JPanelConsole() {
 		// Use simple time based format for console logging
 		timeFormat = new SimpleDateFormat("HH:mm:ss");
-		consoleLogLinesMax = new Integer(PulseFireUI.getInstance().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
+		consoleLogLinesMax = new Integer(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
 		// Config panel and inner panel
 		setLayout(new GridLayout(1,1)); // take max size
 		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-		JPanel innerPanel = JComponentFactory.createJFirePanel();
+		JPanel innerPanel = JComponentFactory.createJFirePanel("Console");
 		innerPanel.setLayout(new BorderLayout());
 		add(innerPanel);
 		
@@ -93,6 +93,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleClear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				consoleLogLines=0;
 				consoleLog.setText("");
 			}
 		});
@@ -101,6 +102,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.CONSOLE_LINES,this);
 		
 		updateText("Ready to connect.","##");
 	}
@@ -170,5 +172,11 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleInput.setEnabled(false);
 		updateText("Closed connection succesfully.","##");
 		updateText("Ready to connect.","##");
+	}
+	
+	public void settingUpdated(PulseFireUISettingKeys key,String value) {
+		consoleLogLinesMax = new Integer(value);
+		consoleLogLines=0;
+		consoleLog.setText("");
 	}
 }

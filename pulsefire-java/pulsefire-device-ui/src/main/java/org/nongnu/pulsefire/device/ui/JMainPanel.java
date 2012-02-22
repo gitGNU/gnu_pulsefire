@@ -37,6 +37,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 
+import org.nongnu.pulsefire.device.ui.tabs.AbstractTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JTabFirePanel;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPWM;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
@@ -58,7 +59,7 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVariables;
  * 
  * @author Willem Cazander
  */
-public class JMainPanel extends JPanel {
+public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -9173866662540287337L;
 	private List<JTabFirePanel> tabPanels = null;
@@ -66,6 +67,7 @@ public class JMainPanel extends JPanel {
 	//public JSplitPane contentSplitPane = null;
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
+	public AbstractTabPanel scopePanel = null;
 	
 	public JMainPanel() {
 		
@@ -82,15 +84,18 @@ public class JMainPanel extends JPanel {
 		tabPanels.add(new JTabPanelLPM());
 		tabPanels.add(new JTabPanelGraphs());
 		tabPanels.add(new JTabPanelVariables());
-		if (PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.SCOPE_ENABLE)) {
-			tabPanels.add(new JTabPanelScope());
-		}
 		tabPanels.add(new JTabPanelSettings());
+		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.SCOPE_ENABLE)) {
+			scopePanel = new JTabPanelScope(); 
+			tabPanels.add(scopePanel);
+		}
 
 		JPanel main = this; //new JPanel(); //new ContentPanel(this);
 		main.setLayout(new BorderLayout());
 		main.add(createTop(), BorderLayout.PAGE_START);
 		main.add(createContentSplit(), BorderLayout.CENTER);
+		
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.SCOPE_ENABLE, this);
 	}
 	
 	private JPanel createTop() {
@@ -107,7 +112,7 @@ public class JMainPanel extends JPanel {
 		bottomSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,sp0,sp1);
 		bottomSplitPane.setOneTouchExpandable(true);
 		bottomSplitPane.setResizeWeight(0.7);
-		bottomSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM));
+		bottomSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM));
 		sp0.setMinimumSize(new Dimension(100, 350));
 		sp1.setMinimumSize(new Dimension(200, 150));
 		return bottomSplitPane;
@@ -119,7 +124,7 @@ public class JMainPanel extends JPanel {
 		bottomLogSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
 		bottomLogSplitPane.setOneTouchExpandable(true);
 		bottomLogSplitPane.setResizeWeight(0.4);
-		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG));
+		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG));
 		sp0.setMinimumSize(new Dimension(200, 100));
 		sp1.setMinimumSize(new Dimension(200, 100));
 		return bottomLogSplitPane;
@@ -152,5 +157,26 @@ public class JMainPanel extends JPanel {
 	
 	private JPanel createBottomInfo() {
 		return new JPanelConsoleInfo();
+	}
+
+	@Override
+	public void settingUpdated(PulseFireUISettingKeys key, String value) {
+		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.SCOPE_ENABLE)) {
+			if (scopePanel==null) {
+				scopePanel = new JTabPanelScope();
+				
+				JScrollPane scrollPane = new JScrollPane(scopePanel.getJPanel());
+				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+				scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+				scrollPane.setBorder(BorderFactory.createEmptyBorder());
+				scopePanel.setParentScrollPane(scrollPane);
+				tabbedPane.addTab(scopePanel.getTabName(),scopePanel.getTabIcon(),scrollPane,scopePanel.getTabTooltip());
+			}
+		} else {
+			if (scopePanel!=null) {
+				tabbedPane.removeTabAt(tabbedPane.getTabCount()-1);
+				scopePanel = null;
+			}
+		}
 	}
 }

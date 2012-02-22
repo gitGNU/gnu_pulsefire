@@ -25,6 +25,8 @@ package org.nongnu.pulsefire.device.ui.time;
 
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -33,14 +35,16 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
+public class PulseFireDataPuller implements Runnable,DeviceConnectListener,PulseFireUISettingListener {
 
+	static public final int INIT_SPEED = 10000;
 	private volatile boolean run = false;
 	private volatile boolean runOnce = true;
 	private volatile boolean runPause = false;
 	
 	public PulseFireDataPuller() {
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.PULL_SPEED, this);
 	}
 	
 	@Override
@@ -52,6 +56,7 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 			if (runOnce) {
 				runOnce = false; // request one time extra info_conf so if some cmds where jammed we get them here.
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf));
+				settingUpdated(PulseFireUISettingKeys.PULL_SPEED,PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.PULL_SPEED));
 			}
 		}
 	}
@@ -80,5 +85,14 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener {
 	 */
 	public void setRunPause(boolean runPause) {
 		this.runPause = runPause;
+	}
+
+	@Override
+	public void settingUpdated(PulseFireUISettingKeys key, String value) {
+		EventTimeTrigger trig = PulseFireUI.getInstance().getEventTimeManager().getEventTimeTriggerByName("refreshData");
+		if (trig!=null) {
+			trig.setTimeStep(new Integer(value));
+			trig.setTimeNextRun(trig.getRunStartTime()+trig.getTimeStep());
+		}
 	}
 }

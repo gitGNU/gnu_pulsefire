@@ -39,69 +39,157 @@ import org.nongnu.pulsefire.wire.WirePulseMode;
 public class JComponentEnableStateListener implements DeviceConnectListener,DeviceCommandListener {
 	private JComponent component = null;
 	private CommandName commandName = null;
+	private Integer index = null;
 	
-	public JComponentEnableStateListener(JComponent component,CommandName commandVariableFilter) {
+	public JComponentEnableStateListener(JComponent component,CommandName commandVariableFilter,Integer index) {
 		this.commandName=commandVariableFilter;
 		this.component=component;
+		this.index=index;
 		this.component.setEnabled(false);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 	}
 	
+	static public void attach(JComponent component) {
+		attach(component,null);
+	}
+	
 	static public void attach(JComponent component,CommandName commandVariableFilter) {
-		new JComponentEnableStateListener(component,commandVariableFilter);
+		attach(component,commandVariableFilter,null);
+	}
+	
+	static public void attach(JComponent component,CommandName commandVariableFilter,Integer index) {
+		new JComponentEnableStateListener(component,commandVariableFilter,index);
 	}
 	
 	@Override
 	public void deviceConnect() {
-		if (commandName==null) {
-			component.setEnabled(true);
-			return;
+		checkAll();
+		if (commandName!=null && commandName.isPulseModeDependency()) {
+			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_mode, this);
 		}
-		if (commandName.isDisabled()) {
-			return; // cmd disabled
+		if (commandName!=null && commandName.name().endsWith("_a")) {
+			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_bank, this);
 		}
-		if (commandName.getChipFlagDependency()!=null) {
-			Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.chip_flags);
-			if (commandName.getChipFlagDependency().isFlagActive(cmd)==false) {
-				return; // feature not enabled.
-			}
-		}
-		if (commandName.isPulseModeDependency()) {
-			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_mode, this);	
-			commandReceived(PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_mode));
-		} else {
-			component.setEnabled(true);
+		if (commandName!=null && commandName.name().endsWith("_b")) {
+			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_bank, this);
 		}
 	}
 
 	@Override
 	public void deviceDisconnect() {
 		component.setEnabled(false);
+		if (commandName!=null && commandName.isPulseModeDependency()) {
+			PulseFireUI.getInstance().getDeviceManager().removeDeviceCommandListener(CommandName.pulse_mode, this);
+		}
+		if (commandName!=null && commandName.name().endsWith("_a")) {
+			PulseFireUI.getInstance().getDeviceManager().removeDeviceCommandListener(CommandName.pulse_bank, this);
+		}
+		if (commandName!=null && commandName.name().endsWith("_b")) {
+			PulseFireUI.getInstance().getDeviceManager().removeDeviceCommandListener(CommandName.pulse_bank, this);
+		}
 	}
 
 	@Override
 	public void commandReceived(Command command) {
-		Integer mode = new Integer(command.getArgu0()); 
-		for (int i=0;i<WirePulseMode.values().length;i++) {
-			if (mode.equals(i)) {
-				WirePulseMode pulseMode = WirePulseMode.values()[i];
-				checkMode(pulseMode);
-				break;
-			}
-		}
+		checkAll();
 	}
 	
-	private void checkMode(WirePulseMode newMode) {
-		if (commandName.getPulseModeDependencies()==null) {
+	private void checkAll() {
+		if (commandName==null) {
 			component.setEnabled(true);
 			return;
 		}
-		for (WirePulseMode depMode:commandName.getPulseModeDependencies()) {
-			if (depMode.equals(newMode)) {
-				component.setEnabled(true);
-				return;
+		if (commandName.isDisabled()) {
+			component.setEnabled(false);
+			return; // cmd disabled
+		}
+		if (checkChipFlag()==false) {
+			component.setEnabled(false);
+			return;
+		}
+		if (checkPulseMode()==false) {
+			component.setEnabled(false);
+			return;
+		}
+		if (checkPulseBank()==false) {
+			component.setEnabled(false);
+			return;
+		}
+		component.setEnabled(true);
+	}
+	
+	private boolean checkChipFlag() {
+		if (commandName!=null && commandName.getChipFlagDependency()!=null) {
+			Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.chip_flags);
+			if (commandName.getChipFlagDependency().isFlagActive(cmd)==false) {
+				return false; // feature not enabled.
 			}
 		}
-		component.setEnabled(false);
+		return true;
+	}
+	
+	private boolean checkPulseBank() {
+		if (commandName!=null && (commandName.name().endsWith("_a") || commandName.name().endsWith("_b"))) {
+			Command command = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_bank);
+			if (command==null) {
+				return true;
+			}
+			if (commandName.name().endsWith("_a")) {
+				if ("0".equals(command.getArgu0())) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if ("1".equals(command.getArgu0())) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean checkPulseMode() {
+		Command command = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_mode);
+		if (command==null) {
+			return true;
+		}
+		Integer mode = new Integer(command.getArgu0()); 
+		WirePulseMode[] modes = WirePulseMode.values();
+		for (int i=0;i<modes.length;i++) {
+			if (mode.equals(i)) {
+				WirePulseMode pulseMode = modes[i];
+				return checkPulseModeWire(pulseMode);
+			}
+		}
+		return true;
+	}
+	
+	private boolean checkPulseModeWire(WirePulseMode newMode) {
+		if (commandName==null) {
+			return true;
+		}
+		if (index!=null && WirePulseMode.FLASH_ZERO==newMode) {
+			if (CommandName.pwm_tune_cnt==commandName && index>0) {
+				return false;
+			}
+			if (commandName.name().endsWith("_a") && index>0) {
+				return false;
+			}
+			if (commandName.name().endsWith("_b") && index>0) {
+				return false;
+			}
+		}
+		if (commandName.getPulseModeDependencies()==null) {
+			return true;
+		}
+		for (WirePulseMode depMode:commandName.getPulseModeDependencies()) {
+			if (depMode.equals(newMode)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

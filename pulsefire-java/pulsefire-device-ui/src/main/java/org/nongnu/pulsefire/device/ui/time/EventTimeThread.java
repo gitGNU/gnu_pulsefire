@@ -47,10 +47,12 @@ public class EventTimeThread extends Thread {
 		try {
 			running = true;
 			logger.info("EventTimer started");
+			long events = 0;
 			while (running) {
 				Thread.sleep(100);
 				List<EventTimeTrigger> executeSteps = eventTimeManager.getEventExecuteSteps();
-				for (EventTimeTrigger trig:executeSteps) {
+				for (int i=0;i<executeSteps.size();i++) {
+					EventTimeTrigger trig = executeSteps.get(i);
 					trig.setRunStartTime(System.currentTimeMillis());
 					trig.setTimeNextRun(trig.getRunStartTime()+trig.getTimeStep());
 					try {
@@ -58,6 +60,7 @@ public class EventTimeThread extends Thread {
 					} catch (Exception triggerException) {
 						logger.log(Level.WARNING,triggerException.getMessage(),triggerException);
 					} finally {
+						events++;
 						trig.setRunStopTime(System.currentTimeMillis());
 						trig.setRunCounter(trig.getRunCounter()+1);
 						if (trig.getTimeRuns()!=0 && trig.getRunCounter() > trig.getTimeRuns()) {
@@ -66,6 +69,7 @@ public class EventTimeThread extends Thread {
 					}
 				}
 			}
+			logger.info("EventTimer stopped, total events fired: "+events);
 		} catch (Exception coreException) {
 			logger.log(Level.WARNING,coreException.getMessage(),coreException);
 		}

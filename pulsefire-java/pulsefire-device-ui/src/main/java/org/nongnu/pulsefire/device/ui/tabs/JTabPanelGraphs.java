@@ -29,16 +29,21 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
 import org.nongnu.pulsefire.device.ui.components.JFireGraph;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -47,10 +52,12 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener {
+public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -1416072133032318563L;
 	private JPanel graphPanel = null;
+	private JButton graphListButton = null;
+	private JButton graphListInfoButton = null;
 	private JComboBox sizeBox = null;
 	private JComboBox columnBox = null;
 	
@@ -58,6 +65,7 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 		setLayout(new BorderLayout());
 		add(JComponentFactory.createJPanelJWrap(createPanelGraphConfig()),BorderLayout.NORTH);
 		add(JComponentFactory.createJPanelJWrap(createPanelGraph()),BorderLayout.CENTER);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST,this);
 	}
 	
 	private JPanel createPanelGraph() {
@@ -73,17 +81,29 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 		JPanel resultPanel = JComponentFactory.createJFirePanel("Config");
 		resultPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		resultPanel.add(new JLabel("Size:"));
+		resultPanel.add(new JLabel("Size"));
 		sizeBox = new JComboBox(new String[] {"Large","Medium","Small"});
-		sizeBox.setSelectedIndex(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE));
+		sizeBox.setSelectedIndex(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE));
 		sizeBox.addActionListener(this);
+		JComponentEnableStateListener.attach(sizeBox,null);
 		resultPanel.add(sizeBox);
 		
-		resultPanel.add(new JLabel("Columns:"));
+		resultPanel.add(new JLabel("Columns"));
 		columnBox = new JComboBox(new Integer[] {2,3,4,5,6,7,8,9,10,11,12,13});
-		columnBox.setSelectedIndex(PulseFireUI.getInstance().getSettingInteger(PulseFireUISettingKeys.GRAPH_COLS));
+		columnBox.setSelectedIndex(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.GRAPH_COLS));
 		columnBox.addActionListener(this);
+		JComponentEnableStateListener.attach(columnBox,null);
 		resultPanel.add(columnBox);
+		
+		resultPanel.add(new JLabel("Select"));
+		graphListButton = new JButton("Graphs");
+		graphListButton.addActionListener(this);
+		JComponentEnableStateListener.attach(graphListButton,null);
+		resultPanel.add(graphListButton);
+		graphListInfoButton = new JButton("GraphsFront");
+		graphListInfoButton.addActionListener(this);
+		JComponentEnableStateListener.attach(graphListInfoButton,null);
+		resultPanel.add(graphListInfoButton);
 		
 		return resultPanel;
 	}
@@ -95,8 +115,20 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 
 	@Override
 	public void deviceConnect() {
-		for (CommandName name:PulseFireUI.getInstance().getTimeData().getTimeDataKeys()) {
-			graphPanel.add(new JFireGraph(name));
+		
+		String graphStr = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.GRAPH_LIST);
+		List<CommandName> graphs = null;
+		if (graphStr.isEmpty()==false) {
+			graphs = CommandName.decodeCommandList(graphStr);
+		} else {
+			graphs = PulseFireUI.getInstance().getTimeData().getTimeDataKeys(); // default value fallback show all
+		}
+		
+		List<CommandName> graphData = PulseFireUI.getInstance().getTimeData().getTimeDataKeys();
+		for (CommandName name:graphs) {
+			if (graphData.contains(name)) { // only do commands for which we have data.
+				graphPanel.add(new JFireGraph(name));
+			}
 		}
 		resizeGraphs();
 		makeGraphGrid();
@@ -152,12 +184,39 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		if (sizeBox.equals(e.getSource())) {
 			resizeGraphs();
-			PulseFireUI.getInstance().setSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE,sizeBox.getSelectedIndex());
+			PulseFireUI.getInstance().getSettingsManager().setSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE,sizeBox.getSelectedIndex());
 		} else if (columnBox.equals(e.getSource())) {
 			makeGraphGrid();
-			PulseFireUI.getInstance().setSettingInteger(PulseFireUISettingKeys.GRAPH_COLS,columnBox.getSelectedIndex());
+			PulseFireUI.getInstance().getSettingsManager().setSettingInteger(PulseFireUISettingKeys.GRAPH_COLS,columnBox.getSelectedIndex());
+		} else if (graphListButton.equals(e.getSource())) {
+			
+			List<CommandName> commands = PulseFireUI.getInstance().getTimeData().getTimeDataKeys();
+			JCommandSettingListDialog dialog = new JCommandSettingListDialog(
+					PulseFireUI.getInstance().getMainFrame(),
+					"Select Graphs",
+					"Select the graphs to use on graph tab to display.",
+					PulseFireUISettingKeys.GRAPH_LIST,
+					commands,commands);
+			dialog.setVisible(true);
+			
+		} else if (graphListInfoButton.equals(e.getSource())) {
+			
+			List<CommandName> commands = PulseFireUI.getInstance().getTimeData().getTimeDataKeys();
+			List<CommandName> commandDefaults = CommandName.decodeCommandList(PulseFireUISettingKeys.GRAPH_LIST_FRONT.getDefaultValue());
+			JCommandSettingListDialog dialog = new JCommandSettingListDialog(
+					PulseFireUI.getInstance().getMainFrame(),
+					"Select Graphs Front",
+					"Select the graphs to use on front info panel to display.",
+					PulseFireUISettingKeys.GRAPH_LIST_FRONT,
+					commands,commandDefaults);
+			dialog.setVisible(true);
 		}
 		graphPanel.revalidate();
 		super.deviceConnect();
+	}
+	
+	public void settingUpdated(PulseFireUISettingKeys key,String value) {
+		deviceDisconnect(); // reuse connect code to fix listed graphs.
+		deviceConnect();
 	}
 }

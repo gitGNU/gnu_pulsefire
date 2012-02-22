@@ -288,17 +288,21 @@ void cmd_execute(char* cmd, char** args) {
 			uint8_t i=ZERO;
 			for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
 				// Remove unsupported cmds
+#ifndef SF_ENABLE_PWM
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPulseFire) { continue; }
+#endif
 #ifndef SF_ENABLE_PPM
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
 #endif
-#ifndef SF_ENABLE_PWM
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPWMFreq) { continue; }
+#ifndef SF_ENABLE_PTT
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPTTFire) { continue; }
 #endif
 #ifndef SF_ENABLE_LPM
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqAutoLPM) { continue; }
 #endif
 #ifndef SF_ENABLE_MAL
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALProgram) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqMALFire) { continue; }
 #endif
 				Serial_printChar(UNPSTRA((const CHIP_PTR_TYPE*)&pmCmdList[i]));
 				Serial_println();
@@ -420,28 +424,6 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_println_done_P(pmCmdInfoProg);
 #endif
 
-#ifdef SF_ENABLE_PWM
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqPWMFreq)) == ZERO) {
-		if (args[0] == NULL) {
-			Serial_printCharP(pmCmdReqPWMFreq);
-			Serial_printCharP(pmGetSpaced);
-			Serial_printDec(calc_pwm_freq(ZERO));
-			Serial_println();
-			return;
-		}
-		uint16_t freqFull  = atou16(args[0]);
-		uint16_t idx = 0xFF;
-		if (args[1] != NULL) { idx  = atou16(args[1]); }
-		pf_data.pwm_req_freq = freqFull;
-		Freq_requestTrainFreq(freqFull,idx);
-		Serial_printCharP(pmCmdReqPWMFreq);
-		Serial_printCharP(pmSetSpaced);
-		Serial_printDec(freqFull);
-		Serial_printCharP(pmSetSpaced);
-		Serial_printDec(calc_pwm_freq(ZERO));
-		Serial_println();
-#endif
-
 #ifdef SF_ENABLE_LPM
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqAutoLPM)) == ZERO) {
 		Serial_printCharP(pmCmdReqAutoLPM);
@@ -558,6 +540,25 @@ void cmd_execute(char* cmd, char** args) {
 			}
 			Serial_println();
 		}
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqMALFire)) == ZERO) {
+		if (args[0] == NULL) {
+			Serial_printCharP(pmCmdReqMALFire);
+			Serial_printCharP(pmGetSpaced);
+			Serial_printDec(ZERO);
+			Serial_println();
+			return;
+		}
+		uint16_t trigIdx  = atou16(args[0]);
+		if (trigIdx>MAL_PROGRAM_MAX) {
+			trigIdx=ZERO;
+		}
+		uint8_t malFireIdx = Vars_getIndexFromName(UNPSTR(pmDataMALFire));
+		Vars_setValue(malFireIdx,trigIdx,0,ONE);
+		Serial_printCharP(pmCmdReqMALFire);
+		Serial_printDec(trigIdx);
+		Serial_printCharP(pmGetSpaced);
+		Serial_printDec(ZERO);
+		Serial_println();
 #endif
 
 	} else {

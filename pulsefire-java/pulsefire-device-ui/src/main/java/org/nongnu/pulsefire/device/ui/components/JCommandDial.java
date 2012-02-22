@@ -61,7 +61,11 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		fireDial = new JFireDial(commandName.name());
 		fireDial.setMaximum(commandName.getMaxValue());
 		fireDial.addDialListener(this);
-		JComponentEnableStateListener.attach(fireDial,commandName);
+		if (idx!=-1) {
+			JComponentEnableStateListener.attach(fireDial,commandName,idx);
+		} else {
+			JComponentEnableStateListener.attach(fireDial,commandName);
+		}
 		
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
 		deviceManager.addDeviceConnectListener(this);

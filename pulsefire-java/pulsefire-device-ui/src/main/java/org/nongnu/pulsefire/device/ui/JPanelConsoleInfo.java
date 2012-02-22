@@ -48,7 +48,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,DeviceCommandListener {
+public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,DeviceCommandListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = 5027054951800480326L;
 	private JPanel infoPanel = null;
@@ -63,6 +63,7 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		
 		infoPanel = createInfoPanel();
 		add(infoPanel);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST_FRONT,this);
 	}
 	
 	private JPanel createInfoPanel() {
@@ -113,57 +114,9 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		Iterator<CommandName> i = PulseFireUI.getInstance().getTimeData().getTimeDataKeys().iterator();
 		i.next();
 		List<CommandName> d = new ArrayList<CommandName>(10);
-		while (i.hasNext()) {
-			CommandName name = i.next();
-			if (name==CommandName.pwm_loop) {
-				d.add(name);
-				continue;
-			}
-			if (name==CommandName.pwm_on_cnt_a) {
-				d.add(name);
-				continue;
-			}
-			if (name==CommandName.pwm_off_cnt_a) {
-				d.add(name);
-				continue;
-			}
-			if (name.name().startsWith("pulse")) {
-				continue;
-			}
-			if (name.name().startsWith("pwm")) {
-				continue;
-			}
-			if (name.name().startsWith("ppm")) {
-				continue;
-			}
-			if (name.name().startsWith("lpm")) {
-				continue;
-			}
-			if (name.name().startsWith("ptc")) {
-				continue;
-			}
-			if (name.name().startsWith("ptt")) {
-				continue;
-			}
-			if (name.name().startsWith("ptt")) {
-				continue;
-			}
-			if (name.name().startsWith("lcd")) {
-				continue;
-			}
-			if (name.name().startsWith("mal")) {
-				continue;
-			}
-			if (name.name().startsWith("swc")) {
-				continue;
-			}
-			if (name.name().startsWith("sys")) {
-				continue;
-			}
-			if (name.name().startsWith("adc") && name.name().startsWith("adc_value")==false) {
-				continue;
-			}
-			d.add(name);
+		d = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.GRAPH_LIST_FRONT));
+		if (d.isEmpty()) {
+			d = CommandName.decodeCommandList(PulseFireUISettingKeys.GRAPH_LIST_FRONT.getDefaultValue());
 		}
 		int ii=0;
 		for (int y=0;y<gH;y++) {
@@ -178,6 +131,13 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				ii++;
 			}
 		}
+		final JPanel thisPanel = this;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SwingUtilities.updateComponentTreeUI(thisPanel);
+			}
+		});
 	}
 	
 	@Override
@@ -235,5 +195,9 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				SwingUtilities.updateComponentTreeUI(thisPanel);
 			}
 		});
+	}
+	
+	public void settingUpdated(PulseFireUISettingKeys key,String value) {
+		redoPanel();
 	}
 }

@@ -411,7 +411,7 @@ void lcd_loop(void) {
 		} else {
 			lcd_printChar("DUT:");
 		}
-		lcd_printNum(pf_conf.pwm_duty,3);
+		lcd_printNum(pf_conf.pwm_req_duty,3);
 #ifdef SF_ENABLE_SWC
 	}
 #endif

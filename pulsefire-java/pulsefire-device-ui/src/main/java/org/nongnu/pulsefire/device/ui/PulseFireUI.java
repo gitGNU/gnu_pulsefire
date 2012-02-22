@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
@@ -43,6 +45,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Application;
@@ -64,14 +67,13 @@ import org.nongnu.pulsefire.wire.serial.SerialDeviceWireManager;
  */
 public class PulseFireUI extends SingleFrameApplication {
 
-	static private final String STORAGE_FILE = "pulsefire-settings.xml";
 	private DeviceWireManagerController deviceManagerController = null;
 	private PulseFireTimeData timeData = null;
 	private EventTimeManager eventTimeManager = null;
 	private PulseFireDataLogManager dataLogManager = null;
 	private PulseFireUIBuildInfo buildInfo = null;
+	private PulseFireUISettingManager settingsManager = null;
 	private boolean fullScreen = false;
-	private Properties settings = null;
 	private long startTimeTotal = System.currentTimeMillis();
 	private Logger logger = null;
 	
@@ -219,76 +221,84 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	protected void initialize(String[] args) {
 		super.initialize(args);
-		long startTime = System.currentTimeMillis();
-		setupLogging();   // init logging with config
-		setupBuildInfo(); // Get build version info
-		logger.info("Starting PulseFire-UI version: "+buildInfo.getVersion()+" build: "+buildInfo.getBuildDate());
-
-		boolean jniCopy = false;
-		boolean jniCopyOs = false;
-		for (String argu:args) {
-			if ("-fs".equals(argu)) {
-				fullScreen = true;
-			}
-			if ("-jni-cp".equals(argu)) {
-				jniCopy = true;
-			}
-			if ("-jni-cp-os".equals(argu)) {
-				jniCopy = true;
-				jniCopyOs = true;
-			}
-		}
-		loadSerialLib(jniCopy,jniCopyOs);
-		initSerialLib();
-		
 		try {
-			settings = (Properties)getContext().getLocalStorage().load(STORAGE_FILE);
-			if (settings!=null) {
-				logger.info("Loaded "+STORAGE_FILE+" with "+settings.size()+" settings.");
+			long startTime = System.currentTimeMillis();
+			setupLogging();   // init logging with config
+			setupBuildInfo(); // Get build version info
+			logger.info("Starting PulseFire-UI version: "+buildInfo.getVersion()+" build: "+buildInfo.getBuildDate());
+
+			boolean jniCopy = false;
+			boolean jniCopyOs = false;
+			for (String argu:args) {
+				if ("-fs".equals(argu)) {
+					fullScreen = true;
+				}
+				if ("-jni-cp".equals(argu)) {
+					jniCopy = true;
+				}
+				if ("-jni-cp-os".equals(argu)) {
+					jniCopy = true;
+					jniCopyOs = true;
+				}
 			}
+			loadSerialLib(jniCopy,jniCopyOs);
+			initSerialLib();
 			
-		} catch (IOException e) {
-			logger.warning("Could not load settings error: "+e.getMessage());
-		} 
-		if (settings==null) {
-			settings = new Properties();
+			settingsManager = new PulseFireUISettingManager(getContext());
+			settingsManager.loadSettings();
+			deviceManagerController = new DeviceWireManagerController();
+			deviceManagerController.addDeviceManager(new SerialDeviceWireManager());
+			eventTimeManager = new EventTimeManager();
+			eventTimeManager.start();
+			timeData = new PulseFireTimeData();
+			dataLogManager = new PulseFireDataLogManager();
+			dataLogManager.start();
+			String colorName = installColorsLaF();
+			logger.info("Color schema selected: "+colorName);
+			long stopTime = System.currentTimeMillis();
+			logger.info("PulseFireUI initialized in "+(stopTime-startTime)+" ms.");
+		} catch (Exception e) {
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			JOptionPane.showMessageDialog(null, "Fatal Initialize Error:\n"+sw.getBuffer().toString(), "PulseFire Initialize Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			System.exit(1);
 		}
-		deviceManagerController = new DeviceWireManagerController();
-		deviceManagerController.addDeviceManager(new SerialDeviceWireManager());
-		eventTimeManager = new EventTimeManager();
-		eventTimeManager.start();
-		timeData = new PulseFireTimeData();
-		dataLogManager = new PulseFireDataLogManager();
-		dataLogManager.start();
-		String colorName = installColorsLaF();
-		logger.info("Color schema selected: "+colorName);
-		long stopTime = System.currentTimeMillis();
-		logger.info("PulseFireUI initialized in "+(stopTime-startTime)+" ms.");
 	}
 	
 	protected void startup() {
-		long startTime = System.currentTimeMillis();
-		addExitListener(new ShutdownManager());
-		
-		FrameView mainView = getMainView();
-		mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
-		mainView.setComponent(new JMainPanel());
-		mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+buildInfo.getVersion());
-		// //new JFireGlassPane(mainView.getFrame());
+		try {
+			long startTime = System.currentTimeMillis();
+			addExitListener(new ShutdownManager());
 			
-		if (fullScreen) {
-			GraphicsDevice gd = mainView.getFrame().getGraphicsConfiguration().getDevice(); 
-			mainView.getFrame().setUndecorated(true);
-			gd.setFullScreenWindow(mainView.getFrame());
-			mainView.getFrame().validate();
-		} else {
-			show(mainView);
+			FrameView mainView = getMainView();
+			mainView.getFrame().setMinimumSize(new Dimension(1024-64,768-128));
+			mainView.setComponent(new JMainPanel());
+			mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+buildInfo.getVersion());
+			// //new JFireGlassPane(mainView.getFrame());
+				
+			if (fullScreen) {
+				GraphicsDevice gd = mainView.getFrame().getGraphicsConfiguration().getDevice(); 
+				mainView.getFrame().setUndecorated(true);
+				gd.setFullScreenWindow(mainView.getFrame());
+				mainView.getFrame().validate();
+			} else {
+				show(mainView);
+			}
+			
+			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),PulseFireDataPuller.INIT_SPEED));
+			//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
+			long stopTime = System.currentTimeMillis();
+			logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");
+		} catch (Exception e) {
+			dataLogManager.stop();
+			eventTimeManager.shutdown();
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			JOptionPane.showMessageDialog(null, "Fatal Startup Error:\n"+sw.getBuffer().toString(), "PulseFire Startup Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+			System.exit(1);
 		}
-		
-		eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),10000));
-		//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
-		long stopTime = System.currentTimeMillis();
-		logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");
 	}
 	
 	private String installColorsLaF() {
@@ -296,7 +306,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		UIManager.put("TitledBorder.font",		Font.decode("SansSerif-BOLD-16"));
 		UIManager.put("FireDial.font",			Font.decode("SansSerif-9"));
 		
-		String colorName = getSettingString(PulseFireUISettingKeys.LAF_COLORS);
+		String colorName = getSettingsManager().getSettingString(PulseFireUISettingKeys.LAF_COLORS);
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		if (cl==null) {
 			cl = this.getClass().getClassLoader();
@@ -349,36 +359,8 @@ public class PulseFireUI extends SingleFrameApplication {
 		return getDeviceManager().getDeviceData();
 	}
 	
-	public Properties getSettings() {
-		return settings;
-	}
-	
-	public String getSettingString(PulseFireUISettingKeys key) {
-		return settings.getProperty(key.name(),key.getDefaultValue());
-	}
-	
-	public void setSettingString(PulseFireUISettingKeys key,String value) {
-		settings.setProperty(key.name(),value);
-	}
-	
-	public Boolean getSettingBoolean(PulseFireUISettingKeys key) {
-		return new Boolean(getSettingString(key));
-	}
-	
-	public Integer getSettingInteger(PulseFireUISettingKeys key) {
-		return new Integer(getSettingString(key));
-	}
-	
-	public void setSettingInteger(PulseFireUISettingKeys key,Integer value) {
-		setSettingString(key, ""+value);
-	}
-	
-	public void saveSettings() {
-		try {
-			getContext().getLocalStorage().save(settings,STORAGE_FILE);
-		} catch (IOException e) {
-			logger.warning("Could not save settings error: "+e.getMessage());
-		}
+	public PulseFireUISettingManager getSettingsManager() {
+		return settingsManager;
 	}
 	
 	public boolean isWebStart() {
@@ -400,9 +382,9 @@ public class PulseFireUI extends SingleFrameApplication {
 			logger.info("Shutdown requested.");
 			long startTime = System.currentTimeMillis();
 			
-			setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM,((JMainPanel)getMainView().getComponent()).bottomSplitPane.getDividerLocation());
-			setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG,((JMainPanel)getMainView().getComponent()).bottomLogSplitPane.getDividerLocation());
-			saveSettings();
+			getSettingsManager().setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM,((JMainPanel)getMainView().getComponent()).bottomSplitPane.getDividerLocation());
+			getSettingsManager().setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG,((JMainPanel)getMainView().getComponent()).bottomLogSplitPane.getDividerLocation());
+			getSettingsManager().saveSettings();
 			
 			dataLogManager.stop();
 			eventTimeManager.shutdown();

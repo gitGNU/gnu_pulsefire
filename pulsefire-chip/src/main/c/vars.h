@@ -35,6 +35,7 @@
 #include "chip.h"
 #include "mal.h"
 #include "stv.h"
+#include "pwm.h"
 
 // Defines Types
 typedef uint8_t boolean;
@@ -47,7 +48,7 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
-#define PMCMDLIST_SIZE             18    // array size of other commands
+#define PMCMDLIST_SIZE             19    // array size of other commands
 #define UNPSTR_BUFF_SIZE           64    // max string lenght
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
@@ -137,7 +138,9 @@ typedef struct {
 	volatile uint8_t       pwm_loop;               // Loop diverder of pwm
 	volatile uint8_t       pwm_loop_delta;         // Change pwm_loop per step with this value
 	volatile uint8_t       pwm_clock;              // Pwm clock divider selection or external input
-	volatile uint8_t       pwm_duty;               // only used in req_freq cmd
+	volatile uint8_t       pwm_req_idx;            // Then output idx of duty and freq.
+	volatile uint8_t       pwm_req_duty;           // The requested pwm duty.
+	volatile uint16_t      pwm_req_freq;           // The requested pwm freq.
 #endif
 
 #ifdef SF_ENABLE_PPM
@@ -289,7 +292,6 @@ typedef struct {
 	volatile uint8_t       pwm_state;               // Interal state of pwm
 	volatile uint8_t       pwm_loop_cnt;            // Pwm loop counter for this step
 	volatile uint8_t       pwm_loop_max;            // The init loop counter for pulse, gets refresh from conf every pulse
-	volatile uint16_t      pwm_req_freq;            // The last requested pwm freq.
 #endif
 
 #ifdef SF_ENABLE_PPM
@@ -297,7 +299,7 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint16_t      mal_trig[MAL_PROGRAM_MAX];
+	volatile uint16_t      mal_fire[MAL_PROGRAM_MAX];
 #endif
 
 } pf_data_struct;
@@ -352,7 +354,7 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  33
+	#define PF_VARS_PWM_SIZE  34
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif

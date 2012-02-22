@@ -27,14 +27,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -43,17 +40,15 @@ import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JFireBorderChild;
-import org.nongnu.pulsefire.device.ui.components.JFireDial;
-import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -62,7 +57,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListener {
+public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = 8834117894619851885L;
 	private JPanel centerPanel = null;
@@ -79,6 +74,7 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 			channelsEmpty.add(new JPanel());
 		}
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_steps, this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LIMIT_CHANNELS, this);
 		
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
@@ -163,13 +159,13 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 			JPanel flags = new JPanel();
 			flags.setLayout(new BoxLayout(flags,BoxLayout.PAGE_AXIS));
 			JCheckBox pwmFlag = new JCheckBox();
-			pwmFlag.setText("pwm");
+			pwmFlag.setText("inv");
 			pwmFlag.setEnabled(false);
 			//JComponentEnableStateListener.attach(pwmFlag,null);
 			pwmFlag.putClientProperty("JComponent.sizeVariant", "mini");
 			flags.add(pwmFlag);
 			JCheckBox ppmFlag = new JCheckBox();
-			ppmFlag.setText("ppm");
+			ppmFlag.setText("inv");
 			ppmFlag.setEnabled(false);
 			ppmFlag.putClientProperty("JComponent.sizeVariant", "mini");
 			//JComponentEnableStateListener.attach(ppmFlag,null);
@@ -343,7 +339,7 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 	}
 	
 	private void checkChannels(int steps) {
-		Boolean limit = PulseFireUI.getInstance().getSettingBoolean(PulseFireUISettingKeys.LIMIT_CHANNELS);
+		Boolean limit = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.LIMIT_CHANNELS);
 		if (limit==false) {
 			steps = CommandName.pulse_steps.getMaxValue();
 		}
@@ -367,47 +363,20 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		JPanel freqDialPanel = new JPanel();
 		freqDialPanel.setLayout(new SpringLayout());
 		splitPanel.add(freqDialPanel);
-		final JFireDial freqReqDial = new JFireDial("freq",1,65535,32768);
-		freqReqDial.setDotIndex(2);
-		JComponentEnableStateListener.attach(freqReqDial, CommandName.req_pwm_freq);
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pwm_req_freq, new DeviceCommandListener() {
-			@Override
-			public void commandReceived(Command command) {
-				if (command.getArgu0()!=null && command.getArgu0().isEmpty()==false) {
-					freqReqDial.setValue(new Integer(command.getArgu0()));
-				}
-			}
-		});
-		freqDialPanel.add(JComponentFactory.createJPanelJWrap(freqReqDial));
-		freqDialPanel.add(new JCommandDial(CommandName.pwm_duty));
+
+		JCommandDial freqDial = new JCommandDial(CommandName.pwm_req_freq);
+		freqDial.getFireDial().setDotIndex(2);
+		freqDialPanel.add(freqDial);
+		freqDialPanel.add(new JCommandDial(CommandName.pwm_req_duty));
 		SpringLayoutGrid.makeCompactGrid(freqDialPanel,1,2);
 		
 		JPanel pulsePanel = new JPanel();
 		pulsePanel.setLayout(new SpringLayout());
 		splitPanel.add(pulsePanel);
-		pulsePanel.add(JComponentFactory.createJLabel("Channel:"));
-		final JComboBox freqChannelBox = new JComboBox(new String[] {"ALL","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"});
-		JComponentEnableStateListener.attach(freqChannelBox, CommandName.req_pwm_freq);
+		pulsePanel.add(JComponentFactory.createJLabel("Channel"));
+		final JComboBox freqChannelBox = new JCommandComboBox(CommandName.pwm_req_idx);
 		pulsePanel.add(freqChannelBox);
-		pulsePanel.add(JComponentFactory.createJLabel("Freq:"));
-		JButton freqReqButton = new JButton("Request"); 
-		JComponentEnableStateListener.attach(freqReqButton, CommandName.req_pwm_freq);
-		pulsePanel.add(freqReqButton);
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,2);
-		
-		freqReqButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				String chStr = freqChannelBox.getSelectedItem().toString();
-				if ("ALL".equals(chStr)) {
-					chStr = "255";
-				}
-				Command reqPwmCmd = new Command(CommandName.req_pwm_freq);
-				reqPwmCmd.setArgu0(""+freqReqDial.getValue());
-				reqPwmCmd.setArgu1(chStr);
-				PulseFireUI.getInstance().getDeviceManager().requestCommand(reqPwmCmd);
-			}
-		});
+		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,1);
 		return borderPanel;
 	}
 	
@@ -448,8 +417,9 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		JPanel clockPanel = new JPanel();
 		clockPanel.setLayout(new SpringLayout());
 		splitPanel.add(clockPanel);
+		clockPanel.add(JComponentFactory.createJLabel("Clock"));
 		clockPanel.add(new JCommandComboBox(CommandName.pwm_clock));
-		SpringLayoutGrid.makeCompactGrid(clockPanel,1,1);
+		SpringLayoutGrid.makeCompactGrid(clockPanel,2,1);
 
 		return resultPanel;
 	}
@@ -487,5 +457,11 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 		SpringLayoutGrid.makeCompactGrid(delayPanel,1,2);
 		
 		return borderPanel;
+	}
+
+	@Override
+	public void settingUpdated(PulseFireUISettingKeys key, String value) {
+		Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_steps);
+		commandReceived(cmd); // recheck channels
 	}
 }

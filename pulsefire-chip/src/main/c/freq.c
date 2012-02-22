@@ -64,15 +64,30 @@ uint32_t calc_pwm_freq(uint8_t idx) {
 static int CLK_SCALE[] = {1,8,64,256,1024 };
 
 
-void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
+void Freq_requestTrainFreq(void) {
+	uint32_t freq = pf_conf.pwm_req_freq;
+	uint8_t  idx  = pf_conf.pwm_req_idx;
+	if (freq == ZERO) {
+		return;
+	}
+	if (idx > OUTPUT_MAX && idx!=QMAP_VAR_IDX_ALL) {
+		return; // idx is on non supported index.
+	}
+
 	// note freq is in 100 so 1123 = 11.23 Hz !!
 	freq *= 2; // double to hz.
 	//freq *= pf_conf.pulse_steps; // multiply to one output.
+
+
 
 	uint8_t pwmLoopIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMLoop));
 	uint8_t pwmClockIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMClock));
 	uint8_t pwmOnCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOnCntA));
 	uint8_t pwmOffCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOffCntA));
+	if (pf_conf.pulse_bank > ZERO) {
+		pwmOnCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOnCntB));
+		pwmOffCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOffCntB));
+	}
 
 	// use pwm_loop to divede by 10 and make bigger so _delta works nice.
 	uint16_t pwmLoop = pf_conf.pulse_steps; // * FREQ_MUL
@@ -83,8 +98,7 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 			if ( preFreq/4 > 0xFF00) { pwmLoop *= 2; }
 		}
 	}
-	Vars_setValue(pwmLoopIdx,0,0,pwmLoop);
-
+	
 	// Search for best clock divider
 	for (uint8_t i = ZERO; i < CLK_SCALE_SIZE; i++) {
 		uint32_t tcntDivCalc = (F_CPU*10)/CLK_SCALE[i]/freq;
@@ -94,29 +108,36 @@ void Freq_requestTrainFreq(uint32_t freq,uint8_t idx) {
 		}
 	}
 
-	// Calc compa and set for index or set all
+	// Calc on time
 	uint16_t compaValue = (F_CPU*10)/CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
-	if (idx == QMAP_VAR_IDX_ALL) {
-		for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
-			Vars_setValue(pwmOnCntIdx,i,0,compaValue);
-		}
-	} else {
-		Vars_setValue(pwmOnCntIdx,idx,0,compaValue);
-	}
 
-	// Get argu duty or global and calc compb value and set for index or all.
-	uint8_t duty = pf_conf.pwm_duty;
+	// Calc off time from duty
+	uint8_t duty = pf_conf.pwm_req_duty;
 	uint16_t compbValue = (compaValue / 100) * duty;
 	if (compaValue < 1000) {
 		compbValue = (compaValue * duty) / 100; // reverse calc for more persision in high range
 	}
+
+	// up all vars if over 100% duty.
+	if (duty > 100 && compaValue > 40000) {
+		pwmLoop *= 2;
+		compaValue = compaValue/2;
+		compbValue = (compaValue / 100) * duty;
+	}
+
+	// Set comp a/b and set for index or set all
 	if (idx == QMAP_VAR_IDX_ALL) {
 		for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
+			Vars_setValue(pwmOnCntIdx,i,0,compaValue);
 			Vars_setValue(pwmOffCntIdx,i,0,compbValue);
 		}
 	} else {
+		Vars_setValue(pwmOnCntIdx,idx,0,compaValue);
 		Vars_setValue(pwmOffCntIdx,idx,0,compbValue);
 	}
+
+	// set pwm_loop last because duty can turn this up.
+	Vars_setValue(pwmLoopIdx,0,0,pwmLoop);
 }
 
 void Freq_loop(void) {

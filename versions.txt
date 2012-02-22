@@ -21,8 +21,12 @@ Version 1.0-Beta1:
 - Changed req_pwm_freq from 3 to 2 parameters removed duty uses always pwm_duty now.
 - Fixed internal event pulse_fire trigger.
 - Added load/save to (text) file of chip config options to gui.
-- Changed Freq from *10 to *100 for better readout.
+- Changed Freq from *10 to *100 for better readout and fixed bank_B support.
 - Added pulse_trigger EXT+FIRE for combined trigging source.
+- Added pwm_req_idx config variable to control hz freq request to channel.
+- Renamed pwm_duty to pwm_req_duty and moved pwm_req_freq from data to config.
+- Renamed mal_trig to mal_fire so all triggers are called '_fire'.
+- Added req_mal_fire cmd to request software mal code triggering.
 
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.

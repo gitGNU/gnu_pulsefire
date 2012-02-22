@@ -95,6 +95,9 @@ public class CommandWire {
 		
 		result.setType(commandType);
 		String[] columns = line.split(Command.SEPERATOR);
+		if (result.getCommandName()==CommandName.chip_flags | result.getCommandName()==CommandName.chip_build) {
+			columns[0] = line; // small extra checks for these cmds.
+		}
 		if (columns.length>7) {
 			result.setArgu7(columns[7]);
 		}
@@ -124,6 +127,10 @@ public class CommandWire {
 	}
 	
 	static public String encodeCommand(Command command) {
+		return encodeCommand(command,false);
+	}
+	
+	static public String encodeCommand(Command command,boolean mapName) {
 		StringBuilder buff = new StringBuilder();
 		if (command.getCommandName().isAliased()) {
 			buff.append(command.getCommandName().getAliasName());
@@ -136,7 +143,12 @@ public class CommandWire {
 		}
 		if (command.getArgu1()!=null) {
 			buff.append(Command.SEPERATOR);
-			buff.append(command.getArgu1());
+			if (mapName && command.getCommandName().isIndexedB() && "65535".equals(command.getArgu1())==false) {
+				CommandName cmdName = CommandName.valueOfMapIndex(new Integer(command.getArgu1()));
+				buff.append(cmdName.name());
+			} else {
+				buff.append(command.getArgu1());
+			}
 		}
 		if (command.getArgu2()!=null) {
 			buff.append(Command.SEPERATOR);

@@ -36,7 +36,7 @@ public class Command {
 	static public final String RESPONSE_GET = "==";
 	
 	private String lineRaw = null;
-	private CommandName variable = null;
+	private CommandName commandName = null;
 	private CommandWireType commandType = null;
 	private String argu0 = null;
 	private String argu1 = null;
@@ -47,8 +47,8 @@ public class Command {
 	private String argu6 = null;
 	private String argu7 = null;
 	
-	public Command(CommandName variable) {
-		this.variable=variable;
+	public Command(CommandName commandName) {
+		this.commandName=commandName;
 	}
 	public Command(CommandName variable,String arg0) {
 		this(variable);
@@ -56,10 +56,10 @@ public class Command {
 	}
 	
 	public CommandName getCommandName() {
-		return variable;
+		return commandName;
 	}
-	public void setCommandName(CommandName variable) {
-		this.variable = variable;
+	public void setCommandName(CommandName commandName) {
+		this.commandName = commandName;
 	}
 	public CommandWireType getType() {
 		return commandType;

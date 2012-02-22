@@ -66,7 +66,7 @@ root@pulsefire: mal_program 0 48 3313FFFF
 root@pulsefire: mal_program 0 52 FFFFFFFF
 
 Setup env for this example;
-root@pulsefire: sys_adc_map 4 mal_trigger 20 250 0
+root@pulsefire: sys_adc_map 4 mal_fire 20 250 0
 root@pulsefire: pulse_mode 4
 root@pulsefire: req_pwm_freq 1200
 root@pulsefire: save
@@ -74,7 +74,7 @@ root@pulsefire: req_auto_push 1
 
 Now turn the pot on analog input4;
 
-mal_trigger00=106
+mal_fire00=106
 Exec cmd: 30 vt:3 vi:0 ct:0 argu: 10 set: 16 idxA: 0 to: 106
 pwm_duty=106
 Exec cmd: 40 vt:0 vi:0 ct:1 ext-cmd: 03 et:0 eo:3 argu: 00 var: 6A value: 14

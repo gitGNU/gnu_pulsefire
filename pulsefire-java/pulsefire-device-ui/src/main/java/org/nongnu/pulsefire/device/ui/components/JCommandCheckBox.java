@@ -64,7 +64,11 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 		deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		command = new Command(commandName);
 		this.addActionListener(this);
-		JComponentEnableStateListener.attach(this,commandName);
+		if (idx!=-1) {
+			JComponentEnableStateListener.attach(this,commandName,idx);
+		} else {
+			JComponentEnableStateListener.attach(this,commandName);
+		}
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
 	}
 	

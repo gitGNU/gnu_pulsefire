@@ -1,0 +1,54 @@
+
+Building PulseFire
+
+You need a few software packages;
+- java sdk 1.6 or higher.
+- maven 3 or higher.
+- make/avr-gcc
+
+-- Create package --
+
+cd project-root/;
+mvn clean package;
+
+Which results in zip/tar/gz archieves in the different build targets;
+ls pulsefire-build/pulsefire-build-*/target/*
+
+-- Run via maven --
+
+cd project-root/;
+mvn clean install;
+cd pulsefire-java/pulsefire-device-ui/;
+mvn exec:java -Dexec.mainClass="org.nongnu.pulsefire.device.ui.PulseFireUI"
+
+-- Build chip code --
+
+cd project-root/;
+cd pulsefire-chip/src/main/c/;
+make clean atmega328p-007;
+or
+make clean atmega328p-007-isp;
+or 
+make clean all;
+
+-- Make release build --
+
+cd project-root/;
+mvn clean package;
+mvn -B -Dusername=<scm_username> clean install release:clean release:prepare release:perform;
+src/build/rel-up.sh <scm_username>
+
+-- Make site --
+
+cd project-root/;
+mvn site:stage
+And then manual upload.
+
+-- Check for dependency-updates --
+
+cd project-root/;
+mvn versions:display-plugin-updates;
+mvn versions:display-dependency-updates;
+
+
+

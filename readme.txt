@@ -9,13 +9,13 @@ Some features; max 16 outputs,soft warm-up,timing per channel,serial console,lcd
 === Files in this package ===
 
 authors.txt         - Contributors listing.
-install.txt         - Install guide.
+build.txt           - Developer build guide.
 licence.txt         - The licence of PulseFire.
 pom.xml             - Maven specific build file used by frontend IDE
-readme.txt   				- This file.
+readme.txt          - This file.
 todo.txt            - Small todo list.
-versions.txt 	      - Versions history.
-pulsefire-frontend	- Java packages for pulsefire gui
+versions.txt        - Versions history.
+pulsefire-*         - Maven Java/Chip packages for pulsefire.
 src                 - Arduino/site/schematic source
 
 === Licenced binary files ===
@@ -30,7 +30,6 @@ src                 - Arduino/site/schematic source
 ./src/site/resources/images/pulsefire-left.png
 ./src/site/resources/images/pulsefire-overview.png
 ./src/site/pulsefire.jks
-
 
 The binary files in the above listing fall all under
 the licence terms described in the licence.txt file.

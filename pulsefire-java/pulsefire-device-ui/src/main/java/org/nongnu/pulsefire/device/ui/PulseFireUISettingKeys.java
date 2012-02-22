@@ -36,20 +36,36 @@ public enum PulseFireUISettingKeys {
 	LIMIT_CHANNELS("true"),
 	CONSOLE_LINES("500"),
 	SCOPE_ENABLE("false"),
+	PULL_SPEED("10000"),
 	AVRDUDE_CMD(""),
 	AVRDUDE_CONFIG(""),
 	GRAPH_SIZE("0"),
 	GRAPH_COLS("0"),
+	GRAPH_LIST(""),
+	GRAPH_LIST_FRONT("pwm_loop,pwm_req_freq,pulse_steps,adc_value,dic_value,doc_port,dev_volt,dev_temp,pulse_step,sys_main_loop_cnt"),
 	UI_SPLIT_BOTTOM("570"),
 	UI_SPLIT_BOTTOM_LOG("600"),
-	LOG_FILE_APPEND("false"),
-	LOG_CMD_ENABLE("false"),
-	LOG_CMD_FILE(""),
-	LOG_CMD_TX("true"),
-	LOG_CMD_RX("true"),
-	LOG_PULL_ENABLE("false"),
-	LOG_PULL_FILE(""),
-	LOG_PULL_FIELDS("");
+	
+	LOG0_ENABLE("false"),
+	LOG0_TIMESTAMP("true"),
+	LOG0_FILENAME("pulsefire-log"),
+	LOG0_PATH(""),
+	LOG0_SPEED("60000"),
+	LOG0_FIELDS("pulse_*,pwm_*,adc_*,dic_*,dev_*"),
+
+	LOG1_ENABLE("false"),
+	LOG1_TIMESTAMP("true"),
+	LOG1_FILENAME("pulsefire-adc"),
+	LOG1_PATH(""),
+	LOG1_SPEED("10000"),
+	LOG1_FIELDS("adc_value"),
+	
+	LOG2_ENABLE("false"),
+	LOG2_TIMESTAMP("true"),
+	LOG2_FILENAME("pulsefire-device"),
+	LOG2_PATH(""),
+	LOG2_SPEED("120000"),
+	LOG2_FIELDS("dev_*");
 	
 	private String defaultValue = null;
 	private PulseFireUISettingKeys(String defaultValue) {

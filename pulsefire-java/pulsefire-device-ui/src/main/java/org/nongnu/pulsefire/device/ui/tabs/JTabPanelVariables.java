@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -52,7 +51,6 @@ import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 import org.nongnu.pulsefire.wire.CommandVariableType;
@@ -85,9 +83,7 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
 		
 		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.LINE_AXIS));
 		topPanel.add(createTopPanelFilter());
-		topPanel.add(createTopPanelPulling());
 		topSplit.add(JComponentFactory.createJPanelJWrap(topPanel),BorderLayout.PAGE_START);
 		topSplit.add(wrap,BorderLayout.CENTER);
 		add(topSplit);
@@ -130,25 +126,6 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		});
 		filterPanel.add(filterIndexedCheckBox);
 		return filterPanel;
-	}
-	
-	private JPanel createTopPanelPulling() {
-		JPanel pullPanel = JComponentFactory.createJFirePanel("Pulling");
-		pullPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pullPanel.add(new JLabel("Refresh"));
-		JComboBox refreshBox = new JComboBox(new Integer[] {10*60*1000,5*60*1000,1*60*1000,30*1000,10*1000,5000,4000,3000,2000});
-		refreshBox.setSelectedIndex(4);
-		refreshBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				EventTimeTrigger trig = PulseFireUI.getInstance().getEventTimeManager().getEventTimeTriggerByName("refreshData");
-				if (trig!=null) {
-					trig.setTimeStep((Integer)((JComboBox)e.getSource()).getSelectedItem());
-				}
-			}
-		});
-		pullPanel.add(refreshBox);
-		return pullPanel;
 	}
 	
 	private JPanel createVars(String name, CommandVariableType type) {
@@ -281,11 +258,19 @@ public class JTabPanelVariables extends AbstractTabPanel {
 				return keys.get(row);
 			} else {
 				if (cmd.getCommandName().isIndexedA() && cmd.getCommandName().isIndexedB()) {
-					return cmd.getLineRaw().substring(3); // removed internal prefix of index b
+					StringBuffer buf = new StringBuffer(50);
+					if (cmd.getArgu1()!=null) { buf.append(cmd.getArgu1());buf.append(' '); }
+					if (cmd.getArgu2()!=null) { buf.append(cmd.getArgu2());buf.append(' '); }
+					if (cmd.getArgu3()!=null) { buf.append(cmd.getArgu3());buf.append(' '); }
+					if (cmd.getArgu4()!=null) { buf.append(cmd.getArgu4());buf.append(' '); }
+					if (cmd.getArgu5()!=null) { buf.append(cmd.getArgu5());buf.append(' '); }
+					if (cmd.getArgu6()!=null) { buf.append(cmd.getArgu6());buf.append(' '); }
+					if (cmd.getArgu7()!=null) { buf.append(cmd.getArgu7()); }
+					return buf.toString();
 				} else if (cmd.getCommandName().isIndexedA()) {
-					return cmd.getLineRaw().substring(0,cmd.getLineRaw().length()-3); // removed internal postfix of index b 
+					return cmd.getArgu0();
 				} else {
-					return cmd.getLineRaw();
+					return cmd.getArgu0();
 				}
 			}
 		}

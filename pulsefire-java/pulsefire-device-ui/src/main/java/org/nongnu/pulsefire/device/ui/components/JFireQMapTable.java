@@ -54,6 +54,7 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
+import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
@@ -109,7 +110,7 @@ public class JFireQMapTable extends JPanel {
 		add(qmapTable, BorderLayout.CENTER);
 	}
 	
-	public class DeviceConfigVariableTableModel extends AbstractTableModel  implements DeviceConnectListener  {
+	public class DeviceConfigVariableTableModel extends AbstractTableModel  implements DeviceConnectListener, DeviceCommandListener  {
 		
 		private static final long serialVersionUID = 3636761640345147211L;
 		private String[] columnNames = new String[] {"num","variable","a","b","idx"};
@@ -126,6 +127,7 @@ public class JFireQMapTable extends JPanel {
 			this.colNameB=colNameB;
 			deviceData = PulseFireUI.getInstance().getDeviceData();
 			PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(variableName, this);
 		}
 
 		JLabel l = new JLabel();
@@ -228,6 +230,11 @@ public class JFireQMapTable extends JPanel {
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
 			
 			fireTableCellUpdated(row, col);
+		}
+
+		@Override
+		public void commandReceived(Command command) {
+			fireTableDataChanged();
 		}
 	}
 	

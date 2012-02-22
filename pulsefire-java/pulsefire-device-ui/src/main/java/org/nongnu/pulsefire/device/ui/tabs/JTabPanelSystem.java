@@ -227,7 +227,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 		if (cmd==null) {
 			return;
 		}
-		String cmdLine = CommandWire.encodeCommand(cmd);
+		String cmdLine = CommandWire.encodeCommand(cmd,true);
 		writer.append(cmdLine);
 		writer.append("\n");
 		writer.flush();

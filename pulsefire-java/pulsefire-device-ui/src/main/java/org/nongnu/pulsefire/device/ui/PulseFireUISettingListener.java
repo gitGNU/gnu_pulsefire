@@ -21,40 +21,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.flash;
-
-import java.io.File;
-import java.io.FileOutputStream;
-
-import junit.framework.TestCase;
+package org.nongnu.pulsefire.device.ui;
 
 /**
- * FlashHexReaderTest does simple test with read/writer of hex files.
+ * PulseFireUISettingKeys defines all uniq settings keys as enum with defaults as string.
  * 
  * @author Willem Cazander
  */
-public class FlashHexReaderTest extends TestCase {
+public interface PulseFireUISettingListener {
 
-	static String SAMPLE_HEX_RESOURCE = "org/nongnu/pulsefire/device/flash/sample.hex";
-	
-	public void testRead() throws Exception {
-		FlashHexReader hex = new FlashHexReader();
-		byte[] data = hex.loadHex(SAMPLE_HEX_RESOURCE);
-		assertEquals(true,data.length>0);
-	}
-	
-	public void testWrite() throws Exception {
-		FlashHexReader hex = new FlashHexReader();
-		byte[] data = hex.loadHex(SAMPLE_HEX_RESOURCE);
-		File tmp = File.createTempFile("test-write", ".hex");
-		hex.writeHexData(data, new FileOutputStream(tmp));
-		byte[] data2 = hex.loadHex(tmp);
-		assertEquals("Check size",data.length , data2.length);
-		for (int i=0;i<data.length;i++) {
-			byte orgByte = data[i];
-			byte newByte = data2[i];
-			assertEquals("on address: "+i,orgByte , newByte);
-		}
-		tmp.delete();
-	}
+	public void settingUpdated(PulseFireUISettingKeys key,String value);
 }

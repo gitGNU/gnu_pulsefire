@@ -23,6 +23,9 @@
 
 package org.nongnu.pulsefire.wire;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * CommandName defines all the commands possible to receive or transmit to PulseFire.
  * 
@@ -44,10 +47,10 @@ public enum CommandName {
 	reset_data				(CommandVariableType.CMD),
 	reset_chip				(CommandVariableType.CMD),
 	
-	req_pulse_fire			(CommandVariableType.CMD),
-	req_pwm_freq			(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_auto_lpm			(CommandVariableType.CMD,WireChipFlags.LPM),
+	req_pulse_fire			(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_ptt_fire			(CommandVariableType.CMD,WireChipFlags.PTT),
+	req_mal_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
 	req_tx_push				(CommandVariableType.CMD),
 	req_tx_echo				(CommandVariableType.CMD),
 	req_tx_promt			(CommandVariableType.CMD),
@@ -76,7 +79,9 @@ public enum CommandName {
 	pwm_loop				(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_loop_delta			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_clock				(CommandVariableType.CONF,WireChipFlags.PWM),
-	pwm_duty				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_req_idx				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_req_duty			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pwm_req_freq			(CommandVariableType.CONF,WireChipFlags.PWM),
 	
 	ppm_data_offset			(CommandVariableType.CONF,WireChipFlags.PPM),
 	ppm_data_len			(CommandVariableType.CONF,WireChipFlags.PPM),
@@ -202,9 +207,8 @@ public enum CommandName {
 	pwm_state				(CommandVariableType.DATA),
 	pwm_loop_cnt			(CommandVariableType.DATA),
 	pwm_loop_max			(CommandVariableType.DATA),
-	pwm_req_freq			(CommandVariableType.DATA),
 	ppm_idx					(CommandVariableType.DATA),
-	mal_trig				(CommandVariableType.DATA),
+	mal_fire				(CommandVariableType.DATA),
 	
 	chip_version			(CommandVariableType.CHIP),
 	chip_conf_max			(CommandVariableType.CHIP),
@@ -331,5 +335,53 @@ public enum CommandName {
 	
 	public boolean isMagicTopListValue() {
 		return magicTopListValue;
+	}
+	
+	static public CommandName valueOfMapIndex(int mapIdx) {
+		for (CommandName cn:values()) {
+			if (cn.getMapIndex()==mapIdx) {
+				return cn;
+			}
+		}
+		return null;
+	}
+	
+	static public List<CommandName> decodeCommandList(String setting) {
+		List<CommandName> result = new ArrayList<CommandName>(50);
+		if (setting!=null && setting.isEmpty()==false) {
+			String[] ss = setting.split(",");
+			for (String s:ss) {
+				if (s.contains("_*")) {
+					String prefix = s.substring(0,s.indexOf('*')-1);
+					for (CommandName cn:values()) {
+						if (cn.name().startsWith(prefix)) {
+							result.add(cn);
+						}
+					}
+					continue;
+				}
+				CommandName cn = null;
+				try {
+					cn = CommandName.valueOf(s);
+				} catch (Exception e) {
+				}
+				if (cn!=null) {
+					result.add(cn);
+				}
+			}
+		}
+		return result;
+	}
+	
+	static public String encodeCommandList(List<CommandName> commands) {
+		StringBuilder buf = new StringBuilder(100);
+		for (int i=0;i<commands.size();i++) {
+			CommandName cn = (CommandName)commands.get(i);
+			buf.append(cn.name());
+			if (i<commands.size()) {
+				buf.append(',');
+			}
+		}
+		return buf.toString();
 	}
 }
