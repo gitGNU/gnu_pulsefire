@@ -255,6 +255,10 @@ public class CommandNameVersionFactory {
 		CommandName.freq_pwm_data.maxIndexB=3;
 		CommandName.req_ptt_fire.maxIndexA=3;
 		
+		CommandName.req_pwm_freq.disabled=true;
+		CommandName.swc_trig.disabled=true;
+		CommandName.swc_mode.disabled=true;
+		CommandName.swc_mode_org.disabled=true;
 		CommandName.stv_warn_mode.disabled=true;
 		CommandName.stv_error_mode.disabled=true;
 		return true;

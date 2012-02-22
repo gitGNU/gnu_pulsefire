@@ -241,10 +241,13 @@ public enum CommandName {
 	stv_mode_org			(CommandVariableType.PROG),
 	stv_map_idx				(CommandVariableType.PROG),
 	
-	// Deleted
-	//swc_mode_org			(CommandVariableType.DATA),
-	stv_warn_mode			(CommandVariableType.CONF,WireChipFlags.STV),
-	stv_error_mode			(CommandVariableType.CONF,WireChipFlags.STV);
+	// Deleted command
+	req_pwm_freq			(CommandVariableType.CHIP),
+	swc_trig				(CommandVariableType.CHIP),
+	swc_mode				(CommandVariableType.CHIP),
+	swc_mode_org			(CommandVariableType.CHIP),
+	stv_warn_mode			(CommandVariableType.CHIP),
+	stv_error_mode			(CommandVariableType.CHIP);
 	
 	
 	
