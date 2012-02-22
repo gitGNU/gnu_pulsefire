@@ -70,6 +70,8 @@ public enum CommandName {
 	pulse_mask_b			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_init_a			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_init_b			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_inv_a				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_inv_b				(CommandVariableType.CONF,WireChipFlags.PWM),
 	
 	pwm_on_cnt_a			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_on_cnt_b			(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -110,9 +112,9 @@ public enum CommandName {
 	dev_temp_dot			(CommandVariableType.CONF,WireChipFlags.DEV),
 	
 	stv_warn_secs			(CommandVariableType.CONF,WireChipFlags.STV),
-	stv_warn_mode			(CommandVariableType.CONF,WireChipFlags.STV),
+	stv_warn_map			(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_error_secs			(CommandVariableType.CONF,WireChipFlags.STV),
-	stv_error_mode			(CommandVariableType.CONF,WireChipFlags.STV),
+	stv_error_map			(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_max_map				(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_min_map				(CommandVariableType.CONF,WireChipFlags.STV),
 
@@ -142,10 +144,9 @@ public enum CommandName {
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	
 	swc_delay				(CommandVariableType.CONF,WireChipFlags.SWC),
-	swc_mode				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_secs				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_duty				(CommandVariableType.CONF,WireChipFlags.SWC),
-	swc_trig				(CommandVariableType.CONF,WireChipFlags.SWC),
+	swc_map					(CommandVariableType.CONF,WireChipFlags.SWC),
 
 	/* All non conf types are only used to receiving info so they have no dep info. */
 	
@@ -162,7 +163,6 @@ public enum CommandName {
 	dic_value				(CommandVariableType.DATA),
 	doc_port				(CommandVariableType.DATA),
 	
-	swc_mode_org			(CommandVariableType.DATA),
 	swc_secs_cnt			(CommandVariableType.DATA),
 	swc_duty_cnt			(CommandVariableType.DATA),
 	
@@ -239,7 +239,13 @@ public enum CommandName {
 	stv_state				(CommandVariableType.PROG),
 	stv_time_cnt			(CommandVariableType.PROG),
 	stv_mode_org			(CommandVariableType.PROG),
-	stv_map_idx				(CommandVariableType.PROG);
+	stv_map_idx				(CommandVariableType.PROG),
+	
+	// Deleted
+	//swc_mode_org			(CommandVariableType.DATA),
+	stv_warn_mode			(CommandVariableType.CONF,WireChipFlags.STV),
+	stv_error_mode			(CommandVariableType.CONF,WireChipFlags.STV);
+	
 	
 	
 	private CommandVariableType type = null;

@@ -117,7 +117,7 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 
 			JPanel boxPanel = new JPanel();
 			boxPanel.setLayout(new SpringLayout());
-			
+						
 			JCheckBox boxMaskA = new JCommandCheckBox(CommandName.pulse_mask_a,i);
 			boxMaskA.putClientProperty("JComponent.sizeVariant", "mini");
 			boxPanel.add(boxMaskA);
@@ -134,8 +134,16 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 			JCheckBox boxInitB = new JCommandCheckBox(CommandName.pulse_init_b,i);
 			boxInitB.putClientProperty("JComponent.sizeVariant", "mini");
 			boxPanel.add(boxInitB);
+			JCheckBox boxInvA = new JCommandCheckBox(CommandName.pulse_inv_a,i);
+			boxInvA.putClientProperty("JComponent.sizeVariant", "mini");
+			boxPanel.add(boxInvA);
+			JLabel invLabel = new JLabel("Invert");
+			boxPanel.add(invLabel);
+			JCheckBox boxInvB = new JCommandCheckBox(CommandName.pulse_inv_b,i);
+			boxInvB.putClientProperty("JComponent.sizeVariant", "mini");
+			boxPanel.add(boxInvB);
 
-			SpringLayoutGrid.makeCompactGrid(boxPanel,2,3,0,0,0,0);
+			SpringLayoutGrid.makeCompactGrid(boxPanel,3,3,0,0,0,0);
 			out.add(boxPanel);
 			
 			JPanel dialPanel = new JPanel();
@@ -153,27 +161,27 @@ public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListe
 			out.add(dialPanel);
 			
 			JPanel flagsPanel = new JPanel();
+			flagsPanel.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
 			//flagsPanel.setBorder(new JFireBorderChild(out));
-			flagsPanel.setLayout(new SpringLayout());
-			
-			JPanel flags = new JPanel();
-			flags.setLayout(new BoxLayout(flags,BoxLayout.PAGE_AXIS));
-			JCheckBox pwmFlag = new JCheckBox();
-			pwmFlag.setText("inv");
-			pwmFlag.setEnabled(false);
-			//JComponentEnableStateListener.attach(pwmFlag,null);
-			pwmFlag.putClientProperty("JComponent.sizeVariant", "mini");
-			flags.add(pwmFlag);
-			JCheckBox ppmFlag = new JCheckBox();
-			ppmFlag.setText("inv");
-			ppmFlag.setEnabled(false);
-			ppmFlag.putClientProperty("JComponent.sizeVariant", "mini");
-			//JComponentEnableStateListener.attach(ppmFlag,null);
-			flags.add(ppmFlag);
-			flagsPanel.add(flags);
+			//flagsPanel.setLayout(new SpringLayout());
+			//JPanel flags = new JPanel();
+			//flags.setLayout(new BoxLayout(flags,BoxLayout.PAGE_AXIS));
+			//JCheckBox pwmFlag = new JCheckBox();
+			//pwmFlag.setText("inv");
+			//pwmFlag.setEnabled(false);
+			////JComponentEnableStateListener.attach(pwmFlag,null);
+			//pwmFlag.putClientProperty("JComponent.sizeVariant", "mini");
+			//flags.add(pwmFlag);
+			//JCheckBox ppmFlag = new JCheckBox();
+			//ppmFlag.setText("inv");
+			//ppmFlag.setEnabled(false);
+			//ppmFlag.putClientProperty("JComponent.sizeVariant", "mini");
+			////JComponentEnableStateListener.attach(ppmFlag,null);
+			//flags.add(ppmFlag);
+			//flagsPanel.add(flags);
 			flagsPanel.add(new JCommandDial(CommandName.pwm_tune_cnt,i));
-
-			SpringLayoutGrid.makeCompactGrid(flagsPanel,1,2,0,0,0,0);
+			//SpringLayoutGrid.makeCompactGrid(flagsPanel,1,2,0,0,0,0);
+			
 			out.add(flagsPanel);
 
 			JPanel ppmPanel = new JPanel();

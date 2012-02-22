@@ -56,6 +56,7 @@ import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.time.PulseFireDataPuller;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -306,12 +307,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 		wrapPanel.add(warmDialPanel);
 		
 		JPanel warmPanel = new JPanel();
-		warmPanel.setLayout(new SpringLayout());
-		warmPanel.add(JComponentFactory.createJLabel("Warmup Mode"));
-		warmPanel.add(JComponentFactory.createJPanelJWrap(new JCommandComboBox(CommandName.swc_mode)));
-		warmPanel.add(JComponentFactory.createJLabel("Warmup Trigger"));
-		warmPanel.add(JComponentFactory.createJPanelJWrap(new JCommandComboBox(CommandName.swc_trig)));
-		SpringLayoutGrid.makeCompactGrid(warmPanel,2,2);
+		warmPanel.add(new JFireQMapTable(CommandName.swc_map,"warmup","normal"));
 		wrapPanel.add(warmPanel);
 		
 		return wrapPanel;

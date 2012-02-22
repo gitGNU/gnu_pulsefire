@@ -23,6 +23,47 @@
 
 #include "stv.h"
 
+#ifdef SF_ENABLE_STV
+void STV_warn_map(uint8_t isSTVAction) {
+	for (uint8_t i=ZERO;i < STV_WARN_MAP_MAX;i++) {
+		uint16_t v = pf_conf.stv_warn_map[i][QMAP_VAR];
+		if (v==QMAP_VAR_NONE) {
+			continue;
+		}
+		uint16_t value = ZERO;
+		if (isSTVAction) {
+			value = pf_conf.stv_warn_map[i][QMAP_VALUE_A];
+		} else {
+			value = pf_conf.stv_warn_map[i][QMAP_VALUE_B];
+		}
+		if (value==0xFFFF) {
+			continue;
+		}
+		uint16_t vIdx = pf_conf.stv_warn_map[i][QMAP_VAR_IDX];
+		Vars_setValue(v,vIdx,ZERO,value);
+	}
+}
+void STV_error_map(uint8_t isSTVAction) {
+	for (uint8_t i=ZERO;i < STV_ERROR_MAP_MAX;i++) {
+		uint16_t v = pf_conf.stv_error_map[i][QMAP_VAR];
+		if (v==QMAP_VAR_NONE) {
+			continue;
+		}
+		uint16_t value = ZERO;
+		if (isSTVAction) {
+			value = pf_conf.stv_error_map[i][QMAP_VALUE_A];
+		} else {
+			value = pf_conf.stv_error_map[i][QMAP_VALUE_B];
+		}
+		if (value==0xFFFF) {
+			continue;
+		}
+		uint16_t vIdx = pf_conf.stv_error_map[i][QMAP_VAR_IDX];
+		Vars_setValue(v,vIdx,ZERO,value);
+	}
+}
+#endif
+
 
 #ifdef SF_ENABLE_STV
 void STV_loop(void) {
@@ -56,20 +97,14 @@ void STV_loop(void) {
 			pf_prog.stv_wait_cnt         = ZERO;
 			if (pf_prog.stv_state == STV_STATE_ERROR_MAX && curValue >= pf_conf.stv_max_map[pf_prog.stv_map_idx][QMAP_VALUE_A]) {
 				pf_prog.stv_state            = STV_STATE_WARNING_MAX;
+				STV_error_map(false);
+				STV_warn_map(true);
 			} else {
 				pf_prog.stv_state            = STV_STATE_OKE;
+				STV_warn_map(false);
 			}
 			pf_prog.stv_time_cnt         = ZERO;
 			pf_prog.stv_map_idx          = ZERO;
-			if (pf_prog.stv_state == STV_STATE_WARNING_MAX) {
-				if (pf_conf.stv_warn_mode != 0xFF) {
-					Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-				}
-			} else {
-				if (pf_conf.stv_error_mode != 0xFF) {
-					Vars_setValue(ONE,ZERO,ZERO,pf_prog.stv_mode_org);
-				}
-			}
 		} else {
 			pf_prog.stv_wait_cnt = ZERO; // reset waiting time
 		}
@@ -95,21 +130,14 @@ void STV_loop(void) {
 			pf_prog.stv_wait_cnt         = ZERO;
 			if (pf_prog.stv_state == STV_STATE_ERROR_MIN && curValue <= pf_conf.stv_min_map[pf_prog.stv_map_idx][QMAP_VALUE_A]) {
 				pf_prog.stv_state            = STV_STATE_WARNING_MIN;
+				STV_error_map(false);
+				STV_warn_map(true);
 			} else {
 				pf_prog.stv_state            = STV_STATE_OKE;
+				STV_warn_map(false);
 			}
 			pf_prog.stv_time_cnt         = ZERO;
 			pf_prog.stv_map_idx          = ZERO;
-
-			if (pf_prog.stv_state == STV_STATE_WARNING_MIN) {
-				if (pf_conf.stv_warn_mode != 0xFF) {
-					Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-				}
-			} else {
-				if (pf_conf.stv_error_mode != 0xFF) {
-					Vars_setValue(ONE,ZERO,ZERO,pf_prog.stv_mode_org);
-				}
-			}
 		} else {
 			pf_prog.stv_wait_cnt = ZERO;
 		}
@@ -167,19 +195,12 @@ void STV_vars_max(uint16_t value,uint8_t stvIdxMax) {
 		pf_prog.stv_state            = STV_STATE_ERROR_MAX;
 		pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
 		pf_prog.stv_map_idx          = stvIdxMax;
-		if (pf_conf.stv_error_mode != 0xFF) {
-			Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_error_mode);
-		}
+		STV_error_map(true);
 	} else if (warningLevel > ZERO && value >= warningLevel && pf_prog.stv_state == STV_STATE_OKE) {
 		pf_prog.stv_state            = STV_STATE_WARNING_MAX;
 		pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
 		pf_prog.stv_map_idx          = stvIdxMax;
-		if (pf_conf.stv_warn_mode != 0xFF) {
-#ifdef SF_ENABLE_PWM
-			pf_prog.stv_mode_org         = pf_conf.pulse_mode;
-#endif
-			Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-		}
+		STV_warn_map(true);
 	}
 }
 #endif
@@ -192,19 +213,13 @@ void STV_vars_min(uint16_t value,uint8_t stvIdxMin) {
 		pf_prog.stv_state            = STV_STATE_ERROR_MIN;
 		pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
 		pf_prog.stv_map_idx          = stvIdxMin;
-		if (pf_conf.stv_error_mode != 0xFF) {
-			Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_error_mode);
-		}
+		STV_error_map(true);
 	} else if (warningLevel > ZERO && value <= warningLevel && pf_prog.stv_state == STV_STATE_OKE) {
 		pf_prog.stv_state            = STV_STATE_WARNING_MIN;
 		pf_prog.stv_time_cnt         = millis() + (pf_conf.stv_warn_secs*1000);
-#ifdef SF_ENABLE_PWM
-		pf_prog.stv_mode_org         = pf_conf.pulse_mode;
-#endif
 		pf_prog.stv_map_idx          = stvIdxMin;
-		if (pf_conf.stv_warn_mode != 0xFF) {
-			Vars_setValue(ONE,ZERO,ZERO,pf_conf.stv_warn_mode);
-		}
+		STV_warn_map(true);
 	}
 }
 #endif
+

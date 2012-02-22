@@ -78,49 +78,61 @@
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
 	#define SF_ENABLE_AVR_MEGA           // Define avr mega
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
-	#define MAL_PROGRAM_SIZE        128
-	#define MAL_PROGRAM_MAX           8
+	#define MAL_PROGRAM_SIZE        256
+	#define MAL_PROGRAM_MAX           4
 	#define ADC_NUM_MAX              16
+	#define SWC_MAP_MAX               4
 	#define PTC_TIME_MAP_MAX         32
 	#define PTT_TRIG_MAP_MAX         16
-	#define STV_MAX_MAP_MAX          32
+	#define STV_MAX_MAP_MAX          24
 	#define STV_MIN_MAP_MAX          16
+	#define STV_WARN_MAP_MAX          4
+	#define STV_ERROR_MAP_MAX         4
 	#define DEV_VAR_MAX              16
 	#define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support for layout issues.
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
 	#define MAL_PROGRAM_SIZE         64
-	#define MAL_PROGRAM_MAX           2
+	#define MAL_PROGRAM_MAX           1
 	#define ADC_NUM_MAX               6
+	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
 	#define STV_MAX_MAP_MAX           8
 	#define STV_MIN_MAP_MAX           4
+	#define STV_WARN_MAP_MAX          2
+	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               4
 	#define VFC_MAP_MAX               3
 #elif __AVR_ATmega168P__
 	#define SF_ENABLE_AVR                  // Define AVR
 	#define CHIP_EEPROM_SIZE        512    // 512 bytes eeprom
-	#define MAL_PROGRAM_SIZE         64    // config array size of basic program
+	#define MAL_PROGRAM_SIZE         32    // config array size of basic program
 	#define MAL_PROGRAM_MAX           1    // Total amount of diffent programs
 	#define ADC_NUM_MAX               6    // Max 6 analog input
+	#define SWC_MAP_MAX               1    // Softwarmup actions
 	#define PTC_TIME_MAP_MAX          4    // Programatic Time slots
 	#define PTT_TRIG_MAP_MAX          2    // Programatic Trigger Time slots
-	#define STV_MAX_MAP_MAX           4    // Maping of safety trashhold values.
-	#define STV_MIN_MAP_MAX           2    // Maping of safety trashhold values.
+	#define STV_MAX_MAP_MAX           2    // Mapping of safety trashhold min values.
+	#define STV_MIN_MAP_MAX           2    // Mapping of safety trashhold max values.
+	#define STV_WARN_MAP_MAX          1    // Mapping of safety warning action
+	#define STV_ERROR_MAP_MAX         1    // Mapping of safety error action
 	#define DEV_VAR_MAX               2    // Generic device variables
 	#define VFC_MAP_MAX               2    // Virtual feedback channels
 #elif __ARM_ARCH_7M__
 	#define SF_ENABLE_ARM_7M               // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
 	#define MAL_PROGRAM_SIZE         64
-	#define MAL_PROGRAM_MAX           2
+	#define MAL_PROGRAM_MAX           1
 	#define ADC_NUM_MAX               6
+	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
 	#define STV_MAX_MAP_MAX           8
 	#define STV_MIN_MAP_MAX           4
+	#define STV_WARN_MAP_MAX          2
+	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               4
 	#define VFC_MAP_MAX               3
 #else
@@ -142,6 +154,10 @@
 	#undef  ADC_NUM_MAX
 	#define ADC_NUM_MAX _ADC_NUM_MAX
 #endif
+#ifdef _SWC_MAP_MAX
+	#undef  SWC_MAP_MAX
+	#define SWC_MAP_MAX _SWC_MAP_MAX
+#endif
 #ifdef _PTC_TIME_MAP_MAX
 	#undef  PTC_TIME_MAP_MAX
 	#define PTC_TIME_MAP_MAX _PTC_TIME_MAP_MAX
@@ -157,6 +173,14 @@
 #ifdef _STV_MIN_MAP_MAX
 	#undef  STV_MIN_MAP_MAX
 	#define STV_MIN_MAP_MAX _STV_MIN_MAP_MAX
+#endif
+#ifdef _STV_WARN_MAP_MAX
+	#undef  STV_WARN_MAP_MAX
+	#define STV_WARN_MAP_MAX _STV_WARN_MAP_MAX
+#endif
+#ifdef _STV_ERROR_MAP_MAX
+	#undef  STV_ERROR_MAP_MAX
+	#define STV_ERROR_MAP_MAX _STV_ERROR_MAP_MAX
 #endif
 #ifdef _DEV_VAR_MAX
 	#undef  DEV_VAR_MAX

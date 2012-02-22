@@ -2,7 +2,6 @@ TODO LIST:
 - When using 16 pwm outputs last output step had extratime.
 - Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
-- invert per output
 - A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
 - Operation manual
 - Port to arm7

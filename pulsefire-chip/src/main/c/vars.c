@@ -71,6 +71,8 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_mask_b,        (CHIP_PTR_TYPE)&pmConfPulseMaskB,      0xFFFF,              PFVB_NONE,                      PULSE_DATA_ON},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_init_a,        (CHIP_PTR_TYPE)&pmConfPulseInitA,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_init_b,        (CHIP_PTR_TYPE)&pmConfPulseInitB,      0xFFFF,              PFVB_NONE,                      DEFAULT_PULSE_DATA_INIT},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_inv_a,         (CHIP_PTR_TYPE)&pmConfPulseInvA,       0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_inv_b,         (CHIP_PTR_TYPE)&pmConfPulseInvB,       0xFFFF,              PFVB_NONE,                      ZERO},
 
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_on_cnt_a,        (CHIP_PTR_TYPE)&pmConfPWMOnCntA,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pwm_on_cnt_b,        (CHIP_PTR_TYPE)&pmConfPWMOnCntB,       0xFFFF,              (OUTPUT_MAX<<8)+PFVB_IDXA,      DEFAULT_PWM_ON_CNT},
@@ -118,9 +120,9 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 #ifdef SF_ENABLE_STV
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_warn_secs,       (CHIP_PTR_TYPE)&pmConfSTVWarnSecs,     0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_warn_mode,       (CHIP_PTR_TYPE)&pmConfSTVWarnMode,     PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_warn_map,        (CHIP_PTR_TYPE)&pmConfSTVWarnMap,      0xFFFF,              (QMAP_SIZE<<13)+(STV_WARN_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_error_secs,      (CHIP_PTR_TYPE)&pmConfSTVErrorSecs,    0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.stv_error_mode,      (CHIP_PTR_TYPE)&pmConfSTVErrorMode,    PULSE_MODE_PPMI,     PFVB_NOMAP+PFVB_NOMENU,         PULSE_MODE_OFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_error_map,       (CHIP_PTR_TYPE)&pmConfSTVErrorMap,     0xFFFF,              (QMAP_SIZE<<13)+(STV_ERROR_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_max_map,         (CHIP_PTR_TYPE)&pmConfSTVMaxMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MAX_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.stv_min_map,         (CHIP_PTR_TYPE)&pmConfSTVMinMap,       0xFFFF,              (QMAP_SIZE<<13)+(STV_MIN_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 #endif
@@ -130,10 +132,9 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 #ifdef SF_ENABLE_SWC
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_delay,           (CHIP_PTR_TYPE)&pmConfSWCDelay,        0xFF,                PFVB_NOMAP,                     ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_mode,            (CHIP_PTR_TYPE)&pmConfSWCMode,         PULSE_MODE_PPMI,     PFVB_NOMAP,                     ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.swc_secs,            (CHIP_PTR_TYPE)&pmConfSWCSecs,         0xFFFF,              PFVB_NOMAP,                     ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.swc_duty,            (CHIP_PTR_TYPE)&pmConfSWCDuty,         0xFFFF,              PFVB_NOMAP,                     DEFAULT_SYS_WARMUP_DUTY},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.swc_trig,            (CHIP_PTR_TYPE)&pmConfSWCTrig,         PTT_TRIG_VAR_SIZE-ONE,PFVB_NOMAP,                    0xFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.swc_map,             (CHIP_PTR_TYPE)&pmConfSWCMap,          0xFFFF,              (QMAP_SIZE<<13)+(SWC_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU,0xFFFF},
 #endif
 
 #ifdef SF_ENABLE_AVR
@@ -186,7 +187,6 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.doc_port,            (CHIP_PTR_TYPE)&pmDataDocPort,         ONE,                 (DOC_PORT_NUM_MAX<<8)+PFVB_DT0+PFVB_IDXA,        ZERO},
 #endif
 #ifdef SF_ENABLE_SWC
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.swc_mode_org,        (CHIP_PTR_TYPE)&pmDataSWCModeOrg,      PULSE_MODE_PPMI,     PFVB_DT0+PFVB_NOMAP,            ONE},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.swc_secs_cnt,        (CHIP_PTR_TYPE)&pmDataSWCSecsCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.swc_duty_cnt,        (CHIP_PTR_TYPE)&pmDataSWCDutyCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 #endif
@@ -279,7 +279,6 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #ifdef SF_ENABLE_STV
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_state,           (CHIP_PTR_TYPE)&pmProgSTVState,        STV_STATE_ERROR_MIN, PFVB_DT1+PFVB_NOMAP,            STV_STATE_OKE},
 	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.stv_time_cnt,        (CHIP_PTR_TYPE)&pmProgSTVTimeCnt,      0xFFFF,              PFVB_DT1+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_mode_org,        (CHIP_PTR_TYPE)&pmProgSTVModeOrg,      0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.stv_map_idx,         (CHIP_PTR_TYPE)&pmProgSTVMapIdx,       0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 #endif
 
@@ -821,11 +820,6 @@ void Vars_resetData(void) {
 		pf_data.pwm_state          = PWM_STATE_IDLE;
 	}
 #endif
-#ifdef SF_ENABLE_SWC
-#ifdef SF_ENABLE_PWM
-	pf_data.swc_mode_org         = pf_conf.pulse_mode;
-#endif
-#endif
 }
 
 
@@ -841,12 +835,21 @@ void Vars_setup(void) {
 	// Reset data to init state
 	Vars_resetData();
 #ifdef SF_ENABLE_SWC
-#ifdef SF_ENABLE_PWM
-	if (pf_conf.swc_mode != ZERO) {
-		pf_conf.pulse_mode = pf_conf.swc_mode; // run in startup mode once.
+	if (pf_conf.swc_delay>ZERO || pf_conf.swc_secs>ZERO) {
+		for (uint8_t i=ZERO;i < SWC_MAP_MAX;i++) {
+			uint16_t v = pf_conf.swc_map[i][QMAP_VAR];
+			if (v==QMAP_VAR_NONE) {
+				continue;
+			}
+			uint16_t value = pf_conf.swc_map[i][QMAP_VALUE_A];
+			if (value==0xFFFF) {
+				continue;
+			}
+			uint16_t vIdx = pf_conf.swc_map[i][QMAP_VAR_IDX];
+			Vars_setValueImpl(v,vIdx,ZERO,value,false,false);
+		}
+		pf_data.swc_secs_cnt  = ONE; // only set on startup to 'one' so softstart code runs once.
 	}
-	pf_data.swc_secs_cnt  = ONE; // only set on startup to 'one' so softstart code runs once.
-#endif
 #endif
 
 	// Reset prog to init state
@@ -872,9 +875,6 @@ void Vars_setup(void) {
 #ifdef SF_ENABLE_STV
 	pf_prog.stv_state            = STV_STATE_OKE;
 	pf_prog.stv_time_cnt         = ZERO;
-#ifdef SF_ENABLE_PWM
-	pf_prog.stv_mode_org         = pf_conf.pulse_mode;
-#endif
 	pf_prog.stv_map_idx          = ZERO;
 #endif
 }

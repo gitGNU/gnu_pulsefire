@@ -58,14 +58,21 @@ void PWM_send_output(uint16_t data) {
 		data = PULSE_DATA_OFF;
 	}
 
-#ifdef SF_ENABLE_STV
-	if (pf_conf.stv_error_mode == PULSE_MODE_OFF) {
-		// This is so on error and mode off, output stays off while mode changes and innner if save few cycles.
-		if (pf_prog.stv_state == STV_STATE_ERROR_MAX || pf_prog.stv_state == STV_STATE_ERROR_MIN) {
-			data = PULSE_DATA_OFF;
-		}
+//#ifdef SF_ENABLE_STV
+//	if (pf_conf.stv_error_mode == PULSE_MODE_OFF) {
+//		// This is so on error and mode off, output stays off while mode changes and innner if save few cycles.
+//		if (pf_prog.stv_state == STV_STATE_ERROR_MAX || pf_prog.stv_state == STV_STATE_ERROR_MIN) {
+//			data = PULSE_DATA_OFF;
+//		}
+//	}
+//#endif
+
+	// Inverse per output bank
+	if (pf_data.pulse_bank_cnt==ZERO) {
+		data = data ^ pf_conf.pulse_inv_a;
+	} else {
+		data = data ^ pf_conf.pulse_inv_b;
 	}
-#endif
 
 	// Inverse output if requested
 	if (pf_conf.pulse_inv > ZERO) {
@@ -90,8 +97,18 @@ boolean PWM_soft_warmup(void) {
 	}
 	if (pf_data.swc_secs_cnt > pf_conf.swc_secs) {
 		pf_data.swc_secs_cnt  = ZERO;
-		if (pf_conf.swc_mode != 0xFF) {
-			Vars_setValue(ONE,ZERO,ZERO,pf_data.swc_mode_org);
+		// TODO: move after new time loop code in main
+		for (uint8_t i=ZERO;i < SWC_MAP_MAX;i++) {
+			uint16_t v = pf_conf.swc_map[i][QMAP_VAR];
+			if (v==QMAP_VAR_NONE) {
+				continue;
+			}
+			uint16_t value = pf_conf.swc_map[i][QMAP_VALUE_B];
+			if (value==0xFFFF) {
+				continue;
+			}
+			uint16_t vIdx = pf_conf.swc_map[i][QMAP_VAR_IDX];
+			Vars_setValueImpl(v,vIdx,ZERO,value,false,false);
 		}
 		return false; // we are done with startup.
 	}

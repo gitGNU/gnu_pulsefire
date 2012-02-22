@@ -147,10 +147,6 @@ public class CommandNameVersionFactory {
 		CommandName.ppm_data_len.pulseModeDependency = WirePulseMode.valuesPPM();
 		CommandName.ppm_data_a.pulseModeDependency = WirePulseMode.valuesPPM();
 		CommandName.ppm_data_b.pulseModeDependency = WirePulseMode.valuesPPM();
-		CommandName.stv_warn_mode.magicTopListValue = true;
-		CommandName.stv_warn_mode.listValues = WirePulseMode.getModeList("KEEP");
-		CommandName.stv_error_mode.magicTopListValue = true;
-		CommandName.stv_error_mode.listValues = WirePulseMode.getModeList("KEEP");
 		
 		CommandName.lcd_size.listValues = new String[] {
 				"LCD_2x16",
@@ -255,20 +251,12 @@ public class CommandNameVersionFactory {
 				"PIN49_DOC7_OUT"
 			};
 		
-		CommandName.swc_mode.magicTopListValue = true;
-		CommandName.swc_mode.listValues = WirePulseMode.getModeList("KEEP");
-		CommandName.swc_trig.magicTopListValue = true;
-		CommandName.swc_trig.listValues = new String[] {
-				"PTT_0",
-				"PTT_1",
-				"PTT_2",
-				"PTT_3",
-				"NONE"
-			};
-		
 		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
 		CommandName.freq_pwm_data.maxIndexB=3;
 		CommandName.req_ptt_fire.maxIndexA=3;
+		
+		CommandName.stv_warn_mode.disabled=true;
+		CommandName.stv_error_mode.disabled=true;
 		return true;
 	}
 
@@ -302,7 +290,10 @@ public class CommandNameVersionFactory {
 		CommandName.req_ptt_fire.disabled=true;
 		CommandName.req_mal_fire.disabled=true;
 		CommandName.mal_fire.aliasName="mal_trig";
-		
+		CommandName.pulse_inv_a.disabled=true;
+		CommandName.pulse_inv_b.disabled=true;
+		CommandName.stv_warn_map.disabled=true;
+		CommandName.stv_error_map.disabled=true;
 		return true;
 	}
 	
@@ -352,10 +343,10 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin5_map.disabled=true;
 		
 		CommandName.swc_delay.aliasName="sys_warmup_delay";
-		CommandName.swc_mode.aliasName="sys_warmup_delay";
+		//CommandName.swc_mode.aliasName="sys_warmup_delay";
 		CommandName.swc_secs.aliasName="sys_warmup_delay";
 		CommandName.swc_duty.aliasName="sys_warmup_delay";
-		CommandName.swc_trig.disabled=true;
+		//CommandName.swc_trig.disabled=true;
 		
 		return true;
 	}

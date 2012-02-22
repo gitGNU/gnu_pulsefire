@@ -109,10 +109,9 @@ typedef struct {
 
 #ifdef SF_ENABLE_SWC
 	volatile uint8_t       swc_delay;       // Startup delay before softstartup.
-	volatile uint8_t       swc_mode;        // If !=0 then use this mode in startup then back to configed mode.
 	volatile uint16_t      swc_secs;        // Total secords of warmup softstart period.
 	volatile uint16_t      swc_duty;        // Sort of start duty from which the steps are made smaller
-	volatile uint8_t       swc_trig;        // Fire trigger after startup.
+	volatile uint16_t      swc_map[SWC_MAP_MAX][QMAP_SIZE];  // warmup variable mapping
 #endif
 
 #ifdef SF_ENABLE_PWM
@@ -129,6 +128,8 @@ typedef struct {
 	volatile uint16_t      pulse_mask_b;           // Mask for bank B
 	volatile uint16_t      pulse_init_a;           // Init data for train mode
 	volatile uint16_t      pulse_init_b;           // Init data for bank B
+	volatile uint16_t      pulse_inv_a;            // Inverse output data
+	volatile uint16_t      pulse_inv_b;            // Inverse output data for bank B
 
 	volatile uint16_t      pwm_on_cnt_a[OUTPUT_MAX]; // Per step timer value
 	volatile uint16_t      pwm_on_cnt_b[OUTPUT_MAX]; // Per step timer value
@@ -180,9 +181,9 @@ typedef struct {
 
 #ifdef SF_ENABLE_STV
 	volatile uint8_t       stv_warn_secs;          // The minimal time to be in warning mode(255=always)
-	volatile uint8_t       stv_warn_mode;          // Switch to this mode if warning level is reached
-	volatile uint8_t       stv_error_secs;         // The minimal time to be in error mode (255=always)
-	volatile uint8_t       stv_error_mode;         // Switch to this mode if error level is reached
+	volatile uint16_t      stv_warn_map[STV_WARN_MAP_MAX][QMAP_SIZE];  // Do these actions if warning level is reached
+	volatile uint8_t       stv_error_secs;      
+	volatile uint16_t      stv_error_map[STV_ERROR_MAP_MAX][QMAP_SIZE];
 	volatile uint16_t      stv_max_map[STV_MAX_MAP_MAX][QMAP_SIZE]; // Max trashhold values
 	volatile uint16_t      stv_min_map[STV_MIN_MAP_MAX][QMAP_SIZE]; // Min trashhols values
 #endif
@@ -236,7 +237,6 @@ typedef struct {
 #ifdef SF_ENABLE_SWC
 	volatile uint16_t      swc_secs_cnt;
 	volatile uint16_t      swc_duty_cnt;
-	volatile uint8_t       swc_mode_org;
 #endif
 #ifdef SF_ENABLE_LCD
 	volatile uint8_t       lcd_page;
@@ -339,7 +339,6 @@ typedef struct {
 	volatile uint8_t       stv_state;
 	volatile uint32_t      stv_time_cnt;
 	volatile uint8_t       stv_wait_cnt;
-	volatile uint8_t       stv_mode_org;
 	volatile uint8_t       stv_map_idx;
 #endif
 
@@ -354,7 +353,7 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  34
+	#define PF_VARS_PWM_SIZE  36
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif
@@ -404,7 +403,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_PTT_SIZE  0
 #endif
 #ifdef SF_ENABLE_STV
-	#define PF_VARS_STV_SIZE  10
+	#define PF_VARS_STV_SIZE  9
 #else
 	#define PF_VARS_STV_SIZE  0
 #endif
@@ -419,7 +418,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_MAL_SIZE  0
 #endif
 #ifdef SF_ENABLE_SWC
-	#define PF_VARS_SWC_SIZE  8
+	#define PF_VARS_SWC_SIZE  6
 #else
 	#define PF_VARS_SWC_SIZE  0
 #endif
