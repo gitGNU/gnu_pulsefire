@@ -73,7 +73,7 @@ public class SerialDeviceWireThread extends Thread {
 		this.deviceManager= deviceManager;
 		this.serialPort=serialPort;
 		readBuffer = new StringBuffer();
-		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII"));
+		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII")); 
 		writer = new OutputStreamWriter(serialPort.getOutputStream(),Charset.forName("US-ASCII"));
 		logger.info("Connected to port: "+serialPort.getName());
 	}
@@ -104,6 +104,9 @@ public class SerialDeviceWireThread extends Thread {
 	 * Check for in system reboot detecting , this should get better someday
 	 */
 	private void softReconnectDevice(boolean testSendCommand) {
+		if (deviceManager.isConnected()==false) {
+			return; // don't check before we are connected.
+		}
 		long currTime = System.currentTimeMillis();
 		if (testSendCommand && currTime<sendCommand.getRequestTime()+(15*1000)) {
 			return;
@@ -155,8 +158,12 @@ public class SerialDeviceWireThread extends Thread {
 			sendCommand = send;
 			deviceManager.fireDataSend(writeOut);
 		} catch (IOException sendException) {
-			logger.log(Level.WARNING,sendException.getMessage(),sendException);
-			deviceManager.disconnect();
+			if (sendException.getMessage().contains("writeArray")==false) {
+				logger.log(Level.WARNING,sendException.getMessage(),sendException);
+			} else {
+				logger.log(Level.WARNING,sendException.getMessage());
+			}
+			deviceManager.disconnect(true);
 		}
 	}
 	
@@ -174,6 +181,7 @@ public class SerialDeviceWireThread extends Thread {
 					continue;
 				}
 			}
+			//if (c>=0x07 && c<=0x7F) { // only do printable chars.
 			readBuffer.append((char) c);
 		}
 		if (lineEnd==false) {
@@ -181,6 +189,7 @@ public class SerialDeviceWireThread extends Thread {
 		}
 		String scannedInput = readBuffer.toString().trim();
 		readBuffer = new StringBuffer();
+		
 		logger.finer("Read from COMM: "+scannedInput);
 		deviceManager.fireDataReceived(scannedInput);
 		

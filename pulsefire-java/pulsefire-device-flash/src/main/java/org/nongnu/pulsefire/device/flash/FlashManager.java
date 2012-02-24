@@ -43,26 +43,29 @@ public class FlashManager {
 
 	static public void main(String argu[]) throws Exception {
 		if (argu.length<6) {
-			System.out.println("\nUsage:\n"+
-					"  -P <port>     Serial port.\n"+
-					"  -c <proto>    Programmer protocol.\n"+
-					"  -f <file>     Flash hex file.\n"+
-					"Optional:\n"+
-					"  -v            Verbose output.\n"+
-					"  -V            Verify flash.\n"+
-					"  -PP <param>   Port parameters.\n"+
-					"  -s <sign>     Device signature in hex.\n"+
-					"  -nfc <cmd>    Native flash command as fallback.\n"+
-					"                For use prefix protocol with native-<proto>.\n"+
-					"");
+			System.out.println();
+			System.out.println("Usage:");
+			System.out.println("  -P <port>         Serial port.");
+			System.out.println("  -c <proto>        Programmer protocol.");
+			System.out.println("  -f <file>         Flash hex file.");
+			System.out.println("Optional:");
+			System.out.println("  -v                Verbose output.");
+			System.out.println("  -V                Verify flash.");
+			System.out.println("  -PP <param>       Port parameters.");
+			System.out.println("  -s <sign>         Device signature in hex.");
+			System.out.println("  --nf-cmd <cmd>    Native flash command as fallback.");
+			System.out.println("  --nf-conf <conf>  Native flash config as fallback.\n");
+			System.out.println("                    For native add prefix to protocol with native-<proto>.");
+			System.out.println();
 			return;
 		}
 		
-		List<String> arguList = new ArrayList<String>(argu.length);
-		for (String a:argu) { arguList.add(a); } 
-		Iterator<String> arguIterator = arguList.iterator();
 		FlashControllerConfig config = new FlashControllerConfig();
-		
+		List<String> arguList = new ArrayList<String>(argu.length);
+		for (String a:argu) {
+			arguList.add(a); // copy to list for iterator
+		} 
+		Iterator<String> arguIterator = arguList.iterator();
 		while (arguIterator.hasNext()) {
 			String arg = arguIterator.next();
 			if ("-v".equals(arg)) {
@@ -75,7 +78,7 @@ public class FlashManager {
 			}
 			if ("-P".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -P given");
+					System.out.println("No argument for -P given.");
 					return;
 				}
 				config.setPort(arguIterator.next());
@@ -83,7 +86,7 @@ public class FlashManager {
 			}
 			if ("-PP".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -PP given");
+					System.out.println("No argument for -PP given.");
 					return;
 				}
 				config.setPortParameter(arguIterator.next());
@@ -91,7 +94,7 @@ public class FlashManager {
 			}
 			if ("-c".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -c given");
+					System.out.println("No argument for -c given.");
 					return;
 				}
 				config.setPortProtocol(arguIterator.next());
@@ -99,7 +102,7 @@ public class FlashManager {
 			}
 			if ("-f".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -f given");
+					System.out.println("No argument for -f given.");
 					return;
 				}
 				File hexFile = new File(arguIterator.next());
@@ -116,23 +119,31 @@ public class FlashManager {
 			}
 			if ("-s".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -s given");
+					System.out.println("No argument for -s given.");
 					return;
 				}
 				String devSignStr = arguIterator.next();
-				if (devSignStr.startsWith("0x")) {
+				if (devSignStr.startsWith("0x") && devSignStr.length()>2) {
 					devSignStr = devSignStr.substring(2);
 				}
 				int deviceSign = Integer.parseInt(devSignStr, 16);
 				config.setDeviceSignature(deviceSign);
 			}
-			if ("-nfc".equals(arg)) {
+			if ("--nf-cmd".equals(arg)) {
 				if (arguIterator.hasNext()==false) {
-					System.out.println("No argument for -nfc given");
+					System.out.println("No argument for --nf-cmd given.");
 					return;
 				}
 				String cmdStr = arguIterator.next();
 				config.setNativeFlashCmd(cmdStr);
+			}
+			if ("--nf-conf".equals(arg)) {
+				if (arguIterator.hasNext()==false) {
+					System.out.println("No argument for --nf-conf given.");
+					return;
+				}
+				String confStr = arguIterator.next();
+				config.setNativeFlashConfig(confStr);
 			}
 		}
 		FlashProgramController fm = createFlashController(config);
@@ -147,7 +158,7 @@ public class FlashManager {
 
 	static public FlashProgramController createFlashController(FlashControllerConfig flashControllerConfig) {
 		if (flashControllerConfig==null) {
-			throw new NullPointerException("Can't fill flash backend with null config.");
+			throw new NullPointerException("Can't create flash backend with null config.");
 		}
 		flashControllerConfig.verifyConfig(); // check the config
 		FlashProgramController backendController = null;
@@ -157,17 +168,17 @@ public class FlashManager {
 			backendController = new Stk500Controller();
 		} else if ("stk500v2".equals(flashControllerConfig.getPortProtocol())) {
 			backendController = new Stk500v2Controller();
-		} else if ("native-stk500".equals(flashControllerConfig.getPortProtocol())) {
-			flashControllerConfig.setPortProtocol("stk500v1");
-			backendController = new AvrdudeController();
 		} else if ("native-arduino".equals(flashControllerConfig.getPortProtocol())) {
+			flashControllerConfig.setPortProtocol("arduino");
+			backendController = new AvrdudeController();
+		} else if ("native-stk500v1".equals(flashControllerConfig.getPortProtocol())) {
 			flashControllerConfig.setPortProtocol("stk500v1");
 			backendController = new AvrdudeController();
 		} else if ("native-stk500v2".equals(flashControllerConfig.getPortProtocol())) {
 			flashControllerConfig.setPortProtocol("stk500v2");
 			backendController = new AvrdudeController();
 		} else {
-			throw new IllegalStateException("Unknow port protocol: "+flashControllerConfig.getPortProtocol());			
+			throw new IllegalStateException("Unknown port protocol: "+flashControllerConfig.getPortProtocol());			
 		}
 		return backendController;
 	}

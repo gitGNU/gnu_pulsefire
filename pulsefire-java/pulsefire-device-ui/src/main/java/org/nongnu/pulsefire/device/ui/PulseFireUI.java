@@ -388,7 +388,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			
 			dataLogManager.stop();
 			eventTimeManager.shutdown();
-			PulseFireUI.getInstance().getDeviceManager().disconnect();
+			PulseFireUI.getInstance().getDeviceManager().disconnect(false);
 			for (int i=0;i<20;i++) {
 				try { Thread.sleep(100); } catch (InterruptedException e) {}
 				if (PulseFireUI.getInstance().getDeviceManager().isConnected()==false) {

@@ -266,7 +266,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		burnOptionPanel.add(portsComboBox);
 		burnOptionPanel.add(new JLabel("Programer:"));
 		if (nativeFlashCmd!=null && nativeFlashCmd.isEmpty()==false && nativeFlashConfig!=null && nativeFlashConfig.isEmpty()==false) {
-			progComboBox = new JComboBox(new String[] {"arduino","stk500v2","native-arduino","native-stk500v2"});
+			progComboBox = new JComboBox(new String[] {"arduino","stk500v2","native-arduino","native-stk500v1","native-stk500v2"});
 		} else {
 			progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
 		}
@@ -371,7 +371,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			flashConfig.setFlashVerify(progVerifyBox.isSelected());
 			flashConfig.setFlashData(flashData);
 			String deviceId = burnDeviceId.getText();
-			if (deviceId!=null && deviceId.isEmpty()==false && deviceId.startsWith("0x")) {
+			if (deviceId!=null && deviceId.isEmpty()==false && deviceId.startsWith("0x") && deviceId.length()>2) {
 				flashConfig.setDeviceSignature(Integer.parseInt(burnDeviceId.getText().substring(2),16));
 			}
 			if (nativeFlashCmd!=null && nativeFlashCmd.isEmpty()==false) {

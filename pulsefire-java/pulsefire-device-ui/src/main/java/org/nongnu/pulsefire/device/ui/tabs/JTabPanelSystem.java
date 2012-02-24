@@ -193,7 +193,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 			DeviceData devData = PulseFireUI.getInstance().getDeviceData();
 			Writer writer = new BufferedWriter(new OutputStreamWriter(output, Charset.forName("UTF-8")));
 			writer.append("#??pulsefire??");
-			writer.append("\n");
+			writer.append(System.getProperty("line.separator"));
 			writeConfigCommand(writer,devData.getDeviceParameter(CommandName.chip_version));
 			writeConfigCommand(writer,devData.getDeviceParameter(CommandName.chip_name));
 			writeConfigCommand(writer,devData.getDeviceParameter(CommandName.chip_name_id));
@@ -212,7 +212,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 				}
 			}
 			writer.append("# END");
-			writer.append("\n");
+			writer.append(System.getProperty("line.separator"));
 			writer.flush();
 			writer.close();
 			
@@ -230,7 +230,7 @@ public class JTabPanelSystem extends AbstractTabPanel {
 		}
 		String cmdLine = CommandWire.encodeCommand(cmd,true);
 		writer.append(cmdLine);
-		writer.append("\n");
+		writer.append(System.getProperty("line.separator"));
 		writer.flush();
 	}
 	

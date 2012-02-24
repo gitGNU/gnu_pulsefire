@@ -49,12 +49,14 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class PulseFireDataLogManager {
 
 	private Logger logger = null;
+	private String lineSeparator = null;
 	private LogDataWriter logDataWriter0 = null;
 	private LogDataWriter logDataWriter1 = null;
 	private LogDataWriter logDataWriter2 = null;
 	
 	public PulseFireDataLogManager() {
 		logger = Logger.getLogger(PulseFireDataLogManager.class.getName());
+		lineSeparator = System.getProperty("line.separator");
 	}
 	
 	public void start() {
@@ -122,7 +124,7 @@ public class PulseFireDataLogManager {
 						out.append(logData.type);
 						out.append(sep);
 						out.append(logData.data);
-						out.append("\r\n");
+						out.append(lineSeparator);
 						logData = dataQueue.poll();
 					}
 					out.flush();
@@ -362,7 +364,7 @@ public class PulseFireDataLogManager {
 				}
 			}
 			out.append(FIELD_QUOTE);
-			out.append("\r\n");
+			out.append(lineSeparator);
 			out.flush();
 			recordCount++;
 		}
@@ -387,7 +389,7 @@ public class PulseFireDataLogManager {
 					out.append(FIELD_SEPERATOR);
 				}
 			}
-			out.append("\r\n");
+			out.append(lineSeparator);
 			out.flush();
 		}
 		

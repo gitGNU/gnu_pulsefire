@@ -77,7 +77,7 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 	public boolean connect(String port) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, InterruptedException {
 
 		if (isConnected()) {
-			disconnect();
+			disconnect(false);
 		}
 		long startTime = System.currentTimeMillis();
 		sendCommandQueue.clear();
@@ -131,6 +131,9 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 				if (infoChip.getResponse()!=null) {
 					break;
 				}
+				if (i==11 && infoChip.getResponse()==null) {
+					infoChip = requestCommand(new Command(CommandName.info_chip)); // request again
+				}
 			}
 			
 			// Let do rest of connect by abstract parent
@@ -141,22 +144,24 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			return result;
 		} finally {
 			if (done==false) {
-				disconnect();
+				disconnect(true);
 			}
 		}
 	}
 
 	@Override
-	public void disconnect() {
+	public void disconnect(boolean error) {
 		if (serialThread==null) {
 			return; // already diconnected
 		}
-		// close nicely so serial buffers to do not get floodded.
-		requestCommand(new Command(CommandName.req_tx_push,	"0")).waitForResponse(); // disable auto push
-		//requestCommand(new Command(CommandName.req_tx_promt,"1")).waitForResponse(); // turn promt on
-		//requestCommand(new Command(CommandName.req_tx_echo,"1")).waitForResponse();  // turn echo on
+		if (error==false) {
+			// close nicely so serial buffers do not get flooded.
+			requestCommand(new Command(CommandName.req_tx_push,	"0")).waitForResponse(); // disable auto push
+			//requestCommand(new Command(CommandName.req_tx_promt,"1")).waitForResponse(); // turn promt on
+			//requestCommand(new Command(CommandName.req_tx_echo,"1")).waitForResponse();  // turn echo on
+		}
 		serialThread.shutdown();
 		serialThread = null;
-		super.disconnect();
+		super.disconnect(error);
 	}
 }

@@ -111,6 +111,7 @@ public class FlashHexReader {
 	 * @throws IOException
 	 */
 	public void writeHexData(byte[] data,OutputStream output) throws IOException {
+		String lineSeparator = System.getProperty("line.separator");
 		Writer writer = new BufferedWriter(new OutputStreamWriter(output,charset));
 		try {
 			int lineSize = 16;			
@@ -156,11 +157,11 @@ public class FlashHexReader {
 					checkSumStr = checkSumStr.substring(6);
 				}
 				writer.append(checkSumStr);
-				writer.append("\n");
+				writer.append(lineSeparator);
 				writer.flush();
 			}
 			writer.append(":00000001FF");
-			writer.append("\n");
+			writer.append(lineSeparator);
 			writer.flush();
 		} finally {
 			if (writer!=null) {

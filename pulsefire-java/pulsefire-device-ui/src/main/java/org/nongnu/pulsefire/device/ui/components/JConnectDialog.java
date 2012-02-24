@@ -135,7 +135,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		PulseFireUI.getInstance().getDeviceManager().disconnect();
+		PulseFireUI.getInstance().getDeviceManager().disconnect(false);
 		bar.setString("Canceled");
 		// remove dialog just a small bit later so SerialThread can do shutdown, this
 		// is small guard to really fast connect/disconnect/connect/disconnect/connect cycle.

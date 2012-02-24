@@ -139,7 +139,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 				connectDialog = new JConnectDialog((JFrame)SwingUtilities.getRoot(this),port);
 			}
 		} else {
-			PulseFireUI.getInstance().getDeviceManager().disconnect();
+			PulseFireUI.getInstance().getDeviceManager().disconnect(false);
 		}
 	}
 

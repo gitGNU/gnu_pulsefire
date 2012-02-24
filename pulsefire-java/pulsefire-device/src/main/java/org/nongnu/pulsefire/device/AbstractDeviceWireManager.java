@@ -64,8 +64,8 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	}
 	
 	@Override
-	public void disconnect() {
-		deviceData.createParameters();
+	public void disconnect(boolean error) {
+		deviceData.clearParameters();
 		connectProgress = 0;
 		sendCommandQueue.clear();
 		if (isConnected()) {
@@ -83,7 +83,7 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		
 		// First check response of info_chip
 		if (infoChip.getResponse()==null) {
-			disconnect();
+			disconnect(true);
 			logger.info("Could not request info_chip");
 			connectPhase = "Err on info_chip";
 			return false;
@@ -91,7 +91,7 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		
 		Command version = getDeviceData().getDeviceParameter(CommandName.chip_version);
 		if (version==null) {
-			disconnect();
+			disconnect(true);
 			logger.warning("Could not get "+CommandName.chip_version.name());
 			connectPhase = "Err on "+CommandName.chip_version.name();
 			return false;
@@ -99,7 +99,7 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		int deviceVersion = new Double(Double.parseDouble(version.getArgu0())*10).intValue();
 		logger.info("Chip version: "+deviceVersion);
 		if (CommandNameVersionFactory.configCommandName(deviceVersion)==false) {
-			disconnect();
+			disconnect(true);
 			logger.warning("Version not supported: "+deviceVersion);
 			connectPhase = "Version not supported: "+deviceVersion;
 			return false;

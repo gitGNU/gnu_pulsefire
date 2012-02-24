@@ -50,7 +50,7 @@ public class DeviceData {
 		indexedDeviceParameters = new HashMap<CommandName,Map<Integer,Command>>(16);
 	}
 	
-	protected void createParameters() {
+	protected void clearParameters() {
 		deviceParameters.clear();
 		indexedDeviceParameters.clear();
 	}

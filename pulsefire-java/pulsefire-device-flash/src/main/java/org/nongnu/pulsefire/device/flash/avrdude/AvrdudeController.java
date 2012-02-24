@@ -75,7 +75,12 @@ public class AvrdudeController extends AbstractFlashProgramController {
 		FlashHexReader hex = new FlashHexReader();
 		hex.writeHexData(conf.getFlashData(), new FileOutputStream(tmp));
 		cmd.add("-U");
-		cmd.add("flash:w:"+tmp.getAbsolutePath());
+		
+		String fullFilePath = tmp.getAbsolutePath();
+		if (fullFilePath.contains(":")) {
+			fullFilePath = "\""+fullFilePath+"\""; // make bug report avrdude this is needed on windows but not under linux !!!
+		}
+		cmd.add("flash:w:"+fullFilePath+":i"); // win32 avrdude needs the format !!
 		
 		StringBuilder buf = new StringBuilder(200);
 		for (String c:cmd) {
