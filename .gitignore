@@ -53,6 +53,10 @@ pom.xml.versionsBackup
 # Ignore ~ backup files.
 *~
 
+# Ignore some eclipse files
+.settings
+.classpath
+
 # Ignore netbeans directory
 nbproject
 
