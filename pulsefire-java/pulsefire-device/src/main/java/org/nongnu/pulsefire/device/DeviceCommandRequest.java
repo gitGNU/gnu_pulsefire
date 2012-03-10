@@ -50,10 +50,6 @@ public class DeviceCommandRequest {
 	
 	public void waitForResponseChecked() {
 		waitForResponse();
-		//if (request!=null && response!=null) {
-		//	System.out.println("Request "+request.getCommandName()+" argu0 "+request.getArgu0());
-		//	System.out.println("Response "+response.getCommandName()+" argu0 "+response.getArgu0());
-		//}
 		if (response==null) {
 			throw new IllegalStateException("Response is null from request "+request.getCommandName().name());
 		}

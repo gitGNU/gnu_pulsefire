@@ -355,6 +355,16 @@ public enum CommandName {
 		return null;
 	}
 	
+	static public List<CommandName> valuesMapIndex() {
+		List<CommandName> result = new ArrayList<CommandName>(50);
+		for (CommandName cn:values()) {
+			if (cn.isMappable()) {
+				result.add(cn);
+			}
+		}
+		return result;
+	}
+	
 	static public List<CommandName> decodeCommandList(String setting) {
 		List<CommandName> result = new ArrayList<CommandName>(50);
 		if (setting!=null && setting.isEmpty()==false) {
