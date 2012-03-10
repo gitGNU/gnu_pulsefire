@@ -241,7 +241,6 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 				if((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) {
 					break;
 				}
-				//System.out.println("Readed bytes: "+numBytesRead);
 				out.write(data, 0, numBytesRead);
 				
 				
@@ -251,7 +250,6 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 				audioInputStream = new AudioInputStream(bais, format, audioBytes.length / frameSizeInBytes);
 				//long milliseconds = (long)((audioInputStream.getFrameLength() * 1000) / format.getFrameRate());
 				//double duration = milliseconds / 1000.0;
-				//System.out.println("time: "+duration);
 
 				try {
 					audioInputStream.reset();
@@ -369,7 +367,6 @@ public class JTabPanelScope extends AbstractTabPanel implements ActionListener,D
 			double y_last0 = 0;
 			double y_last1 = 0;
 			int numChannels = format.getChannels();
-			//System.out.println("frames_per_pixel: "+frames_per_pixel);
 			for (double x = 0; x < w && audioData != null; x++) {
 				if (numChannels==1) {
 					int idx = (int) (frames_per_pixel * numChannels * x);

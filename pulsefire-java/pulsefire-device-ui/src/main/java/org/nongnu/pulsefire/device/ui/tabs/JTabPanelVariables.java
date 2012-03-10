@@ -65,26 +65,25 @@ public class JTabPanelVariables extends AbstractTabPanel {
 
 	private static final long serialVersionUID = -4134436278702264489L;
 
-	private boolean filterIndexed = false;
+	private boolean filterIndexed = true;
 	private String filterType = null;
+	private int filterData = 0;
 	private List<DeviceConfigVariableTableModel> models = null;
 	
 	public JTabPanelVariables() {
 		models = new ArrayList<DeviceConfigVariableTableModel>(4);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
+		setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		JPanel topSplit = new JPanel();
 		topSplit.setLayout(new BorderLayout());
-		topSplit.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createVars("Conf",CommandVariableType.CONF));
 		wrap.add(createVars("Data",CommandVariableType.DATA));
-		wrap.add(createVars("Prog/Chip/Freq",CommandVariableType.PROG));	
-		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
+		wrap.add(createVars("Prog/Chip/Freq",CommandVariableType.PROG));
+		SpringLayoutGrid.makeCompactGrid(wrap,1,3,0,6,6,6);
 		
-		JPanel topPanel = new JPanel();
-		topPanel.add(createTopPanelFilter());
-		topSplit.add(JComponentFactory.createJPanelJWrap(topPanel),BorderLayout.PAGE_START);
+		topSplit.add(createTopPanelFilter(),BorderLayout.PAGE_START);
 		topSplit.add(wrap,BorderLayout.CENTER);
 		add(topSplit);
 	}
@@ -116,7 +115,9 @@ public class JTabPanelVariables extends AbstractTabPanel {
 			}
 		});
 		filterPanel.add(filterBox);
-		JCheckBox filterIndexedCheckBox = new JCheckBox("Indexed");
+		filterPanel.add(new JLabel("Indexed"));
+		JCheckBox filterIndexedCheckBox = new JCheckBox();
+		filterIndexedCheckBox.setSelected(true);
 		filterIndexedCheckBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -125,6 +126,16 @@ public class JTabPanelVariables extends AbstractTabPanel {
 			}
 		});
 		filterPanel.add(filterIndexedCheckBox);
+		filterPanel.add(new JLabel("Data"));
+		JComboBox filterDataBox = new JComboBox(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX"});
+		filterDataBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				filterData = ((JComboBox)e.getSource()).getSelectedIndex();
+				fireUpdateModels();
+			}
+		});
+		filterPanel.add(filterDataBox);
 		return filterPanel;
 	}
 	
@@ -137,12 +148,15 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		models.add(tableConfModel);
 		
 		TableColumn nameCol = tableConf.getColumnModel().getColumn(0);
-		nameCol.setPreferredWidth(130);
+		nameCol.setPreferredWidth(150);
 		TableColumn valueCol = tableConf.getColumnModel().getColumn(1);
-		valueCol.setPreferredWidth(130);
+		if (CommandVariableType.CONF==type | CommandVariableType.DATA==type) {
+			valueCol.setPreferredWidth(120);
+		} else {
+			valueCol.setPreferredWidth(180);
+		}
 		
 		tableConf.getTableHeader().setReorderingAllowed(false);
-		//tableConf.getTableHeader().setResizingAllowed(false);
 		JPanel tableConfPanel = new JPanel();
 		tableConfPanel.setLayout(new BorderLayout());
 		tableConfPanel.add(tableConf.getTableHeader(), BorderLayout.PAGE_START);
@@ -186,7 +200,8 @@ public class JTabPanelVariables extends AbstractTabPanel {
 		
 		private Map<String, Command> getFilteredCommandMap(CommandVariableType type) {
 			Map<String, Command> result = new HashMap<String, Command>(33);
-			Map<CommandName, Command> cmdMap = deviceData.getTypeMap(type);
+			Map<CommandName, Command> cmdMap = new HashMap<CommandName, Command>(33);
+			cmdMap.putAll(deviceData.getTypeMap(type)); // clone for concurrency
 			if (type.equals(CommandVariableType.PROG)) {
 				Map<CommandName, Command> chipMap = deviceData.getTypeMap(CommandVariableType.CHIP);
 				cmdMap.putAll(chipMap);
@@ -257,20 +272,32 @@ public class JTabPanelVariables extends AbstractTabPanel {
 			if (col==0) {
 				return keys.get(row);
 			} else {
-				if (cmd.getCommandName().isIndexedA() && cmd.getCommandName().isIndexedB()) {
-					StringBuffer buf = new StringBuffer(50);
-					if (cmd.getArgu1()!=null) { buf.append(cmd.getArgu1());buf.append(' '); }
-					if (cmd.getArgu2()!=null) { buf.append(cmd.getArgu2());buf.append(' '); }
-					if (cmd.getArgu3()!=null) { buf.append(cmd.getArgu3());buf.append(' '); }
-					if (cmd.getArgu4()!=null) { buf.append(cmd.getArgu4());buf.append(' '); }
-					if (cmd.getArgu5()!=null) { buf.append(cmd.getArgu5());buf.append(' '); }
-					if (cmd.getArgu6()!=null) { buf.append(cmd.getArgu6());buf.append(' '); }
-					if (cmd.getArgu7()!=null) { buf.append(cmd.getArgu7()); }
-					return buf.toString();
-				} else if (cmd.getCommandName().isIndexedA()) {
-					return cmd.getArgu0();
+				if (filterData==0) {
+					if (cmd.getCommandName().isIndexedA() && cmd.getCommandName().isIndexedB()) {
+						StringBuffer buf = new StringBuffer(50);
+						if (cmd.getArgu1()!=null) { buf.append(cmd.getArgu1());buf.append(' '); }
+						if (cmd.getArgu2()!=null) { buf.append(cmd.getArgu2());buf.append(' '); }
+						if (cmd.getArgu3()!=null) { buf.append(cmd.getArgu3());buf.append(' '); }
+						if (cmd.getArgu4()!=null) { buf.append(cmd.getArgu4());buf.append(' '); }
+						if (cmd.getArgu5()!=null) { buf.append(cmd.getArgu5());buf.append(' '); }
+						if (cmd.getArgu6()!=null) { buf.append(cmd.getArgu6());buf.append(' '); }
+						if (cmd.getArgu7()!=null) { buf.append(cmd.getArgu7()); }
+						return buf.toString();
+					} else if (cmd.getCommandName().isIndexedA()) {
+						return cmd.getArgu0();
+					} else {
+						return cmd.getArgu0();
+					}
+				} else if (filterData==1) {
+					return cmd.getCommandName().getMapIndex();
+				} else if (filterData==2) {
+					return cmd.getCommandName().getMaxIndexA();
+				} else if (filterData==3) {
+					return cmd.getCommandName().getMaxIndexB();
+				} else if (filterData==4) {
+					return cmd.getCommandName().getMaxValue();
 				} else {
-					return cmd.getArgu0();
+					return "";
 				}
 			}
 		}

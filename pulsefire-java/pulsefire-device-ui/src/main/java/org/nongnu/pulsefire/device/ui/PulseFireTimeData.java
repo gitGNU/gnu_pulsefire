@@ -185,16 +185,23 @@ public class PulseFireTimeData implements DeviceConnectListener {
 				}
 				q.add(timeData);
 			//}
+			Integer arguValue = null;
+			try {
+				arguValue = new Integer(command.getArgu0());
+			} catch (NumberFormatException nfe) {
+				return; // fixme in prot layer in v2.0
+			}
 			if (command.getCommandName().isIndexedA()) {
-				timeData.dataPointIdx[new Integer(command.getArgu1())]=new Integer(command.getArgu0());
+				timeData.dataPointIdx[new Integer(command.getArgu1())]=arguValue;
 			} else {
-				timeData.dataPoint=new Integer(command.getArgu0());
+				timeData.dataPoint=arguValue;
 			}
 			k.timeDataLast = timeData;
 			if (q.size()>(100)) {
 				q.poll();
 			}
-			for (TimeDataListener l:k.timeDataListeners) {
+			for (int i=0;i<k.timeDataListeners.size();i++) {
+				TimeDataListener l=k.timeDataListeners.get(i);
 				l.updateTimeData();
 			}
 		}

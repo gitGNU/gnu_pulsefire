@@ -26,11 +26,12 @@ package org.nongnu.pulsefire.device.ui;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -106,7 +107,9 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 		updateSerialCounter();
-		
+	}
+
+	public void autoConnect() {
 		Boolean autoConnect = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.AUTO_CONNECT);
 		String devicePort = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.DEVICE_PORT);
 		if (autoConnect && devicePort.isEmpty()==false) {
@@ -116,9 +119,13 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 				if (port.equals(devicePort)) {
 					portsComboBox.setSelectedIndex(i);
 					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							actionPerformed(null);
+							@Override
+							public void run() {
+							try {
+								actionPerformed(null);
+							} catch (Exception e) {
+								Logger.getAnonymousLogger().log(Level.WARNING,"Error in auto-connect: "+e.getMessage(),e);
+							}
 						}
 					});
 					break;
@@ -127,7 +134,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			
 		}
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String port = portsComboBox.getSelectedItem().toString();
@@ -136,7 +143,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 				connectDialog = null; // reset when is closed.
 			}
 			if (connectDialog==null) {
-				connectDialog = new JConnectDialog((JFrame)SwingUtilities.getRoot(this),port);
+				connectDialog = new JConnectDialog(PulseFireUI.getInstance().getMainFrame(),port);
 			}
 		} else {
 			PulseFireUI.getInstance().getDeviceManager().disconnect(false);

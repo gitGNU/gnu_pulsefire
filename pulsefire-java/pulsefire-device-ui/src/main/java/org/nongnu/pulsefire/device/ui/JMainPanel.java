@@ -68,6 +68,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
 	public AbstractTabPanel scopePanel = null;
+	public JTopPanelSerial topPanelSerial = null;
 	
 	public JMainPanel() {
 		
@@ -101,7 +102,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private JPanel createTop() {
 		JPanel top = new JPanel();
 		top.setLayout(new GridLayout(1,2));
-		top.add(new JTopPanelSerial());
+		topPanelSerial = new JTopPanelSerial();
+		top.add(topPanelSerial);
 		top.add(new JTopPanelStatus());
 		return top;
 	}
@@ -146,7 +148,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			//scrollPane.getViewport().setOpaque(false);
 			tabbedPane.addTab(panel.getTabName(),panel.getTabIcon(),scrollPane,panel.getTabTooltip());
 		}
-		tabbedPane.setEnabledAt(8, false); // mal is not done
+		//tabbedPane.setEnabledAt(8, false); // mal is not done
 		center.add(tabbedPane);
 		return center;
 	}

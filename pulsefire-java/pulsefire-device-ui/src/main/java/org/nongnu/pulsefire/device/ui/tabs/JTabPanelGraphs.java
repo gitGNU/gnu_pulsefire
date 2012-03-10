@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -62,9 +63,15 @@ public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener,
 	private JComboBox columnBox = null;
 	
 	public JTabPanelGraphs() {
-		setLayout(new BorderLayout());
-		add(JComponentFactory.createJPanelJWrap(createPanelGraphConfig()),BorderLayout.NORTH);
-		add(JComponentFactory.createJPanelJWrap(createPanelGraph()),BorderLayout.CENTER);
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel topSplit = new JPanel();
+		topSplit.setLayout(new BorderLayout(6,6));
+		topSplit.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
+		
+		topSplit.add(createPanelGraphConfig(),BorderLayout.PAGE_START);
+		topSplit.add(createPanelGraph(),BorderLayout.CENTER);
+		add(topSplit);
+		
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST,this);
 	}
 	
