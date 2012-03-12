@@ -43,7 +43,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelInput extends AbstractTabPanel {
+public class JTabPanelInput extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = 2716662787208065889L;
 

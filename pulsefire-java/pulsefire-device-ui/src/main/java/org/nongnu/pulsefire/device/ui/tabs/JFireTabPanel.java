@@ -26,63 +26,19 @@ package org.nongnu.pulsefire.device.ui.tabs;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.ui.PulseFireUI;
 
 /**
- * AbstractTabPanel
+ * JTabFirePanel is interface of pannels inside the tabbed pane.
  * 
  * @author Willem Cazander
  */
-@SuppressWarnings("serial")
-abstract public class AbstractTabPanel extends JPanel implements JTabFirePanel,DeviceConnectListener {
+public interface JFireTabPanel {
 
-	private JScrollPane parentScrollPane = null;
+	public String getTabName();
+	public String getTabTooltip();
+	public Icon getTabIcon();
 	
-	public AbstractTabPanel() {
-		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
-	}
-	
-	abstract Class<?> getTabClassName();
-
-	public String getTabName() {
-		String nameKey = getTabClassName().getName()+".text";
-		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
-	}
-	public String getTabTooltip() {
-		String nameKey = getTabClassName().getName()+".tooltip";
-		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
-	}
-	public Icon getTabIcon() {
-		String nameKey = getTabClassName().getName()+".icon";
-		return PulseFireUI.getInstance().getContext().getResourceMap().getIcon(nameKey);
-	}
-	
-	public JPanel getJPanel() {
-		return this;
-	}
-	
-	public JScrollPane getParentScrollPane() {
-		return parentScrollPane;
-	}
-
-	public void setParentScrollPane(JScrollPane parentScrollPane) {
-		this.parentScrollPane = parentScrollPane;
-	}
-
-	@Override
-	public void deviceConnect() {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SwingUtilities.updateComponentTreeUI(parentScrollPane);
-			}
-		});
-	}
-
-	@Override
-	public void deviceDisconnect() {
-	}
+	public JPanel getJPanel();
+	public JScrollPane getParentScrollPane();
+	public void setParentScrollPane(JScrollPane parentScrollPane);
 }

@@ -80,7 +80,7 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListener, ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
+public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionListener, ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
 	private JTable tuneStepTable = null;
@@ -100,7 +100,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 	private JButton resultExportButton = null;
 	private List<CommandName> stepFields = null;
 	
-	public JTabPanelLPM() {
+	public JTabPanelLpm() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

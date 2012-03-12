@@ -61,7 +61,7 @@ import org.nongnu.pulsefire.wire.WireChipFlags;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelVariables extends AbstractTabPanel {
+public class JTabPanelVariables extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = -4134436278702264489L;
 

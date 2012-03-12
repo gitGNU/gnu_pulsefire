@@ -68,7 +68,7 @@ import org.nongnu.pulsefire.wire.CommandWire;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelSystem extends AbstractTabPanel {
+public class JTabPanelSystem extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = -5523263800067726564L;
 	private Logger logger = null;

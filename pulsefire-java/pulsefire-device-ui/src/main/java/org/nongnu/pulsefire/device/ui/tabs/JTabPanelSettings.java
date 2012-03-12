@@ -55,7 +55,7 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelSettings extends AbstractTabPanel {
+public class JTabPanelSettings extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = -1646229038565969537L;
 	private JButton burnButton = null;

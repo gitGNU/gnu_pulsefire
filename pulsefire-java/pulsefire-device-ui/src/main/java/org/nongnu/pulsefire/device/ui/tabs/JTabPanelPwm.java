@@ -57,14 +57,14 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPWM extends AbstractTabPanel implements DeviceCommandListener,PulseFireUISettingListener {
+public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = 8834117894619851885L;
 	private JPanel centerPanel = null;
 	private List<JPanel> channels = null;
 	private List<JPanel> channelsEmpty = null;
 
-	public JTabPanelPWM() {
+	public JTabPanelPwm() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
 		

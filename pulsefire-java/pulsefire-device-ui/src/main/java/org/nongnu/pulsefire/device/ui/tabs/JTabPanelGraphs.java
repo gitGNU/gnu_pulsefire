@@ -53,7 +53,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelGraphs extends AbstractTabPanel implements ActionListener,PulseFireUISettingListener {
+public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -1416072133032318563L;
 	private JPanel graphPanel = null;

@@ -50,7 +50,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelMAL extends AbstractTabPanel implements DeviceConnectListener, ActionListener, DeviceCommandListener {
+public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectListener, ActionListener, DeviceCommandListener {
 
 	private static final long serialVersionUID = 4091488961980523054L;
 	private JComboBox programBox = null;
@@ -59,7 +59,7 @@ public class JTabPanelMAL extends AbstractTabPanel implements DeviceConnectListe
 	private JButton clearButton = null;
 	private JMalEditor malEditor = null;
 	
-	public JTabPanelMAL() {
+	public JTabPanelMal() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

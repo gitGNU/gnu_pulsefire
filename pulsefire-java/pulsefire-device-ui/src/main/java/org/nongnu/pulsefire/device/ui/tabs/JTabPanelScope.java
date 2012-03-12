@@ -73,7 +73,7 @@ import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelScope extends AbstractTabPanel implements ActionListener,DialListener {
+public class JTabPanelScope extends AbstractFireTabPanel implements ActionListener,DialListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
 	private Logger logger = null;

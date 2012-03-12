@@ -45,13 +45,13 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPTC extends AbstractTabPanel implements DeviceCommandListener {
+public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandListener {
 
 	private static final long serialVersionUID = -1646229038565969537L;
 	private JLabel statusLabelTimer0 = null;
 	private JLabel statusLabelTimer1 = null;
 	
-	public JTabPanelPTC() {
+	public JTabPanelPtc() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

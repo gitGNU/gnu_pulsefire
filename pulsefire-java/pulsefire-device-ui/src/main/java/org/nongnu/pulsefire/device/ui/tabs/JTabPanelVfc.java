@@ -37,11 +37,11 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelVFC extends AbstractTabPanel {
+public class JTabPanelVfc extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = 2716662787208065889L;
 
-	public JTabPanelVFC() {
+	public JTabPanelVfc() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

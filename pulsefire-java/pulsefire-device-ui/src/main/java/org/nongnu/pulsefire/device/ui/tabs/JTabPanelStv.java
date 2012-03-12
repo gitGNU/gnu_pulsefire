@@ -40,11 +40,11 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelSTV extends AbstractTabPanel {
+public class JTabPanelStv extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = 2716662787208065889L;
 
-	public JTabPanelSTV() {
+	public JTabPanelStv() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

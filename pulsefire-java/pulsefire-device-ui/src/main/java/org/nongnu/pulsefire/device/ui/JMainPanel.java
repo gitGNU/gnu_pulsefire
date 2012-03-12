@@ -37,21 +37,21 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 
-import org.nongnu.pulsefire.device.ui.tabs.AbstractTabPanel;
-import org.nongnu.pulsefire.device.ui.tabs.JTabFirePanel;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPWM;
+import org.nongnu.pulsefire.device.ui.tabs.AbstractFireTabPanel;
+import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelInput;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelLPM;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMAL;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTC;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPTT;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelLpm;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMal;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtc;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPins;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSTV;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelStv;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelScope;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSettings;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSystem;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVFC;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVfc;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVariables;
 
 /**
@@ -62,27 +62,27 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVariables;
 public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -9173866662540287337L;
-	private List<JTabFirePanel> tabPanels = null;
+	private List<JFireTabPanel> tabPanels = null;
 	private JTabbedPane tabbedPane = null;
 	//public JSplitPane contentSplitPane = null;
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
-	public AbstractTabPanel scopePanel = null;
+	public AbstractFireTabPanel scopePanel = null;
 	public JTopPanelSerial topPanelSerial = null;
 	
 	public JMainPanel() {
 		
-		tabPanels = new ArrayList<JTabFirePanel>(10);
-		tabPanels.add(new JTabPanelPWM());
+		tabPanels = new ArrayList<JFireTabPanel>(10);
+		tabPanels.add(new JTabPanelPwm());
 		tabPanels.add(new JTabPanelSystem());
 		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
-		tabPanels.add(new JTabPanelSTV());
-		tabPanels.add(new JTabPanelPTC());
-		tabPanels.add(new JTabPanelPTT());
-		tabPanels.add(new JTabPanelVFC());
-		tabPanels.add(new JTabPanelMAL());
-		tabPanels.add(new JTabPanelLPM());
+		tabPanels.add(new JTabPanelStv());
+		tabPanels.add(new JTabPanelPtc());
+		tabPanels.add(new JTabPanelPtt());
+		tabPanels.add(new JTabPanelVfc());
+		tabPanels.add(new JTabPanelMal());
+		tabPanels.add(new JTabPanelLpm());
 		tabPanels.add(new JTabPanelGraphs());
 		tabPanels.add(new JTabPanelVariables());
 		tabPanels.add(new JTabPanelSettings());
@@ -139,7 +139,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabbedPane = new JTabbedPane();
 		tabbedPane.setFont(UIManager.getFont("TabbedPane.font")); // workaround
 		tabbedPane.setBorder(BorderFactory.createEmptyBorder());
-		for (JTabFirePanel panel:tabPanels) {
+		for (JFireTabPanel panel:tabPanels) {
 			JScrollPane scrollPane = new JScrollPane(panel.getJPanel());
 			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
