@@ -113,7 +113,6 @@ void Chip_setup(void) {
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
 	switch (pf_conf.avr_pin18_map) {
-		case PIN18_RELAY_OUT:
 		case PIN18_DOC4_OUT:
 		case PIN18_DOC6_OUT:
 			DDRD  |=  (ONE<<IO_MEGA_PIN18_PIN);
@@ -122,7 +121,6 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin19_map) {
-		case PIN19_RELAY_OUT:
 		case PIN19_DOC5_OUT:
 		case PIN19_DOC7_OUT:
 			DDRD  |=  (ONE<<IO_MEGA_PIN19_PIN);
@@ -133,6 +131,7 @@ void Chip_setup(void) {
 	// Conf dic and special ports
 	DDRL = 0x00;
 	PORTL = 0xFF;
+/*
 	switch (pf_conf.avr_pin47_map) {
 		case PIN47_RELAY_OUT:
 			DDRL  |=  (ONE<<IO_MEGA_PIN47_PIN);
@@ -140,8 +139,8 @@ void Chip_setup(void) {
 		default:
 			break;
 	}
+*/
 	switch (pf_conf.avr_pin48_map) {
-		case PIN48_RELAY_OUT:
 		case PIN48_DOC4_OUT:
 		case PIN48_DOC6_OUT:
 			DDRL  |=  (ONE<<IO_MEGA_PIN48_PIN);
@@ -150,7 +149,6 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin49_map) {
-		case PIN49_RELAY_OUT:
 		case PIN49_DOC5_OUT:
 		case PIN49_DOC7_OUT:
 			DDRL  |=  (ONE<<IO_MEGA_PIN49_PIN);
@@ -513,24 +511,6 @@ void Chip_out_doc(uint16_t data) {
 #endif
 }
 
-void Chip_out_lpm(uint8_t pinLevel) {
-	if (pf_conf.avr_pin18_map == PIN18_RELAY_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN,pinLevel);
-	}
-	if (pf_conf.avr_pin19_map == PIN19_RELAY_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN19_PIN,pinLevel);
-	}
-	if (pf_conf.avr_pin47_map == PIN47_RELAY_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN47_PIN,pinLevel);
-	}
-	if (pf_conf.avr_pin48_map == PIN48_RELAY_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN48_PIN,pinLevel);
-	}
-	if (pf_conf.avr_pin49_map == PIN49_RELAY_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN49_PIN,pinLevel);
-	}
-}
-
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 	if (pin==ZERO) {
 		if (enable==ZERO) {
@@ -664,14 +644,13 @@ ISR(TIMER5_COMPB_vect) {
 	#endif
 }
 
-
 ISR(TIMER5_COMPA_vect) {
 	#ifdef SF_ENABLE_PWM
 		PWM_do_work_a();
 	#endif
 }
 
-
 ISR(USART0_RX_vect) {
 	Serial_rx_int(UDR0);
 }
+

@@ -31,6 +31,8 @@ Version 1.0-Beta6:
 - Added invert per output; pulse_inv_a/b.
 - Changed swc_duty/swc_mode into swc_map for mappable options.
 - Changed stv_warn/error_mode into stv_warn/error_map so action is mappable.
+- Renamed lpm_auto_cmd to lpm_fire and made triggerable.
+- Renamed rep_auto_lpm to req_lpm_fire.
 
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.

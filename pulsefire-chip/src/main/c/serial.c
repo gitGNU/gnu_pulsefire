@@ -421,28 +421,20 @@ void cmd_execute(char* cmd, char** args) {
 		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) {
 			pf_data.pwm_state = PWM_STATE_RUN;
 		}
-		Serial_println_done_P(pmCmdInfoProg);
+		Serial_println_done_P(pmCmdReqPulseFire);
 #endif
 
 #ifdef SF_ENABLE_LPM
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqAutoLPM)) == ZERO) {
-		Serial_printCharP(pmCmdReqAutoLPM);
-		Serial_printCharP(pmGetSpaced);
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqLPMFire)) == ZERO) {
 		if (pf_conf.lpm_size > ZERO) {
 			if (pf_data.lpm_state==LPM_IDLE) {
 				pf_data.lpm_state = LPM_INIT;
-				pf_data.lpm_auto_cmd = ONE;
-				Serial_printCharP(pmLPMStart);
 			}
-			if (pf_data.lpm_state==LPM_IDLE) {
+			if (pf_data.lpm_state!=LPM_IDLE) {
 				pf_data.lpm_state = LPM_STOP;
-				pf_data.lpm_auto_cmd = ZERO;
-				Serial_printCharP(pmLPMCancel);
 			}
-		} else {
-			Serial_printDec(ZERO);
 		}
-		Serial_println();
+		Serial_println_done_P(pmCmdReqLPMFire);
 #endif
 
 #ifdef SF_ENABLE_PTT

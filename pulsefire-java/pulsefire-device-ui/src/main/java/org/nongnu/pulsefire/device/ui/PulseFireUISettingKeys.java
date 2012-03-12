@@ -45,6 +45,7 @@ public enum PulseFireUISettingKeys {
 	GRAPH_LIST_FRONT("pwm_loop,pwm_req_freq,pulse_steps,adc_value,dic_value,doc_port,dev_volt,dev_temp,pulse_step,sys_main_loop_cnt"),
 	UI_SPLIT_BOTTOM("570"),
 	UI_SPLIT_BOTTOM_LOG("600"),
+	LPM_RESULT_FIELDS("dev_volt,dev_amp,dev_temp,dev_freq"),
 	
 	LOG0_ENABLE("false"),
 	LOG0_TIMESTAMP("true"),

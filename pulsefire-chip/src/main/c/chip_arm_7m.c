@@ -109,9 +109,6 @@ void Chip_out_doc(uint16_t data) {
 
 }
 
-void Chip_out_lpm(uint8_t data) {
-}
-
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 }
 

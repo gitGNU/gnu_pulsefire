@@ -155,7 +155,7 @@ typedef struct {
 	volatile uint16_t      lpm_start;              // Start value of messurement
 	volatile uint16_t      lpm_stop;               // Stop value of messurement
 	volatile uint16_t      lpm_size;               // Size of messurement
-	volatile uint8_t       lpm_relay_inv;          // Inverse relay output
+	volatile uint16_t      lpm_relay_map[LPM_RELAY_MAP_MAX][QMAP_SIZE];// Output mapping for relay status
 #endif
 
 #ifdef SF_ENABLE_PTC
@@ -174,9 +174,9 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_DEV
-	volatile uint8_t       dev_volt_dot;           // The dot of value 0 = 0, 1 = /10, 2 = /100, 3 = /1000
-	volatile uint8_t       dev_amp_dot;
-	volatile uint8_t       dev_temp_dot;
+	volatile uint8_t       dev_volt_dot;           // Dot value for dev_volt; 0 = 0, 1 = /10, 2 = /100, 3 = /1000, 4= /10000
+	volatile uint8_t       dev_amp_dot;            // Dot value for dev_amp
+	volatile uint8_t       dev_temp_dot;           // Dot value for dev_temp
 #endif
 
 #ifdef SF_ENABLE_STV
@@ -239,18 +239,18 @@ typedef struct {
 	volatile uint16_t      swc_duty_cnt;
 #endif
 #ifdef SF_ENABLE_LCD
-	volatile uint8_t       lcd_page;
-	volatile uint8_t       lcd_redraw;
-	volatile uint32_t      lcd_time_cnt;
+	volatile uint8_t       lcd_page;          // The current lcd page being draw
+	volatile uint8_t       lcd_redraw;        // Notify lcd code to clear and redraw page.
+	volatile uint32_t      lcd_time_cnt;      // Timer until next redraw
 #endif
 
 #ifdef SF_ENABLE_LPM
-	volatile uint8_t       lpm_state;
-	volatile uint8_t       lpm_auto_cmd;
-	volatile uint32_t      lpm_start_time;
-	volatile uint32_t      lpm_total_time;
-	volatile uint16_t      lpm_result;
-	volatile uint16_t      lpm_level;
+	volatile uint8_t       lpm_state;         // The state machine value
+	volatile uint8_t       lpm_fire;          // Start lpm messurement
+	volatile uint32_t      lpm_start_time;    // The start time of the LPM messurement
+	volatile uint32_t      lpm_total_time;    // The total time of LPM messurement
+	volatile uint16_t      lpm_result;        // The LPM result in /10.
+	volatile uint16_t      lpm_level;         // The level of messurement
 #endif
 
 #ifdef SF_ENABLE_PTC
@@ -271,35 +271,35 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_DEV
-	volatile uint16_t      dev_volt;
-	volatile uint16_t      dev_amp;
-	volatile uint16_t      dev_temp;
-	volatile uint16_t      dev_freq;
-	volatile uint16_t      dev_freq_cnt;
-	volatile uint32_t      dev_freq_time_cnt;
-	volatile uint16_t      dev_var[DEV_VAR_MAX];
+	volatile uint16_t      dev_volt;               // Device volt variable for programatic usage.
+	volatile uint16_t      dev_amp;                // Device amps
+	volatile uint16_t      dev_temp;               // Device temperature
+	volatile uint16_t      dev_freq;               // Device freqencie
+	volatile uint16_t      dev_freq_cnt;           // Device freq counter from input pin.
+	volatile uint32_t      dev_freq_time_cnt;      // Device dev_freq value update counter.
+	volatile uint16_t      dev_var[DEV_VAR_MAX];   // Generic device parameters for programatic use.
 #endif
 
 #ifdef SF_ENABLE_PWM
-	volatile uint8_t       pulse_fire;              // The Pulse Fire for internal triggering of pulse
-	volatile uint8_t       pulse_step;              // The current pulse step
-	volatile uint16_t      pulse_data;              // The output data for next step
-	volatile uint8_t       pulse_dir_cnt;           // The current pulse direction
-	volatile uint8_t       pulse_bank_cnt;          // The pulse bank index
-	volatile uint32_t      pulse_trig_delay_cnt;    // Trigger delay counter
-	volatile uint32_t      pulse_post_delay_cnt;    // The post pulse delay timer counter of pulse off duty
+	volatile uint8_t       pulse_fire;             // The Pulse Fire for internal triggering of pulse
+	volatile uint8_t       pulse_step;             // The current pulse step
+	volatile uint16_t      pulse_data;             // The output data for next step
+	volatile uint8_t       pulse_dir_cnt;          // The current pulse direction
+	volatile uint8_t       pulse_bank_cnt;         // The pulse bank index
+	volatile uint32_t      pulse_trig_delay_cnt;   // Trigger delay counter
+	volatile uint32_t      pulse_post_delay_cnt;   // The post pulse delay timer counter of pulse off duty
 
-	volatile uint8_t       pwm_state;               // Interal state of pwm
-	volatile uint8_t       pwm_loop_cnt;            // Pwm loop counter for this step
-	volatile uint8_t       pwm_loop_max;            // The init loop counter for pulse, gets refresh from conf every pulse
+	volatile uint8_t       pwm_state;              // Interal state of pwm
+	volatile uint8_t       pwm_loop_cnt;           // Pwm loop counter for this step
+	volatile uint8_t       pwm_loop_max;           // The init loop counter for pulse, gets refresh from conf every pulse
 #endif
 
 #ifdef SF_ENABLE_PPM
-	volatile uint8_t       ppm_idx[OUTPUT_MAX];     // PPM data index of output state.
+	volatile uint8_t       ppm_idx[OUTPUT_MAX];    // PPM data index of output state.
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint16_t      mal_fire[MAL_PROGRAM_MAX];
+	volatile uint16_t      mal_fire[MAL_PROGRAM_MAX]; // MAL fire triggers.
 #endif
 
 } pf_data_struct;
@@ -313,12 +313,13 @@ typedef struct {
 	volatile uint8_t cmd_buff_idx;         // Command index
 	volatile uint8_t cmd_process;          // Processing command
 
-	volatile uint32_t      sys_time_ticks;
-	volatile uint32_t      sys_time_ssec;
+	volatile uint32_t      sys_time_ticks; // Timer0 ticks
+	volatile uint32_t      sys_time_ssec;  // 1/10 of seconds ticks.
 
-	volatile uint8_t       req_tx_push; // Push conf changes to Serial
-	volatile uint8_t       req_tx_echo;
-	volatile uint8_t       req_tx_promt;
+	volatile uint8_t       req_tx_push;    // Push conf changes to Serial
+	volatile uint8_t       req_tx_echo;    // Local echo of received characters
+	volatile uint8_t       req_tx_promt;   // Print promt after cmd is ready.
+	//volatile uint8_t     req_tx_hex;     // Print all var names in idx hex.
 
 #ifdef SF_ENABLE_LCD
 	char lcd_buff[20];
@@ -330,9 +331,9 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint8_t       mal_pc;
-	volatile uint8_t       mal_state;
-	volatile uint16_t      mal_var[OUTPUT_MAX];
+	volatile uint8_t       mal_pc;               // Mal program counter
+	volatile uint8_t       mal_state;            // program state
+	volatile uint16_t      mal_var[OUTPUT_MAX];  // mal internal variables
 #endif
 
 #ifdef SF_ENABLE_STV
@@ -344,7 +345,7 @@ typedef struct {
 
 } pf_prog_struct;
 
-// variables
+// All pulsefire variables are stored in one of these structs;
 extern pf_data_struct       pf_data;
 extern pf_prog_struct       pf_prog;
 extern pf_conf_struct       pf_conf;

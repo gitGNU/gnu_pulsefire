@@ -28,22 +28,36 @@
 // Check for lpm messurements
 #ifdef SF_ENABLE_LPM
 void LPM_loopRelayOutput(boolean relay_open) {
-	uint8_t pinLevel = ONE;
-	if (relay_open==pf_conf.lpm_relay_inv) {
-		pinLevel = ZERO;
+	for (uint8_t i=ZERO;i < LPM_RELAY_MAP_MAX;i++) {
+		uint16_t v = pf_conf.lpm_relay_map[i][QMAP_VAR];
+		if (v==QMAP_VAR_NONE) {
+			continue;
+		}
+		uint16_t value = ZERO;
+		if (relay_open) {
+			value = pf_conf.lpm_relay_map[i][QMAP_VALUE_A];
+		} else {
+			value = pf_conf.lpm_relay_map[i][QMAP_VALUE_B];
+		}
+		uint16_t vIdx = pf_conf.lpm_relay_map[i][QMAP_VAR_IDX];
+		Vars_setValue(v,vIdx,ZERO,value);
 	}
-	Chip_out_lpm(pinLevel);
+}
+
+void LPM_setup(void) {
+	LPM_loopRelayOutput(true); // set default state is open 
 }
 
 void LPM_loop(void) {
 	if (pf_conf.lpm_size == ZERO) {
 		return; // auto lpm only works when size is specefied.
 	}
-	if (pf_data.lpm_auto_cmd == ONE) {
+	if (pf_data.lpm_fire == ONE) {
 		if (pf_data.lpm_state == LPM_DONE_WAIT) {
 			pf_data.lpm_state = LPM_IDLE;
+			pf_data.lpm_fire = ZERO;
 			Serial_println();
-			Serial_printCharP(pmCmdReqAutoLPM);
+			Serial_printCharP(pmCmdReqLPMFire);
 			Serial_printCharP(pmGetSpaced);
 			Serial_printDec(pf_data.lpm_result/100 % 100);Serial_printChar(".");
 			Serial_printDec(pf_data.lpm_result/10 % 10);  Serial_printDec(pf_data.lpm_result % 10);
@@ -64,7 +78,7 @@ void LPM_loop(void) {
 		}
 #ifdef SF_ENABLE_LCD
 		lcd_clear();
-		lcd_printCharP(pmCmdReqAutoLPM);
+		lcd_printCharP(pmCmdReqLPMFire);
 		lcd_cursor(ZERO,ONE);
 		lcd_printCharP(pmLPMWait);
 #endif
@@ -76,7 +90,7 @@ void LPM_loop(void) {
 			pf_data.lpm_state = LPM_START_WAIT;
 #ifdef SF_ENABLE_LCD
 			lcd_clear();
-			lcd_printCharP(pmCmdReqAutoLPM);
+			lcd_printCharP(pmCmdReqLPMFire);
 			lcd_cursor(ZERO,ONE);
 			lcd_printCharP(pmLPMStart);
 #endif
@@ -147,6 +161,7 @@ void LPM_loop(void) {
 		case LPM_DONE:
 			LPM_loopRelayOutput(true); // open output tube
 			pf_data.lpm_state = LPM_DONE_WAIT;
+			pf_data.lpm_fire = ONE;
 #ifdef SF_ENABLE_LCD
 			lcd_clear();
 			lcd_printChar("lpm: ");

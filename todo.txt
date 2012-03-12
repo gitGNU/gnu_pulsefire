@@ -1,7 +1,14 @@
 TODO LIST:
+- inverse nolimit flag in PF_VARS
+- Add menu support for map variables.
+- Add lcd pages support
+- Fix 32 bit variables set.
+- Move idxA,idxB size in PF_VARS to type size column
 - When using 16 pwm outputs last output step had extratime.
 - Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
+- Added nested if support in mal
+- Recode mal to goto jump table
 - A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
 - Operation manual
 - Port to arm7

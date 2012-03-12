@@ -31,6 +31,7 @@
 #include "serial.h"
 
 #ifdef SF_ENABLE_LPM
+void LPM_setup(void);
 void LPM_loop(void);
 #endif
 

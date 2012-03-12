@@ -47,7 +47,7 @@ public enum CommandName {
 	reset_data				(CommandVariableType.CMD),
 	reset_chip				(CommandVariableType.CMD),
 	
-	req_auto_lpm			(CommandVariableType.CMD,WireChipFlags.LPM),
+	req_lpm_fire			(CommandVariableType.CMD,WireChipFlags.LPM),
 	req_pulse_fire			(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_ptt_fire			(CommandVariableType.CMD,WireChipFlags.PTT),
 	req_mal_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
@@ -93,7 +93,7 @@ public enum CommandName {
 	lpm_start				(CommandVariableType.CONF,WireChipFlags.LPM),
 	lpm_stop				(CommandVariableType.CONF,WireChipFlags.LPM),
 	lpm_size				(CommandVariableType.CONF,WireChipFlags.LPM),
-	lpm_relay_inv			(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_relay_map			(CommandVariableType.CONF,WireChipFlags.LPM),
 	
 	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC),
 	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC),
@@ -171,6 +171,7 @@ public enum CommandName {
 	lcd_redraw				(CommandVariableType.DATA),
 	
 	lpm_state				(CommandVariableType.DATA),
+	lpm_fire				(CommandVariableType.DATA),
 	lpm_start_time			(CommandVariableType.DATA),
 	lpm_total_time			(CommandVariableType.DATA),
 	lpm_result				(CommandVariableType.DATA),

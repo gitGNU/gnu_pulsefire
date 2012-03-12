@@ -33,6 +33,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +42,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -56,22 +58,29 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
+import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
+import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
+import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.components.JIntegerTextField;
+import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
+import org.nongnu.pulsefire.wire.CommandVariableType;
 
 /**
  * JTabPanelLPM
  * 
  * @author Willem Cazander
  */
-public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListener, ActionListener, TableModelListener {
+public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListener, ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
 	private JTable tuneStepTable = null;
@@ -89,6 +98,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 	private JButton resultFieldsButton = null;
 	private JButton resultClearButton = null;
 	private JButton resultExportButton = null;
+	private List<CommandName> stepFields = null;
 	
 	public JTabPanelLPM() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -112,10 +122,17 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
+		
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.req_lpm_fire, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_level, this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
+		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
 	}
 	
 	private JPanel createLpmConfig() {
-		JPanel inputPanel = JComponentFactory.createJFirePanel("Lpm Config");
+		JPanel configPanel = JComponentFactory.createJFirePanel("Lpm Config");
+		configPanel.setLayout(new BorderLayout());
+		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				
 		inputPanel.add(JComponentFactory.createJLabel("Start"));
@@ -127,10 +144,14 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		inputPanel.add(JComponentFactory.createJLabel("Size"));
 		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_size)));
 		
-		inputPanel.add(JComponentFactory.createJLabel("Relay Invert"));
-		inputPanel.add(new JCommandCheckBox(CommandName.lpm_relay_inv));
+		JPanel relayMapPanel = new JPanel();
+		relayMapPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		relayMapPanel.add(new JFireQMapTable(CommandName.lpm_relay_map,"Open","Close"));
 
-		return inputPanel;
+		configPanel.add(inputPanel,BorderLayout.CENTER);
+		configPanel.add(relayMapPanel,BorderLayout.SOUTH);
+		
+		return configPanel;
 	}
 	
 	private JPanel createLpmTuneConfig() {
@@ -141,7 +162,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		JPanel butPanel = new JPanel();
 		butPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		lpmSingleButton = new JCommandButton("Single",CommandName.req_auto_lpm); 
+		lpmSingleButton = new JCommandButton("Single",CommandName.req_lpm_fire); 
 		lpmTuneStartButton = new JButton("Start");
 		lpmTuneStopButton = new JButton("Stop");
 		lpmTuneNextButton = new JButton("Next");
@@ -197,10 +218,13 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		tuneStepTable.getSelectionModel().addListSelectionListener(this);
 		tuneStepTable.setRowMargin(2);
 		tuneStepTable.setRowHeight(26);
-		TableColumn orderColumn = tuneStepTable.getColumnModel().getColumn(0);
-		orderColumn.setPreferredWidth(55);
-		TableColumn cmdColumn = tuneStepTable.getColumnModel().getColumn(1);
-		cmdColumn.setPreferredWidth(160);
+		tuneStepTable.getColumnModel().getColumn(0).setPreferredWidth(55);
+		tuneStepTable.getColumnModel().getColumn(1).setPreferredWidth(160);
+		tuneStepTable.getColumnModel().getColumn(2).setPreferredWidth(55);
+		tuneStepTable.getColumnModel().getColumn(3).setPreferredWidth(55);
+		tuneStepTable.getColumnModel().getColumn(4).setPreferredWidth(55);
+		tuneStepTable.getColumnModel().getColumn(5).setPreferredWidth(55);
+		
 		tuneStepTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -215,7 +239,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		ToolTipManager.sharedInstance().unregisterComponent(tuneStepTable.getTableHeader());
 
 		JScrollPane scroll = new JScrollPane(tuneStepTable);
-		scroll.setPreferredSize(new Dimension(450,160));
+		scroll.setPreferredSize(new Dimension(450,120));
 		panel.add(scroll,BorderLayout.CENTER);
 		
 		JPanel tableActions = new JPanel();
@@ -245,28 +269,26 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		panel.setLayout(new BorderLayout());
 		
 		tuneResultModel = new LpmTuneResultTableModel();
+		tuneResultModel.addTableModelListener(this);
 		tuneResultTable = new JTable(tuneResultModel);
 		tuneResultTable.getTableHeader().setReorderingAllowed(false);
 		tuneResultTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		tuneResultTable.setFillsViewportHeight(true);
 		tuneResultTable.setShowHorizontalLines(true);
 		tuneResultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//tuneResultTable.getSelectionModel().addListSelectionListener(this);
 		tuneResultTable.setRowMargin(2);
 		tuneResultTable.setRowHeight(26);
-		TableColumn dateColumn = tuneResultTable.getColumnModel().getColumn(0);
-		dateColumn.setPreferredWidth(180);
-		TableColumn lpmResultColumn = tuneResultTable.getColumnModel().getColumn(1);
-		lpmResultColumn.setPreferredWidth(80);
-		TableColumn stepDataColumn = tuneResultTable.getColumnModel().getColumn(2);
-		stepDataColumn.setPreferredWidth(200);
-		TableColumn stepFieldsColumn = tuneResultTable.getColumnModel().getColumn(3);
-		stepFieldsColumn.setPreferredWidth(190);
+		tuneResultTable.getColumnModel().getColumn(0).setPreferredWidth(220);
+		tuneResultTable.getColumnModel().getColumn(1).setPreferredWidth(80);
+		tuneResultTable.getColumnModel().getColumn(2).setPreferredWidth(80);
+		tuneResultTable.getColumnModel().getColumn(3).setPreferredWidth(180);
+		tuneResultTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+
 		ToolTipManager.sharedInstance().unregisterComponent(tuneResultTable);
 		ToolTipManager.sharedInstance().unregisterComponent(tuneResultTable.getTableHeader());
 
 		JScrollPane scroll = new JScrollPane(tuneResultTable);
-		scroll.setPreferredSize(new Dimension(660,450));
+		scroll.setPreferredSize(new Dimension(700,500));
 		panel.add(scroll,BorderLayout.CENTER);
 		
 		JPanel tableActions = new JPanel();
@@ -274,6 +296,13 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		resultFieldsButton = new JButton("Fields");
 		resultClearButton = new JButton("Clear");
 		resultExportButton = new JButton("Export");
+		
+		resultFieldsButton.addActionListener(this);
+		resultClearButton.addActionListener(this);
+		resultExportButton.addActionListener(this);
+		
+		resultClearButton.setEnabled(false);
+		resultExportButton.setEnabled(false);
 		
 		tableActions.add(resultFieldsButton);
 		tableActions.add(resultClearButton);
@@ -295,6 +324,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		private int valueStop = 10;
 		private int valueStep = 1;
 		private int valueCurrent = 0;
+		private int recoveryTime = 5;
 		
 		/**
 		 * @return the order
@@ -368,12 +398,25 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		public void setValueCurrent(int valueCurrent) {
 			this.valueCurrent = valueCurrent;
 		}
+		/**
+		 * @return the recoveryTime
+		 */
+		public int getRecoveryTime() {
+			return recoveryTime;
+		}
+		/**
+		 * @param recoveryTime the recoveryTime to set
+		 */
+		public void setRecoveryTime(int recoveryTime) {
+			this.recoveryTime = recoveryTime;
+		}
+		
 	}
 	public class LpmTuneResult {
 		private Date date = null;
 		private String stepData = null;
-		private int lpmTime = 0;
-		private int lpmResult = 0;
+		private String lpmTime = null;
+		private String lpmResult = null;
 		private String stepFields = null;
 		
 		/**
@@ -403,25 +446,25 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		/**
 		 * @return the lpmTime
 		 */
-		public int getLpmTime() {
+		public String getLpmTime() {
 			return lpmTime;
 		}
 		/**
 		 * @param lpmTime the lpmTime to set
 		 */
-		public void setLpmTime(int lpmTime) {
+		public void setLpmTime(String lpmTime) {
 			this.lpmTime = lpmTime;
 		}
 		/**
 		 * @return the lpmResult
 		 */
-		public int getLpmResult() {
+		public String getLpmResult() {
 			return lpmResult;
 		}
 		/**
 		 * @param lpmResult the lpmResult to set
 		 */
-		public void setLpmResult(int lpmResult) {
+		public void setLpmResult(String lpmResult) {
 			this.lpmResult = lpmResult;
 		}
 		/**
@@ -442,7 +485,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 	public class LpmTuneStepTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -1432038909521987705L;
-		private String[] columnNames = new String[] {"Order","Command","Start","Stop","Step"};
+		private String[] columnNames = new String[] {"Order","Command","Start","Stop","Step","RTime"};
 		private List<LpmTuneStep> data = null;
 		
 		public LpmTuneStepTableModel() {
@@ -496,6 +539,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 			case 2:		return step.getValueStart();
 			case 3:		return step.getValueStop();
 			case 4:		return step.getValueStep();
+			case 5:		return step.getRecoveryTime();
 			}
 		}
 	}
@@ -503,7 +547,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 	public class LpmTuneResultTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -1432038909521987705L;
-		private String[] columnNames = new String[] {"Date","LpmResult","StepData","StepFields"};
+		private String[] columnNames = new String[] {"Date","LpmTime","LpmResult","StepData","StepFields"};
 		private List<LpmTuneResult> data = null;
 		
 		public LpmTuneResultTableModel() {
@@ -547,9 +591,10 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 			switch (col) {
 			default:
 			case 0:		return result.getDate();
-			case 1:		return result.getLpmResult();
-			case 2:		return result.getStepData();
-			case 3:		return result.getStepFields();
+			case 1:		return result.getLpmTime();
+			case 2:		return result.getLpmResult();
+			case 3:		return result.getStepData();
+			case 4:		return result.getStepFields();
 			}
 		}
 	}
@@ -571,13 +616,14 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		private JIntegerTextField startValueField = null;
 		private JIntegerTextField stopValueField = null;
 		private JIntegerTextField stepValueField = null;
+		private JIntegerTextField recoveryTimeField = null;
 		
 		public JLpmTuneStepDialog(Frame parentFrame,LpmTuneStep step) {
 			super(parentFrame, true);
 			this.step=step;
 			
 			setTitle("Edit Tune Step");
-			setMinimumSize(new Dimension(250,250));
+			setMinimumSize(new Dimension(250,300));
 			setPreferredSize(new Dimension(300,250));
 			setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 			addWindowListener(new WindowAdapter() {
@@ -608,6 +654,7 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 				step.setValueStart(startValueField.getValue());
 				step.setValueStop(stopValueField.getValue());
 				step.setValueStep(stepValueField.getValue());
+				step.setRecoveryTime(recoveryTimeField.getValue());
 				if (tuneStepModel.dataContains(step)==false) {
 					tuneStepModel.dataAdd(step);
 				} else {
@@ -645,7 +692,11 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 			stepValueField = new JIntegerTextField(step.getValueStep(), 6);
 			panel.add(stepValueField);
 			
-			SpringLayoutGrid.makeCompactGrid(panel,5,2);
+			panel.add(new JLabel("Recovery Time"));
+			recoveryTimeField = new JIntegerTextField(step.getRecoveryTime(), 6);
+			panel.add(recoveryTimeField);
+			
+			SpringLayoutGrid.makeCompactGrid(panel,6,2);
 			return panel;
 		}
 		
@@ -695,16 +746,47 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		} else if (lpmTuneNextButton.equals(e.getSource())) {
 			
 		} else if (resultFieldsButton.equals(e.getSource())) {
-		
+			List<CommandName> commands = new ArrayList<CommandName>(100);
+			for (CommandName cn:CommandName.values()) {
+				if (CommandVariableType.CMD==cn.getType()) {
+					continue;
+				}
+				if (CommandVariableType.INFO==cn.getType()) {
+					continue;
+				}
+				commands.add(cn);
+			}
+			JCommandSettingListDialog dialog = new JCommandSettingListDialog(
+					PulseFireUI.getInstance().getMainFrame(),
+					"Select Lpm Result Fields",
+					"Select the fields to log with the lpm result.",
+					PulseFireUISettingKeys.LPM_RESULT_FIELDS,
+					commands,commands);
+			dialog.setVisible(true);
 		} else if (resultClearButton.equals(e.getSource())) {
 			tuneResultModel.dataClear();
 		} else if (resultExportButton.equals(e.getSource())) {
-			
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog((JButton)e.getSource());
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				// todo write
+			}
 		}
 	}
 
 	@Override
 	public void tableChanged(TableModelEvent e) {
+		if (tuneResultModel.equals(e.getSource())) {
+			if (tuneResultModel.getRowCount()>0) {
+				resultClearButton.setEnabled(true);
+				resultExportButton.setEnabled(true);
+			} else {
+				resultClearButton.setEnabled(false);
+				resultExportButton.setEnabled(false);
+			}
+			return;
+		}
 		if (tuneStepModel.getRowCount()>0) {
 			lpmTuneStartButton.setEnabled(true);
 		} else {
@@ -723,5 +805,91 @@ public class JTabPanelLPM extends AbstractTabPanel implements ListSelectionListe
 		}
 		
 		lpmStepLabel.setText("0/"+stepsTotal);
+	}
+
+	@Override
+	public void commandReceived(Command command) {
+		if (CommandName.req_lpm_fire.equals(command.getCommandName())) {
+			
+			if ("done".equals(command.getArgu0())) {
+				return;
+			}
+			
+			//  result format: req_lpm_fire==19.53 2.67
+			LpmTuneResult result = new LpmTuneResult();
+			result.setDate(new Date());
+			result.setLpmResult(command.getArgu0());
+			result.setLpmTime(command.getArgu1());
+			result.setStepData("todo");
+			result.setStepFields(renderStepFields());
+			tuneResultModel.dataAdd(result);
+			
+		} else if (CommandName.lpm_level.equals(command.getCommandName())) { 
+			
+			Command lpmStart = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_start);
+			Command lpmStop = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
+			Command lpmSize = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
+			
+			
+			//int lpmStart = ;
+			
+		}
+	}
+
+	@Override
+	public void settingUpdated(PulseFireUISettingKeys key, String value) {
+		stepFields = CommandName.decodeCommandList(value);
+	}
+	
+	/**
+	 * todo Move to record logger ? 
+	 */
+	private String renderStepFields() {
+		DeviceData devData = PulseFireUI.getInstance().getDeviceData();
+		StringBuffer buf = new StringBuffer(200);
+		String FIELD_SPACE = " ";
+		String FIELD_QUOTE = "\"";
+		String FIELD_SEPERATOR = ",";
+		for (CommandName cn:stepFields) {
+			if (cn.isIndexedA()) {
+				for (int i=0;i<cn.getMaxIndexA();i++) {
+					Command cmd = devData.getDeviceParameterIndexed(cn, i);
+					if (cmd!=null) {
+						if (cn.isIndexedB()) {
+							buf.append(cmd.getArgu0());
+							if (cmd.getArgu1()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu1()); }
+							if (cmd.getArgu2()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu2()); }
+							if (cmd.getArgu3()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu3()); }
+							if (cmd.getArgu4()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu4()); }
+							if (cmd.getArgu5()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu5()); }
+							if (cmd.getArgu6()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu6()); }
+							if (cmd.getArgu7()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu7()); }
+						} else {
+							buf.append(cmd.getArgu0());
+						}
+					} else {
+						buf.append(FIELD_SPACE);
+					}
+					if (i<cn.getMaxIndexA()-1) {
+						buf.append(FIELD_QUOTE);
+						buf.append(FIELD_SEPERATOR);
+						buf.append(FIELD_QUOTE);
+					}
+				}
+			} else {
+				Command cmd = devData.getDeviceParameter(cn);
+				if (cmd!=null) {
+					buf.append(cmd.getArgu0());
+				} else {
+					buf.append(FIELD_SPACE);
+				}
+			}
+			//if (f<logFields.size()-1) {
+				buf.append(FIELD_QUOTE);
+				buf.append(FIELD_SEPERATOR);
+				buf.append(FIELD_QUOTE);
+			//}
+		}
+		return buf.toString();
 	}
 }

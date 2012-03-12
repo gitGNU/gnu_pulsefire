@@ -121,7 +121,6 @@ void Chip_setup(void) {
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
 	switch (pf_conf.avr_pin2_map) {
-		case PIN2_RELAY_OUT:
 		case PIN2_DOC2_OUT:
 		case PIN2_DOC8_OUT:
 			DDRD  |=  (ONE<<IO_DEF_PIN2_PIN);
@@ -130,7 +129,6 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin3_map) {
-		case PIN3_RELAY_OUT:
 		case PIN3_DOC3_OUT:
 		case PIN3_DOC9_OUT:
 			DDRD  |=  (ONE<<IO_DEF_PIN3_PIN);
@@ -139,7 +137,6 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin4_map) {
-		case PIN4_RELAY_OUT:
 		case PIN4_DOC4_OUT:
 		case PIN4_DOC10_OUT:
 			DDRD  |=  (ONE<<IO_DEF_PIN4_PIN);
@@ -148,7 +145,6 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin5_map) {
-		case PIN5_RELAY_OUT:
 		case PIN5_DOC5_OUT:
 		case PIN5_DOC11_OUT:
 			DDRD  |=  (ONE<<IO_DEF_PIN5_PIN);
@@ -470,21 +466,6 @@ void Chip_out_doc(uint16_t data) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[11] > ZERO);
 	}
 #endif
-}
-
-void Chip_out_lpm(uint8_t data) {
-	if (pf_conf.avr_pin2_map == PIN2_RELAY_OUT) {
-		digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN2_PIN,data);
-	}
-	if (pf_conf.avr_pin3_map == PIN3_RELAY_OUT) {
-		digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN3_PIN,data);
-	}
-	if (pf_conf.avr_pin4_map == PIN4_RELAY_OUT) {
-		digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN4_PIN,data);
-	}
-	if (pf_conf.avr_pin5_map == PIN5_RELAY_OUT) {
-		digitalWrite(IO_DEF_OUT_PORT,IO_DEF_PIN4_PIN,data);
-	}
 }
 
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {

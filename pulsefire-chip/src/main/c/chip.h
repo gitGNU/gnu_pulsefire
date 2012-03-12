@@ -80,7 +80,6 @@ void Chip_out_pwm(uint16_t data);
 void Chip_out_serial(uint8_t data);
 void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux);
 void Chip_out_doc(uint16_t data);
-void Chip_out_lpm(uint8_t data);
 
 void     Chip_in_int_pin(uint8_t pin,uint8_t enable);
 void     Chip_in_adc(uint8_t channel);

@@ -27,28 +27,28 @@
 
 // External defines for building PulseFire custum fit.
 // SoftwareFlags to enable features by the build, see makefile.
-#//define SF_ENABLE_PWM              // enable pwm code       (+...) !! note no dep check
-#//define SF_ENABLE_LCD              // enable lcd output     (+3520)
+#//define SF_ENABLE_PWM               // enable pwm code       (+...) !! note no dep check
+#//define SF_ENABLE_LCD               // enable lcd output     (+3520)
 #//define SF_ENABLE_GLCD              // enable glcd output   (...) (deps on MEGA !!)
-#//define SF_ENABLE_LPM              // enable lpm code       (+2094)
-#//define SF_ENABLE_PPM              // enable ppm code       (+672) (DEP: PWM)
-#//define SF_ENABLE_ADC              // enable adc code       (+952)
-#//define SF_ENABLE_DIC              // enable dic code       (+370)
-#//define SF_ENABLE_DOC              // enable doc code       (+370)
-#//define SF_ENABLE_DEV              // enable dev vars       (+...)
-#//define SF_ENABLE_PTC              // enable ptc timers     (+...)
-#//define SF_ENABLE_PTT              // enable ptt timers     (+...)
-#//define SF_ENABLE_STV              // enable stv code       (+...)
-#//define SF_ENABLE_VFC              // enable vfc code       (+...)
-#//define SF_ENABLE_SWC              // enable soft warmup   (+480) (DEP: PWM)
-#//define SF_ENABLE_MAL              // enable mal code       (+2250)
-#//define SF_ENABLE_DEBUG          // enable some debug     (+1044)
-#//define SF_ENABLE_EXT_OUT        // enable extended output for 8 outputs
-#//define SF_ENABLE_EXT_OUT_16BIT  // enable extended output for 16 outputs (with: EXT_OUT !!)
-#//define SF_ENABLE_EXT_LCD        // enable extended connection mode lcd.
-#//define SF_ENABLE_EXT_LCD_DIC    // enable multiplexing DIC inputs (with: EXT_LCD !!)
-#//define SF_ENABLE_EXT_LCD_DOC    // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
-#//define SF_ENABLE_EXT_LCD_DOC_16BIT  // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
+#//define SF_ENABLE_LPM               // enable lpm code       (+2094) (DEP: DIC & DOC)
+#//define SF_ENABLE_PPM               // enable ppm code       (+672)  (DEP: PWM)
+#//define SF_ENABLE_ADC               // enable adc code       (+952)
+#//define SF_ENABLE_DIC               // enable dic code       (+370)
+#//define SF_ENABLE_DOC               // enable doc code       (+370)
+#//define SF_ENABLE_DEV               // enable dev vars       (+...)
+#//define SF_ENABLE_PTC               // enable ptc timers     (+...)
+#//define SF_ENABLE_PTT               // enable ptt timers     (+...)
+#//define SF_ENABLE_STV               // enable stv code       (+...)
+#//define SF_ENABLE_VFC               // enable vfc code       (+...)
+#//define SF_ENABLE_SWC               // enable soft warmup    (+480) (DEP: PWM)
+#//define SF_ENABLE_MAL               // enable mal code       (+2250)
+#//define SF_ENABLE_DEBUG             // enable some debug     (+1044)
+#//define SF_ENABLE_EXT_OUT           // enable extended output for 8 outputs
+#//define SF_ENABLE_EXT_OUT_16BIT     // enable extended output for 16 outputs (with: EXT_OUT !!)
+#//define SF_ENABLE_EXT_LCD           // enable extended connection mode lcd.
+#//define SF_ENABLE_EXT_LCD_DIC       // enable multiplexing DIC inputs (with: EXT_LCD !!)
+#//define SF_ENABLE_EXT_LCD_DOC       // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
+#//define SF_ENABLE_EXT_LCD_DOC_16BIT // enable second extended chip after lcd for DOC output(with: EXT_LCD !!)
 
 // Customizable data
 #define LCD_INIT_MSG_TIME         555    // Welcome message timeout
@@ -90,6 +90,7 @@
 	#define STV_ERROR_MAP_MAX         4
 	#define DEV_VAR_MAX              16
 	#define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support for layout issues.
+	#define LPM_RELAY_MAP_MAX         2
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
@@ -105,6 +106,7 @@
 	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               4
 	#define VFC_MAP_MAX               3
+	#define LPM_RELAY_MAP_MAX         1
 #elif __AVR_ATmega168P__
 	#define SF_ENABLE_AVR                  // Define AVR
 	#define CHIP_EEPROM_SIZE        512    // 512 bytes eeprom
@@ -120,6 +122,7 @@
 	#define STV_ERROR_MAP_MAX         1    // Mapping of safety error action
 	#define DEV_VAR_MAX               2    // Generic device variables
 	#define VFC_MAP_MAX               2    // Virtual feedback channels
+    #define LPM_RELAY_MAP_MAX         1    // Output mapping for relay pin.
 #elif __ARM_ARCH_7M__
 	#define SF_ENABLE_ARM_7M               // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
@@ -135,6 +138,7 @@
 	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               4
 	#define VFC_MAP_MAX               3
+    #define LPM_RELAY_MAP_MAX         1
 #else
 	#error "Don't know how to run on your MCU_TYPE."
 #endif

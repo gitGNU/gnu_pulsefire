@@ -11,8 +11,9 @@ pf_conf_struct EEMEM pf_conf_eeprom;
 CHIP_PROGMEM_ARRAY pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
 		pmCmdHelp,pmCmdSave,
 		pmCmdInfoConf,pmCmdInfoData,pmCmdInfoProg,pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoChip,
-		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,pmCmdReqAutoLPM,
-		pmCmdReqPulseFire,pmCmdReqPTTFire,pmCmdReqMALFire,pmConfMALProgram,
+		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,
+		pmCmdReqLPMFire,pmCmdReqPulseFire,pmCmdReqPTTFire,pmCmdReqMALFire,
+		pmConfMALProgram,
 		pmProgTXPush,pmProgTXEcho,pmProgTXPromt
 };
 
@@ -97,7 +98,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_start,           (CHIP_PTR_TYPE)&pmConfLPMStart,        0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_START},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_stop,            (CHIP_PTR_TYPE)&pmConfLPMStop,         0xFFFF,              PFVB_NONE,                      DEFAULT_LPM_STOP},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_size,            (CHIP_PTR_TYPE)&pmConfLPMSize,         0xFFFF,              PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lpm_relay_inv,       (CHIP_PTR_TYPE)&pmConfLPMRelayInv,     ONE,                 PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.lpm_relay_map,       (CHIP_PTR_TYPE)&pmConfLPMRelayMap,     0xFFFF,              (QMAP_SIZE<<13)+(LPM_RELAY_MAP_MAX<<8)+PFVB_IDXB+PFVB_IDXA+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU, 0xFFFF},
 #endif
 #ifdef SF_ENABLE_PTC
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.ptc_0run,            (CHIP_PTR_TYPE)&pmConfPTC0Run,         PTC_RUN_LOOP,        PFVB_NONE,                      PTC_RUN_OFF},
@@ -147,7 +148,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #ifdef SF_ENABLE_AVR_MEGA
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin18_map,       (CHIP_PTR_TYPE)&pmConfAVRPin18Map,     PIN18_FIRE_IN,       PFVB_NOMAP+PFVB_NOMENU,         PIN18_OFF},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin19_map,       (CHIP_PTR_TYPE)&pmConfAVRPin19Map,     PIN19_FIRE_IN,       PFVB_NOMAP+PFVB_NOMENU,         PIN19_OFF},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin47_map,       (CHIP_PTR_TYPE)&pmConfAVRPin47Map,     PIN47_RELAY_OUT,     PFVB_NOMAP+PFVB_NOMENU,         PIN47_CLOCK_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin47_map,       (CHIP_PTR_TYPE)&pmConfAVRPin47Map,     PIN47_CLOCK_IN,      PFVB_NOMAP+PFVB_NOMENU,         PIN47_CLOCK_IN},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin48_map,       (CHIP_PTR_TYPE)&pmConfAVRPin48Map,     PIN48_DOC6_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN48_MENU0_IN},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin49_map,       (CHIP_PTR_TYPE)&pmConfAVRPin49Map,     PIN49_DOC7_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN49_MENU1_IN},
 #endif
@@ -198,7 +199,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_LPM
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_state,           (CHIP_PTR_TYPE)&pmDataLPMState,        0xFF,                PFVB_DT0+PFVB_NOMAP,            LPM_IDLE},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_auto_cmd,        (CHIP_PTR_TYPE)&pmCmdReqAutoLPM,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lpm_fire,            (CHIP_PTR_TYPE)&pmDataLPMFire,         0xFF,                PFVB_DT0,                       ZERO},
 	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.lpm_start_time,      (CHIP_PTR_TYPE)&pmDataLPMStartTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.lpm_total_time,      (CHIP_PTR_TYPE)&pmDataLPMTotalTime,    ZERO,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.lpm_result,          (CHIP_PTR_TYPE)&pmDataLPMResult,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
@@ -719,6 +720,16 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqDuty) {
 		Freq_requestTrainFreq();
+	}
+#endif
+#ifdef SF_ENABLE_LPM
+	if ( varName == (CHIP_PTR_TYPE)&pmDataLPMFire && pf_conf.lpm_size > ZERO) {
+		if (pf_data.lpm_state==LPM_IDLE) {
+			pf_data.lpm_state = LPM_INIT;
+		}
+		if (pf_data.lpm_state!=LPM_IDLE) {
+			pf_data.lpm_state = LPM_STOP;
+		}
 	}
 #endif
 #ifdef SF_ENABLE_MAL

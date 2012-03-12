@@ -167,7 +167,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin2_map.listValues = new String[] {
 				"PIN2_OFF",
 				"PIN2_TRIG_IN",
-				"PIN2_RELAY_OUT",
 				"PIN2_DIC2_IN",
 				"PIN2_DIC8_IN",
 				"PIN2_DOC2_OUT",
@@ -178,7 +177,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin3_map.listValues = new String[] {
 				"PIN3_OFF",
 				"PIN3_MENU0_IN",
-				"PIN3_RELAY_OUT",
 				"PIN3_DIC3_IN",
 				"PIN3_DIC9_IN",
 				"PIN3_DOC3_OUT",
@@ -189,7 +187,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin4_map.listValues = new String[] {
 				"PIN4_OFF",
 				"PIN4_MENU1_IN",
-				"PIN4_RELAY_OUT",
 				"PIN4_DIC4_IN",
 				"PIN4_DIC10_IN",
 				"PIN4_DOC4_OUT",
@@ -198,7 +195,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin5_map.listValues = new String[] {
 				"PIN5_OFF",
 				"PIN5_CLOCK_IN",
-				"PIN5_RELAY_OUT",
 				"PIN5_DIC5_IN",
 				"PIN5_DIC11_IN",
 				"PIN5_DOC5_OUT",
@@ -208,7 +204,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin18_map.listValues = new String[] {
 				"PIN18_OFF",
 				"PIN18_TRIG_IN",
-				"PIN18_RELAY_OUT",
 				"PIN18_DIC4_IN",
 				"PIN18_DIC6_IN",
 				"PIN18_DOC4_OUT",
@@ -219,7 +214,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin19_map.listValues = new String[] {
 				"PIN19_OFF",
 				"PIN19_TRIG_IN",
-				"PIN19_RELAY_OUT",
 				"PIN19_DIC5_IN",
 				"PIN19_DIC7_IN",
 				"PIN19_DOC5_OUT",
@@ -235,7 +229,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin48_map.listValues = new String[] {
 				"PIN48_OFF",
 				"PIN48_MENU0_IN",
-				"PIN48_RELAY_OUT",
 				"PIN48_DIC4_IN",
 				"PIN48_DIC6_IN",
 				"PIN48_DOC4_OUT",
@@ -244,7 +237,6 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin49_map.listValues = new String[] {
 				"PIN49_OFF",
 				"PIN49_MENU1_IN",
-				"PIN49_RELAY_OUT",
 				"PIN49_DIC5_IN",
 				"PIN49_DIC7_IN",
 				"PIN49_DOC5_OUT",
@@ -285,7 +277,7 @@ public class CommandNameVersionFactory {
 		CommandName.dev_volt_dot.disabled=true;
 		CommandName.dev_amp_dot.disabled=true;
 		CommandName.dev_temp_dot.disabled=true;
-		CommandName.lpm_relay_inv.disabled=true;
+		CommandName.lpm_relay_map.disabled=true;
 		CommandName.lcd_size.disabled=true;
 		CommandName.adc_enable.disabled=true;
 		CommandName.dic_enable.disabled=true;

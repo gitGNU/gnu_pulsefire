@@ -54,6 +54,9 @@ int main(void) {
 #ifdef SF_ENABLE_LCD
 	lcd_setup();
 #endif
+#ifdef SF_ENABLE_LPM
+	LPM_setup();
+#endif
  
 	Chip_sei(); // enable interrupts after init
 	for(;;) {
