@@ -23,6 +23,7 @@
 
 package org.nongnu.pulsefire.device.ui;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -96,10 +97,12 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		serialInfoPanel.add(versionLabel);
 		
 		serialTxCounter = new JLabel();
+		serialTxCounter.setPreferredSize(new Dimension(200,15));
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialTxCounter"));
 		serialInfoPanel.add(serialTxCounter);
 		
 		serialRxCounter = new JLabel();
+		serialRxCounter.setPreferredSize(new Dimension(200,15)); // Removes screen update jitter on the right side of the label
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialRxCounter"));
 		serialInfoPanel.add(serialRxCounter);
 		SpringLayoutGrid.makeCompactGrid(serialInfoPanel,3,2);

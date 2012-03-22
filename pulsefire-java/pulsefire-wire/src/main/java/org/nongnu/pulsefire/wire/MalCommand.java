@@ -145,7 +145,9 @@ public class MalCommand {
 			opcodes.add(opcode);
 			ext_type        = (opcode >> 4) & 0x0F;
 			ext_op          =  opcode & 0x0F;
-			extType = ExtType.values()[ext_type];
+			if (ext_type < ExtType.values().length) {
+				extType = ExtType.values()[ext_type];
+			}
 			extOp = ext_op;
 		} else if (cmd_type==3) {
 			opcode = data.next();
@@ -276,6 +278,9 @@ public class MalCommand {
 			buff.append("    ");
 		}
 		String malVarIndex = ""+varIndex;
+		if (cmdType==null) {
+			return "cmdType=null";
+		}
 		switch (cmdType) {
 		case LOAD:
 			buff.append("LOAD ");
@@ -305,6 +310,9 @@ public class MalCommand {
 			break;
 		case EXTENDED:
 			//buff.append("EXT_");
+			if (extType==null) {
+				return "extType=null";
+			}
 			switch (extType) {
 			case VOP:
 				buff.append("VOP ");

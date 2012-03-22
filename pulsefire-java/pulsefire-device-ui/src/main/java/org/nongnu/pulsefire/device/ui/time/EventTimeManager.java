@@ -55,6 +55,12 @@ public class EventTimeManager {
 		eventTimeThread = null;
 	}
 	
+	public void addRunOnce(Runnable run) {
+		EventTimeTrigger t = new EventTimeTrigger("runOnce",run,0);
+		t.setTimeRuns(1); // run only once
+		addEventTimeTrigger(t);
+	}
+	
 	public void addEventTimeTrigger(EventTimeTrigger eventTimeTrigger) {
 		eventTimeTriggers.add(eventTimeTrigger);
 	}

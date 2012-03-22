@@ -185,7 +185,7 @@ boolean mal_execute_pc(uint16_t prog) {
 
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(PSTR("Exec cmd: 0x"));
-	if (cmd < 16) { Serial_write('0'); }
+	if (cmd < 16) { Serial_print('0'); }
 	Serial_printHex(cmd);
 	Serial_printCharP(PSTR(" vt:"));
 	Serial_printDec(value_type);
@@ -203,7 +203,7 @@ boolean mal_execute_pc(uint16_t prog) {
 
 #ifdef SF_ENABLE_DEBUG
 		Serial_printCharP(PSTR(" ext-cmd: 0x"));
-		if (ext_cmd < 16) { Serial_write('0'); }
+		if (ext_cmd < 16) { Serial_print('0'); }
 		Serial_printHex(ext_cmd);
 		Serial_printCharP(PSTR(" et:"));
 		Serial_printDec(ext_type);
@@ -238,7 +238,7 @@ boolean mal_execute_pc(uint16_t prog) {
 
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(PSTR(" argu: 0x"));
-	if (cmd_argu < 16) { Serial_write('0'); }
+	if (cmd_argu < 16) { Serial_print('0'); }
 	Serial_printHex(cmd_argu);
 #endif
 

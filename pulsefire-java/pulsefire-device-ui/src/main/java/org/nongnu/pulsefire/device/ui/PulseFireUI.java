@@ -175,7 +175,7 @@ public class PulseFireUI extends SingleFrameApplication {
 		buildInfo = new PulseFireUIBuildInfo() {
 			@Override
 			public String getVersion() {
-				return "0.0.0-NoInfo2";
+				return "0.0.0-Development";
 			}
 
 			@Override

@@ -90,8 +90,10 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_trig.listValues = new String[] {
 				"INT_LOOP",
 				"INT_FIRE",
+				"INT_FIRE_HOLD",
 				"EXT_PIN",
-				"EXT_FIRE"
+				"EXT_FIRE",
+				"EXT_FIRE_HOLD"
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
@@ -172,7 +174,8 @@ public class CommandNameVersionFactory {
 				"PIN2_DOC2_OUT",
 				"PIN2_DOC8_OUT",
 				"PIN2_FREQ_IN",
-				"PIN2_FIRE_IN"
+				"PIN2_FIRE_IN",
+				"PIN2_HOLD_FIRE_IN"
 			};
 		CommandName.avr_pin3_map.listValues = new String[] {
 				"PIN3_OFF",
@@ -182,7 +185,8 @@ public class CommandNameVersionFactory {
 				"PIN3_DOC3_OUT",
 				"PIN3_DOC9_OUT",
 				"PIN3_FREQ_IN",
-				"PIN3_FIRE_IN"
+				"PIN3_FIRE_IN",
+				"PIN3_HOLD_FIRE_IN"
 			};
 		CommandName.avr_pin4_map.listValues = new String[] {
 				"PIN4_OFF",
@@ -209,7 +213,8 @@ public class CommandNameVersionFactory {
 				"PIN18_DOC4_OUT",
 				"PIN18_DOC6_OUT",
 				"PIN18_FREQ_IN",
-				"IN18_FIRE_IN" 
+				"PIN18_FIRE_IN",
+				"PIN18_HOLD_FIRE_IN" 
 			};
 		CommandName.avr_pin19_map.listValues = new String[] {
 				"PIN19_OFF",
@@ -219,7 +224,8 @@ public class CommandNameVersionFactory {
 				"PIN19_DOC5_OUT",
 				"PIN19_DOC7_OUT",
 				"PIN19_FREQ_IN",
-				"PIN19_FIRE_IN"
+				"PIN19_FIRE_IN",
+				"PIN19_HOLD_FIRE_IN"
 			};
 		CommandName.avr_pin47_map.listValues = new String[] {
 				"PIN47_OFF",

@@ -70,19 +70,19 @@ void LPM_loop(void) {
 	}
 
 	switch (pf_data.lpm_state) {
-	case LPM_INIT:
-		if ( pf_data.lpm_level < pf_conf.lpm_start) {
-			pf_data.lpm_state = LPM_RECOVER;
-		} else {
-			pf_data.lpm_state = LPM_START;
-		}
+		case LPM_INIT:
+			if ( pf_data.lpm_level < pf_conf.lpm_start) {
+				pf_data.lpm_state = LPM_RECOVER;
+			} else {
+				pf_data.lpm_state = LPM_START;
+			}
 #ifdef SF_ENABLE_LCD
-		lcd_clear();
-		lcd_printCharP(pmCmdReqLPMFire);
-		lcd_cursor(ZERO,ONE);
-		lcd_printCharP(pmLPMWait);
+			lcd_clear();
+			lcd_printCharP(pmCmdReqLPMFire);
+			lcd_cursor(ZERO,ONE);
+			lcd_printCharP(pmLPMWait);
 #endif
-		break;
+			break;
 		case LPM_IDLE:
 			return;
 		case LPM_START:
@@ -188,7 +188,7 @@ void LPM_loop(void) {
 			if (pf_data.lpm_level < pf_conf.lpm_start) {
 				break;
 			}
-			pf_data.lpm_state = LPM_INIT;
+			pf_data.lpm_state = LPM_IDLE;
 			break;
 	}
 }

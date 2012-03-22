@@ -34,7 +34,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -51,12 +58,9 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
 import javax.swing.ToolTipManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceData;
@@ -80,18 +84,21 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionListener, ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
+public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
 	private JTable tuneStepTable = null;
 	private JTable tuneResultTable = null;
 	private LpmTuneStepTableModel tuneStepModel = null;
 	private LpmTuneResultTableModel tuneResultModel = null;
+	private JProgressBar progressBar = null;
 	private JLabel lpmStepLabel = null;
 	private JButton stepEditButton = null;
 	private JButton stepAddButton = null;
 	private JButton stepDelButton = null;
-	private JButton lpmSingleButton = null;
+	private JButton lpmAutoStartButton = null;
+	private JButton lpmAutoCancelButton = null;
+	private JButton lpmAutoLoopButton = null;
 	private JButton lpmTuneStartButton = null;
 	private JButton lpmTuneStopButton = null;
 	private JButton lpmTuneNextButton = null;
@@ -99,8 +106,17 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	private JButton resultClearButton = null;
 	private JButton resultExportButton = null;
 	private List<CommandName> stepFields = null;
+	private boolean updateProgress = false;
+	private boolean runSingle = false;
+	private boolean runLoop = false;
+	private boolean runTune = false;
+	private int tuneStep = 0;
+	private List<LpmCommandStep> tuneCommandSteps = null;
 	
 	public JTabPanelLpm() {
+		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
+		tuneCommandSteps = new ArrayList<LpmCommandStep>(4000);
+		
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
@@ -126,7 +142,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.req_lpm_fire, this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_level, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
-		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
 	}
 	
 	private JPanel createLpmConfig() {
@@ -144,6 +159,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		inputPanel.add(JComponentFactory.createJLabel("Size"));
 		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_size)));
 		
+		inputPanel.add(JComponentFactory.createJLabel("Relay"));
 		JPanel relayMapPanel = new JPanel();
 		relayMapPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		relayMapPanel.add(new JFireQMapTable(CommandName.lpm_relay_map,"Open","Close"));
@@ -155,23 +171,32 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	}
 	
 	private JPanel createLpmTuneConfig() {
-		JPanel panel = JComponentFactory.createJFirePanel("Auto Lpm");
+		JPanel panel = JComponentFactory.createJFirePanel("Actions");
 		panel.setLayout(new BorderLayout());
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new SpringLayout());
-		JPanel butPanel = new JPanel();
-		butPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel butSinglePanel = new JPanel();
+		butSinglePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel butTunePanel = new JPanel();
+		butTunePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		lpmSingleButton = new JCommandButton("Single",CommandName.req_lpm_fire); 
+		lpmAutoStartButton = new JCommandButton("Single",CommandName.req_lpm_fire);
+		lpmAutoLoopButton = new JButton("Loop");
+		lpmAutoCancelButton = new JButton("Cancel");
 		lpmTuneStartButton = new JButton("Start");
 		lpmTuneStopButton = new JButton("Stop");
 		lpmTuneNextButton = new JButton("Next");
 		
-		butPanel.add(lpmSingleButton);
-		butPanel.add(lpmTuneStartButton);
-		butPanel.add(lpmTuneStopButton);
-		butPanel.add(lpmTuneNextButton);
+		butSinglePanel.add(lpmAutoStartButton);
+		butSinglePanel.add(lpmAutoLoopButton);
+		butSinglePanel.add(lpmAutoCancelButton);
+		butTunePanel.add(lpmTuneStartButton);
+		butTunePanel.add(lpmTuneStopButton);
+		butTunePanel.add(lpmTuneNextButton);
 		
+		lpmAutoStartButton.addActionListener(this);
+		lpmAutoLoopButton.addActionListener(this);
+		lpmAutoCancelButton.addActionListener(this);
 		lpmTuneStartButton.addActionListener(this);
 		lpmTuneStopButton.addActionListener(this);
 		lpmTuneNextButton.addActionListener(this);
@@ -179,21 +204,21 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		lpmTuneStartButton.setEnabled(false);
 		lpmTuneStopButton.setEnabled(false);
 		lpmTuneNextButton.setEnabled(false);
-		
-		topPanel.add(JComponentFactory.createJLabel("Actions"));
-		topPanel.add(butPanel);
-		
-		lpmStepLabel = new JLabel("0/0");
-		JPanel stepPanel = new JPanel();
-		stepPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		stepPanel.add(lpmStepLabel);
-		topPanel.add(JComponentFactory.createJLabel("Steps"));
-		topPanel.add(stepPanel);
+		lpmAutoCancelButton.setEnabled(false);
 		
 		JPanel barPanel = new JPanel();
 		barPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		JProgressBar bar = new JProgressBar();
-		barPanel.add(bar);
+		progressBar = new JProgressBar();
+		barPanel.add(progressBar);
+		barPanel.add(JComponentFactory.createJLabel("Steps"));
+		lpmStepLabel = new JLabel("0/0");
+		barPanel.add(lpmStepLabel);
+		
+		topPanel.add(JComponentFactory.createJLabel("Auto Lpm"));
+		topPanel.add(butSinglePanel);
+		
+		topPanel.add(JComponentFactory.createJLabel("Auto Tune"));
+		topPanel.add(butTunePanel);
 		
 		topPanel.add(JComponentFactory.createJLabel("Progress"));
 		topPanel.add(barPanel);
@@ -204,7 +229,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	}
 	
 	private JPanel createLpmTune() {
-		JPanel panel = JComponentFactory.createJFirePanel("Tune Steps");
+		JPanel panel = JComponentFactory.createJFirePanel("Auto Tune");
 		panel.setLayout(new BorderLayout());
 		
 		tuneStepModel = new LpmTuneStepTableModel();
@@ -215,7 +240,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		tuneStepTable.setFillsViewportHeight(true);
 		tuneStepTable.setShowHorizontalLines(true);
 		tuneStepTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tuneStepTable.getSelectionModel().addListSelectionListener(this);
 		tuneStepTable.setRowMargin(2);
 		tuneStepTable.setRowHeight(26);
 		tuneStepTable.getColumnModel().getColumn(0).setPreferredWidth(55);
@@ -281,8 +305,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		tuneResultTable.getColumnModel().getColumn(0).setPreferredWidth(220);
 		tuneResultTable.getColumnModel().getColumn(1).setPreferredWidth(80);
 		tuneResultTable.getColumnModel().getColumn(2).setPreferredWidth(80);
-		tuneResultTable.getColumnModel().getColumn(3).setPreferredWidth(180);
-		tuneResultTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+		tuneResultTable.getColumnModel().getColumn(3).setPreferredWidth(80);
 
 		ToolTipManager.sharedInstance().unregisterComponent(tuneResultTable);
 		ToolTipManager.sharedInstance().unregisterComponent(tuneResultTable.getTableHeader());
@@ -320,11 +343,12 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	public class LpmTuneStep {
 		private int order = 1;
 		private CommandName commandName = null;
+		private int commandIndex = 0;
 		private int valueStart = 0;
 		private int valueStop = 10;
 		private int valueStep = 1;
 		private int valueCurrent = 0;
-		private int recoveryTime = 5;
+		private int recoveryTime = 10;
 		
 		/**
 		 * @return the order
@@ -349,6 +373,18 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		 */
 		public void setCommandName(CommandName commandName) {
 			this.commandName = commandName;
+		}
+		/**
+		 * @return the commandIndex
+		 */
+		public int getCommandIndex() {
+			return commandIndex;
+		}
+		/**
+		 * @param commandIndex the commandIndex to set
+		 */
+		public void setCommandIndex(int commandIndex) {
+			this.commandIndex = commandIndex;
 		}
 		/**
 		 * @return the valueStart
@@ -414,10 +450,11 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	}
 	public class LpmTuneResult {
 		private Date date = null;
-		private String stepData = null;
 		private String lpmTime = null;
 		private String lpmResult = null;
-		private String stepFields = null;
+		private String mmwResult = null;
+		private List<String> stepData = new ArrayList<String>(10);
+		private List<String> stepFields = new ArrayList<String>(10);
 		
 		/**
 		 * @return the date
@@ -430,18 +467,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		 */
 		public void setDate(Date date) {
 			this.date = date;
-		}
-		/**
-		 * @return the stepData
-		 */
-		public String getStepData() {
-			return stepData;
-		}
-		/**
-		 * @param stepData the stepData to set
-		 */
-		public void setStepData(String stepData) {
-			this.stepData = stepData;
 		}
 		/**
 		 * @return the lpmTime
@@ -468,18 +493,29 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			this.lpmResult = lpmResult;
 		}
 		/**
-		 * @return the stepFields
+		 * @return the mmwResult
 		 */
-		public String getStepFields() {
-			return stepFields;
+		public String getMmwResult() {
+			return mmwResult;
 		}
 		/**
-		 * @param stepFields the stepFields to set
+		 * @param mmwResult the mmwResult to set
 		 */
-		public void setStepFields(String stepFields) {
-			this.stepFields = stepFields;
+		public void setMmwResult(String mmwResult) {
+			this.mmwResult = mmwResult;
 		}
-		
+		/**
+		 * @return the stepData
+		 */
+		public List<String> getStepData() {
+			return stepData;
+		}
+		/**
+		 * @return the stepFields
+		 */
+		public List<String> getStepFields() {
+			return stepFields;
+		}
 	}
 	
 	public class LpmTuneStepTableModel extends AbstractTableModel {
@@ -492,6 +528,16 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			data = new ArrayList<LpmTuneStep>(100);
 		}
 		
+		public void fireDataReorder() {
+			Collections.sort(data, new Comparator<LpmTuneStep>() {
+				@Override
+				public int compare(LpmTuneStep o1, LpmTuneStep o2) {
+					return new Integer(o1.getOrder()).compareTo(o2.getOrder());
+				}
+			});
+			fireTableDataChanged();
+		}
+		
 		public LpmTuneStep dataGet(int row) {
 			if (row < data.size()) {
 				return data.get(row);
@@ -501,7 +547,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		
 		public void dataAdd(LpmTuneStep step) {
 			data.add(step);
-			fireTableDataChanged();
+			fireDataReorder();
 		}
 		
 		public void dataRemove(int row) {
@@ -535,7 +581,14 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			switch (col) {
 			default:
 			case 0:		return step.getOrder();
-			case 1:		return step.getCommandName().name();
+			case 1:
+				if (step.getCommandName().isIndexedA()) {
+					String idx = ""+step.getCommandIndex();
+					if (idx.length()==1) { idx = "0"+idx; }
+					return step.getCommandName().name()+idx;
+				} else {
+					return step.getCommandName().name();
+				}
 			case 2:		return step.getValueStart();
 			case 3:		return step.getValueStop();
 			case 4:		return step.getValueStep();
@@ -547,7 +600,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 	public class LpmTuneResultTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -1432038909521987705L;
-		private String[] columnNames = new String[] {"Date","LpmTime","LpmResult","StepData","StepFields"};
+		private String[] columnNames = new String[] {"Date","LpmTime","LpmResult","LpmMmw"};
 		private List<LpmTuneResult> data = null;
 		
 		public LpmTuneResultTableModel() {
@@ -578,31 +631,48 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		
 		@Override
 		public int getColumnCount() {
-			return columnNames.length;
+			return columnNames.length + tuneStepModel.getRowCount() + stepFields.size();
 		}
 		
 		public String getColumnName(int col) {
-			return columnNames[col];
+			if (col < columnNames.length) {
+				return columnNames[col];
+			} else if (col-columnNames.length < tuneStepModel.getRowCount()) {
+				return tuneStepModel.dataGet(col-columnNames.length).getCommandName().name();
+			} else if (col-columnNames.length-tuneStepModel.getRowCount() < stepFields.size()){
+				return stepFields.get(col-columnNames.length-tuneStepModel.getRowCount()).name();
+			} else {
+				return "error";
+			}
 		}
 		
 		@Override
 		public Object getValueAt(int row, int col) {
 			LpmTuneResult result = data.get(row);
-			switch (col) {
-			default:
-			case 0:		return result.getDate();
-			case 1:		return result.getLpmTime();
-			case 2:		return result.getLpmResult();
-			case 3:		return result.getStepData();
-			case 4:		return result.getStepFields();
+			if (col < columnNames.length) {
+				switch (col) {
+				default:
+				case 0:		return result.getDate();
+				case 1:		return result.getLpmTime();
+				case 2:		return result.getLpmResult();
+				case 3:		return result.getMmwResult();
+				}
+			} else if (col-columnNames.length < tuneStepModel.getRowCount()) {
+				if (result.getStepData().size() > col-columnNames.length) {
+					return result.getStepData().get(col-columnNames.length);
+				} else {
+					return "";
+				}
+			} else if (col-columnNames.length-tuneStepModel.getRowCount() < stepFields.size()){
+				if (result.getStepFields().size() > col-columnNames.length-tuneStepModel.getRowCount()) {
+					return result.getStepFields().get(col-columnNames.length-tuneStepModel.getRowCount());
+				} else {
+					return "";
+				}
+			} else {
+				return "error";
 			}
 		}
-	}
-	
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	class JLpmTuneStepDialog extends JDialog implements ActionListener {
@@ -613,6 +683,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		private JButton cancelButton = null;
 		private JIntegerTextField orderField = null;
 		private JComboBox stepCommandBox = null;
+		private JComboBox stepCommandIndexBox = null;
 		private JIntegerTextField startValueField = null;
 		private JIntegerTextField stopValueField = null;
 		private JIntegerTextField stepValueField = null;
@@ -623,8 +694,8 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			this.step=step;
 			
 			setTitle("Edit Tune Step");
-			setMinimumSize(new Dimension(250,300));
-			setPreferredSize(new Dimension(300,250));
+			setMinimumSize(new Dimension(300,350));
+			setPreferredSize(new Dimension(350,350));
 			setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 			addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent we) {
@@ -651,6 +722,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			if (e.getSource()==saveButton) {
 				step.setOrder(orderField.getValue());
 				step.setCommandName((CommandName)stepCommandBox.getSelectedItem());
+				step.setCommandIndex(stepCommandBox.getSelectedIndex());
 				step.setValueStart(startValueField.getValue());
 				step.setValueStop(stopValueField.getValue());
 				step.setValueStep(stepValueField.getValue());
@@ -658,13 +730,24 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 				if (tuneStepModel.dataContains(step)==false) {
 					tuneStepModel.dataAdd(step);
 				} else {
-					tuneStepModel.fireTableDataChanged();
+					tuneStepModel.fireDataReorder();
 				}
 				clearAndHide();
 				return;
 			} else if (e.getSource()==cancelButton) {
 				clearAndHide();
 				return;
+			} else  if (stepCommandBox.equals(e.getSource()) && stepCommandBox.getSelectedIndex()!=-1) {
+				CommandName cn = (CommandName)stepCommandBox.getSelectedItem();
+				if (cn.isIndexedA()) {
+					stepCommandIndexBox.removeAllItems();
+					for (int i=0;i<cn.getMaxIndexA();i++) {
+						stepCommandIndexBox.addItem(""+i);
+					}
+					stepCommandIndexBox.setEnabled(true);
+				} else {
+					stepCommandIndexBox.setEnabled(false);
+				}
 			}
 		}
 		
@@ -677,8 +760,22 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			panel.add(orderField);
 			
 			panel.add(new JLabel("Command"));
-			stepCommandBox = new JComboBox(CommandName.valuesMapIndex().toArray());
+			List<CommandName> cmds = CommandName.valuesMapIndex();
+			for (int i=0;i<tuneStepModel.getRowCount();i++) {
+				LpmTuneStep s = tuneStepModel.dataGet(i);
+				if (s.getCommandName().equals(step.getCommandName())==false) {
+					cmds.remove(s.getCommandName());
+				}
+			}
+			stepCommandBox = new JComboBox(cmds.toArray());
+			stepCommandBox.setSelectedItem(step.getCommandName());
+			stepCommandBox.addActionListener(this);
 			panel.add(stepCommandBox);
+			
+			panel.add(new JLabel("Index"));
+			stepCommandIndexBox = new JComboBox();
+			stepCommandIndexBox.setEnabled(false);
+			panel.add(stepCommandIndexBox);
 			
 			panel.add(new JLabel("Start"));
 			startValueField = new JIntegerTextField(step.getValueStart(), 6);
@@ -696,7 +793,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			recoveryTimeField = new JIntegerTextField(step.getRecoveryTime(), 6);
 			panel.add(recoveryTimeField);
 			
-			SpringLayoutGrid.makeCompactGrid(panel,6,2);
+			SpringLayoutGrid.makeCompactGrid(panel,7,2);
 			return panel;
 		}
 		
@@ -733,18 +830,51 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 		} else if (stepDelButton.equals(e.getSource()) && tuneStepTable.getSelectedRow()!=-1) {
 			tuneStepModel.dataRemove(tuneStepTable.getSelectedRow());
 			tuneStepModel.fireTableDataChanged();
-		} else if (lpmSingleButton.equals(e.getSource())) {
+		} else if (lpmAutoStartButton.equals(e.getSource())) {
+			lpmAutoCancelButton.setEnabled(true);
+			lpmAutoLoopButton.setEnabled(false);
+			lpmAutoStartButton.setEnabled(false);
+			lpmTuneStartButton.setEnabled(false);
+			stepEditButton.setEnabled(false);
+			stepAddButton.setEnabled(false);
+			stepDelButton.setEnabled(false);
+			updateProgress = true;
+			runSingle = true;
+		} else if (lpmAutoLoopButton.equals(e.getSource())) {
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+			updateProgress = true;
+			runLoop = true;
+			lpmAutoCancelButton.setEnabled(true);
+			lpmAutoLoopButton.setEnabled(false);
+			lpmAutoStartButton.setEnabled(false);
+			lpmTuneStartButton.setEnabled(false);
+		} else if (lpmAutoCancelButton.equals(e.getSource())) {
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+			updateProgress = true;
+			runLoop = false;
+			lpmAutoLoopButton.setEnabled(true);
+			lpmAutoStartButton.setEnabled(true);
+			lpmTuneStartButton.setEnabled(true);
 			
 		} else if (lpmTuneStartButton.equals(e.getSource())) {
-			lpmSingleButton.setEnabled(false);
+			lpmAutoStartButton.setEnabled(false);
 			lpmTuneStartButton.setEnabled(false);
 			lpmTuneStopButton.setEnabled(true);
 			lpmTuneNextButton.setEnabled(true);
-			
+			runTune = true;
+			tuneStep = 0;
+			calcCommandSteps();
+			requestCommandStep();
 		} else if (lpmTuneStopButton.equals(e.getSource())) {
-			
+			lpmAutoStartButton.setEnabled(true);
+			lpmTuneStartButton.setEnabled(true);
+			lpmTuneStopButton.setEnabled(false);
+			lpmTuneNextButton.setEnabled(false);
+			runTune = false;
 		} else if (lpmTuneNextButton.equals(e.getSource())) {
-			
+			updateProgress = false;
+			progressBar.setValue(0);
+			requestCommandStep();
 		} else if (resultFieldsButton.equals(e.getSource())) {
 			List<CommandName> commands = new ArrayList<CommandName>(100);
 			for (CommandName cn:CommandName.values()) {
@@ -767,14 +897,57 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			tuneResultModel.dataClear();
 		} else if (resultExportButton.equals(e.getSource())) {
 			JFileChooser fc = new JFileChooser();
+			fc.setSelectedFile(new File("lpm-results.csv"));
 			int returnVal = fc.showOpenDialog((JButton)e.getSource());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				// todo write
+				writeExport(file);
 			}
 		}
 	}
 
+	private void writeExport(File file) {
+		//String FIELD_SPACE = " ";
+		String FIELD_QUOTE = "\"";
+		String FIELD_SEPERATOR = ",";
+		String FIELD_END = System.getProperty("line.separator");
+		Writer writer = null;
+		try {
+			writer = new OutputStreamWriter(new FileOutputStream(file,true),Charset.forName("UTF-8"));
+			
+			writer.append("#");
+			for (int c=0;c<tuneResultModel.getColumnCount();c++) {
+				writer.append(tuneResultModel.getColumnName(c));
+				if (c<tuneResultModel.getColumnCount()-1) {
+					writer.append(FIELD_SEPERATOR);
+				}
+			}
+			writer.append(FIELD_END); // wroter header
+			for (int i=0;i<tuneResultModel.getRowCount();i++) {
+				for (int c=0;c<tuneResultModel.getColumnCount();c++) {
+					writer.append(FIELD_QUOTE);
+					writer.append(tuneResultModel.getValueAt(i, c).toString());
+					writer.append(FIELD_QUOTE);
+					if (c<tuneResultModel.getColumnCount()-1) {
+						writer.append(FIELD_SEPERATOR);
+					}
+				}
+				writer.append(FIELD_END);
+				writer.flush();
+			}
+			writer.append(FIELD_END);
+			writer.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (writer!=null) {
+				try {
+					writer.close();
+				} catch (IOException e) {}
+			}
+		}
+	}
+	
 	@Override
 	public void tableChanged(TableModelEvent e) {
 		if (tuneResultModel.equals(e.getSource())) {
@@ -793,6 +966,11 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			lpmTuneStartButton.setEnabled(false);
 		}
 		
+		updateStepLabel();
+		tuneResultModel.fireTableStructureChanged();
+	}
+
+	private void updateStepLabel() {
 		int stepsTotal = 0;
 		for (int i=0;i<tuneStepModel.getRowCount();i++) {
 			LpmTuneStep s = tuneStepModel.dataGet(i);
@@ -804,9 +982,9 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			}
 		}
 		
-		lpmStepLabel.setText("0/"+stepsTotal);
+		lpmStepLabel.setText(tuneStep+"/"+stepsTotal);
 	}
-
+	
 	@Override
 	public void commandReceived(Command command) {
 		if (CommandName.req_lpm_fire.equals(command.getCommandName())) {
@@ -820,75 +998,199 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ListSelectionL
 			result.setDate(new Date());
 			result.setLpmResult(command.getArgu0());
 			result.setLpmTime(command.getArgu1());
-			result.setStepData("todo");
-			result.setStepFields(renderStepFields());
+			result.setMmwResult("");
+			for (CommandName cn:stepFields) {
+				result.getStepFields().add(renderStepField(cn));
+			}
+			for (int i=0;i<tuneStepModel.getRowCount();i++) {
+				if (runTune) {
+					LpmCommandStep step = tuneCommandSteps.get(tuneStep);
+					if (step.commands.size() > i) {
+						Command c = step.commands.get(i);
+						result.getStepData().add(c.getArgu0());
+					} else {
+						result.getStepData().add("");	
+					}
+				} else {
+					result.getStepData().add("");
+				}
+			}
 			tuneResultModel.dataAdd(result);
 			
-		} else if (CommandName.lpm_level.equals(command.getCommandName())) { 
+			progressBar.setValue(0);
+			updateProgress = false;
 			
-			Command lpmStart = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_start);
-			Command lpmStop = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
-			Command lpmSize = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
+			if (runSingle) {
+				runSingle = false;
+				lpmAutoCancelButton.setEnabled(false);
+				lpmAutoLoopButton.setEnabled(true);
+				lpmAutoStartButton.setEnabled(true);
+				if (tuneStepModel.getRowCount()>0) {
+					lpmTuneStartButton.setEnabled(true);
+				}
+				return;
+			}
+			if (runLoop) {
+				PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerFire());
+				return;
+			}
+			if (runTune) {
+				tuneStep++;
+				requestCommandStep();
+				return;
+			}
 			
-			
-			//int lpmStart = ;
-			
+		} else if (CommandName.lpm_level.equals(command.getCommandName()) && updateProgress && (runSingle|runLoop|runTune)) { 
+			Command lpmStartCmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_start);
+			Command lpmStopCmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
+			if (lpmStartCmd!=null && lpmStopCmd!=null) {
+				int lpmLevel = new Integer(command.getArgu0());
+				int lpmStart = new Integer(lpmStartCmd.getArgu0());
+				int lpmStop = new Integer(lpmStopCmd.getArgu0());
+				int stepSize = (lpmStart-lpmStop) / 100;
+				int stepProgress = (lpmStart-lpmLevel) / stepSize;
+				if (stepProgress<0 | stepProgress>100) {
+					stepProgress=0;
+				}
+				progressBar.setValue(stepProgress);
+			}
 		}
 	}
 
 	@Override
 	public void settingUpdated(PulseFireUISettingKeys key, String value) {
 		stepFields = CommandName.decodeCommandList(value);
+		tuneResultModel.fireTableStructureChanged();
+	}
+
+	class LpmCommandStep {
+		List<Command> commands = new ArrayList<Command>(10);
+		long recoveryTime = 0;
 	}
 	
-	/**
-	 * todo Move to record logger ? 
-	 */
-	private String renderStepFields() {
+	private void calcCommandSteps() {
+		if (tuneStepModel.getRowCount()==0) {
+			return;
+		}
+		tuneCommandSteps.clear();
+		for (int i=0;i<tuneStepModel.getRowCount();i++) {
+			LpmTuneStep s = tuneStepModel.dataGet(i);
+			s.setValueCurrent(s.getValueStart());
+		}
+		calcCommandStepsDeep(0);
+	}
+	
+	private void calcCommandStepsDeep(int stepIndex) {
+		if (stepIndex >= tuneStepModel.getRowCount()) {
+			return;
+		}
+		LpmTuneStep step = tuneStepModel.dataGet(stepIndex);
+		for (int ii=0;ii<(step.getValueStop()-step.getValueStart())/step.getValueStep();ii++) {
+			step.setValueCurrent(step.getValueStart()+(ii*step.getValueStep()));
+			calcCommandStepsDeep(stepIndex+1);
+			if (tuneStepModel.getRowCount() > stepIndex+1) {
+				continue; // this makes it work correctly
+			}
+			LpmCommandStep cmd = new LpmCommandStep();
+			long time = 0;
+			for (int i=0;i<tuneStepModel.getRowCount();i++) {
+				LpmTuneStep s = tuneStepModel.dataGet(i);
+				Command c = new Command(s.getCommandName());
+				c.setArgu0(""+s.getValueCurrent());
+				if (s.getCommandName().isIndexedA()) {
+					c.setArgu1(""+s.getCommandIndex());
+				}
+				cmd.commands.add(c);
+				long timeS = s.getRecoveryTime();
+				if (timeS==0) { timeS = 1; }
+				time += timeS;
+			}
+			cmd.recoveryTime=time;
+			tuneCommandSteps.add(cmd);
+		}
+	}
+	
+	private void requestCommandStep() {
+		
+		if (tuneCommandSteps.isEmpty() || tuneStep >= tuneCommandSteps.size()) {
+			// done so reset state
+			tuneStep = 0;
+			runTune = false;
+			progressBar.setValue(0);
+			lpmAutoStartButton.setEnabled(true);
+			lpmTuneStartButton.setEnabled(true);
+			lpmTuneStopButton.setEnabled(false);
+			lpmTuneNextButton.setEnabled(false);
+			stepEditButton.setEnabled(true);
+			stepAddButton.setEnabled(true);
+			stepDelButton.setEnabled(true);
+			
+		} else {
+			PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerFire());
+		}
+		updateStepLabel();
+	}
+	
+	class TriggerFire implements Runnable {
+		@Override
+		public void run() {
+			try {
+				if (runTune && tuneStep < tuneCommandSteps.size()) {
+					LpmCommandStep step = tuneCommandSteps.get(tuneStep);
+					for (Command cmd:step.commands) {
+						PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd).waitForResponseChecked();
+					}
+					Thread.sleep(step.recoveryTime*1000);
+				} else {
+					Thread.sleep(15000);
+				}
+				if (runTune | runLoop) {
+					PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+					updateProgress = true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+		}
+	}
+	
+	private String renderStepField(CommandName cn) {
 		DeviceData devData = PulseFireUI.getInstance().getDeviceData();
 		StringBuffer buf = new StringBuffer(200);
 		String FIELD_SPACE = " ";
-		String FIELD_QUOTE = "\"";
 		String FIELD_SEPERATOR = ",";
-		for (CommandName cn:stepFields) {
-			if (cn.isIndexedA()) {
-				for (int i=0;i<cn.getMaxIndexA();i++) {
-					Command cmd = devData.getDeviceParameterIndexed(cn, i);
-					if (cmd!=null) {
-						if (cn.isIndexedB()) {
-							buf.append(cmd.getArgu0());
-							if (cmd.getArgu1()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu1()); }
-							if (cmd.getArgu2()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu2()); }
-							if (cmd.getArgu3()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu3()); }
-							if (cmd.getArgu4()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu4()); }
-							if (cmd.getArgu5()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu5()); }
-							if (cmd.getArgu6()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu6()); }
-							if (cmd.getArgu7()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu7()); }
-						} else {
-							buf.append(cmd.getArgu0());
-						}
-					} else {
-						buf.append(FIELD_SPACE);
-					}
-					if (i<cn.getMaxIndexA()-1) {
-						buf.append(FIELD_QUOTE);
-						buf.append(FIELD_SEPERATOR);
-						buf.append(FIELD_QUOTE);
-					}
-				}
-			} else {
-				Command cmd = devData.getDeviceParameter(cn);
+
+		if (cn.isIndexedA()) {
+			for (int i=0;i<cn.getMaxIndexA();i++) {
+				Command cmd = devData.getDeviceParameterIndexed(cn, i);
 				if (cmd!=null) {
-					buf.append(cmd.getArgu0());
+					if (cn.isIndexedB()) {
+						buf.append(cmd.getArgu0());
+						if (cmd.getArgu1()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu1()); }
+						if (cmd.getArgu2()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu2()); }
+						if (cmd.getArgu3()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu3()); }
+						if (cmd.getArgu4()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu4()); }
+						if (cmd.getArgu5()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu5()); }
+						if (cmd.getArgu6()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu6()); }
+						if (cmd.getArgu7()!=null) { buf.append(FIELD_SPACE);buf.append(cmd.getArgu7()); }
+					} else {
+						buf.append(cmd.getArgu0());
+					}
 				} else {
 					buf.append(FIELD_SPACE);
 				}
+				if (i<cn.getMaxIndexA()-1) {
+					buf.append(FIELD_SEPERATOR);
+				}
 			}
-			//if (f<logFields.size()-1) {
-				buf.append(FIELD_QUOTE);
-				buf.append(FIELD_SEPERATOR);
-				buf.append(FIELD_QUOTE);
-			//}
+		} else {
+			Command cmd = devData.getDeviceParameter(cn);
+			if (cmd!=null) {
+				buf.append(cmd.getArgu0());
+			} else {
+				buf.append(FIELD_SPACE);
+			}
 		}
 		return buf.toString();
 	}

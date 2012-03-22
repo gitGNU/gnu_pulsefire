@@ -230,6 +230,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 				cmd.setExtType(malCommand.getExtType());
 				cmd.setValueType(malCommand.getValueType());
 				cmd.setVarIndex(malCommand.getVarIndex());
+				cmd.compile();
 				editPanel.configComponent(cmd); // use clone so we can cancel.
 			} else {
 				//newEdit = true;
@@ -351,6 +352,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 		private JComboBox varIdxBox = null;
 		private JComboBox progIdxBox = null;
 		private JComboBox valueTypeBox = null;
+		private JComboBox valueTypeLoadBox = null;
 		private JComboBox valueCommandBox = null;
 		private JComboBox extTypeComboBox = null;
 		private JComboBox extOpComboBox = null;
@@ -376,10 +378,12 @@ public class JMalEditor extends JPanel implements ActionListener {
 			varIdxBox			= new JComboBox(MalCommand.VarIndex.values());
 			progIdxBox			= new JComboBox(MalCommand.VarIndex.values());
 			valueTypeBox		= new JComboBox(MalCommand.ValueType.values());
+			valueTypeLoadBox	= new JComboBox(MalCommand.ValueType.values());
 			extTypeComboBox		= new JComboBox(MalCommand.ExtType.values());
 			valueCommandBox		= new JComboBox(CommandName.valuesMapIndex().toArray());
 			extOpComboBox		= new JComboBox();
 			gotoLineComboBox	= new JComboBox();
+			valueTypeBox.removeItemAt(valueTypeBox.getItemCount()-1); // remove reversed load 
 			
 			malCommandDataLabel		= new JLabel();
 			malCommandLabel			= new JLabel("Command");
@@ -397,6 +401,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 			varIdxBox.		addActionListener(this);
 			progIdxBox.		addActionListener(this);
 			valueTypeBox.	addActionListener(this);
+			valueTypeLoadBox.addActionListener(this);
 			valueCommandBox.addActionListener(this);
 			extTypeComboBox.addActionListener(this);
 			extOpComboBox.	addActionListener(this);
@@ -433,10 +438,16 @@ public class JMalEditor extends JPanel implements ActionListener {
 				malCommand.setVarIndex(VarIndex.values()[varIdxBox.getSelectedIndex()]);
 			} else if (e.getSource().equals(cmdTypeBox) && cmdTypeBox.getSelectedIndex()!=-1) {
 				malCommand.setCmdType(CmdType.values()[cmdTypeBox.getSelectedIndex()]);
+				malCommand.setCmdArgu(0);
+				malCommand.setValueType(ValueType.RAW_VALUE);
 			} else if (e.getSource().equals(progIdxBox) && progIdxBox.getSelectedIndex()!=-1) {
 				malCommand.setCmdArgu(VarIndex.values()[progIdxBox.getSelectedIndex()].ordinal());
 			} else if (e.getSource().equals(valueTypeBox) && valueTypeBox.getSelectedIndex()!=-1) {
 				malCommand.setValueType(ValueType.values()[valueTypeBox.getSelectedIndex()]);
+				malCommand.setCmdArgu(0);
+			} else if (e.getSource().equals(valueTypeLoadBox) && valueTypeLoadBox.getSelectedIndex()!=-1) {
+				malCommand.setValueType(ValueType.values()[valueTypeLoadBox.getSelectedIndex()]);
+				malCommand.setCmdArgu(0);
 			} else if (e.getSource().equals(valueCommandBox) && valueCommandBox.getSelectedIndex()!=-1) {
 				malCommand.setCmdArgu(((CommandName)valueCommandBox.getSelectedItem()).getMapIndex());
 			} else if (e.getSource().equals(extTypeComboBox) && extTypeComboBox.getSelectedIndex()!=-1) {
@@ -507,7 +518,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 				}
 				valueTypeBox.setSelectedItem(cmd.getValueType());
 				add(valueTypeBoxLabel);
-				add(valueTypeBox);
+				add(valueTypeLoadBox);
 				break;
 			case EXTENDED:
 				switch (cmd.getExtType()) {

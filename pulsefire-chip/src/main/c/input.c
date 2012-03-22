@@ -249,14 +249,11 @@ void Input_loopLcd() {
 
 #ifdef SF_ENABLE_LPM
 			if (pf_conf.lpm_size > ZERO) {
+				if (pf_data.lpm_state != LPM_IDLE) {
+					pf_data.lpm_state = LPM_STOP;
+				}
 				if (pf_data.lpm_state == LPM_IDLE) {
 					pf_data.lpm_state = LPM_INIT;
-				}
-				if (pf_data.lpm_state == LPM_DONE_WAIT) {
-					pf_data.lpm_state = LPM_IDLE;
-				}
-				if (pf_data.lpm_state == LPM_RUN) {
-					pf_data.lpm_state = LPM_STOP;
 				}
 				lcd_clear();
 				Chip_delay(SYS_INPUT_DELAY);

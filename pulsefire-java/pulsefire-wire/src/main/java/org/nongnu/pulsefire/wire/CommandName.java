@@ -49,6 +49,7 @@ public enum CommandName {
 	
 	req_lpm_fire			(CommandVariableType.CMD,WireChipFlags.LPM),
 	req_pulse_fire			(CommandVariableType.CMD,WireChipFlags.PWM),
+	req_pulse_hold_fire		(CommandVariableType.CMD,WireChipFlags.PWM),
 	req_ptt_fire			(CommandVariableType.CMD,WireChipFlags.PTT),
 	req_mal_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
 	req_tx_push				(CommandVariableType.CMD),
@@ -96,10 +97,10 @@ public enum CommandName {
 	lpm_relay_map			(CommandVariableType.CONF,WireChipFlags.LPM),
 	
 	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC),
 	ptc_0mul				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_1mul				(CommandVariableType.CONF,WireChipFlags.PTC),
 	ptc_0map				(CommandVariableType.CONF,WireChipFlags.PTC),
+	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC),
+	ptc_1mul				(CommandVariableType.CONF,WireChipFlags.PTC),
 	ptc_1map				(CommandVariableType.CONF,WireChipFlags.PTC),
 	
 	ptt_0map				(CommandVariableType.CONF,WireChipFlags.PTT),
@@ -179,16 +180,20 @@ public enum CommandName {
 	
 	ptc_sys_cnt				(CommandVariableType.DATA),
 	ptc_0cnt				(CommandVariableType.DATA),
-	ptc_1cnt				(CommandVariableType.DATA),
 	ptc_0run_cnt			(CommandVariableType.DATA),
-	ptc_1run_cnt			(CommandVariableType.DATA),
 	ptc_0map_idx			(CommandVariableType.DATA),
-	ptc_1map_idx			(CommandVariableType.DATA),
 	ptc_0mul_cnt			(CommandVariableType.DATA),
+	ptc_0step				(CommandVariableType.DATA),
+	ptc_1cnt				(CommandVariableType.DATA),
+	ptc_1run_cnt			(CommandVariableType.DATA),
+	ptc_1map_idx			(CommandVariableType.DATA),
 	ptc_1mul_cnt			(CommandVariableType.DATA),
+	ptc_1step				(CommandVariableType.DATA),
+	
 	ptt_idx					(CommandVariableType.DATA),
 	ptt_cnt					(CommandVariableType.DATA),
 	ptt_fire				(CommandVariableType.DATA),
+	ptt_step				(CommandVariableType.DATA),
 	
 	dev_volt				(CommandVariableType.DATA),
 	dev_amp					(CommandVariableType.DATA),
@@ -198,6 +203,7 @@ public enum CommandName {
 	dev_var					(CommandVariableType.DATA),
 	
 	pulse_fire				(CommandVariableType.DATA),
+	pulse_hold_fire			(CommandVariableType.DATA),
 	pulse_step				(CommandVariableType.DATA),
 	pulse_data				(CommandVariableType.DATA),
 	pulse_dir_cnt			(CommandVariableType.DATA),

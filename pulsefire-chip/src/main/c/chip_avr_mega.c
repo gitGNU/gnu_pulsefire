@@ -113,6 +113,12 @@ void Chip_setup(void) {
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
 	switch (pf_conf.avr_pin18_map) {
+        case PIN18_TRIG_IN:
+        case PIN18_FREQ_IN:
+        case PIN18_FIRE_IN:
+        case PIN18_HOLD_FIRE_IN:
+            Chip_in_int_pin(ZERO,ZERO); // turn on int0
+            break;
 		case PIN18_DOC4_OUT:
 		case PIN18_DOC6_OUT:
 			DDRD  |=  (ONE<<IO_MEGA_PIN18_PIN);
@@ -121,6 +127,12 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin19_map) {
+        case PIN19_TRIG_IN:
+        case PIN19_FREQ_IN:
+        case PIN19_FIRE_IN:
+        case PIN19_HOLD_FIRE_IN:
+            Chip_in_int_pin(ONE,ZERO); // turn on int1
+            break;
 		case PIN19_DOC5_OUT:
 		case PIN19_DOC7_OUT:
 			DDRD  |=  (ONE<<IO_MEGA_PIN19_PIN);
@@ -187,15 +199,9 @@ void Chip_setup(void) {
 	DDRB = 0xFF;  // all output
 	PORTB = ZERO;
 
-	// Enable external interrupts on startup
-	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN || pf_conf.avr_pin18_map == PIN18_FREQ_IN || pf_conf.avr_pin18_map == PIN18_FIRE_IN) {
-		EICRA |= (1 << ISC31);  // Falling-Edge Triggered INT3
-		EIMSK |= (1 << INT3);   // Enable INT3 External Interrupt
-	}
-	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN || pf_conf.avr_pin19_map == PIN19_FREQ_IN || pf_conf.avr_pin19_map == PIN19_FIRE_IN) {
-		EICRA |= (1 << ISC21);  // Falling-Edge Triggered INT2
-		EIMSK |= (1 << INT2);   // Enable INT2 External Interrupt
-	}
+	// setup interrupts signals
+	EICRA |= (1 << ISC21);  // Falling-Edge Triggered INT2
+	EICRA |= (1 << ISC31);  // Falling-Edge Triggered INT3
 
 	// Timer0 is used for timemanagement
 	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
@@ -514,15 +520,15 @@ void Chip_out_doc(uint16_t data) {
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 	if (pin==ZERO) {
 		if (enable==ZERO) {
-			EIMSK |= (1 << INT2);   // Enable INT2 External Interrupt
+			EIMSK |=  (ONE << INT2);   // Enable INT2 External Interrupt
 		} else {
-			EIMSK &= ~(1 << INT2);
+			EIMSK &= ~(ONE << INT2);
 		}
 	} else {
 		if (enable==ZERO) {
-			EIMSK |= (1 << INT3);   // Enable INT3 External Interrupt
+			EIMSK |=  (ONE << INT3);   // Enable INT3 External Interrupt
 		} else {
-			EIMSK &= ~(1 << INT3);
+			EIMSK &= ~(ONE << INT3);
 		}
 	}
 }
@@ -534,7 +540,7 @@ void Chip_in_adc(uint8_t channel) {
 }
 
 uint8_t Chip_in_menu(void) {
-	if (pf_conf.avr_pin48_map != PIN48_MENU0_IN && pf_conf.avr_pin49_map != PIN49_MENU1_IN) {
+	if (pf_conf.avr_pin48_map != PIN48_MENU0_IN || pf_conf.avr_pin49_map != PIN49_MENU1_IN) {
 		return 0xFF;// todo use dic for menu pins.
 	}
 	uint8_t input0 = digitalRead(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN48_PIN);
@@ -585,10 +591,8 @@ uint16_t Chip_in_dic(void) {
 ISR(INT2_vect) {
 	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig == PULSE_TRIG_EXT) {
+		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT) {
 			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
-		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) {
-			pf_data.pwm_state = PWM_STATE_RUN;
 		}
 #endif
 		return;
@@ -597,8 +601,12 @@ ISR(INT2_vect) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
-	if (pf_conf.avr_pin19_map == PIN19_FIRE_IN) {
+	if (pf_conf.avr_pin19_map == PIN19_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
+		return;
+	}
+	if (pf_conf.avr_pin19_map == PIN19_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
 }
@@ -606,10 +614,8 @@ ISR(INT2_vect) {
 ISR(INT3_vect) {
 	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig == PULSE_TRIG_EXT) {
+		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT) {
 			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
-		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) { 
-			pf_data.pwm_state = PWM_STATE_RUN;
 		}
 #endif
 		return;
@@ -618,8 +624,12 @@ ISR(INT3_vect) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
-	if (pf_conf.avr_pin18_map == PIN18_FIRE_IN) {
+	if (pf_conf.avr_pin18_map == PIN18_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
+		return;
+	}
+	if (pf_conf.avr_pin18_map == PIN18_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
 }

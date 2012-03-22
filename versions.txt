@@ -1,6 +1,29 @@
 
 === PulseFire versions ===
 
+Version 1.0:
+- Renamed lpm_auto_cmd to lpm_fire and made triggerable.
+- Renamed rep_auto_lpm to req_lpm_fire like other triggers.
+- Reversed ppm idx bits so first fire works correct after mode switch.
+- Fixed PPM_ALL mode pulse length.
+- Improved serial for only ascii and synced cmd echo of input.
+- Fixed PTC and PTT, reversed step and time action.
+- Added pulse_hold_fire trigger and req_pulse_hold_fire cmd and added to int pins.
+- Fixed AVR_MEGA pin18 & pin19 pin interrupt on/off based on avr_pinX_map
+
+Version 1.0-Beta8:
+- Fixed internal event pulse_fire trigger.
+- Added load/save to (text) file of chip config options to gui.
+- Changed Freq from *10 to *100 for better readout and fixed bank_B support.
+- Added pulse_trigger EXT_FIRE for combined trigging source.
+- Added pwm_req_idx config variable to control hz freq request to channel.
+- Renamed pwm_duty to pwm_req_duty and moved pwm_req_freq from data to config.
+- Renamed mal_trig to mal_fire so all triggers are called '_fire'.
+- Added req_mal_fire cmd to request software mal code triggering.
+- Added invert per output; pulse_inv_a/b.
+- Changed swc_duty/swc_mode into swc_map for mappable options.
+- Changed stv_warn/error_mode into stv_warn/error_map so action is mappable.
+
 Version 1.0-Beta6:
 - Converted project code to real C project.
 - Removed Arduino C libary dependeny.
@@ -20,19 +43,6 @@ Version 1.0-Beta6:
 - Removed SF_ENABLE_FRQ flag info_freq is always rest is moved to pwm flag.
 - Changed req_pwm_freq from 3 to 2 parameters removed duty uses always pwm_duty now.
 - Fixed makefile for mega 2650 and 1280.
-- Fixed internal event pulse_fire trigger.
-- Added load/save to (text) file of chip config options to gui.
-- Changed Freq from *10 to *100 for better readout and fixed bank_B support.
-- Added pulse_trigger EXT_FIRE for combined trigging source.
-- Added pwm_req_idx config variable to control hz freq request to channel.
-- Renamed pwm_duty to pwm_req_duty and moved pwm_req_freq from data to config.
-- Renamed mal_trig to mal_fire so all triggers are called '_fire'.
-- Added req_mal_fire cmd to request software mal code triggering.
-- Added invert per output; pulse_inv_a/b.
-- Changed swc_duty/swc_mode into swc_map for mappable options.
-- Changed stv_warn/error_mode into stv_warn/error_map so action is mappable.
-- Renamed lpm_auto_cmd to lpm_fire and made triggerable.
-- Renamed rep_auto_lpm to req_lpm_fire.
 
 Version 0.9-fix:
 - Fixed pulse_trig_delay to last step instead of step zero.

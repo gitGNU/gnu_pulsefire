@@ -172,6 +172,10 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 	@Override
 	public void commandReceived(Command command) {
 		
+		if (command.getLineRaw()!=null && command.getLineRaw().contains(" ")) {
+			return; // skip cmd with space for programing mal chip code.
+		}
+		
 		List<Byte> programData = new ArrayList<Byte>(512);
 		String data = command.getArgu0();
 		for (int i=0;i<data.length();i=i+2) {

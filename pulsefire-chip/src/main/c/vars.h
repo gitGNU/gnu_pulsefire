@@ -48,7 +48,7 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
-#define PMCMDLIST_SIZE             19    // array size of other commands
+#define PMCMDLIST_SIZE             20    // array size of other commands
 #define UNPSTR_BUFF_SIZE           64    // max string lenght
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
@@ -159,11 +159,11 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_PTC
-	volatile uint8_t       ptc_0run;           // ptc time0 running, 0=off,1=run1,2=2,3=3,etc,255=run_on
-	volatile uint8_t       ptc_1run;           // ptc time1 running
-	volatile uint8_t       ptc_0mul;           // Time multiplier for time map0
-	volatile uint8_t       ptc_1mul;           // Time multiplier for time map1
+	volatile uint8_t       ptc_0run;                              // ptc time0 running, 0=off,1=run1,2=2,3=3,etc,255=run_on
+	volatile uint8_t       ptc_0mul;                              // Time multiplier for time map0
 	volatile uint16_t      ptc_0map[PTC_TIME_MAP_MAX][QMAP_SIZE]; // Time event map0
+	volatile uint8_t       ptc_1run;                              // ptc time1 running
+	volatile uint8_t       ptc_1mul;                              // Time multiplier for time map1
 	volatile uint16_t      ptc_1map[PTC_TIME_MAP_MAX][QMAP_SIZE]; // Time event map1
 #endif
 #ifdef SF_ENABLE_PTT
@@ -256,18 +256,22 @@ typedef struct {
 #ifdef SF_ENABLE_PTC
 	volatile uint32_t      ptc_sys_cnt;
 	volatile uint8_t       ptc_0cnt;
-	volatile uint8_t       ptc_1cnt;
 	volatile uint8_t       ptc_0run_cnt;
-	volatile uint8_t       ptc_1run_cnt;
 	volatile uint8_t       ptc_0map_idx;
-	volatile uint8_t       ptc_1map_idx;
 	volatile uint16_t      ptc_0mul_cnt;
+	volatile uint8_t       ptc_0step;
+
+	volatile uint8_t       ptc_1cnt;
+	volatile uint8_t       ptc_1run_cnt;
+	volatile uint8_t       ptc_1map_idx;
 	volatile uint16_t      ptc_1mul_cnt;
+	volatile uint8_t       ptc_1step;
 #endif
 #ifdef SF_ENABLE_PTT
 	volatile uint8_t       ptt_idx[PTT_TRIG_VAR_SIZE];
 	volatile uint8_t       ptt_cnt[PTT_TRIG_VAR_SIZE];
 	volatile uint8_t       ptt_fire[PTT_TRIG_VAR_SIZE];
+	volatile uint8_t       ptt_step[PTT_TRIG_VAR_SIZE];
 #endif
 
 #ifdef SF_ENABLE_DEV
@@ -282,6 +286,7 @@ typedef struct {
 
 #ifdef SF_ENABLE_PWM
 	volatile uint8_t       pulse_fire;             // The Pulse Fire for internal triggering of pulse
+	volatile uint8_t       pulse_hold_fire;        // Holds or resets the pulse fire state.
 	volatile uint8_t       pulse_step;             // The current pulse step
 	volatile uint16_t      pulse_data;             // The output data for next step
 	volatile uint8_t       pulse_dir_cnt;          // The current pulse direction
@@ -354,7 +359,7 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  36
+	#define PF_VARS_PWM_SIZE  37
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif
@@ -394,12 +399,12 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_DEV_SIZE  0
 #endif
 #ifdef SF_ENABLE_PTC
-	#define PF_VARS_PTC_SIZE  15
+	#define PF_VARS_PTC_SIZE  17
 #else
 	#define PF_VARS_PTC_SIZE  0
 #endif
 #ifdef SF_ENABLE_PTT
-	#define PF_VARS_PTT_SIZE  7
+	#define PF_VARS_PTT_SIZE  8
 #else
 	#define PF_VARS_PTT_SIZE  0
 #endif

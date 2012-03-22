@@ -169,19 +169,19 @@ boolean PWM_pulse_mode_ppm(uint8_t step_zero,boolean interleaved) {
 			} else {
 				out_data |= (((pf_conf.ppm_data_b[off_out] >> pf_data.ppm_idx[off_out]) & ONE) << off_out);
 			}
-			if (pf_data.ppm_idx[off_out] == ZERO) {
-				pf_data.ppm_idx[off_out] = pf_conf.ppm_data_length - ONE;
+			if (pf_data.ppm_idx[off_out] >= pf_conf.ppm_data_length - ONE) {
+				pf_data.ppm_idx[off_out] = ZERO;
 			} else {
-				pf_data.ppm_idx[off_out]--;
+				pf_data.ppm_idx[off_out]++;
 			}
 		}
 	}
 	pf_data.pulse_data = out_data;
-	if (pf_data.ppm_idx[step_zero] == ZERO) {
-		pf_data.ppm_idx[step_zero] = pf_conf.ppm_data_length - ONE;
+	if (pf_data.ppm_idx[step_zero] >= pf_conf.ppm_data_length - ONE) {
+		pf_data.ppm_idx[step_zero] = ZERO;
 		return true;
 	} else {
-		pf_data.ppm_idx[step_zero]--;
+		pf_data.ppm_idx[step_zero]++;
 		if (interleaved) {
 			return true;
 		} else {
@@ -203,14 +203,15 @@ boolean PWM_pulse_mode_ppma(void) {
 		} else {
 			ppm_data = pf_conf.ppm_data_b[i];
 		}
-		out_data |= ((ppm_data >> pf_data.ppm_idx[pf_data.pulse_step]) & ONE) << i;
+		out_data |= ((ppm_data >> pf_data.ppm_idx[ZERO]) & ONE) << i;
 	}
 	pf_data.pulse_data = out_data;
-	if (pf_data.ppm_idx[pf_data.pulse_step] == ZERO) {
-		pf_data.ppm_idx[pf_data.pulse_step] = pf_conf.ppm_data_length - ONE;
+	if (pf_data.ppm_idx[ZERO] >= pf_conf.ppm_data_length - ONE) {
+		pf_data.ppm_idx[ZERO] = ZERO;
+		pf_data.pulse_step = pf_conf.pulse_steps; // done so jmp to last step
 		return true;
 	} else {
-		pf_data.ppm_idx[pf_data.pulse_step]--;
+		pf_data.ppm_idx[ZERO]++;
 		return false;
 	}
 }
@@ -292,8 +293,13 @@ void PWM_do_work_a(void) {
 
 	// use - for letting last output time correctly until off.
 	if (pf_data.pwm_state == PWM_STATE_TRIGGER_END) {
-		PWM_send_output(PULSE_DATA_OFF);
 		pf_data.pwm_state = PWM_STATE_IDLE;
+		pf_data.pulse_fire = ZERO;
+		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE_HOLD || pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE_HOLD) {
+			pf_data.pulse_hold_fire = ZERO;
+			return; // No clear when we are in fire and hold
+		}
+		PWM_send_output(PULSE_DATA_OFF);
 		return;
 	}
 
@@ -347,7 +353,7 @@ void PWM_do_work_a(void) {
 		pf_data.pwm_loop_max = pf_data.pwm_loop_max-pf_conf.pwm_loop_delta;
 	}
 
-	// check for output rotation after last step
+	// check for output rotation after last step		
 	if (pf_data.pulse_step  >= pf_conf.pulse_steps - ONE) {
 		pf_data.pulse_step     = ZERO;                    // goto step zero
 		pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
@@ -355,10 +361,11 @@ void PWM_do_work_a(void) {
 		if (pf_conf.pulse_dir    == PULSE_DIR_LRRL) {
 			pf_data.pwm_loop_cnt = pf_data.pwm_loop_max;    // skip wait after reversal
 			if (pf_data.pulse_dir_cnt  == PULSE_DIR_LR) {
-				pf_data.pulse_dir_cnt     = PULSE_DIR_RL; } else { // Auto direction reversal
-					pf_data.pulse_dir_cnt     = PULSE_DIR_LR;
-	}
-	}
+				pf_data.pulse_dir_cnt     = PULSE_DIR_RL;
+			} else { 
+				pf_data.pulse_dir_cnt     = PULSE_DIR_LR;   // Auto direction reversal
+			}
+		}
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
 			pf_data.pwm_state = PWM_STATE_TRIGGER_END;      // timeout after trigger
 		} else if (pf_conf.pulse_post_delay > ZERO) {

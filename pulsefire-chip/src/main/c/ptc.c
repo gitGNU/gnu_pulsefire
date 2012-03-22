@@ -41,6 +41,18 @@ void ptc_time0_run(void) {
 			pf_data.ptc_0run_cnt++;
 			break;
 		}
+
+		if (pf_data.ptc_0step == ZERO) {
+			pf_data.ptc_0step = ONE;
+#ifdef SF_ENABLE_DEBUG
+			Serial_printCharP(PSTR("Do time0 step: "));Serial_printDec((int)pf_data.ptc_0map_idx);Serial_printChar(" ");
+			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
+			Serial_printDec(pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_A]);Serial_println();
+#endif
+			// Execute the steps
+			Vars_setValue(varIdx,pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VAR_IDX],ZERO,pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_A]);
+		}
+
 		// Waittime per time step
 		uint16_t waitTime = pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_B];
 		if (waitTime != ZERO && pf_data.ptc_0cnt < waitTime) {
@@ -53,14 +65,9 @@ void ptc_time0_run(void) {
 			return; // wait
 		}
 		pf_data.ptc_0mul_cnt = ZERO;
-#ifdef SF_ENABLE_DEBUG
-		Serial_printCharP(PSTR("Do time0 step: "));Serial_printDec((int)pf_data.ptc_0map_idx);Serial_printChar(" ");
-		Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
-		Serial_printDec(pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_A]);Serial_println();
-#endif
-		// Execute the steps
-		Vars_setValue(varIdx,pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VAR_IDX],ZERO,pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_A]);
+
 		// Update to map idx to next step
+		pf_data.ptc_0step = ZERO;
 		pf_data.ptc_0map_idx++;
 		if (pf_data.ptc_0map_idx > PTC_TIME_MAP_MAX) {
 			pf_data.ptc_0map_idx = ZERO;
@@ -87,6 +94,17 @@ void ptc_time1_run(void) {
 			pf_data.ptc_1run_cnt++;
 			break;
 		}
+		if (pf_data.ptc_1step == ZERO) {
+			pf_data.ptc_1step = ONE;
+#ifdef SF_ENABLE_DEBUG
+			Serial_printCharP(PSTR("Do time1 step: "));Serial_printDec((int)pf_data.ptc_1map_idx);Serial_printChar(" ");
+			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
+			Serial_printDec(pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_A]);Serial_println();
+#endif
+			// Execute the steps
+			Vars_setValue(varIdx,pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VAR_IDX],ZERO,pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_A]);
+		}
+
 		// Waittime per time step
 		uint16_t waitTime = pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_B];
 		if (waitTime != ZERO && pf_data.ptc_1cnt < waitTime) {
@@ -99,14 +117,9 @@ void ptc_time1_run(void) {
 			return; // wait
 		}
 		pf_data.ptc_1mul_cnt = ZERO;
-#ifdef SF_ENABLE_DEBUG
-		Serial_printCharP(PSTR("Do time1 step: "));Serial_printDec((int)pf_data.ptc_1map_idx);Serial_printChar(" ");
-		Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
-		Serial_printDec(pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_A]);Serial_println();
-#endif
-		// Execute the steps
-		Vars_setValue(varIdx,pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VAR_IDX],ZERO,pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_A]);
+
 		// Update to map idx to next step
+		pf_data.ptc_1step = ZERO;
 		pf_data.ptc_1map_idx++;
 		if (pf_data.ptc_1map_idx > PTC_TIME_MAP_MAX) {
 			pf_data.ptc_1map_idx = ZERO;
@@ -158,20 +171,24 @@ void ptt_check_triggers(void) {
 				varValue = pf_conf.ptt_3map[trigIdx][QMAP_VALUE_A];
 			}
 			if (varId != QMAP_VAR_NONE) {
+				if (pf_data.ptt_step[t] == ZERO) {
+					pf_data.ptt_step[t] = ONE;
+					Vars_setValue(varId,varIdx,ZERO,varValue);
+				}
 				if (waitTime != ZERO && pf_data.ptt_cnt[t] < waitTime) {
 					wait = true; // waiting
 					stepStop = true;
-				} else {
-					Vars_setValue(varId,varIdx,ZERO,varValue);
 				}
 			} else {
 				pf_data.ptt_idx[t]  = 0xFF; // set trigger off
 				pf_data.ptt_fire[t] = ZERO; // reset fire trigger
+				pf_data.ptt_step[t] = ZERO; // reset step event 
 				stepStop = true;
 			}
 			if (wait==false) {
 				pf_data.ptt_cnt[t] = ZERO;
 				pf_data.ptt_idx[t]++;
+				pf_data.ptt_step[t] = ZERO; // reset step event 
 				if (pf_data.ptt_idx[t] > PTT_TRIG_MAP_MAX) {
 					pf_data.ptt_idx[t]  = 0xFF; // set trigger off
 					pf_data.ptt_fire[t] = ZERO; // reset fire trigger

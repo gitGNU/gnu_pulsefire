@@ -24,8 +24,8 @@
 
 #include "serial.h"
 
-void Serial_print(char argu) {
-	Serial_write(argu);
+void Serial_print(char c) {
+	Chip_out_serial(c);
 }
 
 void Serial_printHex(uint8_t argu) {
@@ -50,7 +50,7 @@ void Serial_printDec(int argu) {
 
 void Serial_printChar(char* dstring) {
 	while(*dstring != 0) {
-		Serial_write(*dstring);
+		Chip_out_serial(*dstring);
 		dstring++;
 	}
 }
@@ -416,24 +416,15 @@ void cmd_execute(char* cmd, char** args) {
 
 #ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseFire)) == ZERO) {
-		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE) {
-			pf_data.pwm_state = PWM_STATE_RUN;
-		} else if (pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE) {
-			pf_data.pwm_state = PWM_STATE_RUN;
-		}
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		Serial_println_done_P(pmCmdReqPulseFire);
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseHoldFire)) == ZERO) {
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
+		Serial_println_done_P(pmCmdReqPulseHoldFire);
 #endif
-
 #ifdef SF_ENABLE_LPM
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqLPMFire)) == ZERO) {
-		if (pf_conf.lpm_size > ZERO) {
-			if (pf_data.lpm_state==LPM_IDLE) {
-				pf_data.lpm_state = LPM_INIT;
-			}
-			if (pf_data.lpm_state!=LPM_IDLE) {
-				pf_data.lpm_state = LPM_STOP;
-			}
-		}
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataLPMFire)),ZERO,ZERO,ONE);
 		Serial_println_done_P(pmCmdReqLPMFire);
 #endif
 
@@ -450,7 +441,7 @@ void cmd_execute(char* cmd, char** args) {
 		if (trigIdx>PTT_TRIG_VAR_SIZE) {
 			trigIdx=ZERO;
 		}
-		pf_data.ptt_fire[trigIdx] = ONE;
+		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPTTFire)),trigIdx,ZERO,ONE);
 		Serial_printCharP(pmCmdReqPTTFire);
 		Serial_printDec(trigIdx);
 		Serial_printCharP(pmGetSpaced);
@@ -641,6 +632,10 @@ void cmd_execute(char* cmd, char** args) {
 
 // Parse the cmd from the cmd_buff
 void cmd_parse(void) {
+	if (pf_prog.req_tx_echo == ONE) {
+		Serial_printChar((char *)pf_prog.cmd_buff);
+		Serial_println();
+	}
 	uint8_t idx = ZERO;
 	char *cmd, *ptr, *args[CMD_MAX_ARGS];
 	if (strtok((char *)pf_prog.cmd_buff,CMD_WHITE_SPACE) == NULL) {
@@ -661,16 +656,12 @@ void cmd_parse(void) {
 	}
 }
 
-void Serial_write(uint8_t c) {
-	Chip_out_serial(c);
-}
-
 void Serial_rx_int(uint8_t c) {
-	if (pf_prog.req_tx_echo == ONE) {
-		Chip_out_serial(c);
+	if (c < 0x07 || c > 0x7E) {
+		return; // only process ascii chars, this is workaround for one unknown byte on SOME com ports under windows.
 	}
 	if (pf_prog.cmd_process == ZERO) {
-		return; // skip serial data ???
+		return; // skip serial data ??? maybe store in some buff and apppend to cmd_buff when cmd is ready.
 	}
 	if (pf_prog.cmd_buff_idx > CMD_BUFF_SIZE) {
 		pf_prog.cmd_buff_idx = ZERO; // protect against to long input
