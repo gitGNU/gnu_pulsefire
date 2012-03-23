@@ -477,7 +477,7 @@ void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 	if (pin==ZERO) {
 		if (enable==ZERO) {
 			EIMSK |=  (ONE << INT0);   // Enable INT0 External Interrupt
-		} else {s
+		} else {
 			EIMSK &= ~(ONE << INT0);
 		}
 	} else {
@@ -567,10 +567,13 @@ ISR(INT0_vect) {
 #endif
 		return;
 	}
+#ifdef SF_ENABLE_DEV
 	if (pf_conf.avr_pin2_map == PIN2_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
+#endif
+#ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin2_map == PIN2_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
@@ -579,13 +582,17 @@ ISR(INT0_vect) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
+#endif
 }
 
 ISR(INT1_vect) {
+#ifdef SF_ENABLE_DEV
 	if (pf_conf.avr_pin3_map == PIN3_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
+#endif
+#ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin3_map == PIN3_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
@@ -594,6 +601,7 @@ ISR(INT1_vect) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
+#endif
 }
 
 ISR(TIMER0_OVF_vect) {

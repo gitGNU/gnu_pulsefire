@@ -298,7 +298,7 @@ void cmd_execute(char* cmd, char** args) {
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPTTFire) { continue; }
 #endif
 #ifndef SF_ENABLE_LPM
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqAutoLPM) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqLPMFire) { continue; }
 #endif
 #ifndef SF_ENABLE_MAL
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALProgram) { continue; }

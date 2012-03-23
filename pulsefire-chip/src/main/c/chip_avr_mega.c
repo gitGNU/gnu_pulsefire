@@ -597,10 +597,13 @@ ISR(INT2_vect) {
 #endif
 		return;
 	}
+#ifdef SF_ENABLE_DEV
 	if (pf_conf.avr_pin19_map == PIN19_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
+#endif
+#ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin19_map == PIN19_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
@@ -609,6 +612,7 @@ ISR(INT2_vect) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
+#endif
 }
 
 ISR(INT3_vect) {
@@ -620,10 +624,13 @@ ISR(INT3_vect) {
 #endif
 		return;
 	}
+#ifdef SF_ENABLE_DEV
 	if (pf_conf.avr_pin18_map == PIN18_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
+#endif
+#ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin18_map == PIN18_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
 		return;
@@ -632,6 +639,7 @@ ISR(INT3_vect) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
 		return;
 	}
+#endif
 }
 
 ISR(TIMER0_OVF_vect) {

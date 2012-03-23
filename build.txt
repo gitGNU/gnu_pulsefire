@@ -40,8 +40,11 @@ src/build/gnu-up.sh <scm_username> <version>
 
 -- Make site --
 
+TODO: redo site stuff !!
+
+(edit pom.xml and enable site)
 cd project-root/;
-mvn site:stage
+mvn site:site site:stage
 And then manual upload.
 
 -- Check for dependency-updates --
@@ -49,6 +52,14 @@ And then manual upload.
 cd project-root/;
 mvn versions:display-plugin-updates;
 mvn versions:display-dependency-updates;
+
+-- Eclipse Setup --
+
+- Clone git and import project into workspace
+- Import maven modules from cloned directory
+- 
+TODO
+
 
 
 
