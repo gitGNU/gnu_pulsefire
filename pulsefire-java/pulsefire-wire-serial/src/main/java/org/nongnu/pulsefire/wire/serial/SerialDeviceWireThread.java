@@ -149,9 +149,13 @@ public class SerialDeviceWireThread extends Thread {
 			peek = deviceManager.peekCommandRequest(); // skip over all duplicate commands.
 		}		
 		try {
-			logger.fine("Send cmd: "+send.getRequest().getCommandName()+" with argu0: "+send.getRequest().getArgu0());
+			if (send.getRequest().getArgu0()==null) {
+				logger.fine("Send cmd: "+send.getRequest().getCommandName());
+			} else {
+				logger.fine("Send cmd: "+send.getRequest().getCommandName()+" with argu0: "+send.getRequest().getArgu0());
+			}
 			String writeOut = CommandWire.encodeCommand(send.getRequest());
-			logger.finer("Write to COMM: "+writeOut);
+			logger.finest("Raw data write: "+writeOut);
 			writer.write(writeOut);
 			writer.write('\n');
 			writer.flush();
@@ -190,7 +194,7 @@ public class SerialDeviceWireThread extends Thread {
 		String scannedInput = readBuffer.toString().trim();
 		readBuffer = new StringBuffer();
 		
-		logger.finer("Read from COMM: "+scannedInput);
+		logger.finest("Raw data read: "+scannedInput);
 		deviceManager.fireDataReceived(scannedInput);
 		
 		if (scannedInput.startsWith(PULSE_FIRE_ERROR)) {

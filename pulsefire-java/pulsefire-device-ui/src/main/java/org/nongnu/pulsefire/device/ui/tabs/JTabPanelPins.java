@@ -70,8 +70,11 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		
 		ioPanel.add(JComponentFactory.createJLabel("Pin5 Mapping"));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin5_map));
-				
-		SpringLayoutGrid.makeCompactGrid(ioPanel,4,2);
+		
+		ioPanel.add(JComponentFactory.createJLabel("Note: Pin "));
+		ioPanel.add(JComponentFactory.createJLabel("direction change chip restart"));
+		
+		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

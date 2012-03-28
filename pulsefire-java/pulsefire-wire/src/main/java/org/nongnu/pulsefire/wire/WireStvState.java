@@ -21,26 +21,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui.tabs;
-
-import javax.swing.Icon;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+package org.nongnu.pulsefire.wire;
 
 /**
- * JTabFirePanel is interface of pannels inside the tabbed pane.
+ * WireStvState is for warning system.
+ * 
+ * When in error/warning mode use stv_map_idx to lookup variable+etc in qmap.
  * 
  * @author Willem Cazander
  */
-public interface JFireTabPanel {
+public enum WireStvState {
 
-	public String getTabName();
-	public String getTabTooltip();
-	public Icon getTabIcon();
-	
-	public JPanel getJPanel();
-	public JScrollPane getParentScrollPane();
-	public void setParentScrollPane(JScrollPane parentScrollPane);
-	
-	public void release();
+	OKE,
+	WARNING_MAX,
+	WARNING_MIN,
+	ERROR_MAX,
+	ERROR_MIN;
 }

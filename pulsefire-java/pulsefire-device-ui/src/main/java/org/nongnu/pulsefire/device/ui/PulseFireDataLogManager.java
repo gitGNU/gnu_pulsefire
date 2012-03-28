@@ -63,14 +63,17 @@ public class PulseFireDataLogManager {
 		logDataWriter0 = new LogDataWriter(0);
 		logDataWriter1 = new LogDataWriter(1);
 		logDataWriter2 = new LogDataWriter(2);
+		
 		Thread t0 = new Thread(logDataWriter0);
-		t0.setName(logDataWriter0.getClass().getSimpleName());
-		t0.start();
 		Thread t1 = new Thread(logDataWriter1);
-		t1.setName(logDataWriter1.getClass().getSimpleName());
-		t1.start();
 		Thread t2 = new Thread(logDataWriter2);
-		t2.setName(logDataWriter2.getClass().getSimpleName());
+		
+		t0.setName(LogDataWriter.class.getSimpleName()+"-0");
+		t1.setName(LogDataWriter.class.getSimpleName()+"-1");
+		t2.setName(LogDataWriter.class.getSimpleName()+"-2");
+		
+		t0.start();
+		t1.start();
 		t2.start();
 	}
 	
@@ -210,11 +213,11 @@ public class PulseFireDataLogManager {
 		
 		public void updateFields() {
 			String logId = "LOG"+loggerIndex+"_";
-			logEnable         = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.valueOf(logId+"ENABLE"));
-			logTimeStamp      = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.valueOf(logId+"TIMESTAMP"));
+			logEnable          = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.valueOf(logId+"ENABLE"));
+			logTimeStamp       = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.valueOf(logId+"TIMESTAMP"));
 			logFileName        = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.valueOf(logId+"FILENAME"));
 			logPath            = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.valueOf(logId+"PATH"));
-			logSpeed          = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.valueOf(logId+"SPEED"));
+			logSpeed           = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.valueOf(logId+"SPEED"));
 			String logFieldStr = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.valueOf(logId+"FIELDS"));
 			logFields = CommandName.decodeCommandList(logFieldStr);
 			
@@ -225,6 +228,7 @@ public class PulseFireDataLogManager {
 		
 		@Override
 		public void run() {
+			Writer writer = null;
 			try {
 				while (run) {
 					if (writerStart==false) {
@@ -233,7 +237,7 @@ public class PulseFireDataLogManager {
 					}
 					writerStart=false;
 					
-					Writer writer = startWriter();
+					writer = startWriter();
 					if (writer==null) {
 						continue;
 					}
@@ -246,9 +250,14 @@ public class PulseFireDataLogManager {
 					}
 					writerStop=false;
 					stopWriter(writer);
+					writer = null;
 				}
 			} catch (Exception e) {
 				logger.log(Level.WARNING,e.getMessage(),e);
+			} finally {
+				if (writer!=null) {
+					stopWriter(writer); // always close on non-clean stop.
+				}
 			}
 		}
 		
@@ -303,8 +312,13 @@ public class PulseFireDataLogManager {
 				logger.info(" Closing log file: "+writerFile.getAbsolutePath()+" records: "+recordCount);
 				recordCount = 0l;
 				writerFile = null;
-				writer.flush();
-				writer.close();
+				try {
+					writer.flush();
+				} catch (Exception e) {
+					logger.severe("Could not flush on close: "+e.getMessage());
+				} finally {
+					writer.close();
+				}
 			} catch (Exception e) {
 				logger.log(Level.WARNING,"Error while closing writer: "+e.getMessage(),e);
 			}
@@ -406,8 +420,10 @@ public class PulseFireDataLogManager {
 
 		@Override
 		public void deviceDisconnect() {
-			writerStop = true;
-			connected = false;
+			if (connected) {
+				writerStop = true;
+				connected = false;
+			}
 		}
 
 		@Override

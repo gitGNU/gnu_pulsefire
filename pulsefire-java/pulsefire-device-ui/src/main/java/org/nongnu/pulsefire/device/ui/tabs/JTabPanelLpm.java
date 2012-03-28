@@ -202,6 +202,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		lpmTuneNextButton.addActionListener(this);
 		
 		lpmTuneStartButton.setEnabled(false);
+		lpmAutoLoopButton.setEnabled(false);
 		lpmTuneStopButton.setEnabled(false);
 		lpmTuneNextButton.setEnabled(false);
 		lpmAutoCancelButton.setEnabled(false);
@@ -811,6 +812,17 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		}
 	}
 
+	@Override
+	public void deviceConnect() {
+		super.deviceConnect(); // update ui tree
+		lpmAutoLoopButton.setEnabled(true);
+	}
+	@Override
+	public void deviceDisconnect() {
+		super.deviceConnect();
+		lpmAutoLoopButton.setEnabled(false);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (stepEditButton.equals(e.getSource()) && tuneStepTable.getSelectedRow()!=-1) {

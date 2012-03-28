@@ -73,6 +73,9 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 		if (commandName!=null && commandName.name().endsWith("_b")) {
 			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_bank, this);
 		}
+		if (commandName!=null && commandName.name().startsWith("req_pulse")) {
+			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_trig, this);
+		}
 	}
 
 	@Override
@@ -86,6 +89,9 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 		}
 		if (commandName!=null && commandName.name().endsWith("_b")) {
 			PulseFireUI.getInstance().getDeviceManager().removeDeviceCommandListener(CommandName.pulse_bank, this);
+		}
+		if (commandName!=null && commandName.name().startsWith("req_pulse")) {
+			PulseFireUI.getInstance().getDeviceManager().removeDeviceCommandListener(CommandName.pulse_trig, this);
 		}
 	}
 
@@ -108,6 +114,10 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 			return;
 		}
 		if (checkPulseMode()==false) {
+			component.setEnabled(false);
+			return;
+		}
+		if (checkPulseTrigger()==false) {
 			component.setEnabled(false);
 			return;
 		}
@@ -194,5 +204,22 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 			}
 		}
 		return false;
+	}
+	
+	private boolean checkPulseTrigger() {
+		if (commandName==null) {
+			return true;
+		}
+		if (CommandName.req_pulse_fire.equals(commandName) || CommandName.req_pulse_hold_fire.equals(commandName)) {
+			Command command = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_trig);
+			if (command==null) {
+				return true;
+			}
+			Integer trigger = new Integer(command.getArgu0()); 
+			if (trigger==0) {
+				return false;
+			}	
+		}
+		return true;
 	}
 }

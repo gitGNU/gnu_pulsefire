@@ -6,17 +6,24 @@ Targeted for free energy (re)search with full generic configurable mappings for 
 inputs so it can operate HHO cells, magnetic motors and solid state coil shorting setups.
 Some features; max 16 outputs,soft warm-up,timing per channel,serial console,lcd interface,etc.
 
+  +----+                          +----+
+--+    +--------------------------+    +---
+            +----+ 
+------------+    +-------------------------
+                    +----+ 
+--------------------+    +-----------------
+
 === Files in this package ===
 
 authors.txt         - Contributors listing.
 build.txt           - Developer build guide.
 licence.txt         - The licence of PulseFire.
-pom.xml             - Maven specific build file used by frontend IDE
+pom.xml             - Maven specific build file.
 readme.txt          - This file.
 todo.txt            - Small todo list.
 versions.txt        - Versions history.
 pulsefire-*         - Maven Java/Chip packages for pulsefire.
-src                 - Arduino/site/schematic source
+src                 - site/schematic source.
 
 === Licenced binary files ===
 
@@ -29,6 +36,10 @@ src                 - Arduino/site/schematic source
 ./src/site/resources/images/pulsefire-gui.png
 ./src/site/resources/images/pulsefire-left.png
 ./src/site/resources/images/pulsefire-overview.png
+./src/site/resources/images/pulsefire-ui-flash.png
+./src/site/resources/images/pulsefire-ui-inputs.png
+./src/site/resources/images/pulsefire-ui-pwm.png
+./src/site/resources/images/pulsefire-ui-vars.png
 ./src/site/pulsefire.jks
 
 The binary files in the above listing fall all under
@@ -50,30 +61,5 @@ the licence terms described in the licence.txt file.
 
 The binary files in the above listing fall all under the licence terms
 described in the licence file of rxtx on http://rxtx.qbang.org/.
-
-=== Timing calucalations ===
-
-T1 - 
-T2 - 
-T3 - 
-T4 - foo*bar/to+do.
-
-  +---------------T4--------------+    
-  +----+                          +----+
-D0|    |                          |    |
-  |    |                          |    |
---+    +--------------------------+    +---
-  +-T1-+-T2-+     
-            +----+ 
-Dx          |    |
-            |    |
-------------+    +-------------------------
-                         +---T3---+
-                    +----+ 
-Dlast               |    |
-                    |    |
---------------------+    +-----------------
-
-
 
 

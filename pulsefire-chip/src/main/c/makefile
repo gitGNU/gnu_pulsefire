@@ -97,8 +97,8 @@ REMOVEDIR = rm -rf
 COPY = cp
 WINSHELL = cmd
 
-ARM_CC = ~/sat/bin/arm-none-eabi-gcc
-ARM_OBJCOPY = ~/sat/bin/arm-none-eabi-objcopy
+ARM_CC = ~/bin/arm-gcc/bin/arm-none-eabi-gcc
+ARM_OBJCOPY = ~/bin/arm-gcc/bin/arm-none-eabi-objcopy
 
 # Define all src files.
 SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./stv.c ./serial.c ./utils.c 

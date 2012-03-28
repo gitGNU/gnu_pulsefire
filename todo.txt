@@ -1,19 +1,45 @@
-TODO LIST:
-- inverse nolimit flag in PF_VARS
+== TODO ==
+
+CHIP:
 - Add menu support for map variables.
 - Add lcd pages support
-- Fix 32 bit variables set.
-- Move idxA,idxB size in PF_VARS to type size column
 - When using 16 pwm outputs last output step had extratime.
+- add hex id serial mode instead of acsii value of variable.
 - Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
 - Added nested if support in mal
-- Recode mal to goto jump table
 - A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
-- Operation manual
 - Port to arm7
 - Port to arm9 aka PandaBoard
+- Fix mega simple GLCD support
+- hardware osc function
 
+CHIP PF_VARS:
+	- inverse nolimit flag in
+	- Fix 32 bit variables set.
+	- Move idxA,idxB size in PF_VARS to type size column
+	- add non-push flag
+	- Find precompiler way to find variable idx to 'replace' Vars_getIndexFromName for push data.
+	- Make almost all code work via Vars_setValue for auto push.
+	- add non-push get info cmd.
+	- merge pf_data and pf_chip
+
+GUI:
+- Operation manual
+- docbook to help file support with ids.
+- Remove all config data from CommandName enum to support multiple connections in one classloader.
+- id + i18n all ui components.
+- Custom graph panel(s)
+- headless support and traybar option.
+- fix full screen mode tooltip editors.
+- fix audio scope channel select to support up to ~16 channels.
+- move all rxtx code out of init + UI thread.
+
+SERVER:
+- oss some crud code
+- build on mongo or pg
+
+BUILD:
 maybe check in ant/maven download of libs;
 RXTXcomm.jar:
 mkdir -p lib/Mac\ OS\ X lib/Windows lib/Linux-x86 lib/Linux-amd64

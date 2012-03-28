@@ -78,8 +78,8 @@
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
 	#define SF_ENABLE_AVR_MEGA           // Define avr mega
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
-	#define MAL_PROGRAM_SIZE        256
-	#define MAL_PROGRAM_MAX           4
+	#define MAL_PROGRAM_SIZE        512
+	#define MAL_FIRE_MAX              6
 	#define ADC_NUM_MAX              16
 	#define SWC_MAP_MAX               4
 	#define PTC_TIME_MAP_MAX         32
@@ -95,7 +95,7 @@
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
 	#define MAL_PROGRAM_SIZE         64
-	#define MAL_PROGRAM_MAX           1
+	#define MAL_FIRE_MAX              2
 	#define ADC_NUM_MAX               6
 	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
@@ -111,7 +111,7 @@
 	#define SF_ENABLE_AVR                  // Define AVR
 	#define CHIP_EEPROM_SIZE        512    // 512 bytes eeprom
 	#define MAL_PROGRAM_SIZE         32    // config array size of basic program
-	#define MAL_PROGRAM_MAX           1    // Total amount of diffent programs
+	#define MAL_FIRE_MAX              1    // Total amount of diffent programs
 	#define ADC_NUM_MAX               6    // Max 6 analog input
 	#define SWC_MAP_MAX               1    // Softwarmup actions
 	#define PTC_TIME_MAP_MAX          4    // Programatic Time slots
@@ -127,7 +127,7 @@
 	#define SF_ENABLE_ARM_7M               // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
 	#define MAL_PROGRAM_SIZE         64
-	#define MAL_PROGRAM_MAX           1
+	#define MAL_FIRE_MAX              2
 	#define ADC_NUM_MAX               6
 	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8

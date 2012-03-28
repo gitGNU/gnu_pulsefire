@@ -66,6 +66,7 @@ public class EventTimeThread extends Thread {
 						if (trig.getTimeRuns()!=0 && trig.getRunCounter() > trig.getTimeRuns()) {
 							eventTimeManager.removeEventTimeTrigger(trig); // done with trigger
 						}
+						logger.finest("Executed trigger: "+trig.getTriggerName()+" in "+(trig.getRunStopTime()-trig.getRunStartTime())+" ms.");
 					}
 				}
 			}

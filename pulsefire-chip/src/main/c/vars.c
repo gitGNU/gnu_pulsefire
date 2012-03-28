@@ -255,7 +255,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 
 #ifdef SF_ENABLE_MAL
-	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.mal_fire,            (CHIP_PTR_TYPE)&pmDataMALFire,         0xFFFF,              (MAL_PROGRAM_MAX<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.mal_fire,            (CHIP_PTR_TYPE)&pmDataMALFire,         0xFFFF,              (MAL_FIRE_MAX<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,ZERO},
 #endif
 
 // =============== pf_prog vars = +128
@@ -727,6 +727,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 #endif
 #ifdef SF_ENABLE_PWM
 	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseFire && value > ZERO) {
+		pf_data.pulse_hold_fire = ZERO;
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && pf_conf.pulse_trig != PULSE_TRIG_EXT) {
 			pf_data.pwm_state = PWM_STATE_RUN;
 		}
@@ -824,10 +825,15 @@ void Vars_resetConfig(void) {
 	}
 #endif
 #ifdef SF_ENABLE_MAL
-	for (uint8_t n=ZERO;n < MAL_PROGRAM_MAX;n++) {
-		for (uint8_t i=ZERO;i < MAL_PROGRAM_SIZE;i++) {
-			pf_conf.mal_program[i][n] = 0xFF;
-		}
+	for (uint16_t i=ZERO;i < MAL_PROGRAM_SIZE;i++) {
+		pf_conf.mal_program[i] = 0xFF;
+	}
+	for (uint8_t trigIdx=ZERO;trigIdx < MAL_FIRE_MAX;trigIdx++) {
+		uint16_t addr = trigIdx*4;
+		pf_conf.mal_program[addr+0] = 0x40;
+		pf_conf.mal_program[addr+1] = 0x20;
+		pf_conf.mal_program[addr+2] = 0x00;
+		pf_conf.mal_program[addr+3] = 4*MAL_FIRE_MAX; // add default jump table to next line after table
 	}
 #endif
 }

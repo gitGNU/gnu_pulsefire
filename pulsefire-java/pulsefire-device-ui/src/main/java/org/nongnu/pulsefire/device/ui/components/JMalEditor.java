@@ -84,7 +84,6 @@ public class JMalEditor extends JPanel implements ActionListener {
 	private JButton editLineButton = null;
 	private JButton delLineButton = null;
 	
-	
 	public JMalEditor() {
 		programLines = new ArrayList<MalCommand>(32);
 		tableModel = new MalCommandTableModel();
@@ -136,6 +135,10 @@ public class JMalEditor extends JPanel implements ActionListener {
 		editLineButton.addActionListener(this);
 		delLineButton.addActionListener(this);
 		
+		addLineButton.setEnabled(false);
+		editLineButton.setEnabled(false);
+		delLineButton.setEnabled(false);
+		
 		tableActions.add(addLineButton);
 		tableActions.add(editLineButton);
 		tableActions.add(delLineButton);
@@ -176,6 +179,19 @@ public class JMalEditor extends JPanel implements ActionListener {
 		this.maxOpcodes = maxOpcodes;
 	}
 	
+	public void clearData() {
+		addLineButton.setEnabled(false);
+		editLineButton.setEnabled(false);
+		delLineButton.setEnabled(false);
+		programLines.clear();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				tableModel.fireTableDataChanged(); // run event in eventQ
+			}
+		});
+	}
+	
 	/**
 	 * Saves the opcodes to this byte list.
 	 * @return
@@ -203,6 +219,9 @@ public class JMalEditor extends JPanel implements ActionListener {
 			}
 			programLines.add(cmd);
 		}
+		addLineButton.setEnabled(true);
+		editLineButton.setEnabled(true);
+		delLineButton.setEnabled(true);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -267,7 +286,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource()==saveButton) {
+			if (e.getSource()==saveButton && programLines.size() > cmdTable.getSelectedRow()) {
 				MalCommand cmd = editPanel.getMalCommand();
 				programLines.set(cmdTable.getSelectedRow(), cmd);
 				tableModel.fireTableDataChanged();
@@ -296,7 +315,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 	public class MalCommandTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -3225731793752475674L;
-		private String[] columnNames = new String[] {"LINE","CMD","HEX"};
+		private String[] columnNames = new String[] {"ADDR","CMD","HEX"};
 		
 		public String getColumnName(int col) {
 			return columnNames[col];
@@ -321,7 +340,11 @@ public class JMalEditor extends JPanel implements ActionListener {
 				return "";
 			}
 			if (col==0) {
-				return (row+1)*10; // start at "line 10" like basic
+				int addr = 0;
+				for (int i=0;i<row;i++) {
+					addr += programLines.get(i).getOpcodeSize(); // TODO: need to precalc/cache this 
+				}
+				return addr;
 			} else if (col==1) {
 				return programLines.get(row);
 			} else if (col==2) {
@@ -417,6 +440,9 @@ public class JMalEditor extends JPanel implements ActionListener {
 								value = "0";
 							}
 							malCommand.setCmdArgu(new Integer(value));
+							malCommand.compile();
+							// only update text label else event loop
+							malCommandDataLabel.setText(malCommand.toString()+" ["+malCommand.toStringHexOpcodes()+"]");
 						} catch (BadLocationException e) {
 							e.printStackTrace();
 						}
@@ -571,8 +597,10 @@ public class JMalEditor extends JPanel implements ActionListener {
 					add(extTypeComboBoxLabel);
 					add(extTypeComboBox);
 					gotoLineComboBox.removeAllItems();
+					int addr = 0;
 					for (int i=0;i<programLines.size();i++) {
-						gotoLineComboBox.addItem(""+((i+1)*10));
+						gotoLineComboBox.addItem(addr);
+						addr += programLines.get(i).getOpcodeSize();
 					}
 					add(gotoLineComboBoxLabel);
 					add(gotoLineComboBox);

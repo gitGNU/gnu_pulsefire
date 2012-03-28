@@ -85,4 +85,8 @@ abstract public class AbstractFireTabPanel extends JPanel implements JFireTabPan
 	@Override
 	public void deviceDisconnect() {
 	}
+	
+	@Override
+	public void release() {
+	}
 }

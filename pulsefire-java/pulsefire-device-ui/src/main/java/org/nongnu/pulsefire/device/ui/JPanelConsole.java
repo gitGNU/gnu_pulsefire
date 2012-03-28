@@ -55,8 +55,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	private static final long serialVersionUID = -8155913876470234844L;
 	private JTextArea consoleLog = null;
 	private JTextField consoleInput = null;
-	private int consoleLogLines = 0;
-	volatile private int consoleLogLinesMax = 255;
+	private int consoleLogLinesMax = 255;
 	private DateFormat timeFormat = null;
 	
 	public JPanelConsole() {
@@ -93,7 +92,6 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleClear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				consoleLogLines=0;
 				consoleLog.setText("");
 			}
 		});
@@ -126,8 +124,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleLog.append(data);
 		consoleLog.append("\n");
 		
-		consoleLogLines++;
-		if (consoleLogLines>consoleLogLinesMax) {
+		if (consoleLog.getLineCount() > consoleLogLinesMax) {
 			String t = consoleLog.getText();
 			int l = 0;
 			int rm = consoleLogLinesMax/2;
@@ -140,7 +137,6 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 			}
 			String tt = t.substring(l,t.length());
 			consoleLog.setText(tt);
-			consoleLogLines = rm;
 		}
 		
 		consoleLog.repaint();
@@ -176,7 +172,6 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	
 	public void settingUpdated(PulseFireUISettingKeys key,String value) {
 		consoleLogLinesMax = new Integer(value);
-		consoleLogLines=0;
 		consoleLog.setText("");
 	}
 }

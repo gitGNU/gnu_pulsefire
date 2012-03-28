@@ -25,6 +25,7 @@ package org.nongnu.pulsefire.device.ui.time;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * EventTimeManager manages all time triggers
@@ -33,10 +34,12 @@ import java.util.List;
  */
 public class EventTimeManager {
 
+	private Logger logger = null;
 	private EventTimeThread eventTimeThread = null;
 	private List<EventTimeTrigger> eventTimeTriggers = null;
 	
 	public EventTimeManager() {
+		logger = Logger.getLogger(EventTimeManager.class.getName());
 		eventTimeTriggers = new ArrayList<EventTimeTrigger>(100);
 	}
 	
@@ -56,20 +59,35 @@ public class EventTimeManager {
 	}
 	
 	public void addRunOnce(Runnable run) {
+		if (run==null) {
+			throw new NullPointerException("Can't execute null runnable object.");
+		}
 		EventTimeTrigger t = new EventTimeTrigger("runOnce",run,0);
 		t.setTimeRuns(1); // run only once
 		addEventTimeTrigger(t);
+		logger.finer("Adding run once trigger class: "+run.getClass().getSimpleName());
 	}
 	
 	public void addEventTimeTrigger(EventTimeTrigger eventTimeTrigger) {
+		if (eventTimeTrigger==null) {
+			throw new NullPointerException("Can't add null eventTimeTrigger.");
+		}
 		eventTimeTriggers.add(eventTimeTrigger);
+		logger.fine("Adding event trigger: "+eventTimeTrigger.getTriggerName());
 	}
 	
 	public void removeEventTimeTrigger(EventTimeTrigger eventTimeTrigger) {
+		if (eventTimeTrigger==null) {
+			throw new NullPointerException("Can't remove null eventTimeTrigger.");
+		}
 		eventTimeTriggers.remove(eventTimeTrigger);
+		logger.fine("Remove event trigger: "+eventTimeTrigger.getTriggerName());
 	}
 	
 	public EventTimeTrigger getEventTimeTriggerByName(String name) {
+		if (name==null) {
+			throw new NullPointerException("Can't search on null name.");
+		}
 		for (EventTimeTrigger e:eventTimeTriggers) {
 			if (e.getTriggerName().equals(name)) {
 				return e;

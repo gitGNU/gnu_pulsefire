@@ -27,7 +27,7 @@
 
 #include "vars.h"
 
-void mal_execute(uint16_t prog,uint16_t input_value);
+void mal_execute(uint8_t trigIdx,uint16_t input_value);
 
 
 // end include

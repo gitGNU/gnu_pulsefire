@@ -252,6 +252,8 @@ public class CommandNameVersionFactory {
 		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
 		CommandName.freq_pwm_data.maxIndexB=3;
 		CommandName.req_ptt_fire.maxIndexA=3;
+		CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
 		
 		CommandName.req_pwm_freq.disabled=true;
 		CommandName.swc_trig.disabled=true;

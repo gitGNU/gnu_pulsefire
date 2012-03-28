@@ -57,6 +57,7 @@ typedef uint8_t byte;
 #define DOC_PORT_NUM_MAX           16    // max 16 digital outputs in duel extended mode
 #define PTC_RUN_OFF                 0    // Dont run ptc
 #define PTC_RUN_LOOP               0xFF  // Loop ptc steps
+#define MAL_VAR_MAX                16    // mal opcodes define mal vars as 4 bit.
 #define QMAP_SIZE                   4    // Quad generic mapping data
 #define QMAP_VAR_NONE            0xFFFF  // Mapping idx value of adc/dic to indicate no mapping
 #define QMAP_VAR_IDX_ALL           0xFF  // Used for selecting all values of var if var is indexed.
@@ -194,7 +195,7 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint8_t       mal_program[MAL_PROGRAM_SIZE][MAL_PROGRAM_MAX];    // Progam space for really tiny basic code
+	volatile uint8_t       mal_program[MAL_PROGRAM_SIZE];    // Progam space for really tiny basic code
 #endif
 
 #ifdef SF_ENABLE_CIT_MEGA
@@ -304,7 +305,7 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint16_t      mal_fire[MAL_PROGRAM_MAX]; // MAL fire triggers.
+	volatile uint16_t      mal_fire[MAL_FIRE_MAX]; // MAL fire triggers.
 #endif
 
 } pf_data_struct;
@@ -338,7 +339,7 @@ typedef struct {
 #ifdef SF_ENABLE_MAL
 	volatile uint8_t       mal_pc;               // Mal program counter
 	volatile uint8_t       mal_state;            // program state
-	volatile uint16_t      mal_var[OUTPUT_MAX];  // mal internal variables
+	volatile uint16_t      mal_var[MAL_VAR_MAX]; // mal internal variables
 #endif
 
 #ifdef SF_ENABLE_STV

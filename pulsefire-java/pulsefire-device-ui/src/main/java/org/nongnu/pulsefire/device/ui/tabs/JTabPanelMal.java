@@ -37,7 +37,6 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -50,13 +49,14 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectListener, ActionListener, DeviceCommandListener {
+public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener, DeviceCommandListener {
 
 	private static final long serialVersionUID = 4091488961980523054L;
-	private JComboBox programBox = null;
 	private JButton loadButton = null;
 	private JButton saveButton = null;
 	private JButton clearButton = null;
+	private JButton fireButton = null;
+	private JComboBox fireIndexBox = null;
 	private JMalEditor malEditor = null;
 	
 	public JTabPanelMal() {
@@ -68,16 +68,12 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
 		add(wrap);
 		deviceDisconnect();
-		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.mal_program, this);
 	}
 		
 	private JPanel createHeader() {	
 		JPanel result = JComponentFactory.createJFirePanel("Program");
 		result.setLayout(new FlowLayout(FlowLayout.LEFT));
-		result.add(new JLabel("Select"));
-		programBox = new JComboBox();
-		result.add(programBox);
 		
 		result.add(new JLabel("Actions"));
 		loadButton = new JButton("Load");
@@ -91,7 +87,16 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 		clearButton = new JButton("Clear");
 		clearButton.setEnabled(false);
 		clearButton.addActionListener(this);
-		result.add(clearButton);		
+		result.add(clearButton);
+		
+		fireIndexBox = new JComboBox();
+		fireIndexBox.setEnabled(false);
+		
+		fireButton = new JButton("Fire");
+		fireButton.setEnabled(false);
+		fireButton.addActionListener(this);
+		result.add(fireButton);
+		
 		return result;
 	}
 	
@@ -109,38 +114,33 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 
 	@Override
 	public void deviceConnect() {
+		super.deviceConnect();
 		if (CommandName.mal_fire.isDisabled()) {
 			return;
 		}
-		loadButton.setEnabled(true);
-		saveButton.setEnabled(true);
-		clearButton.setEnabled(true);
-		programBox.setEnabled(true);
-		malEditor.setEnabled(true);
-		
-		programBox.removeAllItems();
+		fireIndexBox.removeAllItems();
 		for (int i=0;i<CommandName.mal_fire.getMaxIndexA();i++) {
-			programBox.addItem("mal"+i);
+			fireIndexBox.addItem("idx"+i);
 		}
+		loadButton.setEnabled(true);
 	}
 
 	@Override
 	public void deviceDisconnect() {
-		programBox.setEnabled(false);
-		malEditor.setEnabled(false);
+		super.deviceDisconnect();
 		loadButton.setEnabled(false);
 		saveButton.setEnabled(false);
 		clearButton.setEnabled(false);
+		fireIndexBox.setEnabled(false);
+		fireButton.setEnabled(false);
+		malEditor.setEnabled(false);
+		malEditor.clearData();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (loadButton.equals(e.getSource())) {
-			if (programBox.getSelectedIndex()>=0) {
-				Command cmd = new Command(CommandName.mal_program);
-				//cmd.setArgu0(""+programBox.getSelectedIndex());
-				PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
-			}
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.mal_program));
 		} else if (saveButton.equals(e.getSource())) {
 			List<Byte> programData = malEditor.saveData();
 			StringBuffer buf = new StringBuffer();
@@ -150,13 +150,43 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 				buf.append(nibble2char(high));
 				buf.append(nibble2char(low));
 			}
-			System.out.println("mm save: "+buf.toString());
+			//System.out.println("mm save: "+buf.toString());
+			// todo make dialog progress bar
+			final String data = buf.toString();
+			PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new Runnable() {
+				@Override
+				public void run() {
+					for (int i=0;i<data.length();i=i+8) {
+						Command cmd = new Command(CommandName.mal_program);
+						cmd.setArgu0(""+(i/2));
+						cmd.setArgu1(""+data.charAt(i)+data.charAt(i+1)+data.charAt(i+2)+data.charAt(i+3)+data.charAt(i+4)+data.charAt(i+5)+data.charAt(i+6)+data.charAt(i+7)); // mm
+						PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd).waitForResponse();
+					}
+				}
+			});
 		} else if (clearButton.equals(e.getSource()) && malEditor.getMaxOpcodes()>0) {
 			List<Byte> programData = new ArrayList<Byte>(512);
-			for (int i=0;i<malEditor.getMaxOpcodes();i++) {
+			for (int i=0;i<CommandName.mal_fire.getMaxIndexA();i++) {
+				programData.add((byte)0x40);
+				programData.add((byte)0x20);
+				programData.add((byte)0x00);
+				programData.add((new Integer(4*CommandName.mal_fire.getMaxIndexA()).byteValue()));
+			}
+			for (int i=0;i<malEditor.getMaxOpcodes()-(CommandName.mal_fire.getMaxIndexA()*4);i++) {
 				programData.add(new Integer(255).byteValue());
 			}
 			malEditor.loadData(programData);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					SwingUtilities.updateComponentTreeUI(getParentScrollPane());
+					SwingUtilities.updateComponentTreeUI(malEditor);
+				}
+			});
+		} else if (fireButton.equals(e.getSource()) && fireIndexBox.getSelectedIndex()>=0) {
+			Command cmd = new Command(CommandName.req_mal_fire);
+			cmd.setArgu0(fireIndexBox.getSelectedItem().toString());
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
 		}
 		
 	}
@@ -172,8 +202,8 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 	@Override
 	public void commandReceived(Command command) {
 		
-		if (command.getLineRaw()!=null && command.getLineRaw().contains(" ")) {
-			return; // skip cmd with space for programing mal chip code.
+		if (command.getArgu1()!=null) {
+			return; // skip cmd with argu for programing mal chip code.
 		}
 		
 		List<Byte> programData = new ArrayList<Byte>(512);
@@ -185,6 +215,12 @@ public class JTabPanelMal extends AbstractFireTabPanel implements DeviceConnectL
 		}
 		malEditor.setMaxOpcodes(programData.size());
 		malEditor.loadData(programData);
+		
+		saveButton.setEnabled(true);
+		clearButton.setEnabled(true);
+		fireIndexBox.setEnabled(true);
+		fireButton.setEnabled(true);
+		malEditor.setEnabled(true);
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

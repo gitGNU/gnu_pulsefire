@@ -152,9 +152,7 @@ public class MalCommand {
 		} else if (cmd_type==3) {
 			opcode = data.next();
 			opcodes.add(opcode);
-			if (opcode==0xFF) {
-				return false;
-			}
+			return true;
 		}
 		if (ext_type==3) {
 			tabIndentParse++;
@@ -210,14 +208,16 @@ public class MalCommand {
 		
 		switch (cmdType) {
 		case LOAD:
-			opcode = new Integer(getCmdArgu()).byteValue();
-			opcodes.add(opcode);
 			switch (valueType) {
 			case RAW_VALUE:
 				opcode = new Integer(getCmdArgu() >> 8).byteValue();
 				opcodes.add(opcode);
+				opcode = new Integer(getCmdArgu() & 0xFF).byteValue();
+				opcodes.add(opcode);
 				break;
 			default:
+				opcode = new Integer(getCmdArgu() & 0xFF).byteValue();
+				opcodes.add(opcode);
 				break;
 			}
 			break;
