@@ -121,15 +121,15 @@ public class JTabPanelScope extends AbstractFireTabPanel implements ActionListen
 		});
 		inputPanel.add(channelsButton);
 		
-		gainDialA = new JFireDial("gainB",-100,100,0);
+		gainDialA = new JFireDial(-100,100,0);
 		gainDialA.addDialListener(this);
 		inputPanel.add(gainDialA);
 		
-		gainDialB = new JFireDial("gainA",-100,100,0);
+		gainDialB = new JFireDial(-100,100,0);
 		gainDialB.addDialListener(this);
 		inputPanel.add(gainDialB);
 		
-		timeDial = new JFireDial("time",1,32768,32768);
+		timeDial = new JFireDial(1,32768,32768);
 		timeDial.addDialListener(this);
 		timeDial.setEnabled(false);
 		inputPanel.add(timeDial);
@@ -137,7 +137,7 @@ public class JTabPanelScope extends AbstractFireTabPanel implements ActionListen
 		
 		for (int i=0;i<3;i++) {
 			JPanel channelPanel = JComponentFactory.createJFirePanel("Channel A");
-			JFireDial gainChannel = new JFireDial("gainA",-100,100,0);
+			JFireDial gainChannel = new JFireDial(-100,100,0);
 			gainChannel.setEnabled(false);
 			channelPanel.add(gainChannel);
 			optionPanel.add(channelPanel);

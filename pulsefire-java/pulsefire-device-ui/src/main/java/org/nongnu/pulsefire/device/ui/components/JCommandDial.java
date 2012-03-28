@@ -58,7 +58,8 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		this.idx=idx;
 		deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		command = new Command(commandName);
-		fireDial = new JFireDial(commandName.name());
+		fireDial = new JFireDial();
+		fireDial.setName("commandname."+commandName.name()+".firedial");
 		fireDial.setMaximum(commandName.getMaxValue());
 		fireDial.addDialListener(this);
 		if (idx!=-1) {
@@ -66,10 +67,8 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		} else {
 			JComponentEnableStateListener.attach(fireDial,commandName);
 		}
-		
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
 		deviceManager.addDeviceConnectListener(this);
-		
 		add(fireDial);
 	}
 	

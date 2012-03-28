@@ -54,7 +54,7 @@ public class JFireDial extends JComponent  {
 	private static final long serialVersionUID = 7895789282149616239L;
 	private boolean mouseDialing = false;
 	private boolean entered = false;
-	private String name = null;
+	private String text = null;
 	private Popup popupContainer = null;
 	private int value = 0;
 	private int valueOld = 0;
@@ -63,16 +63,14 @@ public class JFireDial extends JComponent  {
 	private int radiusSize = 0;
 	private int dotIndex = -1;
 	
-	public JFireDial(String name) {
-		this(name,0,100,0);
+	public JFireDial() {
+		this(0,100,0);
 	}
 	
-	public JFireDial(String name,int minValue, int maxValue, int value) {
-		this.name = name;
+	public JFireDial(int minValue, int maxValue, int value) {
 		setMinimum(minValue);
 		setMaximum(maxValue);
 		setValue(value);
-		setToolTipText(name);
 		addMouseListener(new MouseAdapter() {
 			
 			@Override
@@ -219,9 +217,9 @@ public class JFireDial extends JComponent  {
 			g2.setColor(UIManager.getColor("nimbusDisabledText"));
 		}
 		g2.setFont(UIManager.getFont("FireDial.font"));
-		if (entered && isEnabled() && !mouseDialing) {
+		if (entered && isEnabled() && !mouseDialing && text!=null) {
 			g2.setColor(UIManager.getColor("nimbusOrange"));
-			g2.drawString(name, 4, h-4);
+			g2.drawString(text, 4, h-4);
 		} else {
 			String valueStr = ""+getValue();
 			if (dotIndex>0) {
@@ -320,5 +318,19 @@ public class JFireDial extends JComponent  {
 	 */
 	public void setDotIndex(int dotIndex) {
 		this.dotIndex = dotIndex;
+	}
+
+	/**
+	 * @return the text
+	 */
+	public String getText() {
+		return text;
+	}
+
+	/**
+	 * @param text the text to set
+	 */
+	public void setText(String text) {
+		this.text = text;
 	}
 }

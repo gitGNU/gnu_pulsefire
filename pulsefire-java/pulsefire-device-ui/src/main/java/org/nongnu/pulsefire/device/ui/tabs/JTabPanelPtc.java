@@ -36,6 +36,7 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -62,19 +63,15 @@ public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandL
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
 		add(wrap);
 		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
-		deviceManager.addDeviceCommandListener(CommandName.info_data, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_0cnt, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_0map_idx, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_1cnt, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_1map_idx, this);
+		deviceManager.addDeviceCommandListener(CommandName.info_data, this); // we go on pull, todo change after all push
 	}
 	
 	private JPanel createTimeConfPanel0 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Config Timer 0");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"config0");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JLabel("Run Times"));
+		panel.add(new JCommandLabel(CommandName.ptc_0run));
 		panel.add(new JCommandDial(CommandName.ptc_0run));
-		panel.add(new JLabel("Time Multi"));
+		panel.add(new JCommandLabel(CommandName.ptc_0mul));
 		panel.add(new JCommandDial(CommandName.ptc_0mul));
 		statusLabelTimer0 = new JLabel();
 		panel.add(statusLabelTimer0);
@@ -82,11 +79,11 @@ public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandL
 	}
 	
 	private JPanel createTimeConfPanel1 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Config Timer 1");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"config1");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JLabel("Run Times"));
+		panel.add(new JCommandLabel(CommandName.ptc_1run));
 		panel.add(new JCommandDial(CommandName.ptc_1run));
-		panel.add(new JLabel("Time Multi"));
+		panel.add(new JCommandLabel(CommandName.ptc_1mul));
 		panel.add(new JCommandDial(CommandName.ptc_1mul));
 		statusLabelTimer1 = new JLabel();
 		panel.add(statusLabelTimer1);
@@ -94,13 +91,13 @@ public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandL
 	}
 	
 	private JPanel createTimePanel0 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Slots Timer 0");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"timer0");
 		panel.add(new JFireQMapTable(CommandName.ptc_0map,"value","time"));
 		return panel;
 	}
 	
 	private JPanel createTimePanel1 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Slots Timer 1");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"timer1");
 		panel.add(new JFireQMapTable(CommandName.ptc_1map,"value","time"));
 		return panel;
 	}

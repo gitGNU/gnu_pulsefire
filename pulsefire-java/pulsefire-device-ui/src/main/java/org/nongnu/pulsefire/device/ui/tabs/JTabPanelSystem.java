@@ -56,6 +56,7 @@ import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.time.PulseFireDataPuller;
 import org.nongnu.pulsefire.wire.Command;
@@ -86,21 +87,21 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createSystemConfig() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("Config");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"config");
 		JPanel confPanel = new JPanel();
 		confPanel.setLayout(new SpringLayout());
 		
-		confPanel.add(JComponentFactory.createJLabel("Save Config"));
-		confPanel.add(new JCommandButton("Save",CommandName.save));
+		confPanel.add(new JCommandLabel(CommandName.save));
+		confPanel.add(new JCommandButton(CommandName.save));
 		
-		confPanel.add(JComponentFactory.createJLabel("Reset Config"));
-		confPanel.add(new JCommandButton("Reset",CommandName.reset_conf));
+		confPanel.add(new JCommandLabel(CommandName.reset_conf));
+		confPanel.add(new JCommandButton(CommandName.reset_conf));
 
-		confPanel.add(JComponentFactory.createJLabel("Reset Data"));
-		confPanel.add(new JCommandButton("Reset",CommandName.reset_data));
+		confPanel.add(new JCommandLabel(CommandName.reset_data));
+		confPanel.add(new JCommandButton(CommandName.reset_data));
 
-		confPanel.add(JComponentFactory.createJLabel("Reset Chip"));
-		confPanel.add(new JCommandButton("Reset",CommandName.reset_chip));
+		confPanel.add(new JCommandLabel(CommandName.reset_chip));
+		confPanel.add(new JCommandButton(CommandName.reset_chip));
 		
 		JButton loadButton = new JButton("Load");
 		JComponentEnableStateListener.attach(loadButton,null);
@@ -267,27 +268,29 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createSystemIO() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("IO");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"io");
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(JComponentFactory.createJLabel("Output Enable"));
+		ioPanel.add(new JCommandLabel(CommandName.pulse_enable));
 		ioPanel.add(new JCommandCheckBox(CommandName.pulse_enable));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Output Invert"));
+		ioPanel.add(new JCommandLabel(CommandName.pulse_inv));
 		ioPanel.add(new JCommandCheckBox(CommandName.pulse_inv));
 
-		ioPanel.add(JComponentFactory.createJLabel("Output Steps"));
+		ioPanel.add(new JCommandLabel(CommandName.pulse_steps));
 		ioPanel.add(new JCommandComboBox(CommandName.pulse_steps));
 
-		ioPanel.add(JComponentFactory.createJLabel("Lcd Size"));
+		ioPanel.add(new JCommandLabel(CommandName.lcd_size));
 		ioPanel.add(new JCommandComboBox(CommandName.lcd_size));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Dev volt dot"));
+		ioPanel.add(new JCommandLabel(CommandName.dev_volt_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_volt_dot));
-		ioPanel.add(JComponentFactory.createJLabel("Dev amp dot"));
+		
+		ioPanel.add(new JCommandLabel(CommandName.dev_amp_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_amp_dot));
-		ioPanel.add(JComponentFactory.createJLabel("Dev temp dot"));
+		
+		ioPanel.add(new JCommandLabel(CommandName.dev_temp_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
 		
 		SpringLayoutGrid.makeCompactGrid(ioPanel,7,2);
@@ -296,7 +299,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createSystemWarmup() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("Warmup");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"warmup");
 		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
 		
 		JPanel warmDialPanel = new JPanel();

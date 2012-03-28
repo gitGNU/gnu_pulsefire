@@ -59,19 +59,19 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 		wrap.add(createTriggerStatusPanel());
 		wrap.add(createTriggerTestPanel());
 		
-		JPanel trig0Panel = JComponentFactory.createJFirePanel("Trigger0");
+		JPanel trig0Panel = JComponentFactory.createJFirePanel(this,"ptt0");
 		trig0Panel.add(new JFireQMapTable(CommandName.ptt_0map,"value","time"));
 		wrap.add(trig0Panel);
 		
-		JPanel trig1Panel = JComponentFactory.createJFirePanel("Trigger1");
+		JPanel trig1Panel = JComponentFactory.createJFirePanel(this,"ptt1");
 		trig1Panel.add(new JFireQMapTable(CommandName.ptt_1map,"value","time"));
 		wrap.add(trig1Panel);
 
-		JPanel trig2Panel = JComponentFactory.createJFirePanel("Trigger2");
+		JPanel trig2Panel = JComponentFactory.createJFirePanel(this,"ptt2");
 		trig2Panel.add(new JFireQMapTable(CommandName.ptt_2map,"value","time"));
 		wrap.add(trig2Panel);
 		
-		JPanel trig3Panel = JComponentFactory.createJFirePanel("Trigger3");
+		JPanel trig3Panel = JComponentFactory.createJFirePanel(this,"ptt3");
 		trig3Panel.add(new JFireQMapTable(CommandName.ptt_3map,"value","time"));
 		wrap.add(trig3Panel);
 		
@@ -83,7 +83,7 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 	}
 	
 	private JPanel createTriggerStatusPanel() {
-		JPanel header = JComponentFactory.createJFirePanel("Trigger Status");
+		JPanel header = JComponentFactory.createJFirePanel(this,"pttStatus");
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
@@ -101,13 +101,13 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 	}
 	
 	private JPanel createTriggerTestPanel() {
-		JPanel header = JComponentFactory.createJFirePanel("Trigger Tests");
+		JPanel header = JComponentFactory.createJFirePanel(this,"pttTrigger");
 		JPanel wrap = new JPanel();
 		wrap.add(new JLabel("Fire: "));
-		wrap.add(new JCommandButton("Trigger0",CommandName.req_ptt_fire,0));
-		wrap.add(new JCommandButton("Trigger1",CommandName.req_ptt_fire,1));
-		wrap.add(new JCommandButton("Trigger2",CommandName.req_ptt_fire,2));
-		wrap.add(new JCommandButton("Trigger3",CommandName.req_ptt_fire,3));		
+		wrap.add(new JCommandButton(CommandName.req_ptt_fire,0));
+		wrap.add(new JCommandButton(CommandName.req_ptt_fire,1));
+		wrap.add(new JCommandButton(CommandName.req_ptt_fire,2));
+		wrap.add(new JCommandButton(CommandName.req_ptt_fire,3));		
 		header.add(wrap);
 		return header;
 	}

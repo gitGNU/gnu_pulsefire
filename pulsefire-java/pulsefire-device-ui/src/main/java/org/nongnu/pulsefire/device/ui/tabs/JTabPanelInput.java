@@ -60,7 +60,7 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createAdcOptionPanel() {
-		JPanel adcOptionPanel = JComponentFactory.createJFirePanel("Analog Options");
+		JPanel adcOptionPanel = JComponentFactory.createJFirePanel(this,"adcOptions");
 		adcOptionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		adcOptionPanel.add(new JLabel("Jitter"));
 		adcOptionPanel.add(new JCommandDial(CommandName.adc_jitter));
@@ -80,13 +80,13 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createAdcPanel() {
-		JPanel adcPanel = JComponentFactory.createJFirePanel("Analog");
+		JPanel adcPanel = JComponentFactory.createJFirePanel(this,"adc");
 		adcPanel.add(new JFireQMapTable(CommandName.adc_map,"map-min","map-max"));
 		return adcPanel;
 	}
 	
 	private JPanel createDicOptionPanel() {
-		JPanel adcOptionPanel = JComponentFactory.createJFirePanel("Digital Options");
+		JPanel adcOptionPanel = JComponentFactory.createJFirePanel(this,"dicOptions");
 		adcOptionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
 		adcOptionPanel.add(new JLabel("Enable"));
@@ -126,7 +126,7 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createDicPanel() {
-		JPanel dicPanel = JComponentFactory.createJFirePanel("Digital");
+		JPanel dicPanel = JComponentFactory.createJFirePanel(this,"dic");
 		dicPanel.add(new JFireQMapTable(CommandName.dic_map,"low","high"));
 		return dicPanel;
 	}

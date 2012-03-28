@@ -21,45 +21,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui.tabs;
+package org.nongnu.pulsefire.device.ui.components;
 
-import java.awt.FlowLayout;
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
+import javax.swing.JLabel;
 
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
- * JTabPanelVFC
+ * JCommandLabel
  * 
  * @author Willem Cazander
  */
-public class JTabPanelVfc extends AbstractFireTabPanel {
+public class JCommandLabel extends JLabel {
 
-	private static final long serialVersionUID = 2716662787208065889L;
-
-	public JTabPanelVfc() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		
-		JPanel adcPanel = JComponentFactory.createJFirePanel(this,"input");
-		adcPanel.add(new JFireQMapTable(CommandName.vfc_input_map,"min","max"));
-		wrap.add(adcPanel);
-		
-		JPanel dicPanel = JComponentFactory.createJFirePanel(this,"output");
-		dicPanel.add(new JFireQMapTable(CommandName.vfc_output_map,"map-min","map-max"));
-		wrap.add(dicPanel);
-
-		SpringLayoutGrid.makeCompactGrid(wrap,1,2);
-		add(wrap);
+	private static final long serialVersionUID = -5019912933607846942L;
+	private CommandName commandName = null;
+	
+	public JCommandLabel(CommandName commandName) {
+		this(commandName,null);
 	}
 	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
+	public JCommandLabel(CommandName commandName,Integer index) {
+		super();
+		if (commandName==null) {
+			throw new NullPointerException("Can't make command label with null command name.");
+		}
+		this.commandName=commandName;
+		if (index != null) {
+			setName("commandname."+commandName.name()+index+".label");
+		} else {
+			setName("commandname."+commandName.name()+".label");
+		}
+	}
+	
+	public CommandName getCommandName() {
+		return commandName;
 	}
 }

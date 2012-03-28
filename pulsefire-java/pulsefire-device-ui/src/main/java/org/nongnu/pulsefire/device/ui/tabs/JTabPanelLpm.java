@@ -180,7 +180,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		JPanel butTunePanel = new JPanel();
 		butTunePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		lpmAutoStartButton = new JCommandButton("Single",CommandName.req_lpm_fire);
+		lpmAutoStartButton = new JCommandButton(CommandName.req_lpm_fire);
 		lpmAutoLoopButton = new JButton("Loop");
 		lpmAutoCancelButton = new JButton("Cancel");
 		lpmTuneStartButton = new JButton("Start");

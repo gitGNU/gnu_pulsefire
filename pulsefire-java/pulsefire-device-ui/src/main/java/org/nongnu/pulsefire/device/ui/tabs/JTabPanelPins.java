@@ -26,12 +26,14 @@ package org.nongnu.pulsefire.device.ui.tabs;
 import java.awt.FlowLayout;
 
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -55,24 +57,24 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createPinsAvr() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("Pins Avr");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"avr");
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin2 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin2_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin2_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin3 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin3_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin3_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin4 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin4_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin4_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin5 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin5_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin5_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Note: Pin "));
-		ioPanel.add(JComponentFactory.createJLabel("direction change chip restart"));
+		ioPanel.add(JComponentFactory.createJLabel(this,"noteA"));
+		ioPanel.add(JComponentFactory.createJLabel(this,"noteB"));
 		
 		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
 		wrapPanel.add(ioPanel);
@@ -80,23 +82,23 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 	}
 
 	private JPanel createPinsAvrMega() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("Pins Mega");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"mega");
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin18 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin18_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin18_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin19 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin19_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin19_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin47 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin47_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin47_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin48 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin48_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin48_map));
 		
-		ioPanel.add(JComponentFactory.createJLabel("Pin49 Mapping"));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_pin49_map));
 		ioPanel.add(new JCommandComboBox(CommandName.avr_pin49_map));
 		
 		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
@@ -105,9 +107,9 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createPinsArm() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel("Pins Arm");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"arm");
 		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
-		wrapPanel.add(JComponentFactory.createJPanelJWrap(JComponentFactory.createJLabel("  __  todo  __  ")));
+		wrapPanel.add(JComponentFactory.createJPanelJWrap(new JLabel("  __  todo  __  ")));
 		return wrapPanel;
 	}	
 

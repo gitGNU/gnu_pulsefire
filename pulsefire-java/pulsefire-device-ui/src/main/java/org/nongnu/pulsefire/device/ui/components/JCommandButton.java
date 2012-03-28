@@ -43,15 +43,20 @@ public class JCommandButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = -5019912933607846942L;
 	private Command command = null;
 	
-	public JCommandButton(String name,CommandName commandName) {
-		this(name,commandName,null);
+	public JCommandButton(CommandName commandName) {
+		this(commandName,null);
 	}
 	
-	public JCommandButton(String name,CommandName commandName,Integer index) {
-		super(name);
+	public JCommandButton(CommandName commandName,Integer index) {
+		super();
+		if (commandName==null) {
+			throw new NullPointerException("Can't make command button with null command name.");
+		}
+		setName("commandname."+commandName.name()+".button");
 		command = new Command(commandName);
 		if (index != null) {
 			command.setArgu0(index.toString());
+			setName("commandname."+commandName.name()+index+".button");
 		}
 		addActionListener(this);
 		JComponentEnableStateListener.attach(this,commandName);

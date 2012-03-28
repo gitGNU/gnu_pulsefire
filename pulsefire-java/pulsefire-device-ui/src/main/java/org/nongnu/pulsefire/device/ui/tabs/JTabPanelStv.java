@@ -25,13 +25,13 @@ package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -59,45 +59,41 @@ public class JTabPanelStv extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createWarnConfPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Warning Config");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"warningConfig");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JLabel("Warn Secs"));
+		panel.add(new JCommandLabel(CommandName.stv_warn_secs));
 		panel.add(new JCommandDial(CommandName.stv_warn_secs));
-		//panel.add(new JLabel("Warn Mode"));
-		//panel.add(new JCommandComboBox(CommandName.stv_warn_mode));
 		return panel;
 	}
 	
 	private JPanel createErrorConfPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Error Config");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"errorConfig");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JLabel("Error Secs"));
+		panel.add(new JCommandLabel(CommandName.stv_error_secs));
 		panel.add(new JCommandDial(CommandName.stv_error_secs));
-		//panel.add(new JLabel("Error Mode"));
-		//panel.add(new JCommandComboBox(CommandName.stv_error_mode));
 		return panel;
 	}
 	
 	private JPanel createWarnPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Warning Actions");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"warningActions");
 		panel.add(new JFireQMapTable(CommandName.stv_warn_map,"warning","warning-exit"));
 		return panel;
 	}
 	
 	private JPanel createErrorPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Error Actions");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"errorActions");
 		panel.add(new JFireQMapTable(CommandName.stv_error_map,"error","error-exit"));
 		return panel;
 	}
 	
 	private JPanel createMaxPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Maximal Values");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"maxValues");
 		panel.add(new JFireQMapTable(CommandName.stv_max_map,"warning","error"));
 		return panel;
 	}
 	
 	private JPanel createMinPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel("Minimal Values");
+		JPanel panel = JComponentFactory.createJFirePanel(this,"minValues");
 		panel.add(new JFireQMapTable(CommandName.stv_min_map,"warning","error"));
 		return panel;
 	}
