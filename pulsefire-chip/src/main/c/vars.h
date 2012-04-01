@@ -70,6 +70,8 @@ typedef uint8_t byte;
 #define CMD_WHITE_SPACE       " \r\t\n"  // All diffent white space chars to split commands on
 #define PULSE_DATA_OFF           0x0000  // Data for OFF output
 #define PULSE_DATA_ON            0xFFFF  // Data for ON  output
+#define VARS_INT_NUM_SIZE           4    // cache max 4 vars
+#define VARS_INT_SIZE               3    // 0=idx,1=idxA,3=value
 
 extern CHIP_PROGMEM_ARRAY pmCmdList[];
 
@@ -313,11 +315,12 @@ typedef struct {
 // PulseFire program data (which does not get reset)
 typedef struct {
 
-	// == 4 Special variables because these 4 are not in the VARS list !!! ==
+	// == 5 Special variables because these 4 are not in the VARS list !!! ==
 	char unpstr_buff[UNPSTR_BUFF_SIZE];    // buffer to copy progmem data into
 	volatile char cmd_buff[CMD_BUFF_SIZE]; // Command buffer for serial cmds
 	volatile uint8_t cmd_buff_idx;         // Command index
 	volatile uint8_t cmd_process;          // Processing command
+	volatile uint16_t vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
 
 	volatile uint32_t      sys_time_ticks; // Timer0 ticks
 	volatile uint32_t      sys_time_ssec;  // 1/10 of seconds ticks.
@@ -460,17 +463,20 @@ uint8_t Vars_getIndexAMax(uint8_t idx);
 uint8_t Vars_getIndexBMax(uint8_t idx);
 uint16_t Vars_getDefaultValue(uint8_t idx);
 uint16_t Vars_getIndexFromName(char* name);
+uint16_t Vars_getIndexFromPtr(uint16_t* ptr);
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB);
 uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA);
 uint16_t Vars_setValueSerial(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value);
 uint16_t Vars_setValueReset(uint8_t idx,uint8_t idxA,uint16_t value);
+uint16_t Vars_setValueInt(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value);
 uint16_t Vars_setValue(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value);
-uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial);
+uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial,boolean intBuff);
 void Vars_readConfig(void);
 void Vars_writeConfig(void);
 void Vars_resetConfig(void);
 void Vars_resetData(void);
 void Vars_setup(void);
+void Vars_loop(void);
 
 // end include
 #endif

@@ -10,6 +10,7 @@ Version 1.0:
 - Fixed PTC and PTT, reversed step and time action.
 - Added pulse_hold_fire trigger and req_pulse_hold_fire cmd and added to int pins.
 - Fixed AVR_MEGA pin18 & pin19 pin interrupt on/off based on avr_pinX_map
+- Fixed async interrupt command push which sometimes printed thru an other cmd.
 
 Version 1.0-Beta8:
 - Fixed internal event pulse_fire trigger.

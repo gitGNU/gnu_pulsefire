@@ -13,6 +13,7 @@ CHIP:
 - Port to arm9 aka PandaBoard
 - Fix mega simple GLCD support
 - hardware osc function
+- i2c and MCP4725 I2C DAC support
 
 CHIP PF_VARS:
 	- inverse nolimit flag in

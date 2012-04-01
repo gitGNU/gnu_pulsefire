@@ -575,11 +575,11 @@ ISR(INT0_vect) {
 #endif
 #ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin2_map == PIN2_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
+		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
 		return;
 	}
 	if (pf_conf.avr_pin2_map == PIN2_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
+		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
 		return;
 	}
 #endif
@@ -594,11 +594,11 @@ ISR(INT1_vect) {
 #endif
 #ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin3_map == PIN3_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
+		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
 		return;
 	}
 	if (pf_conf.avr_pin3_map == PIN3_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
+		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
 		return;
 	}
 #endif

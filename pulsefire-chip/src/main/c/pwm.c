@@ -108,7 +108,7 @@ boolean PWM_soft_warmup(void) {
 				continue;
 			}
 			uint16_t vIdx = pf_conf.swc_map[i][QMAP_VAR_IDX];
-			Vars_setValueImpl(v,vIdx,ZERO,value,false,false);
+			Vars_setValueInt(v,vIdx,ZERO,value);
 		}
 		return false; // we are done with startup.
 	}

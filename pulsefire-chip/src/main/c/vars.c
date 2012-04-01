@@ -416,14 +416,23 @@ uint16_t Vars_getIndexFromName(char* name) {
 #ifdef SF_ENABLE_ARM_7M
 		if (strcmp(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
 #else
-		// TODO: rm _P but not with UNPSTR
-		if (strcmp_P(name, (const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
+		if (strcmp_P(name, (const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) { // TODO: rm _P but not with UNPSTR
 #endif
 			return i;
 		}
 	}
 	return QMAP_VAR_NONE;
 }
+
+uint16_t Vars_getIndexFromPtr(uint16_t* ptr) {
+	for (uint8_t i=ZERO;i < PF_VARS_SIZE;i++) {
+		if (ptr == (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_VAR]))) {
+			return i;
+		}
+	}
+	return QMAP_VAR_NONE;
+}
+
 
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
 	boolean indexedA   = Vars_isIndexA(idx);
@@ -510,7 +519,7 @@ uint8_t vfc_is_variable_mapped(uint8_t idx,uint8_t idxA) {
 
 // removes the dubbel print is set is done with serial and req_auto_push==1 
 uint16_t Vars_setValueSerial(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) {
-	return Vars_setValueImpl(idx,idxA,idxB,value,true,true);
+	return Vars_setValueImpl(idx,idxA,idxB,value,true,true,false);
 }
 // removes the external function calls in reset phase.
 uint16_t Vars_setValueReset(uint8_t idx,uint8_t idxA,uint16_t value) {
@@ -521,17 +530,20 @@ uint16_t Vars_setValueReset(uint8_t idx,uint8_t idxA,uint16_t value) {
 			if (b>ZERO) {
 				valueSet = ZERO;
 			}
-			Vars_setValueImpl(idx,idxA,b,valueSet,false,false);
+			Vars_setValueImpl(idx,idxA,b,valueSet,false,false,false);
 		}
 		return ZERO;
 	} else {
-		return Vars_setValueImpl(idx,idxA,(uint8_t)0,value,false,false);
+		return Vars_setValueImpl(idx,idxA,(uint8_t)0,value,false,false,false);
 	}
 }
-uint16_t Vars_setValue(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) {
-	return Vars_setValueImpl(idx,idxA,0,value,true,false);
+uint16_t Vars_setValueInt(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) {
+	return Vars_setValueImpl(idx,idxA,idxB,value,true,false,true);
 }
-uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial) {
+uint16_t Vars_setValue(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value) {
+	return Vars_setValueImpl(idx,idxA,idxB,value,true,false,false);
+}
+uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,boolean trig,boolean serial,boolean intBuff) {
 	boolean indexedA   = Vars_isIndexA(idx);
 	boolean indexedB   = Vars_isIndexB(idx);
 	uint8_t idxMaxA    = Vars_getIndexAMax(idx);
@@ -642,28 +654,40 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 
 	// Send to serial if push is on
 	if (pf_prog.req_tx_push == ONE && serial==false) {
-		if (indexedA) {
-			if (idxA == QMAP_VAR_IDX_ALL) {
-				uint8_t i=ZERO;
-				for (i=ZERO;i<idxMaxA;i++) {
+		if (intBuff==false) {
+			if (indexedA) {
+				if (idxA == QMAP_VAR_IDX_ALL) {
+					uint8_t i=ZERO;
+					for (i=ZERO;i<idxMaxA;i++) {
+						Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
+						if(i<10) {Serial_print('0');} Serial_printDec((int)i);
+						Serial_printCharP(pmSetSpaced);
+						Serial_printDec(value);
+						Serial_println();
+					}
+				} else {
 					Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
-					if(i<10) {Serial_print('0');} Serial_printDec((int)i);
+					if(idxA<10) {Serial_print('0');} Serial_printDec((int)idxA);
 					Serial_printCharP(pmSetSpaced);
 					Serial_printDec(value);
 					Serial_println();
 				}
 			} else {
 				Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
-				if(idxA<10) {Serial_print('0');} Serial_printDec((int)idxA);
 				Serial_printCharP(pmSetSpaced);
 				Serial_printDec(value);
 				Serial_println();
 			}
 		} else {
-			Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
-			Serial_printCharP(pmSetSpaced);
-			Serial_printDec(value);
-			Serial_println();
+			for (uint8_t i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
+				uint16_t intIdx = pf_prog.vars_int_buff[i][0];
+				if ((intIdx == 0xFFFF) | (intIdx == idx)) {
+					pf_prog.vars_int_buff[i][0] = idx;
+					pf_prog.vars_int_buff[i][1] = idxA;
+					pf_prog.vars_int_buff[i][2] = value;
+					break;
+				}
+			}
 		}
 	}
 
@@ -779,7 +803,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			uint16_t minMapLevel = pf_conf.vfc_output_map[vfcIdx][QMAP_VALUE_A];
 			uint16_t maxMapLevel = pf_conf.vfc_output_map[vfcIdx][QMAP_VALUE_B];
 			uint16_t valueVfc = mapValue(value,minLevel,maxLevel,minMapLevel,maxMapLevel);
-			Vars_setValue(outVar,pf_conf.vfc_output_map[vfcIdx][QMAP_VAR_IDX],ZERO,valueVfc);  // recursive function !!
+			Vars_setValueImpl(outVar,pf_conf.vfc_output_map[vfcIdx][QMAP_VAR_IDX],ZERO,valueVfc,trig,serial,intBuff);  // recursive function !!
 		}
 	}
 #endif
@@ -894,7 +918,7 @@ void Vars_setup(void) {
 				continue;
 			}
 			uint16_t vIdx = pf_conf.swc_map[i][QMAP_VAR_IDX];
-			Vars_setValueImpl(v,vIdx,ZERO,value,false,false);
+			Vars_setValueImpl(v,vIdx,ZERO,value,false,false,false); // no trigger on setup 
 		}
 		pf_data.swc_secs_cnt  = ONE; // only set on startup to 'one' so softstart code runs once.
 	}
@@ -925,5 +949,53 @@ void Vars_setup(void) {
 	pf_prog.stv_time_cnt         = ZERO;
 	pf_prog.stv_map_idx          = ZERO;
 #endif
+	for (i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
+		pf_prog.vars_int_buff[i][0] = 0xFFFF;
+		pf_prog.vars_int_buff[i][1] = ZERO;
+		pf_prog.vars_int_buff[i][2] = ZERO;
+	}
 }
+
+
+void Vars_loop(void) {
+	for (uint8_t i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
+		uint16_t idx = pf_prog.vars_int_buff[i][0];
+		if (idx == 0xFFFF) {
+			continue;
+		}
+		// copy data
+		uint16_t idxA  = pf_prog.vars_int_buff[i][1];
+		uint16_t value = pf_prog.vars_int_buff[i][2];
+		// free buffer row
+		pf_prog.vars_int_buff[i][0] = 0xFFFF; // onyl non-0xFFFF value is free so this shuold be int save.
+		// print data
+		boolean indexedA   = Vars_isIndexA(idx);
+		uint8_t idxMaxA    = Vars_getIndexAMax(idx);
+		if (indexedA) {
+			if (idxA == QMAP_VAR_IDX_ALL) {
+				uint8_t i=ZERO;
+				for (i=ZERO;i<idxMaxA;i++) {
+					Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
+					if(i<10) {Serial_print('0');} Serial_printDec((int)i);
+					Serial_printCharP(pmSetSpaced);
+					Serial_printDec(value);
+					Serial_println();
+				}
+			} else {
+				Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
+				if(idxA<10) {Serial_print('0');} Serial_printDec((int)idxA);
+				Serial_printCharP(pmSetSpaced);
+				Serial_printDec(value);
+				Serial_println();
+			}
+		} else {
+			Serial_printChar(UNPSTRA(&PF_VARS[idx][PFVF_NAME]));
+			Serial_printCharP(pmSetSpaced);
+			Serial_printDec(value);
+			Serial_println();
+		}
+	}
+}
+
+
 

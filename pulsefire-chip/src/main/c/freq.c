@@ -78,15 +78,16 @@ void Freq_requestTrainFreq(void) {
 	freq *= 2; // double to hz.
 	//freq *= pf_conf.pulse_steps; // multiply to one output.
 
-
-
-	uint8_t pwmLoopIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMLoop));
-	uint8_t pwmClockIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMClock));
-	uint8_t pwmOnCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOnCntA));
-	uint8_t pwmOffCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOffCntA));
-	if (pf_conf.pulse_bank > ZERO) {
-		pwmOnCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOnCntB));
-		pwmOffCntIdx = Vars_getIndexFromName(UNPSTR(pmConfPWMOffCntB));
+	uint8_t pwmLoopIdx   = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_loop);
+	uint8_t pwmClockIdx  = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_clock);
+	uint8_t pwmOnCntIdx  = ZERO;
+	uint8_t pwmOffCntIdx = ZERO;
+	if (pf_conf.pulse_bank == ZERO) {
+		pwmOnCntIdx  = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_on_cnt_a);
+		pwmOffCntIdx = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_off_cnt_a);
+	} else {
+		pwmOnCntIdx  = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_on_cnt_b);
+		pwmOffCntIdx = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_off_cnt_b);
 	}
 
 	// use pwm_loop to divede by 10 and make bigger so _delta works nice.

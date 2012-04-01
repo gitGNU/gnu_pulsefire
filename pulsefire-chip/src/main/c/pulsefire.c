@@ -61,6 +61,7 @@ int main(void) {
 	Chip_sei(); // enable interrupts after init
 	for(;;) {
 		Chip_loop();
+		Vars_loop();
 		Serial_loop();
 #ifdef SF_ENABLE_LCD
 		Input_loopLcd();
