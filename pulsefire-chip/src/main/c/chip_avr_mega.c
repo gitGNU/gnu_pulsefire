@@ -316,20 +316,51 @@ CHIP_PTR_TYPE Chip_pgm_readWord(const CHIP_PTR_TYPE* p) {
 	return pgm_read_word(p);
 }
 
-void Chip_pwm_timer(uint8_t reg,uint16_t value) {
+void Chip_reg_set(uint8_t reg,uint16_t value) {
 	switch (reg) {
-	case PWM_REG_CLOCK:
-		TCCR5B = value & 7;
-		break;
-	case PWM_REG_OCRA:
-		OCR5A = value;
-		break;
-	case PWM_REG_OCRB:
-		OCR5B = value;
-		break;
-	case PWM_REG_TCNT:
-		TCNT5 = value;
-		break;
+#ifdef SF_ENABLE_PWM
+	case CHIP_REG_PWM_CLOCK:	TCCR5B = value & 7;		break;
+	case CHIP_REG_PWM_OCR_A:	OCR5A = value;			break;
+	case CHIP_REG_PWM_OCR_B:	OCR5B = value;			break;
+	case CHIP_REG_PWM_TCNT:		TCNT5 = value;			break;
+#endif
+#ifdef SF_ENABLE_CIT
+	case CHIP_REG_CIT_CLOCK:	TCCR2B = TCCR2B & 247 + (value & 7);			break;
+	case CHIP_REG_CIT_MODE:		TCCR2A = TCCR2A & 252 + (value & 3);TCCR2B = TCCR2B & 247 + (value & 8);break; // bit 0/1 + bit 3 in B
+	case CHIP_REG_CIT_INT:		TIMSK2 = TIMSK2 & 247 + (value & 7);			break;
+	case CHIP_REG_CIT_OCR_A:	OCR2A = value;									break;
+	case CHIP_REG_CIT_COM_A:	TCCR2A = TCCR2A & 63  + ((value << 4) & 192);	break;
+	case CHIP_REG_CIT_OCR_B:	OCR2B = value;									break;
+	case CHIP_REG_CIT_COM_B:	TCCR2A = TCCR2A & 207 + ((value << 6) & 48);	break;
+#endif
+#ifdef SF_ENABLE_CIP
+	case CHIP_REG_CIP_CLOCK:	TCCR1B = TCCR1B & 247 + (value & 7);			break;
+	case CHIP_REG_CIP_MODE:		TCCR1A = TCCR1A & 252 + (value & 3);TCCR1B = TCCR1B & 231 + (value & 24);break; // bit 0/1 + bit 3/4 in B
+	case CHIP_REG_CIP_OCR_A:	OCR1A = value;									break;
+	case CHIP_REG_CIP_COM_A:	TCCR1A = TCCR1A & 63  + ((value << 4) & 192);	break; // bit 6/7
+	case CHIP_REG_CIP_OCR_B:	OCR1B = value;									break;
+	case CHIP_REG_CIP_COM_B:	TCCR1A = TCCR1A & 207 + ((value << 6) & 48);	break; // bit 4/5
+	case CHIP_REG_CIP_OCR_C:	OCR1C = value;									break;
+	case CHIP_REG_CIP_COM_C:	TCCR1A = TCCR1A & 243 + ((value << 6) & 12);	break; // bit 2/3
+
+	case CHIP_REG_CIP_CLOCK:	TCCR3B = TCCR3B & 247 + (value & 7);			break;
+	case CHIP_REG_CIP_MODE:		TCCR3A = TCCR3A & 252 + (value & 3);TCCR3B = TCCR3B & 231 + (value & 24);break;
+	case CHIP_REG_CIP_OCR_A:	OCR3A = value;									break;
+	case CHIP_REG_CIP_COM_A:	TCCR3A = TCCR3A & 63  + ((value << 4) & 192);	break;
+	case CHIP_REG_CIP_OCR_B:	OCR3B = value;									break;
+	case CHIP_REG_CIP_COM_B:	TCCR3A = TCCR3A & 207 + ((value << 6) & 48);	break;
+	case CHIP_REG_CIP_OCR_C:	OCR3C = value;									break;
+	case CHIP_REG_CIP_COM_C:	TCCR3A = TCCR3A & 243 + ((value << 6) & 12);	break;
+
+	case CHIP_REG_CIP_CLOCK:	TCCR4B = TCCR4B & 247 + (value & 7);			break;
+	case CHIP_REG_CIP_MODE:		TCCR4A = TCCR4A & 252 + (value & 3);TCCR4B = TCCR4B & 231 + (value & 24);break;
+	case CHIP_REG_CIP_OCR_A:	OCR4A = value;									break;
+	case CHIP_REG_CIP_COM_A:	TCCR4A = TCCR4A & 63  + ((value << 4) & 192);	break;
+	case CHIP_REG_CIP_OCR_B:	OCR4B = value;									break;
+	case CHIP_REG_CIP_COM_B:	TCCR4A = TCCR4A & 207 + ((value << 6) & 48);	break;
+	case CHIP_REG_CIP_OCR_C:	OCR4C = value;									break;
+	case CHIP_REG_CIP_COM_C:	TCCR4A = TCCR4A & 243 + ((value << 6) & 12);	break;
+#endif
 	default:
 		break;
 	}
@@ -591,8 +622,12 @@ uint16_t Chip_in_dic(void) {
 ISR(INT2_vect) {
 	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT) {
+		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
 			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+			pf_data.pulse_fire_cnt++;
+			pf_data.pulse_fire_freq_cnt++;
+			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
+			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 		}
 #endif
 		return;
@@ -618,8 +653,12 @@ ISR(INT2_vect) {
 ISR(INT3_vect) {
 	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT) {
-			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
+			pf_data.pwm_state = PWM_STATE_RUN;
+			pf_data.pulse_fire_cnt++;
+			pf_data.pulse_fire_freq_cnt++;
+			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
+			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 		}
 #endif
 		return;

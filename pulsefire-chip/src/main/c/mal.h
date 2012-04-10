@@ -27,8 +27,8 @@
 
 #include "vars.h"
 
-void mal_execute(uint8_t trigIdx,uint16_t input_value);
-
+void Mal_fire(uint8_t trigIdx);
+void Mal_loop(void);
 
 // end include
 #endif

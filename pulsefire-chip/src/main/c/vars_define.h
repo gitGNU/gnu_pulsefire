@@ -28,8 +28,10 @@
 // External defines for building PulseFire custum fit.
 // SoftwareFlags to enable features by the build, see makefile.
 #//define SF_ENABLE_PWM               // enable pwm code       (+...) !! note no dep check
+#//define SF_ENABLE_CIT               // enable cit code       (+...)
+#//define SF_ENABLE_CIP               // enable cip code       (+...) (DEP: MEGA)
 #//define SF_ENABLE_LCD               // enable lcd output     (+3520)
-#//define SF_ENABLE_GLCD              // enable glcd output   (...) (deps on MEGA !!)
+#//define SF_ENABLE_GLCD              // enable glcd output    (+...) (deps on MEGA !!)
 #//define SF_ENABLE_LPM               // enable lpm code       (+2094) (DEP: DIC & DOC)
 #//define SF_ENABLE_PPM               // enable ppm code       (+672)  (DEP: PWM)
 #//define SF_ENABLE_ADC               // enable adc code       (+952)
@@ -78,25 +80,29 @@
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
 	#define SF_ENABLE_AVR_MEGA           // Define avr mega
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
-	#define MAL_PROGRAM_SIZE        512
-	#define MAL_FIRE_MAX              6
-	#define ADC_NUM_MAX              16
-	#define SWC_MAP_MAX               4
-	#define PTC_TIME_MAP_MAX         32
-	#define PTT_TRIG_MAP_MAX         16
-	#define STV_MAX_MAP_MAX          24
-	#define STV_MIN_MAP_MAX          16
-	#define STV_WARN_MAP_MAX          4
-	#define STV_ERROR_MAP_MAX         4
-	#define DEV_VAR_MAX              16
-	#define VFC_MAP_MAX               8  // NOTE: all these mega max are also ~max for gui support for layout issues.
-	#define LPM_RELAY_MAP_MAX         2
+	#define MAL_CODE_SIZE           512  // Micro asm program code size
+	#define MAL_FIRE_MAX              6  // Micro fire jump table
+	#define ADC_NUM_MAX              16  // Analog input
+	#define DIC_NUM_MAX              16  // Digital inputs
+	#define CIT_MAP_MAX               4  // Chip timer actions
+	#define SWC_MAP_MAX               4  // Softwarmup actions
+	#define PTC_TIME_MAP_MAX         32  // Programatic Time slots
+	#define PTT_TRIG_MAP_MAX         16  // Programatic Trigger Time slots
+	#define STV_MAX_MAP_MAX          24  // Mapping of safety trashhold min values
+	#define STV_MIN_MAP_MAX          16  // Mapping of safety trashhold max values
+	#define STV_WARN_MAP_MAX          4  // Mapping of safety warning action
+	#define STV_ERROR_MAP_MAX         4  // Mapping of safety error action
+	#define DEV_VAR_MAX              16  // Generic device variables
+	#define VFC_MAP_MAX               8  // Virtual feedback channels  // NOTE: All these mega max are also ~max for gui support for layout issues.
+	#define LPM_RELAY_MAP_MAX         2  // Output mapping for relay pin
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
-	#define MAL_PROGRAM_SIZE         64
+	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
 	#define ADC_NUM_MAX               6
+	#define DIC_NUM_MAX               8
+	#define CIT_MAP_MAX               2
 	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
@@ -108,27 +114,31 @@
 	#define VFC_MAP_MAX               3
 	#define LPM_RELAY_MAP_MAX         1
 #elif __AVR_ATmega168P__
-	#define SF_ENABLE_AVR                  // Define AVR
-	#define CHIP_EEPROM_SIZE        512    // 512 bytes eeprom
-	#define MAL_PROGRAM_SIZE         32    // config array size of basic program
-	#define MAL_FIRE_MAX              1    // Total amount of diffent programs
-	#define ADC_NUM_MAX               6    // Max 6 analog input
-	#define SWC_MAP_MAX               1    // Softwarmup actions
-	#define PTC_TIME_MAP_MAX          4    // Programatic Time slots
-	#define PTT_TRIG_MAP_MAX          2    // Programatic Trigger Time slots
-	#define STV_MAX_MAP_MAX           2    // Mapping of safety trashhold min values.
-	#define STV_MIN_MAP_MAX           2    // Mapping of safety trashhold max values.
-	#define STV_WARN_MAP_MAX          1    // Mapping of safety warning action
-	#define STV_ERROR_MAP_MAX         1    // Mapping of safety error action
-	#define DEV_VAR_MAX               2    // Generic device variables
-	#define VFC_MAP_MAX               2    // Virtual feedback channels
-    #define LPM_RELAY_MAP_MAX         1    // Output mapping for relay pin.
+	#define SF_ENABLE_AVR                // Define AVR
+	#define CHIP_EEPROM_SIZE        512  // 512 bytes eeprom
+	#define MAL_CODE_SIZE            24  // note: if all on then config is >512 so todo: check smaller builds.
+	#define MAL_FIRE_MAX              1
+	#define ADC_NUM_MAX               6
+	#define DIC_NUM_MAX               8
+	#define CIT_MAP_MAX               1
+	#define SWC_MAP_MAX               1
+	#define PTC_TIME_MAP_MAX          3
+	#define PTT_TRIG_MAP_MAX          2
+	#define STV_MAX_MAP_MAX           2
+	#define STV_MIN_MAP_MAX           2
+	#define STV_WARN_MAP_MAX          1
+	#define STV_ERROR_MAP_MAX         1
+	#define DEV_VAR_MAX               2
+	#define VFC_MAP_MAX               1
+    #define LPM_RELAY_MAP_MAX         1
 #elif __ARM_ARCH_7M__
-	#define SF_ENABLE_ARM_7M               // Define ARM
+	#define SF_ENABLE_ARM_7M             // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
-	#define MAL_PROGRAM_SIZE         64
+	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
 	#define ADC_NUM_MAX               6
+	#define DIC_NUM_MAX               8
+	#define CIT_MAP_MAX               1
 	#define SWC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
@@ -146,17 +156,25 @@
 //
 // Some overrides to have custom builds
 //
-#ifdef _MAL_PROGRAM_SIZE
-	#undef  MAL_PROGRAM_SIZE
-	#define MAL_PROGRAM_SIZE _MAL_PROGRAM_SIZE
+#ifdef _MAL_CODE_SIZE
+	#undef  MAL_CODE_SIZE
+	#define MAL_CODE_SIZE _MAL_CODE_SIZE
 #endif
-#ifdef _MAL_PROGRAM_MAX
-	#undef  MAL_PROGRAM_MAX
-	#define MAL_PROGRAM_MAX _MAL_PROGRAM_MAX
+#ifdef _MAL_FIRE_MAX
+	#undef  MAL_FIRE_MAX
+	#define MAL_FIRE_MAX _MAL_FIRE_MAX
 #endif
 #ifdef _ADC_NUM_MAX
 	#undef  ADC_NUM_MAX
 	#define ADC_NUM_MAX _ADC_NUM_MAX
+#endif
+#ifdef _DIC_NUM_MAX
+	#undef  DIC_NUM_MAX
+	#define DIC_NUM_MAX _DIC_NUM_MAX
+#endif
+#ifdef _CIT_NUM_MAX
+	#undef  CIT_NUM_MAX
+	#define CIT_NUM_MAX _CIT_NUM_MAX
 #endif
 #ifdef _SWC_MAP_MAX
 	#undef  SWC_MAP_MAX

@@ -50,20 +50,20 @@ FFFF
 
 Make to 4 bytes + prog cmd + added 3x FF to fill last bytes
 Then calc localtion of label which is the 33 of the 330AFF so .. = 48 = 0x30
-root@pulsefire: mal_program 00 30104003
-root@pulsefire: mal_program 04 00140355
-root@pulsefire: mal_program 08 55403300
-root@pulsefire: mal_program 12 03030015
-root@pulsefire: mal_program 16 40200030
-root@pulsefire: mal_program 20 40404033
-root@pulsefire: mal_program 24 00060302
-root@pulsefire: mal_program 28 95402000
-root@pulsefire: mal_program 32 30404040
-root@pulsefire: mal_program 36 33000903
-root@pulsefire: mal_program 40 2A994020
-root@pulsefire: mal_program 44 00304040
-root@pulsefire: mal_program 48 3313FFFF
-root@pulsefire: mal_program 52 FFFFFFFF
+root@pulsefire: mal_code 00 30104003
+root@pulsefire: mal_code 04 00140355
+root@pulsefire: mal_code 08 55403300
+root@pulsefire: mal_code 12 03030015
+root@pulsefire: mal_code 16 40200030
+root@pulsefire: mal_code 20 40404033
+root@pulsefire: mal_code 24 00060302
+root@pulsefire: mal_code 28 95402000
+root@pulsefire: mal_code 32 30404040
+root@pulsefire: mal_code 36 33000903
+root@pulsefire: mal_code 40 2A994020
+root@pulsefire: mal_code 44 00304040
+root@pulsefire: mal_code 48 3313FFFF
+root@pulsefire: mal_code 52 FFFFFFFF
 
 Setup env for this example;
 root@pulsefire: sys_adc_map 4 mal_fire 20 250 0
@@ -176,7 +176,7 @@ ext_op if ext_type==3:
 boolean mal_execute_pc(void) {
 
 	// Fetch cmd and split and fetch extension if needed
-	uint8_t cmd = pf_conf.mal_program[pf_prog.mal_pc];
+	uint8_t cmd = pf_conf.mal_code[pf_prog.mal_pc];
 	uint8_t value_type = (cmd >> 4) & 3;
 	uint8_t var_idx    =  cmd & 0x0F;
 	uint8_t cmd_type   = (cmd >> 6) & 3;
@@ -197,7 +197,7 @@ boolean mal_execute_pc(void) {
 
 	if (cmd_type==1) {
 		pf_prog.mal_pc++;
-		uint8_t ext_cmd = pf_conf.mal_program[pf_prog.mal_pc];
+		uint8_t ext_cmd = pf_conf.mal_code[pf_prog.mal_pc];
 		ext_type        = (ext_cmd >> 4) & 0x0F;
 		ext_op          =  ext_cmd & 0x0F;
 
@@ -225,7 +225,7 @@ boolean mal_execute_pc(void) {
 		Serial_println();
 #endif
 		pf_prog.mal_pc++;
-		uint8_t next_line = pf_conf.mal_program[pf_prog.mal_pc];
+		uint8_t next_line = pf_conf.mal_code[pf_prog.mal_pc];
 		if (next_line==0xFF) {
 			return false;   // 0xFF and 0xFF is end of program
 		}
@@ -234,7 +234,7 @@ boolean mal_execute_pc(void) {
 
 	uint16_t value = ZERO; // Get the value for the cmd and fetch argument
 	pf_prog.mal_pc++;
-	uint8_t cmd_argu = pf_conf.mal_program[pf_prog.mal_pc];
+	uint8_t cmd_argu = pf_conf.mal_code[pf_prog.mal_pc];
 
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(PSTR(" argu: 0x"));
@@ -244,7 +244,7 @@ boolean mal_execute_pc(void) {
 
 	if (value_type==0) {
 		pf_prog.mal_pc++;
-		uint8_t cmd_argu_ext = pf_conf.mal_program[pf_prog.mal_pc];
+		uint8_t cmd_argu_ext = pf_conf.mal_code[pf_prog.mal_pc];
 		value = (cmd_argu << 8) + cmd_argu_ext;
 	} else if (value_type==1) {
 		value = pf_prog.mal_var[cmd_argu];
@@ -252,14 +252,14 @@ boolean mal_execute_pc(void) {
 		uint8_t idxA = ZERO;
 		if (Vars_isIndexA(cmd_argu)) {
 			pf_prog.mal_pc++;
-			idxA = pf_conf.mal_program[pf_prog.mal_pc];
+			idxA = pf_conf.mal_code[pf_prog.mal_pc];
 		}
 		value = Vars_getValue(cmd_argu,idxA,ZERO);
 	} else {
 		uint8_t idxA = ZERO;
 		if (Vars_isIndexA(cmd_argu)) {
 			pf_prog.mal_pc++;
-			idxA = pf_conf.mal_program[pf_prog.mal_pc];
+			idxA = pf_conf.mal_code[pf_prog.mal_pc];
 		}
 		if (pf_prog.mal_state == MAL_STATE_ENDIF && ext_type != 4) {
 #ifdef SF_ENABLE_DEBUG
@@ -333,32 +333,50 @@ boolean mal_execute_pc(void) {
 	return true;
 }
 
-void mal_execute(uint8_t trigIdx,uint16_t input_value) {
+void Mal_fire(uint8_t trigIdx) {
 	if (trigIdx > MAL_FIRE_MAX) {
 		return; // invalid
 	}
-	if (pf_conf.mal_program[ZERO] == 0xFF) {
-		return; // there is no program
-	}
-
-	// reset program state
-	for(uint8_t v=ZERO;v<MAL_VAR_MAX;v++) {
-		pf_prog.mal_var[v]  = ZERO;
-	}
-	pf_prog.mal_var[ZERO] = input_value;
 	pf_prog.mal_state     = MAL_STATE_RUN;
+	pf_prog.mal_pc_fire   = pf_prog.mal_pc; // save 'normal' pc
 	pf_prog.mal_pc        = trigIdx*4; // jump table on start of program memory.
-
-	// limit to 250 steps running
-	for(uint8_t st=0;st<250;st++) {
+	for(uint8_t st=0;st<pf_conf.mal_ops_fire;st++) {
 		if (mal_execute_pc()==false) {
 			break; // end program
 		}
 		pf_prog.mal_pc++;
 	}
 	pf_prog.mal_state = MAL_STATE_IDLE;
+	pf_prog.mal_pc = pf_prog.mal_pc_fire; // restore pc
+	pf_data.mal_fire[trigIdx] = ZERO;
 }
 
+void Mal_loop(void) {
+	if (pf_conf.mal_mticks==ZERO) {
+		return;	 // run main loop is off.
+	}
+	uint32_t current_time = millis();
+	if (current_time < pf_prog.mal_time_cnt) {
+		return;
+	}
+	pf_prog.mal_time_cnt = current_time + pf_conf.mal_mticks;
+
+	if (pf_prog.mal_pc == ZERO) {
+		uint8_t trigIdx = Vars_getIndexAMax(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.mal_fire));
+		pf_prog.mal_pc  = trigIdx*4; // start after jump table
+	}
+
+	pf_prog.mal_state = MAL_STATE_RUN;
+	// limit to run only X steps 
+	for(uint8_t st=0;st<pf_conf.mal_ops;st++) {
+		if (mal_execute_pc()==false) {
+			pf_prog.mal_pc = ZERO;
+			return; // end program
+		}
+		pf_prog.mal_pc++;
+	}
+	pf_prog.mal_state = MAL_STATE_IDLE;
+}
 
 #endif
 

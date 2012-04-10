@@ -25,72 +25,75 @@ package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceData;
-import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
-import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
- * JTabPanelOsc
+ * JTabPanelCit
  * 
  * @author Willem Cazander
  */
-public class JTabPanelOsc extends AbstractFireTabPanel implements DeviceCommandListener {
+public class JTabPanelCit extends AbstractFireTabPanel {
 
 	private static final long serialVersionUID = -1646229038565969537L;
 	
 	
-	public JTabPanelOsc() {
+	public JTabPanelCit() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
-		wrap.add(createTimeConfPanel0());
-		wrap.add(createTimeConfPanel1());
-	//	wrap.add(createTimePanel0());
-	//	wrap.add(createTimePanel1());
-		SpringLayoutGrid.makeCompactGrid(wrap,1,2);
+		wrap.add(createCit0());
+		wrap.add(createCitMap0());
+		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
 		add(wrap);
-		//DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
-		//deviceManager.addDeviceCommandListener(CommandName.info_data, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_0cnt, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_0map_idx, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_1cnt, this);
-		//deviceManager.addDeviceCommandListener(CommandName.ptc_1map_idx, this);
 	}
 	
-	private JPanel createTimeConfPanel0 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Osc 0");
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JLabel("A"));
-		panel.add(new JCommandDial(CommandName.ptc_0run));
-		panel.add(new JLabel("B"));
-		panel.add(new JCommandDial(CommandName.ptc_0mul));
-
-		return panel;
+	private JPanel createCit0 () {
+		JPanel firePanel = JComponentFactory.createJFirePanel("Timer 0");
+		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new SpringLayout());
+		panel.add(new JCommandLabel		(CommandName.cit_0clock));
+		panel.add(new JCommandComboBox	(CommandName.cit_0clock));
+		panel.add(new JCommandLabel		(CommandName.cit_0a_com));
+		panel.add(new JCommandComboBox	(CommandName.cit_0a_com));
+		panel.add(new JCommandLabel		(CommandName.cit_0mode));
+		panel.add(new JCommandComboBox	(CommandName.cit_0mode));
+		panel.add(new JCommandLabel		(CommandName.cit_0b_com));
+		panel.add(new JCommandComboBox	(CommandName.cit_0b_com));
+		SpringLayoutGrid.makeCompactGrid(panel,2,4);
+		firePanel.add(panel);
+		
+		firePanel.add(new JCommandDial(CommandName.cit_0a_ocr));
+		firePanel.add(new JCommandDial(CommandName.cit_0b_ocr));		
+		return firePanel;
 	}
 	
-	private JPanel createTimeConfPanel1 () {
-		JPanel panel = JComponentFactory.createJFirePanel("Timer2");
-		return panel;
+	private JPanel createCitMap0 () {
+		JPanel firePanel = JComponentFactory.createJFirePanel("Timer Mapping 0");
+		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		
+		JPanel mapPanel = new JPanel();
+		mapPanel.setLayout(new SpringLayout());
+		mapPanel.add(new JFireQMapTable(CommandName.cit_0a_map,"ocrA","zero"));
+		mapPanel.add(new JFireQMapTable(CommandName.cit_0b_map,"ocrB","zero"));
+		SpringLayoutGrid.makeCompactGrid(mapPanel,1,2);
+		firePanel.add(mapPanel);
+		
+		return firePanel;
 	}
 	
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();
-	}
-	
-	@Override
-	public void commandReceived(Command command) {
-
 	}
 }

@@ -33,7 +33,7 @@ import java.util.List;
  * 
  * @author Willem Cazander
  */
-public class MalCommand {
+public class MalCommand implements Cloneable {
 
 	public enum CmdType {
 		LOAD,
@@ -102,8 +102,10 @@ public class MalCommand {
 	// cmd_ext = second byte
 	private ExtType extType = null;
 	private int extOp = 0;
-	// cmd_argu = 
+	// cmd_argu = 2/3 byte 
 	private int cmdArgu = 0;
+	// 3/4 byte in cmd
+	private int cmdArguIdx = 0; // only used in PF_VALUE and PF_VALUE_SET
 	// meta data for ui
 	private int tabIndent = 0;
 	private static int tabIndentParse = 0;
@@ -172,26 +174,23 @@ public class MalCommand {
 		if (value_type==0) {
 			opcode = data.next();
 			opcodes.add(opcode);
-			//int cmd_argu_ext = data.next();
 			cmdArgu = (cmdArgu << 8) + opcode;
 		} else if (value_type==1) {
 			//value = pf_prog.mal_var[cmd_argu];
 		} else if (value_type==2) {
-			//int idxA = 0;
-			opcode = data.next();
-			opcodes.add(opcode);
-			//if (Vars_isIndexA(cmd_argu)) {
-			//	pf_prog.mal_pc++;
-			//	idxA = pf_conf.mal_program[pf_prog.mal_pc][prog];
-			//  idxA = data.next();
-			//}
-			//value = Vars_getValue(cmd_argu,idxA,ZERO);
+			CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
+			if (cmd.isIndexedA()) {
+				opcode = data.next();
+				opcodes.add(opcode);
+				cmdArguIdx = opcode;
+			}
 		} else {
-			//int idxA = 0;
-			//if (Vars_isIndexA(cmd_argu)) {
-			//	idxA = data.next();
-			//}
-			//Vars_setValue(cmd_argu,idxA,ZERO,pf_prog.mal_var[var_idx]);
+			CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
+			if (cmd.isIndexedA()) {
+				opcode = data.next();
+				opcodes.add(opcode);
+				cmdArguIdx = opcode;
+			}
 		}
 		return true;
 	}
@@ -214,6 +213,16 @@ public class MalCommand {
 				opcodes.add(opcode);
 				opcode = new Integer(getCmdArgu() & 0xFF).byteValue();
 				opcodes.add(opcode);
+				break;
+			case PF_VALUE:
+			case PF_VALUE_SET:
+				opcode = new Integer(getCmdArgu() & 0xFF).byteValue();
+				opcodes.add(opcode);
+				CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
+				if (cmd.isIndexedA()) {
+					opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
+					opcodes.add(opcode);
+				}
 				break;
 			default:
 				opcode = new Integer(getCmdArgu() & 0xFF).byteValue();
@@ -238,6 +247,14 @@ public class MalCommand {
 					opcode = new Integer(getCmdArgu() >> 8).byteValue();
 					opcodes.add(opcode);
 					break;
+				case PF_VALUE:
+				case PF_VALUE_SET:
+					CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
+					if (cmd.isIndexedA()) {
+						opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
+						opcodes.add(opcode);
+					}
+					break;
 				default:
 					break;
 				}
@@ -245,6 +262,8 @@ public class MalCommand {
 			case STOP:
 				break;
 			case GOTO:
+				opcode = new Integer(getCmdArgu() >> 8).byteValue();
+				opcodes.add(opcode);
 				opcode = new Integer(getCmdArgu()).byteValue();
 				opcodes.add(opcode);
 				break;
@@ -255,6 +274,14 @@ public class MalCommand {
 				case RAW_VALUE:
 					opcode = new Integer(getCmdArgu() >> 8).byteValue();
 					opcodes.add(opcode);
+					break;
+				case PF_VALUE:
+				case PF_VALUE_SET:
+					CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
+					if (cmd.isIndexedA()) {
+						opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
+						opcodes.add(opcode);
+					}
 					break;
 				default:
 					break;
@@ -299,10 +326,22 @@ public class MalCommand {
 			case PF_VALUE:
 				buff.append(varIndex);
 				buff.append("=");
-				buff.append(CommandName.valueOfMapIndex(cmdArgu));
+				CommandName cmdA = CommandName.valueOfMapIndex(cmdArgu);
+				buff.append(cmdA);
+				if (cmdA.isIndexedA()) {
+					buff.append('[');
+					buff.append(cmdArguIdx);
+					buff.append(']');
+				}
 				break;
 			case PF_VALUE_SET:
-				buff.append(CommandName.valueOfMapIndex(cmdArgu));
+				CommandName cmdB = CommandName.valueOfMapIndex(cmdArgu);
+				buff.append(cmdB);
+				if (cmdB.isIndexedA()) {
+					buff.append('[');
+					buff.append(cmdArguIdx);
+					buff.append(']');
+				}
 				buff.append("=");
 				buff.append(malVarIndex);
 				break;
@@ -331,10 +370,16 @@ public class MalCommand {
 					buff.append(cmdArgu);
 					break;
 				case PF_VALUE:
-					buff.append(CommandName.valueOfMapIndex(cmdArgu));
+					CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
+					buff.append(cmd);
+					if (cmd.isIndexedA()) {
+						buff.append('[');
+						buff.append(cmdArguIdx);
+						buff.append(']');
+					}
 					break;
 				case PF_VALUE_SET:
-					buff.append(malVarIndex);
+					buff.append("reserved");
 					break;
 				}
 				break;
@@ -360,10 +405,16 @@ public class MalCommand {
 					buff.append(cmdArgu);
 					break;
 				case PF_VALUE:
-					buff.append(CommandName.valueOfMapIndex(cmdArgu));
+					CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
+					buff.append(cmd);
+					if (cmd.isIndexedA()) {
+						buff.append('[');
+						buff.append(cmdArguIdx);
+						buff.append(']');
+					}
 					break;
 				case PF_VALUE_SET:
-					buff.append(malVarIndex);
+					buff.append("reserved");
 					break;
 				}
 				buff.append(" )");
@@ -380,9 +431,6 @@ public class MalCommand {
 			buff.append("END");
 			break;
 		}
-		//buff.append(" [");
-		//buff.append(toStringHexOpcodes());
-		//buff.append("]");
 		return buff.toString();
 	}
 	
@@ -401,10 +449,16 @@ public class MalCommand {
 		return buff.toString();
 	}
 	
+	/**
+	 * @return the total opcode size in bytes.
+	 */
 	public int getOpcodeSize() {
 		return opcodes.size();
 	}
 	
+	/**
+	 * @return the opcode bytes in order.
+	 */
 	public List<Byte> getOpcodes() {
 		return opcodes;
 	}
@@ -492,4 +546,38 @@ public class MalCommand {
 	public void setCmdArgu(int cmdArgu) {
 		this.cmdArgu = cmdArgu;
 	}
+
+	/**
+	 * @return the cmdArguIdx
+	 */
+	public int getCmdArguIdx() {
+		return cmdArguIdx;
+	}
+
+	/**
+	 * @param cmdArguIdx the cmdArguIdx to set
+	 */
+	public void setCmdArguIdx(int cmdArguIdx) {
+		this.cmdArguIdx = cmdArguIdx;
+	}
+
+	/**
+	 * Clone this for edit support.
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public MalCommand clone() {
+		MalCommand cmd = new MalCommand();
+		cmd.setCmdArguIdx(getCmdArguIdx());
+		cmd.setCmdArgu(getCmdArgu());
+		cmd.setCmdType(getCmdType());
+		cmd.setExtOp(getExtOp());
+		cmd.setExtType(getExtType());
+		cmd.setValueType(getValueType());
+		cmd.setVarIndex(getVarIndex());
+		cmd.compile();
+		return cmd;
+	}
+	
+	
 }

@@ -62,10 +62,7 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 	private JPanel createAdcOptionPanel() {
 		JPanel adcOptionPanel = JComponentFactory.createJFirePanel(this,"adcOptions");
 		adcOptionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		adcOptionPanel.add(new JLabel("Jitter"));
-		adcOptionPanel.add(new JCommandDial(CommandName.adc_jitter));
 		adcOptionPanel.add(new JLabel("Enable"));
-		
 		JPanel enablePanel = new JPanel();
 		enablePanel.setLayout(new GridLayout(0,4));
 		for (int i=0;i<16;i++) {
@@ -76,6 +73,8 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 		}
 		
 		adcOptionPanel.add(enablePanel);
+		adcOptionPanel.add(new JLabel("Jitter"));
+		adcOptionPanel.add(new JCommandDial(CommandName.adc_jitter));
 		return adcOptionPanel;
 	}
 	

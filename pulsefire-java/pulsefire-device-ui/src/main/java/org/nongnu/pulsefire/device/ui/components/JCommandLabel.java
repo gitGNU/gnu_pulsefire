@@ -25,6 +25,7 @@ package org.nongnu.pulsefire.device.ui.components;
 
 import javax.swing.JLabel;
 
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -52,6 +53,7 @@ public class JCommandLabel extends JLabel {
 		} else {
 			setName("commandname."+commandName.name()+".label");
 		}
+		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(getName()+".text"));	// fill i18n
 	}
 	
 	public CommandName getCommandName() {

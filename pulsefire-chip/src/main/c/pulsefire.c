@@ -39,6 +39,7 @@
 #include "stv.h"
 #include "lpm.h"
 #include "lcd.h"
+#include "mal.h"
 #include "input.h"
 #include "freq.h"
 #include "utils.h"
@@ -84,6 +85,9 @@ int main(void) {
 #endif
 #ifdef SF_ENABLE_PWM
 		Freq_loop();
+#endif
+#ifdef SF_ENABLE_MAL
+		Mal_loop();
 #endif
 	}
 }

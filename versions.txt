@@ -3,14 +3,19 @@
 
 Version 1.0:
 - Renamed lpm_auto_cmd to lpm_fire and made triggerable.
-- Renamed rep_auto_lpm to req_lpm_fire like other triggers.
+- Renamed req_auto_lpm to req_lpm_fire like other triggers.
 - Reversed ppm idx bits so first fire works correct after mode switch.
-- Fixed PPM_ALL mode pulse length.
+- Fixed PPM_ALL mode pulse train length.
 - Improved serial for only ascii and synced cmd echo of input.
 - Fixed PTC and PTT, reversed step and time action.
 - Added pulse_hold_fire trigger and req_pulse_hold_fire cmd and added to int pins.
 - Fixed AVR_MEGA pin18 & pin19 pin interrupt on/off based on avr_pinX_map
 - Fixed async interrupt command push which sometimes printed thru an other cmd.
+- Added readonly vars pulse_fire_cnt and pulse_fire_freq.
+- Fixed ext_pin and pulse_fire trigger speed and fixed ext_pin fire only on idle pwm state.
+- Added mal_ops/mal_ops_fire/mal_mticks interpeter speed control. 
+- Renamed mal_program to mal_code.
+- Splitted DIC_NUM_MAX to chip so now 8 normal and 16 on MEGA.
 
 Version 1.0-Beta8:
 - Fixed internal event pulse_fire trigger.

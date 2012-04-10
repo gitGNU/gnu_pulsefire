@@ -79,7 +79,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 	private List<MalCommand> programLines = null;
 	private MalCommandTableModel tableModel = null;
 	private JTable cmdTable = null;
-	private int maxOpcodes = -1;
+	private int maxProgramSize = -1;
 	private JButton addLineButton = null;
 	private JButton editLineButton = null;
 	private JButton delLineButton = null;
@@ -166,19 +166,19 @@ public class JMalEditor extends JPanel implements ActionListener {
 	}
 	
 	/**
-	 * @return the maxOpcodes
+	 * @return the maxProgramSize
 	 */
-	public int getMaxOpcodes() {
-		return maxOpcodes;
+	public int getMaxProgramSize() {
+		return maxProgramSize;
 	}
-	
+
 	/**
-	 * @param maxOpcodes the maxOpcodes to set
+	 * @param maxProgramSize the maxProgramSize to set
 	 */
-	public void setMaxOpcodes(int maxOpcodes) {
-		this.maxOpcodes = maxOpcodes;
+	public void setMaxProgramSize(int maxProgramSize) {
+		this.maxProgramSize = maxProgramSize;
 	}
-	
+
 	public void clearData() {
 		addLineButton.setEnabled(false);
 		editLineButton.setEnabled(false);
@@ -190,6 +190,27 @@ public class JMalEditor extends JPanel implements ActionListener {
 				tableModel.fireTableDataChanged(); // run event in eventQ
 			}
 		});
+	}
+	
+	public void checkCode() {
+		if (programLines.isEmpty()) {
+			return; // no data to check
+		}
+		int ops = 0;
+		for (int i=0;i<programLines.size();i++) {
+			ops += programLines.get(i).getOpcodeSize(); // TODO: need to precalc/cache this 
+		}
+		if (ops>getMaxProgramSize()) {
+			programLines.remove(programLines.size()-1);
+			ops = 0;
+			for (int i=0;i<programLines.size();i++) {
+				ops += programLines.get(i).getOpcodeSize(); 
+			}
+			if (ops>getMaxProgramSize()) {
+				programLines.remove(programLines.size()-1);	
+			}
+			tableModel.fireTableDataChanged();
+		}
 	}
 	
 	/**
@@ -219,6 +240,11 @@ public class JMalEditor extends JPanel implements ActionListener {
 			}
 			programLines.add(cmd);
 		}
+		int ops = 0;
+		for (int i=0;i<programLines.size();i++) {
+			ops += programLines.get(i).getOpcodeSize(); 
+		}
+		setMaxProgramSize(ops);
 		addLineButton.setEnabled(true);
 		editLineButton.setEnabled(true);
 		delLineButton.setEnabled(true);
@@ -239,20 +265,10 @@ public class JMalEditor extends JPanel implements ActionListener {
 		
 		public JNewLineDialog(Frame parentFrame,MalCommand malCommand) {
 			super(parentFrame, true);
-			//boolean newEdit = false;
 			editPanel = new JEditPanel();
 			if (malCommand!=null) {
-				MalCommand cmd = new MalCommand();
-				cmd.setCmdArgu(malCommand.getCmdArgu());
-				cmd.setCmdType(malCommand.getCmdType());
-				cmd.setExtOp(malCommand.getExtOp());
-				cmd.setExtType(malCommand.getExtType());
-				cmd.setValueType(malCommand.getValueType());
-				cmd.setVarIndex(malCommand.getVarIndex());
-				cmd.compile();
-				editPanel.configComponent(cmd); // use clone so we can cancel.
+				editPanel.configComponent(malCommand.clone());
 			} else {
-				//newEdit = true;
 				malCommand = new MalCommand();
 				malCommand.init();
 				editPanel.configComponent(malCommand);
@@ -290,6 +306,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 				MalCommand cmd = editPanel.getMalCommand();
 				programLines.set(cmdTable.getSelectedRow(), cmd);
 				tableModel.fireTableDataChanged();
+				checkCode();
 				clearAndHide();
 				return;
 			} else if (e.getSource()==cancelButton) {
@@ -377,6 +394,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 		private JComboBox valueTypeBox = null;
 		private JComboBox valueTypeLoadBox = null;
 		private JComboBox valueCommandBox = null;
+		private JComboBox valueCommandIdxBox = null;
 		private JComboBox extTypeComboBox = null;
 		private JComboBox extOpComboBox = null;
 		private JComboBox gotoLineComboBox = null;
@@ -389,6 +407,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 		private JLabel progIdxBoxLabel = null;
 		private JLabel valueTypeBoxLabel = null;
 		private JLabel valueCommandBoxLabel = null;
+		private JLabel valueCommandIdxBoxLabel = null;
 		private JLabel extTypeComboBoxLabel = null;
 		private JLabel extOpComboBoxLabel = null;
 		private JLabel gotoLineComboBoxLabel = null;
@@ -404,6 +423,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 			valueTypeLoadBox	= new JComboBox(MalCommand.ValueType.values());
 			extTypeComboBox		= new JComboBox(MalCommand.ExtType.values());
 			valueCommandBox		= new JComboBox(CommandName.valuesMapIndex().toArray());
+			valueCommandIdxBox	= new JComboBox();
 			extOpComboBox		= new JComboBox();
 			gotoLineComboBox	= new JComboBox();
 			valueTypeBox.removeItemAt(valueTypeBox.getItemCount()-1); // remove reversed load 
@@ -415,6 +435,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 			progIdxBoxLabel			= new JLabel("ProgIndex");
 			valueTypeBoxLabel		= new JLabel("ValueType");
 			valueCommandBoxLabel	= new JLabel("ValueCmd");
+			valueCommandIdxBoxLabel	= new JLabel("ValueIdx");
 			extTypeComboBoxLabel	= new JLabel("ExtType");
 			extOpComboBoxLabel		= new JLabel("ExtOp");
 			gotoLineComboBoxLabel	= new JLabel("Goto");
@@ -426,8 +447,10 @@ public class JMalEditor extends JPanel implements ActionListener {
 			valueTypeBox.	addActionListener(this);
 			valueTypeLoadBox.addActionListener(this);
 			valueCommandBox.addActionListener(this);
+			valueCommandIdxBox.addActionListener(this);
 			extTypeComboBox.addActionListener(this);
 			extOpComboBox.	addActionListener(this);
+			gotoLineComboBox.addActionListener(this);
 			valueRawTextField.getDocument().addDocumentListener(new DocumentListener() {
 				@Override public void removeUpdate(DocumentEvent e)  { update(e); }
 				@Override public void insertUpdate(DocumentEvent e)  { update(e); }
@@ -476,8 +499,12 @@ public class JMalEditor extends JPanel implements ActionListener {
 				malCommand.setCmdArgu(0);
 			} else if (e.getSource().equals(valueCommandBox) && valueCommandBox.getSelectedIndex()!=-1) {
 				malCommand.setCmdArgu(((CommandName)valueCommandBox.getSelectedItem()).getMapIndex());
+			} else if (e.getSource().equals(valueCommandIdxBox) && valueCommandIdxBox.getSelectedIndex()!=-1) {
+				malCommand.setCmdArguIdx((Integer)valueCommandIdxBox.getSelectedItem());
 			} else if (e.getSource().equals(extTypeComboBox) && extTypeComboBox.getSelectedIndex()!=-1) {
 				malCommand.setExtType(ExtType.values()[extTypeComboBox.getSelectedIndex()]);
+			} else if (e.getSource().equals(gotoLineComboBox) && gotoLineComboBox.getSelectedIndex()!=-1) {
+				malCommand.setCmdArgu((Integer)gotoLineComboBox.getSelectedItem());
 			} else if (e.getSource().equals(extOpComboBox) && extOpComboBox.getSelectedIndex()!=-1) {
 				switch (malCommand.getExtType()) {
 				case VOP:
@@ -529,20 +556,32 @@ public class JMalEditor extends JPanel implements ActionListener {
 					varIdxBox.setSelectedItem(cmd.getVarIndex());
 					add(varIdxBoxLabel);
 					add(varIdxBox);
-					valueCommandBox.setSelectedItem(CommandName.valueOfMapIndex(cmd.getCmdArgu()));
+					CommandName cmdA = CommandName.valueOfMapIndex(cmd.getCmdArgu());
+					valueCommandBox.setSelectedItem(cmdA);
+					if (cmdA.isIndexedA()) {
+						configValueIdx(cmdA);
+						add(valueCommandIdxBoxLabel);
+						add(valueCommandIdxBox);
+					}
 					add(valueCommandBoxLabel);
 					add(valueCommandBox);
 					break;
 				case PF_VALUE_SET:
-					valueCommandBox.setSelectedItem(CommandName.valueOfMapIndex(cmd.getCmdArgu()));
+					CommandName cmdB = CommandName.valueOfMapIndex(cmd.getCmdArgu());
+					valueCommandBox.setSelectedItem(cmdB);
 					add(valueCommandBoxLabel);
 					add(valueCommandBox);
+					if (cmdB.isIndexedA()) {
+						configValueIdx(cmdB);
+						add(valueCommandIdxBoxLabel);
+						add(valueCommandIdxBox);
+					}
 					varIdxBox.setSelectedItem(cmd.getVarIndex());
 					add(varIdxBoxLabel);
 					add(varIdxBox);
 					break;
 				}
-				valueTypeBox.setSelectedItem(cmd.getValueType());
+				valueTypeLoadBox.setSelectedItem(cmd.getValueType());
 				add(valueTypeBoxLabel);
 				add(valueTypeLoadBox);
 				break;
@@ -574,15 +613,18 @@ public class JMalEditor extends JPanel implements ActionListener {
 						add(progIdxBox);
 						break;
 					case PF_VALUE:
-						valueCommandBox.setSelectedItem(CommandName.valueOfMapIndex(cmd.getCmdArgu()));
+						CommandName cmdV = CommandName.valueOfMapIndex(cmd.getCmdArgu());
+						valueCommandBox.setSelectedItem(cmdV);
 						add(valueCommandBoxLabel);
 						add(valueCommandBox);
+						if (cmdV.isIndexedA()) {
+							configValueIdx(cmdV);
+							add(valueCommandIdxBoxLabel);
+							add(valueCommandIdxBox);
+						}
 						break;
 					case PF_VALUE_SET:
-						varIdxBox.setSelectedItem(cmd.getVarIndex());
-						add(varIdxBoxLabel);
-						add(varIdxBox);
-						break;
+						break; // reserved
 					}
 					add(valueTypeBoxLabel);
 					add(valueTypeBox);
@@ -600,6 +642,9 @@ public class JMalEditor extends JPanel implements ActionListener {
 					int addr = 0;
 					for (int i=0;i<programLines.size();i++) {
 						gotoLineComboBox.addItem(addr);
+						if (addr==cmd.getCmdArgu()) {
+							gotoLineComboBox.setSelectedIndex(i);
+						}
 						addr += programLines.get(i).getOpcodeSize();
 					}
 					add(gotoLineComboBoxLabel);
@@ -631,15 +676,18 @@ public class JMalEditor extends JPanel implements ActionListener {
 						add(progIdxBox);
 						break;
 					case PF_VALUE:
-						valueCommandBox.setSelectedItem(CommandName.valueOfMapIndex(cmd.getCmdArgu()));
+						CommandName cmdI = CommandName.valueOfMapIndex(cmd.getCmdArgu());
+						valueCommandBox.setSelectedItem(cmd);
 						add(valueCommandBoxLabel);
 						add(valueCommandBox);
+						if (cmdI.isIndexedA()) {
+							configValueIdx(cmdI);
+							add(valueCommandIdxBoxLabel);
+							add(valueCommandIdxBox);
+						}
 						break;
 					case PF_VALUE_SET:
-						varIdxBox.setSelectedItem(cmd.getVarIndex());
-						add(varIdxBoxLabel);
-						add(varIdxBox);
-						break;
+						break; // reserved
 					}
 					valueTypeBox.setSelectedItem(cmd.getValueType());
 					add(valueTypeBoxLabel);
@@ -664,6 +712,20 @@ public class JMalEditor extends JPanel implements ActionListener {
 			actions = true;
 			SpringLayoutGrid.makeCompactGrid(this,this.getComponentCount()/2,2);
 			SwingUtilities.updateComponentTreeUI(this);
+		}
+		
+		private void configValueIdx(CommandName cmd) {
+			valueCommandIdxBox.removeAll();
+			for (int i=0;i<cmd.getMaxIndexA();i++) {
+				valueCommandIdxBox.addItem(i);
+				if (i==malCommand.getCmdArguIdx()) {
+					valueCommandIdxBox.setSelectedIndex(i);
+				}
+			}
+			valueCommandIdxBox.addItem(255);
+			if (255==malCommand.getCmdArguIdx()) {
+				valueCommandIdxBox.setSelectedIndex(valueCommandIdxBox.getItemCount()-1);
+			}
 		}
 	}
 }

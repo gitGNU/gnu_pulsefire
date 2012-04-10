@@ -40,6 +40,7 @@ import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JMalEditor;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -68,7 +69,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
 		add(wrap);
 		deviceDisconnect();
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.mal_program, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.mal_code, this);
 	}
 		
 	private JPanel createHeader() {	
@@ -89,13 +90,18 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		clearButton.addActionListener(this);
 		result.add(clearButton);
 		
-		fireIndexBox = new JComboBox();
-		fireIndexBox.setEnabled(false);
-		
 		fireButton = new JButton("Fire");
 		fireButton.setEnabled(false);
 		fireButton.addActionListener(this);
 		result.add(fireButton);
+		
+		fireIndexBox = new JComboBox();
+		fireIndexBox.setEnabled(false);
+		result.add(fireIndexBox);
+		
+		result.add(new JCommandDial(CommandName.mal_ops_fire));
+		result.add(new JCommandDial(CommandName.mal_ops));
+		result.add(new JCommandDial(CommandName.mal_mticks));
 		
 		return result;
 	}
@@ -120,7 +126,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		}
 		fireIndexBox.removeAllItems();
 		for (int i=0;i<CommandName.mal_fire.getMaxIndexA();i++) {
-			fireIndexBox.addItem("idx"+i);
+			fireIndexBox.addItem(i);
 		}
 		loadButton.setEnabled(true);
 	}
@@ -140,7 +146,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (loadButton.equals(e.getSource())) {
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.mal_program));
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.mal_code));
 		} else if (saveButton.equals(e.getSource())) {
 			List<Byte> programData = malEditor.saveData();
 			StringBuffer buf = new StringBuffer();
@@ -157,14 +163,14 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 				@Override
 				public void run() {
 					for (int i=0;i<data.length();i=i+8) {
-						Command cmd = new Command(CommandName.mal_program);
+						Command cmd = new Command(CommandName.mal_code);
 						cmd.setArgu0(""+(i/2));
 						cmd.setArgu1(""+data.charAt(i)+data.charAt(i+1)+data.charAt(i+2)+data.charAt(i+3)+data.charAt(i+4)+data.charAt(i+5)+data.charAt(i+6)+data.charAt(i+7)); // mm
 						PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd).waitForResponse();
 					}
 				}
 			});
-		} else if (clearButton.equals(e.getSource()) && malEditor.getMaxOpcodes()>0) {
+		} else if (clearButton.equals(e.getSource()) && malEditor.getMaxProgramSize()>0) {
 			List<Byte> programData = new ArrayList<Byte>(512);
 			for (int i=0;i<CommandName.mal_fire.getMaxIndexA();i++) {
 				programData.add((byte)0x40);
@@ -172,7 +178,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 				programData.add((byte)0x00);
 				programData.add((new Integer(4*CommandName.mal_fire.getMaxIndexA()).byteValue()));
 			}
-			for (int i=0;i<malEditor.getMaxOpcodes()-(CommandName.mal_fire.getMaxIndexA()*4);i++) {
+			for (int i=0;i<malEditor.getMaxProgramSize()-(CommandName.mal_fire.getMaxIndexA()*4);i++) {
 				programData.add(new Integer(255).byteValue());
 			}
 			malEditor.loadData(programData);
@@ -213,7 +219,6 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 			char hex1 = data.charAt(i+1);
 			programData.add(((Integer)Integer.parseInt(hex0+""+hex1, 16)).byteValue());
 		}
-		malEditor.setMaxOpcodes(programData.size());
 		malEditor.loadData(programData);
 		
 		saveButton.setEnabled(true);

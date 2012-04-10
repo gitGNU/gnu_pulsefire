@@ -301,7 +301,7 @@ void cmd_execute(char* cmd, char** args) {
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqLPMFire) { continue; }
 #endif
 #ifndef SF_ENABLE_MAL
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALProgram) { continue; }
+				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALCode) { continue; }
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqMALFire) { continue; }
 #endif
 				Serial_printChar(UNPSTRA((const CHIP_PTR_TYPE*)&pmCmdList[i]));
@@ -491,28 +491,28 @@ void cmd_execute(char* cmd, char** args) {
 	Serial_println();
 
 #ifdef SF_ENABLE_MAL
-	} else if (strcmp(cmd,UNPSTR(pmConfMALProgram)) == ZERO) {
+	} else if (strcmp(cmd,UNPSTR(pmConfMALCode)) == ZERO) {
 		if (args[ZERO] == NULL) {
-			Serial_printCharP(pmConfMALProgram);
+			Serial_printCharP(pmConfMALCode);
 			Serial_printCharP(pmGetSpaced);
 			uint8_t i=ZERO;
-			for (i=ZERO;i < MAL_PROGRAM_SIZE;i++) {
-				Serial_printHex(pf_conf.mal_program[i]);
+			for (i=ZERO;i < MAL_CODE_SIZE;i++) {
+				Serial_printHex(pf_conf.mal_code[i]);
 			}
 			Serial_println();
 		} else {
 			uint16_t base = atou16(args[0]);
 			uint32_t res =  htou32(args[1]);
-			if (base+3 < MAL_PROGRAM_SIZE) {
-				pf_conf.mal_program[base+0] = (uint8_t) (res >> 24) & 0xFF;
-				pf_conf.mal_program[base+1] = (uint8_t) (res >> 16) & 0xFF;
-				pf_conf.mal_program[base+2] = (uint8_t) (res >> 8 ) & 0xFF;
-				pf_conf.mal_program[base+3] = (uint8_t) (res >> 0 ) & 0xFF;
+			if (base+3 < MAL_CODE_SIZE) {
+				pf_conf.mal_code[base+0] = (uint8_t) (res >> 24) & 0xFF;
+				pf_conf.mal_code[base+1] = (uint8_t) (res >> 16) & 0xFF;
+				pf_conf.mal_code[base+2] = (uint8_t) (res >> 8 ) & 0xFF;
+				pf_conf.mal_code[base+3] = (uint8_t) (res >> 0 ) & 0xFF;
 			}
-			Serial_printCharP(pmConfMALProgram);
+			Serial_printCharP(pmConfMALCode);
 			Serial_printCharP(pmSetSpaced);
-			for (i=ZERO;i < MAL_PROGRAM_SIZE;i++) {
-				Serial_printHex(pf_conf.mal_program[i]);
+			for (i=ZERO;i < MAL_CODE_SIZE;i++) {
+				Serial_printHex(pf_conf.mal_code[i]);
 			}
 			Serial_println();
 		}

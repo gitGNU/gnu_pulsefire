@@ -74,7 +74,7 @@ void    Chip_eeprom_write(void* eemem);
 uint8_t       Chip_pgm_readByte(const char* p);
 CHIP_PTR_TYPE Chip_pgm_readWord(const CHIP_PTR_TYPE* p);
 
-void          Chip_pwm_timer(uint8_t reg,uint16_t value);
+void          Chip_reg_set(uint8_t reg,uint16_t value);
 
 void Chip_out_pwm(uint16_t data);
 void Chip_out_serial(uint8_t data);

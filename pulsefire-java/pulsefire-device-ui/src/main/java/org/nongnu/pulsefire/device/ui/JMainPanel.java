@@ -39,7 +39,8 @@ import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.ui.tabs.AbstractFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelOsc;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCip;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCit;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelInput;
@@ -64,8 +65,8 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVariables;
 public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -9173866662540287337L;
-	private List<JFireTabPanel> tabPanels = null;
-	private JTabbedPane tabbedPane = null;
+	public List<JFireTabPanel> tabPanels = null;
+	public JTabbedPane tabbedPane = null;
 	//public JSplitPane contentSplitPane = null;
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
@@ -77,10 +78,11 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		
 		tabPanels = new ArrayList<JFireTabPanel>(10);
 		tabPanels.add(new JTabPanelPwm());
-		//tabPanels.add(new JTabPanelOsc());
 		tabPanels.add(new JTabPanelSystem());
 		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
+		//tabPanels.add(new JTabPanelCip());
+		tabPanels.add(new JTabPanelCit());
 		tabPanels.add(new JTabPanelStv());
 		tabPanels.add(new JTabPanelPtc());
 		tabPanels.add(new JTabPanelPtt());

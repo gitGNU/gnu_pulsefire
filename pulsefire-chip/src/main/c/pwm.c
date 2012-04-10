@@ -241,11 +241,11 @@ void PWM_do_work_a(void) {
 		step_ocr = ZERO; // always use timeings/data of channel 0 for every step.
 	}
 	if (pf_data.pulse_bank_cnt==ZERO) {
-		Chip_pwm_timer(PWM_REG_OCRA,pf_conf.pwm_on_cnt_a[step_ocr]);
+		Chip_reg_set(CHIP_REG_PWM_OCR_A,pf_conf.pwm_on_cnt_a[step_ocr]);
 	} else {
-		Chip_pwm_timer(PWM_REG_OCRA,pf_conf.pwm_on_cnt_b[step_ocr]);
+		Chip_reg_set(CHIP_REG_PWM_OCR_A,pf_conf.pwm_on_cnt_b[step_ocr]);
 	}
-	Chip_pwm_timer(PWM_REG_TCNT,ZERO);
+	Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 
 	// time step with counter
 	pf_data.pwm_loop_cnt++;
@@ -319,8 +319,8 @@ void PWM_do_work_a(void) {
 		if (pf_data.pwm_state != PWM_STATE_STEP_DUTY_DONE) {
 			pf_data.pwm_state = PWM_STATE_STEP_DUTY;
 			PWM_send_output(PULSE_DATA_OFF);
-			Chip_pwm_timer(PWM_REG_OCRB,off_time);
-			Chip_pwm_timer(PWM_REG_TCNT,0xFFFF-8); // reset again, with some time so interrupts are enabled again, else we miss it sometimes.
+			Chip_reg_set(CHIP_REG_PWM_OCR_B,off_time);
+			Chip_reg_set(CHIP_REG_PWM_TCNT,0xFFFF-8); // reset again, with some time so interrupts are enabled again, else we miss it sometimes.
 			return;
 		}
 		pf_data.pwm_state = PWM_STATE_RUN;

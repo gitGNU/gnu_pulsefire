@@ -56,7 +56,10 @@ public enum CommandName {
 	req_tx_echo				(CommandVariableType.CMD),
 	req_tx_promt			(CommandVariableType.CMD),
 
-	mal_program				(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_code				(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_ops					(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_ops_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_mticks				(CommandVariableType.CMD,WireChipFlags.MAL),
 	
 	pulse_enable			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_mode				(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -149,6 +152,45 @@ public enum CommandName {
 	swc_duty				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_map					(CommandVariableType.CONF,WireChipFlags.SWC),
 
+	cit_0clock				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0mode				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0int				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0a_ocr				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0a_com				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0a_map				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0b_ocr				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0b_com				(CommandVariableType.CONF,WireChipFlags.CIT),
+	cit_0b_map				(CommandVariableType.CONF,WireChipFlags.CIT),
+	
+	cip_0clock				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0mode				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0a_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0a_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0b_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0b_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0c_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_0c_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	
+	cip_1clock				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1mode				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1a_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1a_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1b_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1b_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1c_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_1c_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	
+	cip_2clock				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2mode				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2a_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2a_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2b_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2b_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2c_ocr				(CommandVariableType.CONF,WireChipFlags.CIP),
+	cip_2c_com				(CommandVariableType.CONF,WireChipFlags.CIP),
+	
+	
+	
 	/* All non conf types are only used to receiving info so they have no dep info. */
 	
 	sys_main_loop_cnt		(CommandVariableType.DATA),
@@ -203,6 +245,8 @@ public enum CommandName {
 	dev_var					(CommandVariableType.DATA),
 	
 	pulse_fire				(CommandVariableType.DATA),
+	pulse_fire_cnt			(CommandVariableType.DATA),
+	pulse_fire_freq			(CommandVariableType.DATA),
 	pulse_hold_fire			(CommandVariableType.DATA),
 	pulse_step				(CommandVariableType.DATA),
 	pulse_data				(CommandVariableType.DATA),
@@ -215,7 +259,9 @@ public enum CommandName {
 	pwm_loop_cnt			(CommandVariableType.DATA),
 	pwm_loop_max			(CommandVariableType.DATA),
 	ppm_idx					(CommandVariableType.DATA),
+	
 	mal_fire				(CommandVariableType.DATA),
+	mal_time_cnt			(CommandVariableType.DATA),
 	
 	chip_version			(CommandVariableType.CHIP),
 	chip_conf_max			(CommandVariableType.CHIP),

@@ -49,11 +49,10 @@ typedef uint8_t byte;
 #define true                        1    // true
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
 #define PMCMDLIST_SIZE             20    // array size of other commands
-#define UNPSTR_BUFF_SIZE           64    // max string lenght
+#define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
 #define PTT_TRIG_VAR_SIZE           4    // we have always 4 triggers
-#define DIC_NUM_MAX                16    // max 8 digital inputs in extended mode, +4 on pins, extra chip hw is todo
 #define DOC_PORT_NUM_MAX           16    // max 16 digital outputs in duel extended mode
 #define PTC_RUN_OFF                 0    // Dont run ptc
 #define PTC_RUN_LOOP               0xFF  // Loop ptc steps
@@ -108,6 +107,11 @@ typedef struct {
 
 #ifdef SF_ENABLE_LCD
 	volatile uint8_t       lcd_size;        // Lcd size type
+	//volatile uint8_t       lcd_page;      // Default lcd page view
+	//volatile uint8_t       lcd_cypage;    // bits: pages to cycle in view
+	//volatile uint8_t       lcd_cytime;    // bits: page cycle time in sec
+	//volatile uint8_t       lcd_mode;      // 0=Display only,1=User,2=Admin
+	//volatile uint8_t       lcd_skip[LCD_SKIP_NUM_MAX] // skip these menu entries based on var idx.
 #endif
 
 #ifdef SF_ENABLE_SWC
@@ -197,24 +201,73 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
-	volatile uint8_t       mal_program[MAL_PROGRAM_SIZE];    // Progam space for really tiny basic code
+	volatile uint8_t       mal_code[MAL_CODE_SIZE];  // Program space for micro assembly language code
+	volatile uint8_t       mal_ops;                  // Operations per step in main loop
+	volatile uint8_t       mal_ops_fire;             // Max ops when fired
+	volatile uint16_t      mal_mticks;               // Main loop time tick wait
 #endif
 
-#ifdef SF_ENABLE_CIT_MEGA
-	volatile uint8_t       cit_oc1_clock; // test
-	volatile uint16_t      cit_oc1_a;
-	volatile uint16_t      cit_oc1_b;
-	volatile uint16_t      cit_oc1_c;
+/*
+	volatile uint8_t       int_0enable;
+	volatile uint8_t       int_0trig;
+	volatile uint8_t       int_0mode;
+	volatile uint16_t      int_0map[INT_MAP_MAX][QMAP_SIZE];
 
-	volatile uint8_t       cit_oc3_clock;
-	volatile uint16_t      cit_oc3_a;
-	volatile uint16_t      cit_oc3_b;
-	volatile uint16_t      cit_oc3_c;
+	volatile uint8_t       io_mode; // bits: 0=spi_out8,1=spi_out16,2=spi_lcd,3=spi_lcddicmux,4=spi_doc8,5=spi_doc16
 
-	volatile uint8_t       cit_oc4_clock;
-	volatile uint16_t      cit_oc4_a;
-	volatile uint16_t      cit_oc4_b;
-	volatile uint16_t      cit_oc4_c;
+	volatile uint8_t       io_out_pin0 // for all: PWM_OUT,DOC_OUT
+	volatile uint8_t       io_out_pin1 // SPI_PWM_DATA_PIN,SPI_PWM_CLK_PIN,SPI_PWM_E_PIN,
+	volatile uint8_t       io_out_pin2 // SPI_EXT_DATA_PIN,SPI_EXT_CLK_PIN,SPI_EXT_E_PIN
+	volatile uint8_t       io_out_pin3
+	volatile uint8_t       io_out_pin4 // note: this pin started all this for cit0 comB output !
+	volatile uint8_t       io_out_pin5
+	volatile uint8_t       io_out_pin6 
+	volatile uint8_t       io_out_pin7
+
+	volatile uint8_t       io_int0_pin
+	volatile uint8_t       io_int1_pin
+	//volatile uint8_t       io_int2_pin
+	//volatile uint8_t       io_int3_pin
+*/
+
+#ifdef SF_ENABLE_CIT
+	volatile uint8_t       cit_0clock;
+	volatile uint8_t       cit_0mode;
+	volatile uint8_t       cit_0int; // 3 bits
+	volatile uint8_t       cit_0a_ocr;
+	volatile uint8_t       cit_0a_com;
+	volatile uint16_t      cit_0a_map[CIT_MAP_MAX][QMAP_SIZE];
+	volatile uint8_t       cit_0b_ocr;
+	volatile uint8_t       cit_0b_com;
+	volatile uint16_t      cit_0b_map[CIT_MAP_MAX][QMAP_SIZE];
+#endif
+#ifdef SF_ENABLE_CIP
+	volatile uint8_t       cip_0clock;
+	volatile uint8_t       cip_0mode;
+	volatile uint16_t      cip_0a_ocr;
+	volatile uint8_t       cip_0a_com;
+	volatile uint16_t      cip_0b_ocr;
+	volatile uint8_t       cip_0b_com;
+	volatile uint16_t      cip_0c_ocr;
+	volatile uint8_t       cip_0c_com;
+
+	volatile uint8_t       cip_1clock;
+	volatile uint8_t       cip_1mode;
+	volatile uint16_t      cip_1a_ocr;
+	volatile uint8_t       cip_1a_com;
+	volatile uint16_t      cip_1b_ocr;
+	volatile uint8_t       cip_1b_com;
+	volatile uint16_t      cip_1c_ocr;
+	volatile uint8_t       cip_1c_com;
+
+	volatile uint8_t       cip_2clock;
+	volatile uint8_t       cip_2mode;
+	volatile uint16_t      cip_2a_ocr;
+	volatile uint8_t       cip_2a_com;
+	volatile uint16_t      cip_2b_ocr;
+	volatile uint8_t       cip_2b_com;
+	volatile uint16_t      cip_2c_ocr;
+	volatile uint8_t       cip_2c_com;
 #endif
 
 } pf_conf_struct;
@@ -289,6 +342,9 @@ typedef struct {
 
 #ifdef SF_ENABLE_PWM
 	volatile uint8_t       pulse_fire;             // The Pulse Fire for internal triggering of pulse
+	volatile uint16_t      pulse_fire_cnt;         // Counter for pulsefire 
+	volatile uint16_t      pulse_fire_freq;        // The pulsefire cnt freq
+	volatile uint16_t      pulse_fire_freq_cnt;    // The pulsefire cnt freq internal counter
 	volatile uint8_t       pulse_hold_fire;        // Holds or resets the pulse fire state.
 	volatile uint8_t       pulse_step;             // The current pulse step
 	volatile uint16_t      pulse_data;             // The output data for next step
@@ -341,8 +397,10 @@ typedef struct {
 
 #ifdef SF_ENABLE_MAL
 	volatile uint8_t       mal_pc;               // Mal program counter
+	volatile uint8_t       mal_pc_fire;          // Temp store pc when run from trigger (NOTE; not in PF_VARS)
 	volatile uint8_t       mal_state;            // program state
 	volatile uint16_t      mal_var[MAL_VAR_MAX]; // mal internal variables
+	volatile uint32_t      mal_time_cnt;         // mal time cnt
 #endif
 
 #ifdef SF_ENABLE_STV
@@ -363,7 +421,7 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  37
+	#define PF_VARS_PWM_SIZE  39
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif
@@ -423,7 +481,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_VFC_SIZE  0
 #endif
 #ifdef SF_ENABLE_MAL
-	#define PF_VARS_MAL_SIZE  4
+	#define PF_VARS_MAL_SIZE  8
 #else
 	#define PF_VARS_MAL_SIZE  0
 #endif

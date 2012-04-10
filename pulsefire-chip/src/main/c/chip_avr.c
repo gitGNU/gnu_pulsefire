@@ -28,16 +28,16 @@
 //      (D 0) PD0  2|    |27  PC4 (AI 4)
 //      (D 1) PD1  3|    |26  PC3 (AI 3)
 //      (D 2) PD2  4|    |25  PC2 (AI 2)
-// PWM+ (D 3) PD3  5|    |24  PC1 (AI 1)
+// oc2b (D 3) PD3  5|    |24  PC1 (AI 1)
 //      (D 4) PD4  6|    |23  PC0 (AI 0)
 //            VCC  7|    |22  GND
 //            GND  8|    |21  AREF
 //            PB6  9|    |20  AVCC
 //            PB7 10|    |19  PB5 (D 13)
-// PWM+ (D 5) PD5 11|    |18  PB4 (D 12)
-// PWM+ (D 6) PD6 12|    |17  PB3 (D 11) PWM
-//      (D 7) PD7 13|    |16  PB2 (D 10) PWM
-//      (D 8) PB0 14|    |15  PB1 (D 9) PWM
+//      (D 5) PD5 11|    |18  PB4 (D 12)
+//      (D 6) PD6 12|    |17  PB3 (D 11) oc2a
+//      (D 7) PD7 13|    |16  PB2 (D 10)
+//      (D 8) PB0 14|    |15  PB1 (D 9)
 //                  +----+
 //
 
@@ -277,21 +277,21 @@ const char* Chip_cpu_type(void) {
 
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin) {
 	uint8_t value = *port;
-	return (value >> pin) & 0x01;
+	return (value >> pin) & ONE;
 }
 
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
 	if (value>ZERO) {
-		*port |= (1<<pin);
+		*port |= (ONE<<pin);
 	} else {
-		*port &= ~(1<<pin);
+		*port &= ~(ONE<<pin);
 	}
 }
 
 void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte) {
 	for( uint8_t i = 8;i>ZERO; i-- ){
 		digitalWrite(port,dataPin,(dataByte & 0x80)>ZERO);
-		dataByte <<= 1;
+		dataByte <<= ONE;
 		digitalWrite(port,clkPin, ONE);
 		digitalWrite(port,clkPin, ZERO);
 	}
@@ -312,20 +312,23 @@ CHIP_PTR_TYPE Chip_pgm_readWord(const CHIP_PTR_TYPE* p) {
 	return pgm_read_word(p);
 }
 
-void Chip_pwm_timer(uint8_t reg,uint16_t value) {
+void Chip_reg_set(uint8_t reg,uint16_t value) {
 	switch (reg) {
-	case PWM_REG_CLOCK:
-		TCCR1B = value & 7;
-		break;
-	case PWM_REG_OCRA:
-		OCR1A = value;
-		break;
-	case PWM_REG_OCRB:
-		OCR1B = value;
-		break;
-	case PWM_REG_TCNT:
-		TCNT1 = value;
-		break;
+#ifdef SF_ENABLE_PWM
+	case CHIP_REG_PWM_CLOCK:	TCCR1B = value & 7;		break;
+	case CHIP_REG_PWM_OCR_A:	OCR1A = value;			break;
+	case CHIP_REG_PWM_OCR_B:	OCR1B = value;			break;
+	case CHIP_REG_PWM_TCNT:		TCNT1 = value;			break;
+#endif
+#ifdef SF_ENABLE_CIT
+	case CHIP_REG_CIT_CLOCK:	TCCR2B = TCCR2B & 247 + (value & 7);			break;
+	case CHIP_REG_CIT_MODE:		TCCR2A = TCCR2A & 252 + (value & 3);TCCR2B = TCCR2B & 247 + (value & 8);break; // bit 0/1 + bit 3/4 in B
+	case CHIP_REG_CIT_INT:		TIMSK2 = TIMSK2 & 247 + (value & 7);			break;
+	case CHIP_REG_CIT_OCR_A:	OCR2A = value;									break;
+	case CHIP_REG_CIT_COM_A:	TCCR2A = TCCR2A & 63  + ((value << 4) & 192);	break; // bit 6/7
+	case CHIP_REG_CIT_OCR_B:	OCR2B = value;									break;
+	case CHIP_REG_CIT_COM_B:	TCCR2A = TCCR2A & 207 + ((value << 6) & 48);	break; // bit 4/5
+#endif
 	default:
 		break;
 	}
@@ -561,8 +564,12 @@ uint16_t Chip_in_dic(void) {
 ISR(INT0_vect) {
 	if (pf_conf.avr_pin2_map == PIN2_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT) {
+		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
 			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+			pf_data.pulse_fire_cnt++;
+			pf_data.pulse_fire_freq_cnt++;
+			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
+			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 		}
 #endif
 		return;
@@ -624,7 +631,6 @@ ISR(TIMER1_COMPB_vect) {
 #endif
 }
 
-
 ISR(TIMER1_COMPA_vect) {
 #ifdef SF_ENABLE_PWM
 	PWM_do_work_a();
@@ -634,4 +640,20 @@ ISR(TIMER1_COMPA_vect) {
 ISR(USART_RX_vect) {
 	Serial_rx_int(UDR0);
 }
+
+ISR(TIMER2_COMPB_vect) {
+#ifdef SF_ENABLE_OSC
+#endif
+}
+
+ISR(TIMER2_COMPA_vect) {
+#ifdef SF_ENABLE_OSC
+#endif
+}
+
+ISR(TIMER2_OVF_vect) {
+#ifdef SF_ENABLE_OSC
+#endif
+}
+
 

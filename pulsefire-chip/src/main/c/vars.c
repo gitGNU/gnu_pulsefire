@@ -13,7 +13,7 @@ CHIP_PROGMEM_ARRAY pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
 		pmCmdInfoConf,pmCmdInfoData,pmCmdInfoProg,pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoChip,
 		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,
 		pmCmdReqLPMFire,pmCmdReqPulseFire,pmCmdReqPulseHoldFire,pmCmdReqPTTFire,pmCmdReqMALFire,
-		pmConfMALProgram,
+		pmConfMALCode,
 		pmProgTXPush,pmProgTXEcho,pmProgTXPromt
 };
 
@@ -156,6 +156,11 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #ifdef SF_ENABLE_LCD
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lcd_size,            (CHIP_PTR_TYPE)&pmConfLCDSize,         LCD_SIZE_4x20,       PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 #endif
+#ifdef SF_ENABLE_MAL
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mal_ops,             (CHIP_PTR_TYPE)&pmConfMALOps,          0xFF,                PFVB_NONE,                      0xFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mal_ops_fire,        (CHIP_PTR_TYPE)&pmConfMALOpsFire,      0xFF,                PFVB_NONE,                      0xFF},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.mal_mticks,          (CHIP_PTR_TYPE)&pmConfMALMTicks,       0xFFFF,              PFVB_NONE,                      ZERO},
+#endif
 
 #ifdef SF_ENABLE_ADC
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.adc_map,             (CHIP_PTR_TYPE)&pmConfAdcMap,          0xFFFF,              (QMAP_SIZE<<13)+(ADC_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
@@ -167,6 +172,29 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_enable,          (CHIP_PTR_TYPE)&pmConfDicEnable,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_inv,             (CHIP_PTR_TYPE)&pmConfDicInv,          0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_sync,            (CHIP_PTR_TYPE)&pmConfDicSync,         0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+#endif
+
+#ifdef SF_ENABLE_CIT
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0clock,          (CHIP_PTR_TYPE)&pmConfCit0Clock,       8,                   PFVB_NONE,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0mode,           (CHIP_PTR_TYPE)&pmConfCit0Mode,        3,                   PFVB_NONE,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0int,            (CHIP_PTR_TYPE)&pmConfCit0Int,         0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0a_ocr,          (CHIP_PTR_TYPE)&pmConfCit0aOcr,        0xFF,                PFVB_NONE,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0a_com,          (CHIP_PTR_TYPE)&pmConfCit0aCom,        0xFF,                PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cit_0a_map,          (CHIP_PTR_TYPE)&pmConfCit0aMap,        0xFFFF,              (QMAP_SIZE<<13)+(CIT_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0b_ocr,          (CHIP_PTR_TYPE)&pmConfCit0bOcr,        0xFF,                PFVB_NONE,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cit_0b_com,          (CHIP_PTR_TYPE)&pmConfCit0bCom,        0xFF,                PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cit_0b_map,          (CHIP_PTR_TYPE)&pmConfCit0bMap,        0xFFFF,              (QMAP_SIZE<<13)+(CIT_NUM_MAX<<8)+PFVB_NOLIMIT+PFVB_NOMAP+PFVB_NOMENU+PFVB_IDXB+PFVB_IDXA,   0xFFFF},
+#endif
+
+#ifdef SF_ENABLE_CIP
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0clock,          (CHIP_PTR_TYPE)&pmConfCip0Clock,       8,                   PFVB_NONE,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0mode,           (CHIP_PTR_TYPE)&pmConfCip0Mode,        3,                   PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0a_ocr,          (CHIP_PTR_TYPE)&pmConfCip0aOcr,        0xFFFF,              PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0a_com,          (CHIP_PTR_TYPE)&pmConfCip0aCom,        0xFFFF,              PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0b_ocr,          (CHIP_PTR_TYPE)&pmConfCip0bOcr,        0xFFFF,              PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0b_com,          (CHIP_PTR_TYPE)&pmConfCip0bCom,        0xFFFF,              PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0c_ocr,          (CHIP_PTR_TYPE)&pmConfCip0cOcr,        0xFFFF,              PFVB_NONE,         ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0c_com,          (CHIP_PTR_TYPE)&pmConfCip0cCom,        0xFFFF,              PFVB_NONE,         ZERO},
 #endif
 
 // =============== pf_data vars = +64
@@ -237,6 +265,8 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_PWM
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_fire,          (CHIP_PTR_TYPE)&pmDataPulseFire,       0xFF,                PFVB_DT0+PFVB_TRIG,             ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.pulse_fire_cnt,      (CHIP_PTR_TYPE)&pmDataPulseFireCnt,    0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.pulse_fire_freq,     (CHIP_PTR_TYPE)&pmDataPulseFireFreq,   0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_hold_fire,     (CHIP_PTR_TYPE)&pmDataPulseHoldFire,   0xFF,                PFVB_DT0+PFVB_TRIG,             ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_step,          (CHIP_PTR_TYPE)&pmDataPulseStep,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pulse_data,          (CHIP_PTR_TYPE)&pmDataPulseData,       0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
@@ -279,6 +309,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.mal_pc,              (CHIP_PTR_TYPE)&pmProgMALPc,           0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_prog.mal_state,           (CHIP_PTR_TYPE)&pmProgMALState,        0xFF,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_prog.mal_var,             (CHIP_PTR_TYPE)&pmProgMALVar,          0xFFFF,              (OUTPUT_MAX<<8)+PFVB_DT1+PFVB_NOMAP+PFVB_IDXA,  ZERO},
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_prog.mal_time_cnt,        (CHIP_PTR_TYPE)&pmProgMALTimeCnt,      ZERO,                PFVB_DT1+PFVB_NOMAP,            ZERO},
 #endif
 
 #ifdef SF_ENABLE_STV
@@ -727,14 +758,28 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 #endif
 #ifdef SF_ENABLE_PWM
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMClock) {
-		Chip_pwm_timer(PWM_REG_CLOCK,value);
-	}
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPulseMode) {
-		Vars_resetData();
-	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMClock)  {	Chip_reg_set(CHIP_REG_PWM_CLOCK,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPulseMode) {	Vars_resetData();	}
 #endif
-
+#ifdef SF_ENABLE_CIT
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0Clock) {	Chip_reg_set(CHIP_REG_CIT0_CLOCK,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0Mode)  {	Chip_reg_set(CHIP_REG_CIT0_MODE,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0Int)   {	Chip_reg_set(CHIP_REG_CIT0_INT,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0aOcr)  {	Chip_reg_set(CHIP_REG_CIT0_OCR_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0aCom)  {	Chip_reg_set(CHIP_REG_CIT0_COM_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0bOcr)  {	Chip_reg_set(CHIP_REG_CIT0_OCR_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCit0bCom)  {	Chip_reg_set(CHIP_REG_CIT0_COM_B,value);	}
+#endif
+#ifdef SF_ENABLE_CIP
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0Clock) {	Chip_reg_set(CHIP_REG_CIP0_CLOCK,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0Mode)  {	Chip_reg_set(CHIP_REG_CIP0_MODE,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0aOcr)  {	Chip_reg_set(CHIP_REG_CIP0_OCR_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0aCom)  {	Chip_reg_set(CHIP_REG_CIP0_COM_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0bOcr)  {	Chip_reg_set(CHIP_REG_CIP0_OCR_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0bCom)  {	Chip_reg_set(CHIP_REG_CIP0_COM_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0cOcr)  {	Chip_reg_set(CHIP_REG_CIP0_OCR_C,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0cCom)  {	Chip_reg_set(CHIP_REG_CIP0_COM_C,value);	}
+#endif
 	if (trig==false) {
 		return value; // no update of triggers
 	}
@@ -742,56 +787,44 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 #ifdef SF_ENABLE_STV
 	uint8_t stvIdxMax = STV_is_variable_mapped(idx,idxA,true);
 	uint8_t stvIdxMin = STV_is_variable_mapped(idx,idxA,false);
-	if (stvIdxMax != QMAP_VAR_IDX_ALL) {
-		STV_vars_max(value,stvIdxMax);
-	}
-	if (stvIdxMin != QMAP_VAR_IDX_ALL) {
-		STV_vars_min(value,stvIdxMin);
-	}
+	if (stvIdxMax != QMAP_VAR_IDX_ALL) { STV_vars_max(value,stvIdxMax);	}
+	if (stvIdxMin != QMAP_VAR_IDX_ALL) { STV_vars_min(value,stvIdxMin);	}
 #endif
 #ifdef SF_ENABLE_PWM
 	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseFire && value > ZERO) {
 		pf_data.pulse_hold_fire = ZERO;
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && pf_conf.pulse_trig != PULSE_TRIG_EXT) {
 			pf_data.pwm_state = PWM_STATE_RUN;
+			pf_data.pulse_fire_cnt++;
+			pf_data.pulse_fire_freq_cnt++;
+			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
+			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 		}
 	}
 	if ( varName == (CHIP_PTR_TYPE)&pmDataPulseHoldFire && value > ZERO) {
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && pf_conf.pulse_trig != PULSE_TRIG_EXT) {
 			if (pf_data.pwm_state == PWM_STATE_IDLE) {
-				pf_data.pulse_step     = ZERO;                    // goto step zero
+				pf_data.pulse_step           = ZERO;                     // goto step zero
 				pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
-				pf_data.pulse_bank_cnt = pf_conf.pulse_bank;      // load pulse bank after pulse
+				pf_data.pulse_bank_cnt       = pf_conf.pulse_bank;       // load pulse bank after pulse
 				PWM_send_output(PULSE_DATA_OFF);
 			} else {
 				pf_data.pwm_state = PWM_STATE_TRIGGER_END;
 			}
 		}
 	}
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqIdx) {
-		Freq_requestTrainFreq();
-	}
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqFreq) {
-		Freq_requestTrainFreq();
-	}
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqDuty) {
-		Freq_requestTrainFreq();
-	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqIdx)  { Freq_requestTrainFreq(); }
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqFreq) { Freq_requestTrainFreq(); }
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqDuty) {	Freq_requestTrainFreq(); }
 #endif
 #ifdef SF_ENABLE_LPM
 	if ( varName == (CHIP_PTR_TYPE)&pmDataLPMFire && pf_conf.lpm_size > ZERO) {
-		if (pf_data.lpm_state==LPM_IDLE) {
-			pf_data.lpm_state = LPM_INIT;
-		}
-		if (pf_data.lpm_state!=LPM_IDLE) {
-			pf_data.lpm_state = LPM_STOP;
-		}
+		if (pf_data.lpm_state==LPM_IDLE) {	pf_data.lpm_state = LPM_INIT;	}
+		if (pf_data.lpm_state!=LPM_IDLE) {	pf_data.lpm_state = LPM_STOP;	}
 	}
 #endif
 #ifdef SF_ENABLE_MAL
-	if ( varName == (CHIP_PTR_TYPE)&pmDataMALFire) {
-		mal_execute(idxA,value);
-	}
+	if ( varName == (CHIP_PTR_TYPE)&pmDataMALFire) { Mal_fire(idxA); }
 #endif
 #ifdef SF_ENABLE_VFC
 	uint8_t vfcIdx = vfc_is_variable_mapped(idx,idxA);
@@ -849,15 +882,15 @@ void Vars_resetConfig(void) {
 	}
 #endif
 #ifdef SF_ENABLE_MAL
-	for (uint16_t i=ZERO;i < MAL_PROGRAM_SIZE;i++) {
-		pf_conf.mal_program[i] = 0xFF;
+	for (uint16_t i=ZERO;i < MAL_CODE_SIZE;i++) {
+		pf_conf.mal_code[i] = 0xFF;
 	}
 	for (uint8_t trigIdx=ZERO;trigIdx < MAL_FIRE_MAX;trigIdx++) {
 		uint16_t addr = trigIdx*4;
-		pf_conf.mal_program[addr+0] = 0x40;
-		pf_conf.mal_program[addr+1] = 0x20;
-		pf_conf.mal_program[addr+2] = 0x00;
-		pf_conf.mal_program[addr+3] = 4*MAL_FIRE_MAX; // add default jump table to next line after table
+		pf_conf.mal_code[addr+0] = 0x40;
+		pf_conf.mal_code[addr+1] = 0x20;
+		pf_conf.mal_code[addr+2] = 0x00;
+		pf_conf.mal_code[addr+3] = 4*MAL_FIRE_MAX; // add default jump table to next line after table
 	}
 #endif
 }
@@ -939,8 +972,7 @@ void Vars_setup(void) {
 #ifdef SF_ENABLE_MAL
 	pf_prog.mal_pc               = ZERO;
 	pf_prog.mal_state            = MAL_STATE_IDLE;
-	uint8_t i=ZERO;
-	for (i=ZERO;i < OUTPUT_MAX;i++) {
+	for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
 		pf_prog.mal_var[i]         = ZERO;
 	}
 #endif
@@ -949,7 +981,7 @@ void Vars_setup(void) {
 	pf_prog.stv_time_cnt         = ZERO;
 	pf_prog.stv_map_idx          = ZERO;
 #endif
-	for (i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
+	for (uint8_t i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
 		pf_prog.vars_int_buff[i][0] = 0xFFFF;
 		pf_prog.vars_int_buff[i][1] = ZERO;
 		pf_prog.vars_int_buff[i][2] = ZERO;

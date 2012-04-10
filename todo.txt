@@ -10,10 +10,12 @@ CHIP:
 - Added nested if support in mal
 - A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
 - Port to arm7
-- Port to arm9 aka PandaBoard
+- Port to arm9 aka BeagleBoard-Bone / PandaBoard
 - Fix mega simple GLCD support
 - hardware osc function
 - i2c and MCP4725 I2C DAC support
+- intA/B conf options
+- new io mode mapping to remove some spi build flags.
 
 CHIP PF_VARS:
 	- inverse nolimit flag in
@@ -23,14 +25,18 @@ CHIP PF_VARS:
 	- Find precompiler way to find variable idx to 'replace' Vars_getIndexFromName for push data.
 	- Make almost all code work via Vars_setValue for auto push.
 	- add non-push get info cmd.
-	- merge pf_data and pf_chip
+	- merge pf_data and pf_prog
 
 GUI:
 - Operation manual
 - docbook to help file support with ids.
 - Remove all config data from CommandName enum to support multiple connections in one classloader.
-- id + i18n all ui components.
+- (~20%)id + i18n all ui components.
 - Custom graph panel(s)
+- Nice inner bottom fire border panel for inputs panel.
+- Pretty abstract dialog and impl on all dialogs.
+- MAL load/save dialog.
+- Chip resets/etc wait dialogs. 
 - headless support and traybar option.
 - fix full screen mode tooltip editors.
 - fix audio scope channel select to support up to ~16 channels.

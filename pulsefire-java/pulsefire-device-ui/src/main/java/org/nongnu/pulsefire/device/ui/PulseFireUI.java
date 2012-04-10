@@ -337,9 +337,10 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	@Override
 	protected void ready() {
+		JMainPanel mainPanel = (JMainPanel)getMainView().getComponent(); 
 		/// mmm this can beter..
 		// small hack to make main frame visable so dialog is centered on application.
-		((JMainPanel)getMainView().getComponent()).topPanelSerial.autoConnect();
+		mainPanel.topPanelSerial.autoConnect();
 	}
 
 	static public PulseFireUI getInstance() {

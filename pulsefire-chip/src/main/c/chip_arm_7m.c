@@ -76,23 +76,7 @@ CHIP_PTR_TYPE Chip_pgm_readWord(const CHIP_PTR_TYPE* p) {
 	return ZERO;
 }
 
-void Chip_pwm_timer(uint8_t reg,uint16_t value) {
-	switch (reg) {
-	case PWM_REG_CLOCK:
-		//TCCR1B = value & 7;
-		break;
-	case PWM_REG_OCRA:
-		//OCR1A = value;
-		break;
-	case PWM_REG_OCRB:
-		//OCR1B = value;
-		break;
-	case PWM_REG_TCNT:
-		//TCNT1 = value;
-		break;
-	default:
-		break;
-	}
+void Chip_reg_set(uint8_t reg,uint16_t value) {
 }
 
 void Chip_out_pwm(uint16_t data) {
