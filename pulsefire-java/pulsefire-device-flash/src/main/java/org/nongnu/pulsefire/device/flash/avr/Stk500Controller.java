@@ -71,6 +71,11 @@ public class Stk500Controller extends AbstractStk500Controller {
 			logMessage("Send data: "+buf+" ("+Stk500Command.valueOfToken(message.getRequest().get(0))+")");
 		}
 		
+		try { // This sleep is needed for windows flashing to work correctly.
+			Thread.sleep(15); // (note: it worked when logDebug was enabled)
+		} catch (InterruptedException e) {
+		}
+		
 		int timeout = 500;
 		while(input.available()==0) {
 			timeout--;

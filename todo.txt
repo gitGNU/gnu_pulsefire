@@ -7,9 +7,6 @@ ERRATA:
 - MAL editor does not auto renumber goto statements.
 - After connecting to lower chip version then gui does not update correctly to newer chip version.
 (restart application)
-- Chip firmware flashing works on some windows only the first time of port usage ?
-(so flash before connecting and restart app before flashing again)
-
 
 CHIP:
 - Add menu support for map variables.
