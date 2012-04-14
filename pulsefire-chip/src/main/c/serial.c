@@ -188,6 +188,12 @@ void cmd_print_info_chip(void) {
 #ifdef SF_ENABLE_PWM
 	Serial_printCharP(pmChipFlagPWM);
 #endif
+#ifdef SF_ENABLE_CIT
+	Serial_printCharP(pmChipFlagCIT);
+#endif
+#ifdef SF_ENABLE_CIP
+	Serial_printCharP(pmChipFlagCIP);
+#endif
 #ifdef SF_ENABLE_LCD
 	Serial_printCharP(pmChipFlagLCD);
 #endif
@@ -287,22 +293,12 @@ void cmd_execute(char* cmd, char** args) {
 		if (args[0] == NULL) {
 			uint8_t i=ZERO;
 			for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
-				// Remove unsupported cmds
-#ifndef SF_ENABLE_PWM
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPulseFire) { continue; }
-#endif
+				// Remove unsupported cmds when flag is disabled.
 #ifndef SF_ENABLE_PPM
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
 #endif
-#ifndef SF_ENABLE_PTT
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqPTTFire) { continue; }
-#endif
-#ifndef SF_ENABLE_LPM
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqLPMFire) { continue; }
-#endif
 #ifndef SF_ENABLE_MAL
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALCode) { continue; }
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdReqMALFire) { continue; }
 #endif
 				Serial_printChar(UNPSTRA((const CHIP_PTR_TYPE*)&pmCmdList[i]));
 				Serial_println();
@@ -414,41 +410,45 @@ void cmd_execute(char* cmd, char** args) {
 		Vars_writeConfig();
 		Serial_println_done_P(pmCmdSave);
 
-#ifdef SF_ENABLE_PWM
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseFire)) == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFire)),ZERO,ZERO,ONE);
-		Serial_println_done_P(pmCmdReqPulseFire);
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqPulseHoldFire)) == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseHoldFire)),ZERO,ZERO,ONE);
-		Serial_println_done_P(pmCmdReqPulseHoldFire);
-#endif
-#ifdef SF_ENABLE_LPM
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqLPMFire)) == ZERO) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataLPMFire)),ZERO,ZERO,ONE);
-		Serial_println_done_P(pmCmdReqLPMFire);
-#endif
 
-#ifdef SF_ENABLE_PTT
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqPTTFire)) == ZERO) {
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqTrigger)) == ZERO) {
 		if (args[ZERO] == NULL) {
-			Serial_printCharP(pmCmdReqPTTFire);
+			Serial_printCharP(pmCmdReqTrigger);
 			Serial_printCharP(pmGetSpaced);
 			Serial_printDec(ZERO);
 			Serial_println();
 			return;
 		}
-		uint16_t trigIdx  = atou16(args[0]);
-		if (trigIdx>PTT_TRIG_VAR_SIZE) {
-			trigIdx=ZERO;
+		uint16_t idx = ZERO;
+		if (args[ZERO][ZERO] <= '9') {
+			idx = atou16(args[ZERO]);
+		} else {
+			idx = Vars_getIndexFromName(args[ZERO]);
 		}
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPTTFire)),trigIdx,ZERO,ONE);
-		Serial_printCharP(pmCmdReqPTTFire);
-		Serial_printDec(trigIdx);
-		Serial_printCharP(pmGetSpaced);
-		Serial_printDec(ZERO);
-		Serial_println();
-#endif
+		if (Vars_isTrigger(idx)==false) {
+			Serial_printCharP(pmCmdReqTrigger);
+			Serial_printCharP(pmGetSpaced);
+			Serial_printDec(ZERO);
+			Serial_println();
+			return;
+		}
+		uint16_t idxA = ZERO;
+		if (args[ONE] != NULL) { idxA = atou16(args[ONE]); }
 
+		if (Vars_isIndexA(idx)==false) {
+			idxA = QMAP_VAR_IDX_ALL;
+		} else if (idxA > Vars_getIndexAMax(idx)) {
+			idxA = QMAP_VAR_IDX_ALL;
+		}
+		Vars_setValue(idx,idxA,ZERO,ONE); // use normal so print fire change 
+		Serial_printCharP(pmCmdReqTrigger);
+		Serial_printCharP(pmSetSpaced);
+		Serial_printDec(idx);
+		Serial_print(' ');
+		Serial_printDec(idxA);
+		Serial_print(' ');
+		Serial_printDec(ONE);
+		Serial_println();
  
 	} else if (strcmp(cmd,UNPSTR(pmProgTXPush)) == ZERO) {
 		Serial_printCharP(pmProgTXPush);
@@ -477,27 +477,26 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_printDec((int)pf_prog.req_tx_echo);
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmProgTXPromt)) == ZERO) {
-	Serial_printCharP(pmProgTXPromt);
-	if (args[0] == NULL) {
-		Serial_printCharP(pmGetSpaced);
-	} else {
-		Serial_printCharP(pmSetSpaced);
-		uint16_t promt = atou16(args[0]);
-		if (promt == ZERO) {  pf_prog.req_tx_promt = ZERO;
-		} else {              pf_prog.req_tx_promt = ONE;
+		Serial_printCharP(pmProgTXPromt);
+		if (args[0] == NULL) {
+			Serial_printCharP(pmGetSpaced);
+		} else {
+			Serial_printCharP(pmSetSpaced);
+			uint16_t promt = atou16(args[0]);
+			if (promt == ZERO) {  pf_prog.req_tx_promt = ZERO;
+			} else {              pf_prog.req_tx_promt = ONE;
+			}
 		}
-	}
-	Serial_printDec((int)pf_prog.req_tx_promt);
-	Serial_println();
+		Serial_printDec((int)pf_prog.req_tx_promt);
+		Serial_println();
 
 #ifdef SF_ENABLE_MAL
 	} else if (strcmp(cmd,UNPSTR(pmConfMALCode)) == ZERO) {
 		if (args[ZERO] == NULL) {
 			Serial_printCharP(pmConfMALCode);
 			Serial_printCharP(pmGetSpaced);
-			uint8_t i=ZERO;
-			for (i=ZERO;i < MAL_CODE_SIZE;i++) {
-				Serial_printHex(pf_conf.mal_code[i]);
+			for (uint16_t addr=ZERO;addr < MAL_CODE_SIZE;addr++) {
+				Serial_printHex(pf_conf.mal_code[addr]);
 			}
 			Serial_println();
 		} else {
@@ -511,30 +510,11 @@ void cmd_execute(char* cmd, char** args) {
 			}
 			Serial_printCharP(pmConfMALCode);
 			Serial_printCharP(pmSetSpaced);
-			for (i=ZERO;i < MAL_CODE_SIZE;i++) {
-				Serial_printHex(pf_conf.mal_code[i]);
+			for (uint16_t addr=ZERO;addr < MAL_CODE_SIZE;addr++) {
+				Serial_printHex(pf_conf.mal_code[addr]);
 			}
 			Serial_println();
 		}
-	} else if (strcmp(cmd,UNPSTR(pmCmdReqMALFire)) == ZERO) {
-		if (args[ZERO] == NULL) {
-			Serial_printCharP(pmCmdReqMALFire);
-			Serial_printCharP(pmGetSpaced);
-			Serial_printDec(ZERO);
-			Serial_println();
-			return;
-		}
-		uint16_t trigIdx  = atou16(args[0]);
-		if (trigIdx>MAL_FIRE_MAX) {
-			trigIdx=ZERO;
-		}
-		uint8_t malFireIdx = Vars_getIndexFromName(UNPSTR(pmDataMALFire));
-		Vars_setValue(malFireIdx,trigIdx,0,ONE);
-		Serial_printCharP(pmCmdReqMALFire);
-		Serial_printDec(trigIdx);
-		Serial_printCharP(pmGetSpaced);
-		Serial_printDec(ZERO);
-		Serial_println();
 #endif
 
 	} else {

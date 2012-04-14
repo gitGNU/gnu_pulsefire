@@ -57,7 +57,7 @@ void LPM_loop(void) {
 			pf_data.lpm_state = LPM_IDLE;
 			pf_data.lpm_fire = ZERO;
 			Serial_println();
-			Serial_printCharP(pmCmdReqLPMFire);
+			Serial_printCharP(pmLPMDone);
 			Serial_printCharP(pmGetSpaced);
 			Serial_printDec(pf_data.lpm_result/100 % 100);Serial_printChar(".");
 			Serial_printDec(pf_data.lpm_result/10 % 10);  Serial_printDec(pf_data.lpm_result % 10);
@@ -65,7 +65,9 @@ void LPM_loop(void) {
 			Serial_printDec(pf_data.lpm_total_time/100 % 100);Serial_printChar(".");
 			Serial_printDec(pf_data.lpm_total_time/10 % 10);  Serial_printDec(pf_data.lpm_total_time % 10);
 			Serial_println();
-			Serial_printCharP(pmPromt);
+			if (pf_prog.req_tx_promt == ONE) {
+				Serial_printCharP(pmPromt);
+			}
 		}
 	}
 
@@ -78,7 +80,7 @@ void LPM_loop(void) {
 			}
 #ifdef SF_ENABLE_LCD
 			lcd_clear();
-			lcd_printCharP(pmCmdReqLPMFire);
+			lcd_printCharP(pmDataLPMFire);
 			lcd_cursor(ZERO,ONE);
 			lcd_printCharP(pmLPMWait);
 #endif
@@ -90,7 +92,7 @@ void LPM_loop(void) {
 			pf_data.lpm_state = LPM_START_WAIT;
 #ifdef SF_ENABLE_LCD
 			lcd_clear();
-			lcd_printCharP(pmCmdReqLPMFire);
+			lcd_printCharP(pmDataLPMFire);
 			lcd_cursor(ZERO,ONE);
 			lcd_printCharP(pmLPMStart);
 #endif

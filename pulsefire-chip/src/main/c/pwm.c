@@ -26,6 +26,33 @@
 #include "pwm.h"
 
 #ifdef SF_ENABLE_PWM
+
+// note: is also called from int.
+void PWM_pulsefire(void) {
+	if (pf_conf.pulse_trig == PULSE_TRIG_LOOP) {
+		return; // no fire support in loop mode
+	}
+	if (pf_conf.pulse_fire_mode==PULSE_FIRE_MODE_RESET && pf_data.pwm_state != PWM_STATE_FIRE_RESET) {
+		return; // no fire support when reset is forced to fire first.
+	}
+	if (pf_conf.pulse_fire_mode!=PULSE_FIRE_MODE_NOSYNC && pf_data.pwm_state != PWM_STATE_IDLE && pf_data.pwm_state != PWM_STATE_FIRE_RESET) {
+		return; // no fire support when train is running synced.
+	}
+	pf_data.pwm_state            = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
+	pf_data.pulse_step           = ZERO;                     // goto step zero
+	pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
+	pf_data.pulse_bank_cnt       = pf_conf.pulse_bank;       // load pulse bank after pulse
+	pf_data.pulse_fire_cnt++;
+	pf_data.pulse_fire_freq_cnt++;
+	Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
+	Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
+	for (uint8_t i=0;i<FIRE_MAP_MAX;i++) {
+		uint16_t v = pf_conf.pulse_fire_map[i][QMAP_VAR];
+		if (v==QMAP_VAR_NONE) { continue; }
+		Vars_setValueInt(v,pf_conf.pulse_fire_map[i][QMAP_VAR_IDX],ZERO,pf_conf.pulse_fire_map[i][QMAP_VALUE_A]);
+	}
+}
+
 // Send data to the outputs
 void PWM_send_output(uint16_t data) {
 
@@ -220,10 +247,10 @@ boolean PWM_pulse_mode_ppma(void) {
 // Do all work per timer step cnt
 // Timer interrupt for step on time
 void PWM_do_work_a(void) {
-	if (pf_data.pwm_state == PWM_STATE_STEP_DUTY) {
+	if (pf_data.pwm_state == PWM_STATE_STEP_DUTY || pf_data.pwm_state == PWM_STATE_FIRE_HOLD) {
 		return; // waiting for step duty
 	}
-	if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && pf_data.pwm_state == PWM_STATE_IDLE) {
+	if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && (pf_data.pwm_state == PWM_STATE_IDLE || pf_data.pwm_state == PWM_STATE_FIRE_RESET)) {
 		return; // disable when in manuale trigger fire.
 	}
 	uint8_t step_zero = pf_data.pulse_step;
@@ -257,10 +284,8 @@ void PWM_do_work_a(void) {
 	}
 	pf_data.pwm_loop_cnt = ZERO;
 
-	// wait loop for this step
-	//uint16_t c = ZERO;
-	uint16_t i=ZERO;
-	for (i=ZERO;i < pf_conf.pwm_tune_cnt[step_zero];i++) {
+	// wait loop to fine tune this step
+	for (uint16_t i=ZERO;i < pf_conf.pwm_tune_cnt[step_zero];i++) {
 		asm volatile ("nop"); // todo: scope out speed of this loop and tune.
 	}
 
@@ -292,13 +317,9 @@ void PWM_do_work_a(void) {
 	}
 
 	// use - for letting last output time correctly until off.
-	if (pf_data.pwm_state == PWM_STATE_TRIGGER_END) {
+	if (pf_data.pwm_state == PWM_STATE_FIRE_END) {
 		pf_data.pwm_state = PWM_STATE_IDLE;
 		pf_data.pulse_fire = ZERO;
-		if (pf_conf.pulse_trig == PULSE_TRIG_FIRE_HOLD || pf_conf.pulse_trig == PULSE_TRIG_EXT_FIRE_HOLD) {
-			pf_data.pulse_hold_fire = ZERO;
-			return; // No clear when we are in fire and hold
-		}
 		PWM_send_output(PULSE_DATA_OFF);
 		return;
 	}
@@ -353,6 +374,15 @@ void PWM_do_work_a(void) {
 		pf_data.pwm_loop_max = pf_data.pwm_loop_max-pf_conf.pwm_loop_delta;
 	}
 
+	// check on first/zero step todo automatic holding of the step.
+	if (pf_conf.pulse_hold_auto > ZERO && pf_data.pulse_step == pf_conf.pulse_hold_auto - ONE) {
+		pf_data.pwm_state = PWM_STATE_FIRE_HOLD;
+		if (pf_conf.pulse_hold_autoclr > ZERO) {
+			PWM_send_output(PULSE_DATA_OFF);
+		}
+		// goto next step for resume
+	}
+
 	// check for output rotation after last step		
 	if (pf_data.pulse_step  >= pf_conf.pulse_steps - ONE) {
 		pf_data.pulse_step     = ZERO;                    // goto step zero
@@ -367,7 +397,7 @@ void PWM_do_work_a(void) {
 			}
 		}
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
-			pf_data.pwm_state = PWM_STATE_TRIGGER_END;      // timeout after trigger
+			pf_data.pwm_state = PWM_STATE_FIRE_END;         // timeout after trigger
 		} else if (pf_conf.pulse_post_delay > ZERO) {
 			pf_data.pwm_state = PWM_STATE_WAIT_POST;        // timeout after pulse train
 		}

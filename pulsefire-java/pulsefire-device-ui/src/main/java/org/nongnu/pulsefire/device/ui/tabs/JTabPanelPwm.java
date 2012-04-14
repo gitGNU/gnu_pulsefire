@@ -45,7 +45,6 @@ import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
@@ -448,16 +447,12 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_mode));
 		pulsePanel.add(new JCommandComboBox(CommandName.pulse_mode));
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandButton(CommandName.req_pulse_fire));
-		
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));		
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_trig));
 		pulsePanel.add(new JCommandComboBox(CommandName.pulse_trig));
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_bank));
 		pulsePanel.add(new JCommandComboBox(CommandName.pulse_bank));
-		pulsePanel.add(new JCommandButton(CommandName.req_pulse_hold_fire));
-		
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,5);
+		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,4);
 		
 		JPanel delayPanel = new JPanel();
 		delayPanel.setLayout(new SpringLayout());

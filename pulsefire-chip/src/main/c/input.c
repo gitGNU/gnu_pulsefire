@@ -34,7 +34,7 @@ void Input_loopDic(void) {
 	pf_data.dic_time_cnt = current_time + DIC_INPUT_TIME;
 
 	uint16_t dic_data = Chip_in_dic();
-	for (uint8_t i=ZERO;i < DIC_NUM_MAX ;i++) {
+	for (uint8_t i=ZERO;i < DIC_MAP_MAX ;i++) {
 		if ( ((pf_conf.dic_enable >> i) & ONE) == ZERO ) {
 			continue; // Enable bit per input
 		}
@@ -103,7 +103,7 @@ void Input_loopAdc(void) {
 		return;
 	}
 
-	for (uint8_t i=pf_data.adc_state_idx;i <= ADC_NUM_MAX;i++) {
+	for (uint8_t i=pf_data.adc_state_idx;i <= ADC_MAP_MAX;i++) {
 #ifdef SF_ENABLE_AVR
 #ifdef SF_ENABLE_LCD
 #ifndef SF_ENABLE_EXT_LCD
@@ -114,7 +114,7 @@ void Input_loopAdc(void) {
 #endif
 #endif
 #endif
-		if (i==ADC_NUM_MAX) {
+		if (i==ADC_MAP_MAX) {
 			pf_data.adc_state = ADC_STATE_RUN;
 			pf_data.adc_state_idx=ZERO;
 			Chip_in_adc(pf_data.adc_state_idx);

@@ -53,7 +53,6 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
@@ -272,15 +271,6 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(new JCommandLabel(CommandName.pulse_enable));
-		ioPanel.add(new JCommandCheckBox(CommandName.pulse_enable));
-		
-		ioPanel.add(new JCommandLabel(CommandName.pulse_inv));
-		ioPanel.add(new JCommandCheckBox(CommandName.pulse_inv));
-
-		ioPanel.add(new JCommandLabel(CommandName.pulse_steps));
-		ioPanel.add(new JCommandComboBox(CommandName.pulse_steps));
-
 		ioPanel.add(new JCommandLabel(CommandName.lcd_size));
 		ioPanel.add(new JCommandComboBox(CommandName.lcd_size));
 		
@@ -293,7 +283,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		ioPanel.add(new JCommandLabel(CommandName.dev_temp_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
 		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,7,2);
+		SpringLayoutGrid.makeCompactGrid(ioPanel,4,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

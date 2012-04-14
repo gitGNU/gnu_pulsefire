@@ -25,6 +25,8 @@ package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
 
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
@@ -33,7 +35,6 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -65,7 +66,10 @@ public class JTabPanelCit extends AbstractFireTabPanel {
 		panel.add(new JCommandLabel		(CommandName.cit_0clock));
 		panel.add(new JCommandComboBox	(CommandName.cit_0clock));
 		panel.add(new JCommandLabel		(CommandName.cit_0a_com));
-		panel.add(new JCommandComboBox	(CommandName.cit_0a_com));
+		JComboBox b = new JComboBox(new String[] {"TODO"});
+		b.setEnabled(false);
+		panel.add(b);
+		//panel.add(new JCommandComboBox	(CommandName.cit_0a_com));
 		panel.add(new JCommandLabel		(CommandName.cit_0mode));
 		panel.add(new JCommandComboBox	(CommandName.cit_0mode));
 		panel.add(new JCommandLabel		(CommandName.cit_0b_com));
@@ -79,13 +83,15 @@ public class JTabPanelCit extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createCitMap0 () {
-		JPanel firePanel = JComponentFactory.createJFirePanel("Timer Mapping 0");
+		JPanel firePanel = JComponentFactory.createJFirePanel("Timer Events");
 		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		
 		JPanel mapPanel = new JPanel();
 		mapPanel.setLayout(new SpringLayout());
-		mapPanel.add(new JFireQMapTable(CommandName.cit_0a_map,"ocrA","zero"));
-		mapPanel.add(new JFireQMapTable(CommandName.cit_0b_map,"ocrB","zero"));
+		//mapPanel.add(new JFireQMapTable(CommandName.cit_0a_map,"ocrA","zero"));
+		//mapPanel.add(new JFireQMapTable(CommandName.cit_0b_map,"ocrB","zero"));
+		mapPanel.add(new JLabel("Pulse CIP-0 output:"));
+		mapPanel.add(new JLabel("false"));
 		SpringLayoutGrid.makeCompactGrid(mapPanel,1,2);
 		firePanel.add(mapPanel);
 		

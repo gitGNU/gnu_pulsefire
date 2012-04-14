@@ -104,10 +104,10 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 		JPanel header = JComponentFactory.createJFirePanel(this,"pttTrigger");
 		JPanel wrap = new JPanel();
 		wrap.add(new JLabel("Fire: "));
-		wrap.add(new JCommandButton(CommandName.req_ptt_fire,0));
-		wrap.add(new JCommandButton(CommandName.req_ptt_fire,1));
-		wrap.add(new JCommandButton(CommandName.req_ptt_fire,2));
-		wrap.add(new JCommandButton(CommandName.req_ptt_fire,3));		
+		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,0));
+		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,1));
+		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,2));
+		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,3));		
 		header.add(wrap);
 		return header;
 	}

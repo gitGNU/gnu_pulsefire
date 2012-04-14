@@ -59,8 +59,11 @@ public enum WireChipFlags {
 		if (cmd.getLineRaw()==null) {
 			return false;
 		}
-		if (cmd.getLineRaw().contains(this.name())) {
-			return true;
+		String[] flags = cmd.getLineRaw().split(" ");
+		for (String flag:flags) {
+			if (flag.equalsIgnoreCase(this.name())) {
+				return true;
+			}
 		}
 		return false;
 	}

@@ -46,6 +46,7 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 	private static final long serialVersionUID = 94571180445561814L;
 	
 	private JLabel adcLabel = null;
+	private JLabel adc2Label = null;
 	private JLabel dicLabel = null;
 	private JLabel docLabel = null;
 
@@ -62,6 +63,10 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 		inputPanel.add(new JLabel("Analog-In:"));
 		adcLabel = new JLabel();
 		inputPanel.add(adcLabel);
+
+		inputPanel.add(new JLabel("Analog-In:"));
+		adc2Label = new JLabel();
+		inputPanel.add(adc2Label);
 		
 		inputPanel.add(new JLabel("Digital-In:"));
 		dicLabel = new JLabel();
@@ -72,7 +77,7 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 		inputPanel.add(docLabel);
 		
 		
-		SpringLayoutGrid.makeCompactGrid(inputPanel,3,2);
+		SpringLayoutGrid.makeCompactGrid(inputPanel,4,2);
 		
 		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		deviceManager.addDeviceCommandListener(CommandName.adc_value, this);
@@ -87,32 +92,57 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 		
 		if (command.getCommandName().equals(CommandName.adc_value)) {
 			StringBuilder buf = new StringBuilder(100);
-			int crIdx = 0;
-			for (int i=CommandName.adc_value.getMaxIndexA();i>=0;i--) {
+			int s = CommandName.adc_value.getMaxIndexA();
+			if (s>7) {
+				s = 7;
+			}
+			for (int i=s;i>=0;i--) {
 				Command cmd = deviceData.getDeviceParameterIndexed(command, i);
 				if (cmd==null) {
 					continue;
 				}
-				buf.append("A");
+				buf.append('A');
+				buf.append('0');
 				buf.append(i);
 				buf.append(": ");
 				String adcValue = cmd.getArgu0();
 				if (adcValue.length()==3) {
-					buf.append("0");
+					buf.append('0');
 				} else if (adcValue.length()==2) {
 					buf.append("00");
 				} else if (adcValue.length()==1) {
 					buf.append("000");
 				}
 				buf.append(adcValue);
-				crIdx++;
-				if (crIdx==8) {
-					buf.append("\n");
-				} else {
+				buf.append("  ");
+			}
+			adcLabel.setText(buf.toString());
+			buf = new StringBuilder(100);
+			if (CommandName.adc_value.getMaxIndexA()>7) {
+				for (int i=CommandName.adc_value.getMaxIndexA();i>=8;i--) {
+					Command cmd = deviceData.getDeviceParameterIndexed(command, i);
+					if (cmd==null) {
+						continue;
+					}
+					buf.append('A');
+					if (i<10) {
+						buf.append('0');
+					}
+					buf.append(i);
+					buf.append(": ");
+					String adcValue = cmd.getArgu0();
+					if (adcValue.length()==3) {
+						buf.append('0');
+					} else if (adcValue.length()==2) {
+						buf.append("00");
+					} else if (adcValue.length()==1) {
+						buf.append("000");
+					}
+					buf.append(adcValue);
 					buf.append("  ");
 				}
 			}
-			adcLabel.setText(buf.toString());
+			adc2Label.setText(buf.toString());
 		}
 		if (command.getCommandName().equals(CommandName.dic_value)) {
 			StringBuilder buf = new StringBuilder(100);

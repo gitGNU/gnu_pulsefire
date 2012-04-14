@@ -210,6 +210,7 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 		if (commandName==null) {
 			return true;
 		}
+		/* TODO
 		if (CommandName.req_pulse_fire.equals(commandName) || CommandName.req_pulse_hold_fire.equals(commandName)) {
 			Command command = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_trig);
 			if (command==null) {
@@ -220,6 +221,7 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 				return false;
 			}	
 		}
+		*/
 		return true;
 	}
 }

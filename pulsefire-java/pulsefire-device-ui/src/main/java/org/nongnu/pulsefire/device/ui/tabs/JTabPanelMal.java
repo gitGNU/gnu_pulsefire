@@ -190,8 +190,9 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 				}
 			});
 		} else if (fireButton.equals(e.getSource()) && fireIndexBox.getSelectedIndex()>=0) {
-			Command cmd = new Command(CommandName.req_mal_fire);
-			cmd.setArgu0(fireIndexBox.getSelectedItem().toString());
+			Command cmd = new Command(CommandName.req_trigger);
+			cmd.setArgu0(""+CommandName.mal_fire.getMapIndex());
+			cmd.setArgu1(fireIndexBox.getSelectedItem().toString());
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
 		}
 		

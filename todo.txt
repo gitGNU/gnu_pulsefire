@@ -1,5 +1,16 @@
 == TODO ==
 
+ERRATA:
+- pulse_hold_auto in ext/fire trigger mode max output step is not auto holded.
+(auto hold on max-1)
+- Second variable in pulse_fire/reset/hold/resum_map has no function.
+- MAL editor does not auto renumber goto statements.
+- After connecting to lower chip version then gui does not update correctly to newer chip version.
+(restart application)
+- Chip firmware flashing works on some windows only the first time of port usage ?
+(so flash before connecting and restart app before flashing again)
+
+
 CHIP:
 - Add menu support for map variables.
 - Add lcd pages support

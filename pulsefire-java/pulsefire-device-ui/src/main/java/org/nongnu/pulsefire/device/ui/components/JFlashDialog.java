@@ -124,7 +124,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private String nativeFlashConfig = null;
 	private String[] columnNames = new String[] {"name","speed",
 			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
-			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL","GLCD"};
+			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL","GLCD","CIT","CIP"};
 			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
@@ -187,7 +187,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		
 		JLabel speedText = new JLabel("speed:");
 		tableOption.add(speedText);
-		mcuSpeedBox = new JComboBox(new String[] {"ALL","16Mhz","20Mhz","8Mhz","72Mhz" /*,"400Mhz","1Ghz"*/});
+		mcuSpeedBox = new JComboBox(new String[] {"ALL","16Mhz","20Mhz","72Mhz","720Mhz"});
 		mcuSpeedBox.addActionListener(this);
 		tableOption.add(mcuSpeedBox);
 		
@@ -611,6 +611,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			case 19:	return checkFlag(option,"SWC");
 			case 20:	return checkFlag(option,"MAL");
 			case 21:	return checkFlag(option,"GLCD");
+			case 22:	return checkFlag(option,"CIT");
+			case 23:	return checkFlag(option,"CIP");
 			}
 		}
 		

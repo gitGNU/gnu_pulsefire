@@ -90,10 +90,8 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_trig.listValues = new String[] {
 				"INT_LOOP",
 				"INT_FIRE",
-				"INT_FIRE_HOLD",
 				"EXT_PIN",
-				"EXT_FIRE",
-				"EXT_FIRE_HOLD"
+				"EXT_FIRE"
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
@@ -118,6 +116,17 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_mask_b.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_init_a.pulseModeDependency = new WirePulseMode[] { WirePulseMode.TRAIN };
 		CommandName.pulse_init_b.pulseModeDependency = new WirePulseMode[] { WirePulseMode.TRAIN };
+		CommandName.pulse_fire_mode.listValues = new String[] {
+				"NORMAL",
+				"NOSYNC",
+				"RESET"
+			};
+		CommandName.pulse_hold_mode.listValues = new String[] {
+				"STOP",
+				"CLEAR",
+				"ZERO",
+				"ZERO_CLEAR"
+			};
 		CommandName.pwm_on_cnt_a.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_on_cnt_b.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_off_cnt_a.pulseModeDependency = WirePulseMode.valuesOn();
@@ -149,6 +158,39 @@ public class CommandNameVersionFactory {
 		CommandName.ppm_data_len.pulseModeDependency = WirePulseMode.valuesPPM();
 		CommandName.ppm_data_a.pulseModeDependency = WirePulseMode.valuesPPM();
 		CommandName.ppm_data_b.pulseModeDependency = WirePulseMode.valuesPPM();
+		
+		CommandName.cit_0clock.listValues = new String[] {
+				"STOP",
+				"ON_1",
+				"ON_8",
+				"ON_32",
+				"ON_64",
+				"ON_128",
+				"ON_256",
+				"ON_1024"
+			};
+		CommandName.cit_0mode.listValues = new String[] {
+				"NORMAL",
+				"PWM_TOP",
+				"CTC",
+				"PWM_FAST",
+				"RESERVED",
+				"PWM_OCRA",
+				"RESERVED",
+				"PWM_OCRA_RV"
+			};		
+		CommandName.cit_0a_com.listValues = new String[] {
+				"A_NONE",
+				"A_TOGGLE",
+				"A_CLEAR",
+				"A_SET"
+			};
+		CommandName.cit_0b_com.listValues = new String[] {
+				"B_NONE",
+				"B_TOGGLE",
+				"B_CLEAR",
+				"B_SET"
+			};
 		
 		CommandName.lcd_size.listValues = new String[] {
 				"LCD_2x16",
@@ -186,7 +228,8 @@ public class CommandNameVersionFactory {
 				"PIN3_DOC9_OUT",
 				"PIN3_FREQ_IN",
 				"PIN3_FIRE_IN",
-				"PIN3_HOLD_FIRE_IN"
+				"PIN3_HOLD_FIRE_IN",
+				"PIN3_CIT0B_OUT"
 			};
 		CommandName.avr_pin4_map.listValues = new String[] {
 				"PIN4_OFF",
@@ -229,7 +272,6 @@ public class CommandNameVersionFactory {
 			};
 		CommandName.avr_pin47_map.listValues = new String[] {
 				"PIN47_OFF",
-				"PIN47_CLOCK_IN",
 				"PIN47_RELAY_OUT"
 			};
 		CommandName.avr_pin48_map.listValues = new String[] {
@@ -251,9 +293,9 @@ public class CommandNameVersionFactory {
 		
 		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
 		CommandName.freq_pwm_data.maxIndexB=3;
-		CommandName.req_ptt_fire.maxIndexA=3;
-		CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
-		CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
+	//	CommandName.req_ptt_fire.maxIndexA=3;
+	//	CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
+	//	CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
 		
 		CommandName.req_pwm_freq.disabled=true;
 		CommandName.swc_trig.disabled=true;
@@ -279,6 +321,17 @@ public class CommandNameVersionFactory {
 				"INT_FIRE",
 				"EXT_PIN"
 			};
+		CommandName.avr_pin3_map.listValues = new String[] {
+				"PIN3_OFF",
+				"PIN3_MENU0_IN",
+				"PIN3_DIC3_IN",
+				"PIN3_DIC9_IN",
+				"PIN3_DOC3_OUT",
+				"PIN3_DOC9_OUT",
+				"PIN3_FREQ_IN",
+				"PIN3_FIRE_IN",
+				"PIN3_HOLD_FIRE_IN"
+			};
 		CommandName.pwm_req_freq.disabled=true;
 		CommandName.pwm_req_idx.disabled=true;
 		CommandName.pwm_req_duty.aliasName="pwm_duty";
@@ -291,8 +344,8 @@ public class CommandNameVersionFactory {
 		CommandName.dic_enable.disabled=true;
 		CommandName.dic_inv.disabled=true;
 		CommandName.dic_sync.disabled=true;
-		CommandName.req_ptt_fire.disabled=true;
-		CommandName.req_mal_fire.disabled=true;
+	//	CommandName.req_ptt_fire.disabled=true;
+	//	CommandName.req_mal_fire.disabled=true;
 		CommandName.mal_fire.aliasName="mal_trig";
 		CommandName.pulse_inv_a.disabled=true;
 		CommandName.pulse_inv_b.disabled=true;

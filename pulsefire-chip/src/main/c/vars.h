@@ -48,7 +48,7 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
-#define PMCMDLIST_SIZE             20    // array size of other commands
+#define PMCMDLIST_SIZE             16    // array size of other commands
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
@@ -69,7 +69,7 @@ typedef uint8_t byte;
 #define CMD_WHITE_SPACE       " \r\t\n"  // All diffent white space chars to split commands on
 #define PULSE_DATA_OFF           0x0000  // Data for OFF output
 #define PULSE_DATA_ON            0xFFFF  // Data for ON  output
-#define VARS_INT_NUM_SIZE           4    // cache max 4 vars
+#define VARS_INT_NUM_SIZE           4    // cache max 4 uniq vars from int based value change.
 #define VARS_INT_SIZE               3    // 0=idx,1=idxA,3=value
 
 extern CHIP_PROGMEM_ARRAY pmCmdList[];
@@ -81,13 +81,13 @@ typedef struct {
 #ifdef SF_ENABLE_ADC
 	volatile uint16_t      adc_jitter;                      // Minmal adc value change until variable update
 	volatile uint16_t      adc_enable;                      // Per input enable bit field.
-	volatile uint16_t      adc_map[ADC_NUM_MAX][QMAP_SIZE]; // Map analog inputs to variable
+	volatile uint16_t      adc_map[ADC_MAP_MAX][QMAP_SIZE]; // Map analog inputs to variable
 #endif
 #ifdef SF_ENABLE_DIC
 	volatile uint16_t      dic_enable;                      // Per input enable bit field.
 	volatile uint16_t      dic_inv;                         // Per input invert bit field.
 	volatile uint16_t      dic_sync;                        // Per input sync bit field if true then mapping if run on change event else trigger to zero.
-	volatile uint16_t      dic_map[DIC_NUM_MAX][QMAP_SIZE];  // Map digital input channel to variable
+	volatile uint16_t      dic_map[DIC_MAP_MAX][QMAP_SIZE];  // Map digital input channel to variable
 #endif
 
 #ifdef SF_ENABLE_AVR
@@ -137,6 +137,14 @@ typedef struct {
 	volatile uint16_t      pulse_init_b;           // Init data for bank B
 	volatile uint16_t      pulse_inv_a;            // Inverse output data
 	volatile uint16_t      pulse_inv_b;            // Inverse output data for bank B
+	volatile uint8_t       pulse_fire_mode;        // Pulse fire mode
+	volatile uint8_t       pulse_hold_mode;        // Pulse hold mode
+	volatile uint8_t       pulse_hold_auto;        // Pulse auto hold step
+	volatile uint8_t       pulse_hold_autoclr;     // Pulse auto hold clear output
+	volatile uint16_t      pulse_fire_map	[FIRE_MAP_MAX][QMAP_SIZE]; // Events for pulse_fire event
+	volatile uint16_t      pulse_hold_map	[FIRE_MAP_MAX][QMAP_SIZE]; // Events for pulse_hold_fire event
+	volatile uint16_t      pulse_resume_map	[FIRE_MAP_MAX][QMAP_SIZE]; // Events for pulse_resume_fire event
+	volatile uint16_t      pulse_reset_map	[FIRE_MAP_MAX][QMAP_SIZE]; // Events for pulse_reset_fire event
 
 	volatile uint16_t      pwm_on_cnt_a[OUTPUT_MAX]; // Per step timer value
 	volatile uint16_t      pwm_on_cnt_b[OUTPUT_MAX]; // Per step timer value
@@ -236,10 +244,8 @@ typedef struct {
 	volatile uint8_t       cit_0int; // 3 bits
 	volatile uint8_t       cit_0a_ocr;
 	volatile uint8_t       cit_0a_com;
-	volatile uint16_t      cit_0a_map[CIT_MAP_MAX][QMAP_SIZE];
 	volatile uint8_t       cit_0b_ocr;
 	volatile uint8_t       cit_0b_com;
-	volatile uint16_t      cit_0b_map[CIT_MAP_MAX][QMAP_SIZE];
 #endif
 #ifdef SF_ENABLE_CIP
 	volatile uint8_t       cip_0clock;
@@ -278,7 +284,7 @@ typedef struct {
 	volatile uint32_t      sys_input_time_cnt;
 #ifdef SF_ENABLE_ADC
 	volatile uint32_t      adc_time_cnt;
-	volatile uint16_t      adc_value[ADC_NUM_MAX];
+	volatile uint16_t      adc_value[ADC_MAP_MAX];
 	volatile uint8_t       adc_state;
 	volatile uint8_t       adc_state_idx;
 	volatile uint16_t      adc_state_value;
@@ -346,6 +352,8 @@ typedef struct {
 	volatile uint16_t      pulse_fire_freq;        // The pulsefire cnt freq
 	volatile uint16_t      pulse_fire_freq_cnt;    // The pulsefire cnt freq internal counter
 	volatile uint8_t       pulse_hold_fire;        // Holds or resets the pulse fire state.
+	volatile uint8_t       pulse_reset_fire;       // Resets pulse train
+	volatile uint8_t       pulse_resume_fire;      // Resume pulse train after hold.
 	volatile uint8_t       pulse_step;             // The current pulse step
 	volatile uint16_t      pulse_data;             // The output data for next step
 	volatile uint8_t       pulse_dir_cnt;          // The current pulse direction
@@ -421,9 +429,19 @@ extern pf_conf_struct       pf_conf;
 #define PF_VARS_SIZE Vars_getSize()
 #define PF_VARS_PF_SIZE     7
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  39
+	#define PF_VARS_PWM_SIZE  49
 #else
 	#define PF_VARS_PWM_SIZE  0
+#endif
+#ifdef SF_ENABLE_CIT
+	#define PF_VARS_CIT_SIZE  7
+#else
+	#define PF_VARS_CIT_SIZE  0
+#endif
+#ifdef SF_ENABLE_CIP
+	#define PF_VARS_CIP_SIZE  8
+#else
+	#define PF_VARS_CIP_SIZE  0
 #endif
 #ifdef SF_ENABLE_LCD
 	#define PF_VARS_LCD_SIZE  9

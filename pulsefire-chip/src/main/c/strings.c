@@ -23,8 +23,9 @@
 
 #include "strings.h"
 
-
-// Strings
+//
+// All strings in pulsefire (except debug stuff)
+//
 const char pmGetSpaced[]               CHIP_PROGMEM = "==";
 const char pmSetSpaced[]               CHIP_PROGMEM = "=";
 const char pmPulseFire[]               CHIP_PROGMEM = "PulseFire ";
@@ -45,6 +46,7 @@ const char pmLcdSTVMax[]               CHIP_PROGMEM = " MAX ";
 const char pmLPMWait[]                 CHIP_PROGMEM = "Waiting";
 const char pmLPMStart[]                CHIP_PROGMEM = "Starting";
 const char pmLPMCancel[]               CHIP_PROGMEM = "Canceled";
+const char pmLPMDone[]                 CHIP_PROGMEM = "lpm_done"; // exception; used as serial event cmd.
 const char pmCmdUnknown[]              CHIP_PROGMEM = "# Err: command unknown";
 const char pmCmdHelpStart[]            CHIP_PROGMEM = "# The commands are;\r\n";
 const char pmCmdHelp[]                 CHIP_PROGMEM = "help";
@@ -62,11 +64,7 @@ const char pmCmdInfoProg[]             CHIP_PROGMEM = "info_prog";
 const char pmCmdInfoFreq[]             CHIP_PROGMEM = "info_freq";
 const char pmCmdInfoPPM[]              CHIP_PROGMEM = "info_ppm";
 const char pmCmdInfoChip[]             CHIP_PROGMEM = "info_chip";
-const char pmCmdReqLPMFire[]           CHIP_PROGMEM = "req_lpm_fire";
-const char pmCmdReqPulseFire[]         CHIP_PROGMEM = "req_pulse_fire";
-const char pmCmdReqPulseHoldFire[]     CHIP_PROGMEM = "req_pulse_hold_fire";
-const char pmCmdReqPTTFire[]           CHIP_PROGMEM = "req_ptt_fire";
-const char pmCmdReqMALFire[]           CHIP_PROGMEM = "req_mal_fire";
+const char pmCmdReqTrigger[]           CHIP_PROGMEM = "req_trigger";
 const char pmConfLCDSize[]             CHIP_PROGMEM = "lcd_size";
 const char pmConfDicMap[]              CHIP_PROGMEM = "dic_map";
 const char pmConfDicEnable[]           CHIP_PROGMEM = "dic_enable";
@@ -103,6 +101,14 @@ const char pmConfPulseMaskA[]          CHIP_PROGMEM = "pulse_mask_a";
 const char pmConfPulseMaskB[]          CHIP_PROGMEM = "pulse_mask_b";
 const char pmConfPulseInvA[]           CHIP_PROGMEM = "pulse_inv_a";
 const char pmConfPulseInvB[]           CHIP_PROGMEM = "pulse_inv_b";
+const char pmConfPulseFireMode[]       CHIP_PROGMEM = "pulse_fire_mode";
+const char pmConfPulseHoldMode[]       CHIP_PROGMEM = "pulse_hold_mode";
+const char pmConfPulseHoldAuto[]       CHIP_PROGMEM = "pulse_hold_auto";
+const char pmConfPulseHoldAutoClr[]    CHIP_PROGMEM = "pulse_hold_autoclr";
+const char pmConfPulseFireMap[]        CHIP_PROGMEM = "pulse_fire_map";
+const char pmConfPulseHoldMap[]        CHIP_PROGMEM = "pulse_hold_map";
+const char pmConfPulseResumeMap[]      CHIP_PROGMEM = "pulse_resume_map";
+const char pmConfPulseResetMap[]       CHIP_PROGMEM = "pulse_reset_map";
 const char pmConfPWMOnCntA[]           CHIP_PROGMEM = "pwm_on_cnt_a";
 const char pmConfPWMOnCntB[]           CHIP_PROGMEM = "pwm_on_cnt_b";
 const char pmConfPWMOffCntA[]          CHIP_PROGMEM = "pwm_off_cnt_a";
@@ -178,10 +184,6 @@ const char pmDataLPMStartTime[]        CHIP_PROGMEM = "lpm_start_time";
 const char pmDataLPMTotalTime[]        CHIP_PROGMEM = "lpm_total_time";
 const char pmDataLPMResult[]           CHIP_PROGMEM = "lpm_result";
 const char pmDataLPMLevel[]            CHIP_PROGMEM = "lpm_level";
-const char pmDataLPMFreqSettle[]       CHIP_PROGMEM = "lpm_freq_settle";
-const char pmDataLPMFreqStart[]        CHIP_PROGMEM = "lpm_freq_start";
-const char pmDataLPMFreqStop[]         CHIP_PROGMEM = "lpm_freq_stop";
-const char pmDataLPMFreqStep[]         CHIP_PROGMEM = "lpm_freq_step";
 const char pmDataPTCSysCnt[]           CHIP_PROGMEM = "ptc_sys_cnt";
 const char pmDataPTC0Cnt[]             CHIP_PROGMEM = "ptc_0cnt";
 const char pmDataPTC0RunCnt[]          CHIP_PROGMEM = "ptc_0run_cnt";
@@ -207,6 +209,8 @@ const char pmDataPulseFire[]           CHIP_PROGMEM = "pulse_fire";
 const char pmDataPulseFireCnt[]        CHIP_PROGMEM = "pulse_fire_cnt";
 const char pmDataPulseFireFreq[]       CHIP_PROGMEM = "pulse_fire_freq";
 const char pmDataPulseHoldFire[]       CHIP_PROGMEM = "pulse_hold_fire";
+const char pmDataPulseResetFire[]      CHIP_PROGMEM = "pulse_reset_fire";
+const char pmDataPulseResumeFire[]     CHIP_PROGMEM = "pulse_resume_fire";
 const char pmDataPulseStep[]           CHIP_PROGMEM = "pulse_step";
 const char pmDataPulseData[]           CHIP_PROGMEM = "pulse_data";
 const char pmDataPulseBankCnt[]        CHIP_PROGMEM = "pulse_bank_cnt";
@@ -229,6 +233,8 @@ const char pmChipCPUTypeAvrMega[]      CHIP_PROGMEM = "AVR_MEGA";
 const char pmChipCPUTypeArm7m[]        CHIP_PROGMEM = "ARM_7M";
 const char pmChipFlags[]               CHIP_PROGMEM = "chip_flags";
 const char pmChipFlagPWM[]             CHIP_PROGMEM = "PWM ";
+const char pmChipFlagCIP[]             CHIP_PROGMEM = "CIP ";
+const char pmChipFlagCIT[]             CHIP_PROGMEM = "CIT ";
 const char pmChipFlagLCD[]             CHIP_PROGMEM = "LCD ";
 const char pmChipFlagLPM[]             CHIP_PROGMEM = "LPM ";
 const char pmChipFlagPPM[]             CHIP_PROGMEM = "PPM ";

@@ -30,6 +30,7 @@
 #include "utils.h"
 
 #ifdef SF_ENABLE_PWM
+void PWM_pulsefire(void);
 void PWM_send_output(uint16_t data);
 void PWM_do_work_a(void);
 void PWM_do_work_b(void);

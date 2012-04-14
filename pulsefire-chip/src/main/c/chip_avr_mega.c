@@ -209,6 +209,13 @@ void Chip_setup(void) {
 	TIMSK0 |= (1 << TOIE0); // enable int op overflow
 	TCNT0 = ZERO;
 
+	// Timer2 8bit timer used CIT
+	OCR2A  = 0xFF;OCR2B  = 0xFF;
+	TCCR2A = ZERO;TCCR2B = ZERO;
+	//TIMSK2|= (ONE << TOIE2);
+	//TIMSK2|= (ONE << OCF2A);
+	//TIMSK2|= (ONE << OCF2B);
+
 	// enable adc
 	ADCSRA |= (1 << ADEN) | (1 << ADPS2) /* | (1 << ADPS1) */ | (1 << ADPS0); // div 32 if 1 then 128
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D) | (1 << ADC6D) | (1 << ADC7D); // disable digital input on adc pins
@@ -305,7 +312,9 @@ void Chip_eeprom_read(void* eemem) {
 }
 
 void Chip_eeprom_write(void* eemem) {
-	eeprom_write_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
+	wdt_disable();
+	eeprom_update_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
+	wdt_enable(WDT_MAIN_TIMEOUT);
 }
 
 uint8_t Chip_pgm_readByte(const char* p) {
@@ -325,41 +334,41 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_TCNT:		TCNT5 = value;			break;
 #endif
 #ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT_CLOCK:	TCCR2B = TCCR2B & 247 + (value & 7);			break;
-	case CHIP_REG_CIT_MODE:		TCCR2A = TCCR2A & 252 + (value & 3);TCCR2B = TCCR2B & 247 + (value & 8);break; // bit 0/1 + bit 3 in B
-	case CHIP_REG_CIT_INT:		TIMSK2 = TIMSK2 & 247 + (value & 7);			break;
-	case CHIP_REG_CIT_OCR_A:	OCR2A = value;									break;
-	case CHIP_REG_CIT_COM_A:	TCCR2A = TCCR2A & 63  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIT_OCR_B:	OCR2B = value;									break;
-	case CHIP_REG_CIT_COM_B:	TCCR2A = TCCR2A & 207 + ((value << 6) & 48);	break;
+	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);			break;
+	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & 252) + (value & 3);TCCR2B = (TCCR2B & 247) + (value & 8);break; // bit 0/1 + bit 3 in B
+	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);			break;
+	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;									break;
+	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & 63)  + ((value << 4) & 192);	break;
+	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;									break;
+	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & 207) + ((value << 6) & 48);	break;
 #endif
 #ifdef SF_ENABLE_CIP
-	case CHIP_REG_CIP_CLOCK:	TCCR1B = TCCR1B & 247 + (value & 7);			break;
-	case CHIP_REG_CIP_MODE:		TCCR1A = TCCR1A & 252 + (value & 3);TCCR1B = TCCR1B & 231 + (value & 24);break; // bit 0/1 + bit 3/4 in B
-	case CHIP_REG_CIP_OCR_A:	OCR1A = value;									break;
-	case CHIP_REG_CIP_COM_A:	TCCR1A = TCCR1A & 63  + ((value << 4) & 192);	break; // bit 6/7
-	case CHIP_REG_CIP_OCR_B:	OCR1B = value;									break;
-	case CHIP_REG_CIP_COM_B:	TCCR1A = TCCR1A & 207 + ((value << 6) & 48);	break; // bit 4/5
-	case CHIP_REG_CIP_OCR_C:	OCR1C = value;									break;
-	case CHIP_REG_CIP_COM_C:	TCCR1A = TCCR1A & 243 + ((value << 6) & 12);	break; // bit 2/3
+	case CHIP_REG_CIP0_CLOCK:	TCCR1B = (TCCR1B & 247) + (value & 7);			break;
+	case CHIP_REG_CIP0_MODE:	TCCR1A = (TCCR1A & 252) + (value & 3);TCCR1B = (TCCR1B & 231) + (value & 24);break; // bit 0/1 + bit 3/4 in B
+	case CHIP_REG_CIP0_OCR_A:	OCR1A = value;									break;
+	case CHIP_REG_CIP0_COM_A:	TCCR1A = (TCCR1A & 63)  + ((value << 4) & 192);	break; // bit 6/7
+	case CHIP_REG_CIP0_OCR_B:	OCR1B = value;									break;
+	case CHIP_REG_CIP0_COM_B:	TCCR1A = (TCCR1A & 207) + ((value << 6) & 48);	break; // bit 4/5
+	case CHIP_REG_CIP0_OCR_C:	OCR1C = value;									break;
+	case CHIP_REG_CIP0_COM_C:	TCCR1A = (TCCR1A & 243) + ((value << 6) & 12);	break; // bit 2/3
 
-	case CHIP_REG_CIP_CLOCK:	TCCR3B = TCCR3B & 247 + (value & 7);			break;
-	case CHIP_REG_CIP_MODE:		TCCR3A = TCCR3A & 252 + (value & 3);TCCR3B = TCCR3B & 231 + (value & 24);break;
-	case CHIP_REG_CIP_OCR_A:	OCR3A = value;									break;
-	case CHIP_REG_CIP_COM_A:	TCCR3A = TCCR3A & 63  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIP_OCR_B:	OCR3B = value;									break;
-	case CHIP_REG_CIP_COM_B:	TCCR3A = TCCR3A & 207 + ((value << 6) & 48);	break;
-	case CHIP_REG_CIP_OCR_C:	OCR3C = value;									break;
-	case CHIP_REG_CIP_COM_C:	TCCR3A = TCCR3A & 243 + ((value << 6) & 12);	break;
+	case CHIP_REG_CIP1_CLOCK:	TCCR3B = (TCCR3B & 247) + (value & 7);			break;
+	case CHIP_REG_CIP1_MODE:	TCCR3A = (TCCR3A & 252) + (value & 3);TCCR3B = (TCCR3B & 231) + (value & 24);break;
+	case CHIP_REG_CIP1_OCR_A:	OCR3A = value;									break;
+	case CHIP_REG_CIP1_COM_A:	TCCR3A = (TCCR3A & 63)  + ((value << 4) & 192);	break;
+	case CHIP_REG_CIP1_OCR_B:	OCR3B = value;									break;
+	case CHIP_REG_CIP1_COM_B:	TCCR3A = (TCCR3A & 207) + ((value << 6) & 48);	break;
+	case CHIP_REG_CIP1_OCR_C:	OCR3C = value;									break;
+	case CHIP_REG_CIP1_COM_C:	TCCR3A = (TCCR3A & 243) + ((value << 6) & 12);	break;
 
-	case CHIP_REG_CIP_CLOCK:	TCCR4B = TCCR4B & 247 + (value & 7);			break;
-	case CHIP_REG_CIP_MODE:		TCCR4A = TCCR4A & 252 + (value & 3);TCCR4B = TCCR4B & 231 + (value & 24);break;
-	case CHIP_REG_CIP_OCR_A:	OCR4A = value;									break;
-	case CHIP_REG_CIP_COM_A:	TCCR4A = TCCR4A & 63  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIP_OCR_B:	OCR4B = value;									break;
-	case CHIP_REG_CIP_COM_B:	TCCR4A = TCCR4A & 207 + ((value << 6) & 48);	break;
-	case CHIP_REG_CIP_OCR_C:	OCR4C = value;									break;
-	case CHIP_REG_CIP_COM_C:	TCCR4A = TCCR4A & 243 + ((value << 6) & 12);	break;
+	case CHIP_REG_CIP2_CLOCK:	TCCR4B = (TCCR4B & 247) + (value & 7);			break;
+	case CHIP_REG_CIP2_MODE:	TCCR4A = (TCCR4A & 252) + (value & 3);TCCR4B = (TCCR4B & 231) + (value & 24);break;
+	case CHIP_REG_CIP2_OCR_A:	OCR4A = value;									break;
+	case CHIP_REG_CIP2_COM_A:	TCCR4A = (TCCR4A & 63)  + ((value << 4) & 192);	break;
+	case CHIP_REG_CI2P_OCR_B:	OCR4B = value;									break;
+	case CHIP_REG_CI2P_COM_B:	TCCR4A = (TCCR4A & 207) + ((value << 6) & 48);	break;
+	case CHIP_REG_CI2P_OCR_C:	OCR4C = value;									break;
+	case CHIP_REG_CI2P_COM_C:	TCCR4A = (TCCR4A & 243) + ((value << 6) & 12);	break;
 #endif
 	default:
 		break;
@@ -622,13 +631,7 @@ uint16_t Chip_in_dic(void) {
 ISR(INT2_vect) {
 	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
-			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
-			pf_data.pulse_fire_cnt++;
-			pf_data.pulse_fire_freq_cnt++;
-			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
-			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
-		}
+		PWM_pulsefire();
 #endif
 		return;
 	}
@@ -653,13 +656,7 @@ ISR(INT2_vect) {
 ISR(INT3_vect) {
 	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
-			pf_data.pwm_state = PWM_STATE_RUN;
-			pf_data.pulse_fire_cnt++;
-			pf_data.pulse_fire_freq_cnt++;
-			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
-			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
-		}
+		PWM_pulsefire();
 #endif
 		return;
 	}
@@ -710,4 +707,20 @@ ISR(TIMER5_COMPA_vect) {
 ISR(USART0_RX_vect) {
 	Serial_rx_int(UDR0);
 }
+
+ISR(TIMER2_COMPA_vect) {
+#ifdef SF_ENABLE_CIT
+#endif
+}
+
+ISR(TIMER2_COMPB_vect) {
+#ifdef SF_ENABLE_CIT
+#endif
+}
+
+ISR(TIMER2_OVF_vect) {
+#ifdef SF_ENABLE_CIT
+#endif
+}
+
 

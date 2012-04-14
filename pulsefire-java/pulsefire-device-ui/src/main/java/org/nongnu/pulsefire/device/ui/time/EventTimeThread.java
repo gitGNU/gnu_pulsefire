@@ -55,6 +55,10 @@ public class EventTimeThread extends Thread {
 					EventTimeTrigger trig = executeSteps.get(i);
 					trig.setRunStartTime(System.currentTimeMillis());
 					trig.setTimeNextRun(trig.getRunStartTime()+trig.getTimeStep());
+					trig.setRunCounter(trig.getRunCounter()+1);
+					if (trig.getTimeRuns()>0 && trig.getRunCounter() >= trig.getTimeRuns()) {
+						eventTimeManager.removeEventTimeTrigger(trig); // remove before running to run once.
+					}
 					try {
 						trig.getRunnable().run();
 					} catch (Exception triggerException) {
@@ -62,10 +66,6 @@ public class EventTimeThread extends Thread {
 					} finally {
 						events++;
 						trig.setRunStopTime(System.currentTimeMillis());
-						trig.setRunCounter(trig.getRunCounter()+1);
-						if (trig.getTimeRuns()!=0 && trig.getRunCounter() > trig.getTimeRuns()) {
-							eventTimeManager.removeEventTimeTrigger(trig); // done with trigger
-						}
 						logger.finest("Executed trigger: "+trig.getTriggerName()+" in "+(trig.getRunStopTime()-trig.getRunStartTime())+" ms.");
 					}
 				}

@@ -142,6 +142,7 @@ void Chip_setup(void) {
 			break;
 		case PIN3_DOC3_OUT:
 		case PIN3_DOC9_OUT:
+		case PIN3_CIT0B_OUT:
 			DDRD  |=  (ONE<<IO_DEF_PIN3_PIN);
 			PORTD &= ~(ONE<<IO_DEF_PIN3_PIN);
 		default:
@@ -195,10 +196,12 @@ void Chip_setup(void) {
 	TCCR1B = pf_conf.pwm_clock & 7;
 #endif
 
-	// Timer2 8bit timer used for freq/rpm calculation
-	//OCR2A  = 0xFF;OCR2B  = 0xFF;
-	//TCCR2A = ZERO;//TCCR2B = DEFAULT_STEP_CLOCK;
-	//TIMSK2|= (ONE << TOIE2); //TCNT2  = ZERO;
+	// Timer2 8bit timer used CIT
+	OCR2A  = 0xFF;OCR2B  = 0xFF;
+	TCCR2A = ZERO;TCCR2B = ZERO;
+	//TIMSK2|= (ONE << TOIE2);
+	//TIMSK2|= (ONE << OCF2A);
+	//TIMSK2|= (ONE << OCF2B);
 
 	// setup interrupts signals
 	EICRA |= (1 << ISC01);  // Falling-Edge Triggered INT0
@@ -301,7 +304,9 @@ void Chip_eeprom_read(void* eemem) {
 	eeprom_read_block((void*)&pf_conf,eemem,sizeof(pf_conf_struct));
 }
 void Chip_eeprom_write(void* eemem) {
-	eeprom_write_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
+	wdt_disable();
+	eeprom_update_block((const void*)&pf_conf,eemem,sizeof(pf_conf_struct));
+	wdt_enable(WDT_MAIN_TIMEOUT);
 }
 
 uint8_t Chip_pgm_readByte(const char* p) {
@@ -321,13 +326,13 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_TCNT:		TCNT1 = value;			break;
 #endif
 #ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT_CLOCK:	TCCR2B = TCCR2B & 247 + (value & 7);			break;
-	case CHIP_REG_CIT_MODE:		TCCR2A = TCCR2A & 252 + (value & 3);TCCR2B = TCCR2B & 247 + (value & 8);break; // bit 0/1 + bit 3/4 in B
-	case CHIP_REG_CIT_INT:		TIMSK2 = TIMSK2 & 247 + (value & 7);			break;
-	case CHIP_REG_CIT_OCR_A:	OCR2A = value;									break;
-	case CHIP_REG_CIT_COM_A:	TCCR2A = TCCR2A & 63  + ((value << 4) & 192);	break; // bit 6/7
-	case CHIP_REG_CIT_OCR_B:	OCR2B = value;									break;
-	case CHIP_REG_CIT_COM_B:	TCCR2A = TCCR2A & 207 + ((value << 6) & 48);	break; // bit 4/5
+	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);			break;
+	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & 252) + (value & 3);TCCR2B = (TCCR2B & 247) + (value & 8);break; // bit 0/1 + bit 3/4 in B
+	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);			break;
+	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;									break;
+	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & 63)  + ((value << 6) & 192);	break; // bit 6/7
+	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;									break;
+	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & 207) + ((value << 4) & 48);	break; // bit 4/5
 #endif
 	default:
 		break;
@@ -538,7 +543,7 @@ uint16_t Chip_in_dic(void) {
 	}
 
 #ifdef SF_ENABLE_EXT_LCD_DIC
-	for (uint8_t i=ZERO;i < DIC_NUM_MAX/2  ;i++) {
+	for (uint8_t i=ZERO;i < DIC_MAP_MAX/2  ;i++) {
 		Chip_out_lcd(0x80,LCD_SEND_CMD,i/2);
 		if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
 		if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
@@ -564,13 +569,7 @@ uint16_t Chip_in_dic(void) {
 ISR(INT0_vect) {
 	if (pf_conf.avr_pin2_map == PIN2_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		if (pf_conf.pulse_trig >= PULSE_TRIG_EXT && pf_data.pwm_state == PWM_STATE_IDLE) {
-			pf_data.pwm_state = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
-			pf_data.pulse_fire_cnt++;
-			pf_data.pulse_fire_freq_cnt++;
-			Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
-			Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
-		}
+		PWM_pulsefire();
 #endif
 		return;
 	}
@@ -641,18 +640,18 @@ ISR(USART_RX_vect) {
 	Serial_rx_int(UDR0);
 }
 
-ISR(TIMER2_COMPB_vect) {
-#ifdef SF_ENABLE_OSC
+ISR(TIMER2_COMPA_vect) {
+#ifdef SF_ENABLE_CIT
 #endif
 }
 
-ISR(TIMER2_COMPA_vect) {
-#ifdef SF_ENABLE_OSC
+ISR(TIMER2_COMPB_vect) {
+#ifdef SF_ENABLE_CIT
 #endif
 }
 
 ISR(TIMER2_OVF_vect) {
-#ifdef SF_ENABLE_OSC
+#ifdef SF_ENABLE_CIT
 #endif
 }
 

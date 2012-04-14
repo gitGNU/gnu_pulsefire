@@ -62,7 +62,7 @@ public class EventTimeManager {
 		if (run==null) {
 			throw new NullPointerException("Can't execute null runnable object.");
 		}
-		EventTimeTrigger t = new EventTimeTrigger("runOnce",run,0);
+		EventTimeTrigger t = new EventTimeTrigger("once_"+run.getClass().getSimpleName(),run,0);
 		t.setTimeRuns(1); // run only once
 		addEventTimeTrigger(t);
 		logger.finer("Adding run once trigger class: "+run.getClass().getSimpleName());

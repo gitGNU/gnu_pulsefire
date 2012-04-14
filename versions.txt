@@ -13,9 +13,18 @@ Version 1.0:
 - Fixed async interrupt command push which sometimes printed thru an other cmd.
 - Added readonly vars pulse_fire_cnt and pulse_fire_freq.
 - Fixed ext_pin and pulse_fire trigger speed and fixed ext_pin fire only on idle pwm state.
-- Added mal_ops/mal_ops_fire/mal_mticks interpeter speed control. 
+- Added mal_ops/mal_ops_fire/mal_mticks interpreter speed control. 
 - Renamed mal_program to mal_code.
 - Splitted DIC_NUM_MAX to chip so now 8 normal and 16 on MEGA.
+- Recoded triggers removed all req_*_fire and replaced with req_trigger <idx|name> [<idxA>].
+- Added CIT,Chip Internal Timer on last hardware timer left in 168P/32P chip
+- Added pulse_reset_fire/pulse_resume_fire triggers to control pulse train.
+- Added pulse_fire_mode and pulse_hold_mode to control fire and hold setup.
+- Added pulse_fire/hold/resume/reset_map event maps on pulse fire sequence.
+- Improved save command speed by only update changed data.
+- Fixed MEGA save command, disabled watchdog while updating eeprom.
+- Fixed MEGA max value pulse_steps value and MEGA PTC map size.
+- Fixed MEGA MAL code address size issue when mal_code is bigger then 255.  
 
 Version 1.0-Beta8:
 - Fixed internal event pulse_fire trigger.

@@ -63,6 +63,26 @@ public class JCommandButton extends JButton implements ActionListener {
 		JComponentEnableStateListener.attach(this,commandName);
 	}
 	
+	/**
+	 * Special version for trigger buttons.
+	 * @param commandName
+	 * @param argument
+	 * @param index
+	 */
+	public JCommandButton(CommandName commandName,CommandName argument,Integer index) {
+		super();
+		setName("commandname."+argument.name()+".button");
+		command = new Command(commandName);
+		command.setArgu0(argument.name());
+		if (index != null) {
+			command.setArgu1(index.toString());
+			setName("commandname."+argument.name()+index+".button");
+		}
+		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(getName()+".text"));	// fill i18n
+		addActionListener(this);
+		JComponentEnableStateListener.attach(this,argument); // mm
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		PulseFireUI.getInstance().getDeviceManager().requestCommand(command);

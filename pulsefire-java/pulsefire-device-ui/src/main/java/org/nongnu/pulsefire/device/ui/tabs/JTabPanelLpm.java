@@ -139,7 +139,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
 		
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.req_lpm_fire, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_done, this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_level, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
 	}
@@ -180,7 +180,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		JPanel butTunePanel = new JPanel();
 		butTunePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		lpmAutoStartButton = new JCommandButton(CommandName.req_lpm_fire);
+		lpmAutoStartButton = new JCommandButton(CommandName.req_trigger,CommandName.lpm_fire,null);
 		lpmAutoLoopButton = new JButton("Loop");
 		lpmAutoCancelButton = new JButton("Cancel");
 		lpmTuneStartButton = new JButton("Start");
@@ -823,6 +823,12 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		lpmAutoLoopButton.setEnabled(false);
 	}
 	
+	private void requestLpm() {
+		Command cmd = new Command(CommandName.req_trigger);
+		cmd.setArgu0(CommandName.lpm_fire.name());
+		PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (stepEditButton.equals(e.getSource()) && tuneStepTable.getSelectedRow()!=-1) {
@@ -853,7 +859,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			updateProgress = true;
 			runSingle = true;
 		} else if (lpmAutoLoopButton.equals(e.getSource())) {
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+			requestLpm();
 			updateProgress = true;
 			runLoop = true;
 			lpmAutoCancelButton.setEnabled(true);
@@ -861,12 +867,15 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			lpmAutoStartButton.setEnabled(false);
 			lpmTuneStartButton.setEnabled(false);
 		} else if (lpmAutoCancelButton.equals(e.getSource())) {
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+			requestLpm();
 			updateProgress = true;
 			runLoop = false;
 			lpmAutoLoopButton.setEnabled(true);
 			lpmAutoStartButton.setEnabled(true);
 			lpmTuneStartButton.setEnabled(true);
+			stepEditButton.setEnabled(true);
+			stepAddButton.setEnabled(true);
+			stepDelButton.setEnabled(true);
 			
 		} else if (lpmTuneStartButton.equals(e.getSource())) {
 			lpmAutoStartButton.setEnabled(false);
@@ -909,6 +918,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			tuneResultModel.dataClear();
 		} else if (resultExportButton.equals(e.getSource())) {
 			JFileChooser fc = new JFileChooser();
+			fc.setApproveButtonText("Save");
 			fc.setSelectedFile(new File("lpm-results.csv"));
 			int returnVal = fc.showOpenDialog((JButton)e.getSource());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -999,7 +1009,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	
 	@Override
 	public void commandReceived(Command command) {
-		if (CommandName.req_lpm_fire.equals(command.getCommandName())) {
+		if (CommandName.lpm_done.equals(command.getCommandName())) {
 			
 			if ("done".equals(command.getArgu0())) {
 				return;
@@ -1157,7 +1167,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 					Thread.sleep(15000);
 				}
 				if (runTune | runLoop) {
-					PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.req_lpm_fire));
+					requestLpm();
 					updateProgress = true;
 				}
 			} catch (Exception e) {
