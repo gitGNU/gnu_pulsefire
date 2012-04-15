@@ -30,7 +30,7 @@ JAVA="java";
 JAVA_OPTS="-Xms64m -Xmx256m";
 MAIN_CLASS="org.nongnu.pulsefire.device.ui.PulseFireUI";
 JNI_LIB="pulsefire-rxtx-linux-i686.jar";
-CP=`echo lib/*.jar | sed 's/ \+/:/g'`;
+CP=`echo lib/*.jar | sed 's/ /:/g'`;
 
 # Special check for fruitcake products.
 case `uname -s` in 
