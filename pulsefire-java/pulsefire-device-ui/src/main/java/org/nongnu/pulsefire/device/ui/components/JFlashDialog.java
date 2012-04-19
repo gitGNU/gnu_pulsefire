@@ -113,7 +113,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private JProgressBar flashProgressBar = null;
 	private JTextArea flashLog = null;
 	private DateFormat flashLogTimeFormat = null;
-	private JButton cancelButton = null;
+	private JButton closeButton = null;
 	private JButton flashButton = null;
 	private JButton saveButton = null;
 	private DeviceImagesTableModel tableModel = null;
@@ -309,9 +309,9 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		flashButton = new JButton("Flash");
 		flashButton.addActionListener(this);
 		burnActionPanel.add(flashButton);
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
-		burnActionPanel.add(cancelButton);
+		closeButton = new JButton("Close");
+		closeButton.addActionListener(this);
+		burnActionPanel.add(closeButton);
 		
 		JPanel burnWrapPanel = new JPanel();
 		burnWrapPanel.setLayout(new BorderLayout());
@@ -323,7 +323,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource()==cancelButton) {
+		if (e.getSource()==closeButton) {
 			clearAndHide();
 			return;
 		}
@@ -359,7 +359,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			progVerboseBox.setEnabled(false);
 			progVerifyBox.setEnabled(false);
 			flashButton.setEnabled(false);
-			cancelButton.setEnabled(false);
+			closeButton.setEnabled(false);
 			table.setEnabled(false);
 			if (flashLog.getText().length()>32) {
 				flashLog.setText(""); // clear log for second flash 
@@ -460,7 +460,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			progVerboseBox.setEnabled(true);
 			progVerifyBox.setEnabled(true);
 			flashButton.setEnabled(true);
-			cancelButton.setEnabled(true);
+			closeButton.setEnabled(true);
 			table.setEnabled(true);
 			logger.fine("Stopped progress thread.");
 		}

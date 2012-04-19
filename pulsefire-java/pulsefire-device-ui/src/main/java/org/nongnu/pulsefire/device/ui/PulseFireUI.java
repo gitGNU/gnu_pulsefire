@@ -107,6 +107,32 @@ public class PulseFireUI extends SingleFrameApplication {
 		}
 	}
 	
+	private void checkSerialLibLock() {
+		String osname = System.getProperty("os.name");
+		if (osname==null) {
+			return;
+		}
+		if (osname.startsWith("Mac")==false) {
+			return; // This check is only needed on mac platform.
+		}
+		File varLock = new File("/var/lock");
+		if (varLock.exists()) {
+			return; // Only check existance 
+		}
+		String macError = "Fatal Max OS X Error:\n"+
+				"Directory '/var/lock' does not exists.\n"+
+				"Please do the following commands in 'Terminal';\n"+
+				"$ su\n"+
+				"# mkdir /var/lock\n"+
+				"# chmod 777 /var/lock\n"+
+				"# exit\n$ exit\n"+
+				"note: the 'su' command will ask for the root password.\n"+
+				"Done, now start pulsefire again.";
+				
+		JOptionPane.showMessageDialog(null, macError, "Mac RXTX Initialize Error", JOptionPane.ERROR_MESSAGE);
+		System.exit(1);
+	}
+	
 	/**
 	 * Does some native lib loading because if is different in each final deployment everment :(
 	 */
@@ -241,6 +267,7 @@ public class PulseFireUI extends SingleFrameApplication {
 					jniCopyOs = true;
 				}
 			}
+			checkSerialLibLock();
 			loadSerialLib(jniCopy,jniCopyOs);
 			initSerialLib();
 			
