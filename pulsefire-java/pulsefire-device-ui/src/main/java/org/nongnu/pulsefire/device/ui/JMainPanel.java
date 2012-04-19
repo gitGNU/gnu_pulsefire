@@ -153,11 +153,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabbedPane.setFont(UIManager.getFont("TabbedPane.font")); // workaround
 		tabbedPane.setBorder(BorderFactory.createEmptyBorder());
 		for (JFireTabPanel panel:tabPanels) {
-			JScrollPane scrollPane = new JScrollPane(panel.getJPanel());
-			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-			scrollPane.setBorder(BorderFactory.createEmptyBorder());
-			panel.setParentScrollPane(scrollPane);
+			JScrollPane scrollPane = createJScrollPane(panel);
 			tabbedPane.addTab(panel.getTabName(),panel.getTabIcon(),scrollPane,panel.getTabTooltip());
 		}
 		center.add(tabbedPane);
@@ -178,11 +174,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (scopePanel==null) {
 					scopePanel = new JTabPanelScope();
-					JScrollPane scrollPane = new JScrollPane(scopePanel.getJPanel());
-					scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-					scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-					scrollPane.setBorder(BorderFactory.createEmptyBorder());
-					scopePanel.setParentScrollPane(scrollPane);
+					JScrollPane scrollPane = createJScrollPane(scopePanel);
 					tabbedPane.addTab(scopePanel.getTabName(),scopePanel.getTabIcon(),scrollPane,scopePanel.getTabTooltip());
 				}
 			} else {
@@ -196,11 +188,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (uiLogPanel==null) {
 					uiLogPanel = new JTabPanelUILog();
-					JScrollPane scrollPane = new JScrollPane(uiLogPanel.getJPanel());
-					scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-					scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-					scrollPane.setBorder(BorderFactory.createEmptyBorder());
-					uiLogPanel.setParentScrollPane(scrollPane);
+					JScrollPane scrollPane = createJScrollPane(uiLogPanel);
 					tabbedPane.addTab(uiLogPanel.getTabName(),uiLogPanel.getTabIcon(),scrollPane,uiLogPanel.getTabTooltip());
 				}
 			} else {
@@ -221,5 +209,16 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 				break;
 			}
 		}
+	}
+	
+	private JScrollPane createJScrollPane(JFireTabPanel innerPanel) {
+		JScrollPane scrollPane = new JScrollPane(innerPanel.getJPanel());
+		scrollPane.setBorder(BorderFactory.createEmptyBorder());
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+		scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
+		innerPanel.setParentScrollPane(scrollPane);
+		return scrollPane;
 	}
 }

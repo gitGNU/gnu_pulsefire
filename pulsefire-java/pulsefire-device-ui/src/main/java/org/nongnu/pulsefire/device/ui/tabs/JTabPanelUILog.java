@@ -147,7 +147,7 @@ public class JTabPanelUILog extends AbstractFireTabPanel implements ActionListen
 			while (loggers.hasMoreElements()) {
 				String name = loggers.nextElement();
 				Logger logger = LogManager.getLogManager().getLogger(name);
-				if (name.contains("pulsefire")) {
+				if (logger!=null && name.contains("pulsefire")) {
 					logger.setLevel(level); // only set pulsefire code loggers
 				}
 			}

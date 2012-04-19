@@ -60,7 +60,6 @@ public class SerialDeviceWireThread extends Thread {
 	private DeviceCommandRequest sendCommand = null;
 	static private final String PULSE_FIRE_PROMT = "root@pulsefire:";
 	static private final String PULSE_FIRE_ERROR = "# Err:";
-	private int newLineEchos = 2;
 	
 	public SerialDeviceWireThread(SerialDeviceWireManager deviceManager,SerialPort serialPort) throws IOException {
 		if(deviceManager==null) {
@@ -177,58 +176,47 @@ public class SerialDeviceWireThread extends Thread {
 		while (reader.ready()) {
 			c = reader.read();
 			if (c == Command.LINE_END) {
-				if (newLineEchos==0) {
-					lineEnd = true;
-					break;
-				} else {
-					newLineEchos--; // fix for catching our self send newlines.
-					continue;
-				}
+				lineEnd = true;
+				break;
 			}
-			//if (c>=0x07 && c<=0x7F) { // only do printable chars.
 			readBuffer.append((char) c);
 		}
 		if (lineEnd==false) {
-			return;
+			return; // read line until line end is come by.
 		}
 		String scannedInput = readBuffer.toString().trim();
 		readBuffer = new StringBuffer();
-		
 		logger.finest("Raw data read: "+scannedInput);
+		
+		if (scannedInput.isEmpty()) {
+			return; // skip empty lines from fire data.
+		}
 		deviceManager.fireDataReceived(scannedInput);
 		
 		if (scannedInput.startsWith(PULSE_FIRE_ERROR)) {
 			if (sendCommand!=null) {
-				sendCommand.setResponse(sendCommand.getRequest()); // release que
+				sendCommand.setResponse(sendCommand.getRequest()); // release response code.
 				sendCommand = null;
 			}
+		}
+		if (scannedInput.startsWith("#")) {
+			return; // Skip all comments lines, except '# Err:' see above if.
 		}
 		
 		if (scannedInput.startsWith(PULSE_FIRE_PROMT)) {
 			//if (seenPromt && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
 			//	softReconnectDevice(false);
 			//}
-			seenPromt = true;
-			// todo this is hack to be able to connect while promt and device_version are on single line !!!
-			//if (scannedInput.contains(CommandName.chip_version.name())==false && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
-			//	return;
-			//}
+			seenPromt = true; // Remove promt from line and flag it.
 			scannedInput=scannedInput.substring(scannedInput.indexOf(':')+1,scannedInput.length()).trim();
-			if (scannedInput.contains("=")==false) {
-				return;
-			}
 		}
-		if (scannedInput.startsWith("#")) {
-			return;
-		}
-		if (scannedInput.isEmpty()) {
-			return;
-		}
+		
 		if (scannedInput.contains("=")==false) {
-			return; // all command except help output data have = char in it.
+			return; // all command except 'local echo' and 'help output' data have = char in it so skip line.
 		}
-		// fix for auto-echo fast connect to chip
-		if (scannedInput.startsWith(CommandName.info_chip.name()+CommandName.chip_version)) {
+		
+		// Extra hack to get chip_version after second connect on some platforms.
+		if (scannedInput.startsWith(CommandName.info_chip.name()+CommandName.chip_version.name())) {
 			scannedInput=scannedInput.substring(CommandName.info_chip.name().length(),scannedInput.length());
 		}
 		
@@ -276,7 +264,6 @@ public class SerialDeviceWireThread extends Thread {
 				}
 				if (cmd.getCommandName().equals(CommandName.reset_chip)) {
 					Thread.sleep(2000); // wait for boot of chip
-					newLineEchos = 1;
 					deviceManager.requestCommand(new Command(CommandName.req_tx_echo,"0"));
 					deviceManager.requestCommand(new Command(CommandName.req_tx_promt,"0"));
 					deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));

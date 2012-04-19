@@ -50,14 +50,17 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener,Pulse
 	@Override
 	public void run() {
 		if (run & runPause==false) {
+			if (runOnce) {
+				runOnce = false; // request one time extra info_conf so if some cmds where jammed we get them here.
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_chip)); // Get chip meta extra for some win32 connect issues.
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf)); // do before pull data to fix missing meta data.
+				settingUpdated(PulseFireUISettingKeys.PULL_SPEED,PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.PULL_SPEED));
+			}
+			
+			// Pull all data, later add support to pull only 'pull' data.
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
-			if (runOnce) {
-				runOnce = false; // request one time extra info_conf so if some cmds where jammed we get them here.
-				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf));
-				settingUpdated(PulseFireUISettingKeys.PULL_SPEED,PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.PULL_SPEED));
-			}
 		}
 	}
 

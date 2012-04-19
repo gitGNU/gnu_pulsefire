@@ -146,6 +146,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 				connectDialog = null; // reset when is closed.
 			}
 			if (connectDialog==null) {
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(PulseFireUISettingKeys.DEVICE_PORT,port);
 				connectDialog = new JConnectDialog(PulseFireUI.getInstance().getMainFrame(),port);
 			}
 		} else {
@@ -159,7 +160,6 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		portsComboBox.setEnabled(false);
 		connectButtton.setText("Disconnect");
 		versionLabel.setText(""+new Float(PulseFireUI.getInstance().getDeviceManager().getDeviceVersion())/10);
-		PulseFireUI.getInstance().getSettingsManager().setSettingString(PulseFireUISettingKeys.DEVICE_PORT,""+portsComboBox.getSelectedItem());
 	}
 
 	@Override
