@@ -27,7 +27,7 @@ cd `dirname $0`;
 
 # Config variables
 JAVA="java";
-JAVA_OPTS="-Xms64m -Xmx256m";
+JAVA_OPTS="-Xms64m -Xmx256m -splash:splash.png";
 MAIN_CLASS="org.nongnu.pulsefire.device.ui.PulseFireUI";
 JNI_LIB="pulsefire-rxtx-linux-i686.jar";
 CP=`echo lib/*.jar | sed 's/ /:/g'`;

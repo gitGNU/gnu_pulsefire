@@ -78,6 +78,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>readme.txt</include>
+        <include>splash.png</include>
         <include>logfile.properties</include>
       </includes>
     </fileSet>

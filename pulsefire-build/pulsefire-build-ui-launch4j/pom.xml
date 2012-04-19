@@ -94,6 +94,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <configuration>
               <headerType>gui</headerType>
               <outfile>${project.build.directory}/pulsefire.exe</outfile>
+              <icon>../../src/build/files/icon.ico</icon>
+              <splash>
+                <file>../../src/build/files/splash.bmp</file>
+                <timeout>60</timeout>
+              </splash>
               <jar>../../pulsefire-java/pulsefire-device-ui/target/pulsefire-device-ui-${project.version}.jar</jar>
               <!-- Fails with net.sf.launch4j.BuilderException: Specify runtime path of the jar relative to the executable.
               <dontWrapJar>true</dontWrapJar>
