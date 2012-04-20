@@ -25,7 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.nongnu.pulsefire</groupId>
   <artifactId>pulsefire-root</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>pulsefire-root</name>
   <description>pulsefire-root is the root maven project for the pulsefire build modules.</description>
