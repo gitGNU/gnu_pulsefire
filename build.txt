@@ -55,10 +55,26 @@ mvn versions:display-dependency-updates;
 
 -- Eclipse Setup --
 
-- Clone git and import project into workspace
-- Import maven modules from cloned directory
-- 
-TODO
+- Download Eclipse Indigo EE (3.7) from; http://eclipse.org/downloads/
+- Add "Eclipse EGit" plugin from indigo update site.
+- Add "m2e - maven for eclipse" plugin from indigo site.
+- Clone remote git repro to local.
+- Import project into workspace from git working dir.
+- Import the other modules by Import -> Maven/ Excisting maven projects and the select the git working dir.
+
+- Goto pulsefire-device-ui and open class PulseFireUI.
+- Run PulseFireUI it will start and give two warnings;
+[WARNING] Could not load build info impl fallback to local one.
+This is not fatal it only is for the build into in the title of frame and will go away
+after doing a package or install of pulsefire project.
+[WARNING] Could not init serial lib: gnu.io.CommPortIdentifier
+To fix goto the eclipse "Run configurations" and select the PulseFireUI one.
+Goto Arguments tab panel and fill in the program arguments
+"-jni-cp" (without quotes)
+And fill in the VM arguments;
+"-Djava.library.path=. -Xmx100M" (without quotes)
+Then apply and run and pulsefire should connect to serial correctly. 
+
 
 
 

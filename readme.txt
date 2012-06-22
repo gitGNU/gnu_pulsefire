@@ -28,6 +28,7 @@ src                 - site/schematic source.
 === Licenced binary files ===
 
 ./src/schemetic/avr-ext-chips.sch
+./src/schemetic/pf-wfc-driver.sch
 ./src/docbook/images/logo-pulsefire.png
 ./src/docbook/images/pulsefire-overview.svg
 ./src/site/resources/images/arduino-default.png
@@ -40,6 +41,7 @@ src                 - site/schematic source.
 ./src/site/resources/images/pulsefire-ui-inputs.png
 ./src/site/resources/images/pulsefire-ui-pwm.png
 ./src/site/resources/images/pulsefire-ui-vars.png
+./src/site/resources/images/pf-wfc-driver.png
 ./src/site/pulsefire.jks
 
 The binary files in the above listing fall all under
