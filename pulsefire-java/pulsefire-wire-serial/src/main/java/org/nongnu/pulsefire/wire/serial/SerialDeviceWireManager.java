@@ -160,8 +160,12 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			//requestCommand(new Command(CommandName.req_tx_promt,"1")).waitForResponse(); // turn promt on
 			//requestCommand(new Command(CommandName.req_tx_echo,"1")).waitForResponse();  // turn echo on
 		}
-		serialThread.shutdown();
-		serialThread = null;
+		
+		// can be null with multiple clicks fired..
+		if (serialThread!=null) { 
+			serialThread.shutdown();
+			serialThread = null;
+		}
 		super.disconnect(error);
 	}
 }

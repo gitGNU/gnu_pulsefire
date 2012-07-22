@@ -29,8 +29,11 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -73,6 +76,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
 import org.nongnu.pulsefire.device.flash.FlashHexReader;
@@ -90,7 +94,7 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
  * 
  * @author Willem Cazander
  */
-public class JFlashDialog extends JDialog implements ActionListener,ListSelectionListener,FlashLogListener {
+public class JFlashDialog extends JDialog implements ActionListener,ListSelectionListener,FlashLogListener, MouseListener {
 	
 	private static final long serialVersionUID = -7552916322807635756L;
 	private Logger logger = null;
@@ -98,14 +102,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private volatile FlashProgramController flashProgramController = null;
 	private JComboBox mcuTypeBox = null;
 	private JComboBox mcuSpeedBox = null;
-	private JCheckBox buildLcdBox = null;
-	private JCheckBox buildLpmBox = null;
-	private JCheckBox buildPpmBox = null;
-	private JCheckBox buildAdcBox = null;
-	private JCheckBox buildExtOutBox = null;
-	private JCheckBox buildExtOut16Box = null;
-	private JCheckBox buildExtLcdBox = null;
-	private JCheckBox buildExtDocBox = null;
+	private JPanel filterItemPanel = null;
+	private Map<String,FilterItem> filterItems = new HashMap<String,FilterItem>(10);
 	private JComboBox portsComboBox = null;
 	private JComboBox progComboBox = null;
 	private JCheckBox progVerboseBox = null; 
@@ -151,75 +149,41 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		setLocationRelativeTo(aFrame);
 	}
 	
+	class FilterItem {
+		String name;
+		JCheckBox checkBox;
+		JLabel label;
+	}
+	
 	private JPanel createPanelTop() {
-		JPanel tableOption = JComponentFactory.createJFirePanel("Filter options");
+		JPanel filterHeaderPanel = JComponentFactory.createJFirePanel("Filter options");
+		
+		JPanel tableOption = new JPanel();
 		tableOption.setLayout(new SpringLayout());
 		
 		JLabel mcuText = new JLabel("mcu:");
 		tableOption.add(mcuText);
-		mcuTypeBox = new JComboBox(new String[] {"ALL","atmega328p","atmega168p","atmega1280","atmega2560"});
+		mcuTypeBox = JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.FLASH_MCU_TYPE, new String[] {"ALL","atmega328p","atmega168p","atmega1280","atmega2560"}); 
 		mcuTypeBox.addActionListener(this);
 		tableOption.add(mcuTypeBox);
 
-		JLabel lcdText = new JLabel("lcd:");
-		tableOption.add(lcdText);
-		buildLcdBox = new JCheckBox();
-		buildLcdBox.addActionListener(this);
-		tableOption.add(buildLcdBox);
-		
-		JLabel ppmText = new JLabel("ppm:");
-		tableOption.add(ppmText);
-		buildPpmBox = new JCheckBox();
-		buildPpmBox.addActionListener(this);
-		tableOption.add(buildPpmBox);	
-
-		JLabel extOutText = new JLabel("ext_out:");
-		tableOption.add(extOutText);
-		buildExtOutBox = new JCheckBox();
-		buildExtOutBox.addActionListener(this);
-		tableOption.add(buildExtOutBox);
-		
-		JLabel extLcdText = new JLabel("ext_lcd:");
-		tableOption.add(extLcdText);
-		buildExtLcdBox = new JCheckBox();
-		buildExtLcdBox.addActionListener(this);
-		tableOption.add(buildExtLcdBox);
-		
 		JLabel speedText = new JLabel("speed:");
 		tableOption.add(speedText);
-		mcuSpeedBox = new JComboBox(new String[] {"ALL","16Mhz","20Mhz","72Mhz","720Mhz"});
+		mcuSpeedBox = JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.FLASH_MCU_SPEED,new String[] {"ALL","16Mhz","20Mhz","72Mhz","720Mhz"}); 
 		mcuSpeedBox.addActionListener(this);
 		tableOption.add(mcuSpeedBox);
 		
-		JLabel lpmText = new JLabel("lpm:");
-		tableOption.add(lpmText);
-		buildLpmBox = new JCheckBox();
-		buildLpmBox.addActionListener(this);
-		tableOption.add(buildLpmBox);
+		SpringLayoutGrid.makeCompactGrid(tableOption,2,2);
 		
-		JLabel adcText = new JLabel("adc:");
-		tableOption.add(adcText);
-		buildAdcBox = new JCheckBox();
-		buildAdcBox.addActionListener(this);
-		tableOption.add(buildAdcBox);
+		filterItemPanel = new JPanel();
+		filterItemPanel.setLayout(new SpringLayout());
 		
-		JLabel extOut16Text = new JLabel("ext_o16:");
-		tableOption.add(extOut16Text);
-		buildExtOut16Box = new JCheckBox();
-		buildExtOut16Box.addActionListener(this);
-		tableOption.add(buildExtOut16Box);
-		
-		JLabel extDocText = new JLabel("ext_doc:");
-		tableOption.add(extDocText);
-		buildExtDocBox = new JCheckBox();
-		buildExtDocBox.addActionListener(this);
-		tableOption.add(buildExtDocBox);	
-		
-		SpringLayoutGrid.makeCompactGrid(tableOption,2,10);
+		filterHeaderPanel.add(tableOption);
+		filterHeaderPanel.add(filterItemPanel);
 		
 		JPanel optionWrapPanel = new JPanel();
 		optionWrapPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		optionWrapPanel.add(tableOption);
+		optionWrapPanel.add(filterHeaderPanel);
 		
 		return optionWrapPanel;
 	}
@@ -236,6 +200,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		table.getSelectionModel().addListSelectionListener(this);
 		table.setRowMargin(2);
 		table.setRowHeight(26);
+		table.getTableHeader().addMouseListener(this);
+		
 		TableColumn nameColumn = table.getColumnModel().getColumn(0);
 		nameColumn.setPreferredWidth(150);
 		TableColumn speedColumn = table.getColumnModel().getColumn(1);
@@ -385,6 +351,8 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			ProgressThread p = new ProgressThread();p.start();
 			return;
 		}
+		
+		// Always refilter (also used for filter checkboxes)
 		tableModel.refilterData();
 	}
 
@@ -528,28 +496,21 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				if(option.name!=null && option.name.startsWith("arm")) {
 					continue; // skip test arm builds for now
 				}
-				if (buildLcdBox.isSelected() && checkFlag(option,"LCD")==false) {
-					continue;
+				
+				boolean filter = false;
+				for (FilterItem fi:filterItems.values()) {
+					boolean selected = fi.checkBox.isSelected();
+					boolean flag = checkFlag(option,fi.name);
+					if (selected && flag==false) {
+						filter = true;
+						break;
+					}
+					if (selected==false && flag) {
+						filter = true;
+						break;
+					}
 				}
-				if (buildLpmBox.isSelected() && checkFlag(option,"LPM")==false) {
-					continue;
-				}
-				if (buildPpmBox.isSelected() && checkFlag(option,"PPM")==false) {
-					continue;
-				}
-				if (buildAdcBox.isSelected() && checkFlag(option,"ADC")==false) {
-					continue;
-				}
-				if (buildExtOutBox.isSelected() && checkFlag(option,"EXT_OUT")==false) {
-					continue;
-				}
-				if (buildExtOut16Box.isSelected() && checkFlag(option,"EXT_OUT_16BIT")==false) {
-					continue;
-				}
-				if (buildExtLcdBox.isSelected() && checkFlag(option,"EXT_LCD")==false) {
-					continue;
-				}
-				if (buildExtDocBox.isSelected() && checkFlag(option,"EXT_LCD_DOC")==false) {
+				if (filter) {
 					continue;
 				}
 				if (mcuTypeBox.getSelectedIndex()>0) {
@@ -753,5 +714,86 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		logger.info("Loaded makefile with: "+result.size()+" builds.");
 		return result.values();
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent evt) {
+		TableColumnModel colModel = table.getColumnModel();
+		int columnIndex = colModel.getColumnIndexAtX(evt.getX());
+		int modelIndex = table.convertColumnIndexToModel(columnIndex);
+		if (columnIndex < 0 | modelIndex < 0) {
+			return;
+		}
+		Rectangle headerPadding = table.getTableHeader().getHeaderRect(columnIndex);
+		if (columnIndex == 0) {
+			headerPadding.width -= 3;
+		} else {
+			headerPadding.grow(-3, 0);
+		}
+		if (headerPadding.contains(evt.getX(), evt.getY())==false) {
+			return; // between columns
+		}
+		if (modelIndex==0) {
+			return; // name column
+		}
+		if (modelIndex==1) {
+			return; // speed column
+		}
+		
+		String name = tableModel.getColumnName(modelIndex);
+		
+		// fix long EXT_ names
+		if ("EXT_O16".equals(name)) {
+			name = "EXT_OUT_16BIT";
+		}
+		if ("EXT_DIC".equals(name)) {
+			name = "EXT_LCD_DIC";
+		}
+		if ("EXT_DOC".equals(name)) {
+			name = "EXT_LCD_DOC";
+		}
+		
+		FilterItem fi = filterItems.get(name);
+		if (fi==null) {
+			fi = new FilterItem();
+			fi.name=name;
+			fi.checkBox=new JCheckBox();
+			fi.checkBox.addActionListener(this);
+			fi.checkBox.setSelected(true);
+			fi.label=new JLabel(name);
+			filterItems.put(name,fi);
+		} else {
+			fi.checkBox.removeActionListener(this);
+			filterItems.remove(fi.name);
+		}
+		
+		filterItemPanel.removeAll();
+		for (FilterItem i:filterItems.values()) {
+			filterItemPanel.add(i.label);
+			filterItemPanel.add(i.checkBox);
+		}
+		
+		int compomentCount = filterItems.size();
+		int columnCount = 2;
+		int spaceSize = (compomentCount/columnCount)*columnCount;
+		if (spaceSize!=compomentCount) {
+			spaceSize += columnCount;
+		}
+		for (int i=compomentCount;i<spaceSize;i++) {
+			filterItemPanel.add(new JLabel(""));
+			filterItemPanel.add(new JLabel(""));
+		}
+		SpringLayoutGrid.makeCompactGrid(filterItemPanel,2,filterItemPanel.getComponentCount()/2);
+		
+		filterItemPanel.revalidate();
+		tableModel.refilterData();
+	}
+	@Override
+	public void mouseEntered(MouseEvent arg0) {}
+	@Override
+	public void mouseExited(MouseEvent arg0) {}
+	@Override
+	public void mousePressed(MouseEvent arg0) {}
+	@Override
+	public void mouseReleased(MouseEvent arg0) {}
 
 }

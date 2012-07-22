@@ -8,7 +8,7 @@ pf_conf_struct       pf_conf;
 pf_conf_struct EEMEM pf_conf_eeprom;
 #endif
 
-CHIP_PROGMEM_ARRAY pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
+CHIP_PROGMEM_ARRAY const pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
 		pmCmdHelp,pmCmdSave,
 		pmCmdInfoConf,pmCmdInfoData,pmCmdInfoProg,pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoChip,
 		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,
@@ -247,12 +247,12 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_PTC
 	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.ptc_sys_cnt,         (CHIP_PTR_TYPE)&pmDataPTCSysCnt,       0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0cnt,            (CHIP_PTR_TYPE)&pmDataPTC0Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_0cnt,            (CHIP_PTR_TYPE)&pmDataPTC0Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0run_cnt,        (CHIP_PTR_TYPE)&pmDataPTC0RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0map_idx,        (CHIP_PTR_TYPE)&pmDataPTC0MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_0mul_cnt,        (CHIP_PTR_TYPE)&pmDataPTC0MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_0step,           (CHIP_PTR_TYPE)&pmDataPTC0Step,        ONE,                 PFVB_DT0+PFVB_NOMAP,            ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1cnt,            (CHIP_PTR_TYPE)&pmDataPTC1Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_1cnt,            (CHIP_PTR_TYPE)&pmDataPTC1Cnt,         0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1run_cnt,        (CHIP_PTR_TYPE)&pmDataPTC1RunCnt,      0xFF,                PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptc_1map_idx,        (CHIP_PTR_TYPE)&pmDataPTC1MapIdx,      PTC_TIME_MAP_MAX,    PFVB_DT0+PFVB_NOMAP,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptc_1mul_cnt,        (CHIP_PTR_TYPE)&pmDataPTC1MulCnt,      0xFFFF,              PFVB_DT0+PFVB_NOMAP,            ZERO},
@@ -260,7 +260,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 #ifdef SF_ENABLE_PTT
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_idx,             (CHIP_PTR_TYPE)&pmDataPTTIdx,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_cnt,             (CHIP_PTR_TYPE)&pmDataPTTCnt,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.ptt_cnt,             (CHIP_PTR_TYPE)&pmDataPTTCnt,          0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_fire,            (CHIP_PTR_TYPE)&pmDataPTTFire,         0xFF,                (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_TRIG,  ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.ptt_step,            (CHIP_PTR_TYPE)&pmDataPTTStep,         ONE,                 (PTT_TRIG_VAR_SIZE<<8)+PFVB_DT0+PFVB_IDXA+PFVB_NOMAP, ZERO},
 #endif
@@ -460,7 +460,7 @@ uint16_t Vars_getIndexFromName(char* name) {
 #ifdef SF_ENABLE_ARM_7M
 		if (strcmp(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
 #else
-		if (strcmp_P(name, (const prog_char*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) { // TODO: rm _P but not with UNPSTR
+		if (strcmp_P(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) { // TODO: rm _P but not with UNPSTR
 #endif
 			return i;
 		}

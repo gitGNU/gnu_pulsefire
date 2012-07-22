@@ -122,11 +122,11 @@ public class PulseFireUI extends SingleFrameApplication {
 		String macError = "Fatal Max OS X Error:\n"+
 				"Directory '/var/lock' does not exists.\n"+
 				"Please do the following commands in 'Terminal';\n"+
-				"$ su\n"+
+				"$ sudo bash\n"+
 				"# mkdir /var/lock\n"+
 				"# chmod 777 /var/lock\n"+
 				"# exit\n$ exit\n"+
-				"note: the 'su' command will ask for the root password.\n"+
+				"note: the 'sudo' command will ask for your password.\n"+
 				"Done, now start pulsefire again.";
 				
 		JOptionPane.showMessageDialog(null, macError, "Mac RXTX Initialize Error", JOptionPane.ERROR_MESSAGE);

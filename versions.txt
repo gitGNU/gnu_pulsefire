@@ -1,6 +1,19 @@
 
 === PulseFire versions ===
 
+Version 1.0.4:
+- Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 
+- Enabled cit_0a_com gui dropdown box.
+- Fixed avr-gcc const warning of pmCmdList array.
+- Added more variable filters in data tab panel.
+- Improved chip seconds timing from ~96% to ~99.5% relative to atom time.
+- Fixed/removed the 50% extra time offset of ptt and ptc 'time' mapping.
+  (now ptt time step of 6000 is 10min but in real 10min and ~24secs)
+- Redone firmware filter options, speed/type are saved and click column header to filter.
+- Fixed dial start offset, now relative from start so it is not jumping anymore.
+- Improved fire dial tooltip editor support.
+- Improved fire qmap table keyboard handling support.
+
 Version 1.0:
 - Renamed lpm_auto_cmd to lpm_fire and made triggerable.
 - Renamed req_auto_lpm to req_lpm_fire like other triggers.

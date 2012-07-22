@@ -205,7 +205,7 @@ void Chip_setup(void) {
 
 	// Timer0 is used for timemanagement
 	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
-	TCCR0B |= (1 << CS00) | (1 << CS01);   // prescaler /64
+	TCCR0B |= (1 << CS01);  // prescaler /8
 	TIMSK0 |= (1 << TOIE0); // enable int op overflow
 	TCNT0 = ZERO;
 
@@ -680,8 +680,8 @@ ISR(INT3_vect) {
 
 ISR(TIMER0_OVF_vect) {
 	pf_prog.sys_time_ticks++;
-	if (pf_prog.sys_time_ticks>(F_CPU/64/256/100)) {
-		pf_prog.sys_time_ticks=0;
+	if (pf_prog.sys_time_ticks >= (F_CPU/8/256/100)) {
+		pf_prog.sys_time_ticks=ZERO;
 		pf_prog.sys_time_ssec++;
 	}
 }

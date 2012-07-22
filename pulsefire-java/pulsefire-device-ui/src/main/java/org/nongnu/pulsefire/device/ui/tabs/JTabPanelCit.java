@@ -25,7 +25,6 @@ package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
 
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -66,9 +65,8 @@ public class JTabPanelCit extends AbstractFireTabPanel {
 		panel.add(new JCommandLabel		(CommandName.cit_0clock));
 		panel.add(new JCommandComboBox	(CommandName.cit_0clock));
 		panel.add(new JCommandLabel		(CommandName.cit_0a_com));
-		JComboBox b = new JComboBox(new String[] {"TODO"});
-		b.setEnabled(false);
-		panel.add(b);
+		panel.add(new JCommandComboBox	(CommandName.cit_0a_com));
+
 		//panel.add(new JCommandComboBox	(CommandName.cit_0a_com));
 		panel.add(new JCommandLabel		(CommandName.cit_0mode));
 		panel.add(new JCommandComboBox	(CommandName.cit_0mode));

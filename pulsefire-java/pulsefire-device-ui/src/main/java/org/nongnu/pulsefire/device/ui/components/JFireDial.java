@@ -55,13 +55,16 @@ public class JFireDial extends JComponent  {
 	private boolean mouseDialing = false;
 	private boolean entered = false;
 	private String text = null;
-	private Popup popupContainer = null;
 	private int value = 0;
 	private int valueOld = 0;
 	private int valueMin = 0;
 	private int valueMax = 0;
 	private int radiusSize = 0;
 	private int dotIndex = -1;
+	private int spinStartX = 0;
+	private int spinStartY = 0;
+	private int spinStartValue = 0;
+	static private Popup globalPopup = null; 
 	
 	public JFireDial() {
 		this(0,100,0);
@@ -71,46 +74,31 @@ public class JFireDial extends JComponent  {
 		setMinimum(minValue);
 		setMaximum(maxValue);
 		setValue(value);
+		addMouseMotionListener(new MouseMotionAdapter(  ) {
+			public void mouseDragged(MouseEvent e) {
+				spin(e);
+			}
+		});
 		addMouseListener(new MouseAdapter() {
-			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
-				if (popupContainer!=null) {
-					e.consume();
-					popupContainer.hide();
-					popupContainer = null;
-					return;
-				}
-				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 					e.consume();
-					if (popupContainer!=null) {
-						popupContainer.show();
-					} else {
-						JPanel PopUpPanel = new JPanel();
-						PopUpPanel.setPreferredSize(new Dimension(80,30));
-						PopUpPanel.setLayout(new BoxLayout(PopUpPanel,BoxLayout.Y_AXIS));
-						PopupFactory factory = PopupFactory.getSharedInstance();
-						popupContainer = factory.getPopup( ((JFireDial)e.getSource()).getRootPane(),PopUpPanel,e.getXOnScreen()-10,e.getYOnScreen()-10);
-						JIntegerTextField textField = new JIntegerTextField(getValue(),10);
-						textField.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								popupContainer.hide();
-								setValue(((JIntegerTextField)e.getSource()).getValue());
-							}
-						});
-						PopUpPanel.add(textField);
-						popupContainer.show();
-						textField.requestFocus();
-					}
+					showPopup(e);
 				}
 			}
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if (globalPopup!=null) {
+					globalPopup.hide();
+					globalPopup = null;
+				}
+				spinStartValue = getValue();
+				spinStartX = e.getX();
+				spinStartY = e.getY();
 				mouseDialing = true;
 				spin(e);
+				repaint();
 			}
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -128,46 +116,89 @@ public class JFireDial extends JComponent  {
 				repaint();
 			}
 		});
-		addMouseMotionListener(new MouseMotionAdapter(  ) {
-			public void mouseDragged(MouseEvent e) {
-				spin(e);
-			}
-		});
 	}
 
+	private void showPopup(MouseEvent e) {
+
+		if (globalPopup!=null) {
+			globalPopup.hide();
+			globalPopup = null;
+		}
+		
+		JPanel PopUpPanel = new JPanel();
+		PopUpPanel.setPreferredSize(new Dimension(80,30));
+		PopUpPanel.setLayout(new BoxLayout(PopUpPanel,BoxLayout.Y_AXIS));
+		PopupFactory factory = PopupFactory.getSharedInstance();
+
+		globalPopup = factory.getPopup( ((JFireDial)e.getSource()).getRootPane(),PopUpPanel,e.getXOnScreen()-10,e.getYOnScreen()-10);
+		JIntegerTextField textField = new JIntegerTextField(getValue(),10);
+		textField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				globalPopup.hide();
+				globalPopup = null;
+				setValue(((JIntegerTextField)e.getSource()).getValue());
+			}
+		});
+		PopUpPanel.add(textField);
+		globalPopup.show();
+		textField.requestFocus();
+	}
+	
 	protected void spin(MouseEvent e) {
 		if (isEnabled()==false) {
 			return;
 		}
-		int y = e.getY();
-		int x = e.getX();
-		if (y > getPreferredSize().width) {
-			return; // looks stange but hight is offseted so width is radius
-		}
-		double th = Math.atan((1.0*y-radiusSize)/(x-radiusSize));
-		int value=(int)(th/(2*Math.PI)*(valueMax-valueMin));
-		if (x < radiusSize) {
-			setValue(value+(valueMax-valueMin)/2+valueMin);
-		} else if (y < radiusSize) {
-			setValue( value + valueMax );
+		
+		// Calc new value based on mouse x/y
+		double valueNewTh = Math.atan( ((1.0*e.getY()-radiusSize)/(e.getX()-radiusSize)) );
+		int valueNewOffset=(int)(valueNewTh/(2*Math.PI)*(valueMax-valueMin));
+		int valueNew = 0;
+		if (e.getX() < radiusSize) {
+			valueNew = valueNewOffset + (valueMax-valueMin)/2 + valueMin;
+		} else if (e.getY() < radiusSize) {
+			valueNew = valueNewOffset + valueMax;
 		} else {
-			setValue( value + valueMin);
+			valueNew = valueNewOffset + valueMin;
 		}
+		
+		// Calc start value based on spin start x/y
+		double valueStartTh = Math.atan( ((1.0*spinStartY-radiusSize)/(spinStartX-radiusSize)) );
+		int valueStartOffset=(int)(valueStartTh/(2*Math.PI)*(valueMax-valueMin));
+		int valueStart = 0;
+		if (spinStartX < radiusSize) {
+			valueStart = valueStartOffset + (valueMax-valueMin)/2 + valueMin;
+		} else if (spinStartY < radiusSize) {
+			valueStart = valueStartOffset + valueMax;
+		} else {
+			valueStart = valueStartOffset + valueMin;
+		}
+		
+		// Calc and set relative spin value
+		int valueChange = spinStartValue-valueStart;
+		int valueNewRelative = valueNew + valueChange;
+		if (valueNewRelative < 0) {
+			valueNewRelative = valueMax + valueNewRelative;
+		} else if (valueNewRelative > valueMax) {
+			valueNewRelative = valueNewRelative - valueMax;
+		}
+		setValue ( valueNewRelative );
 	}
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		
+		// Calc circle values
 		int h = getSize().height;
 		int h2 = h/2;
 		int w = getSize().width;
 		int w2 = w/2;
 		radiusSize = (Math.min(w,h)/2)-1;
 		int radiusInner = Math.min(w2,h2)-1;
-		//int radiusOut = Math.min(w+1,h+1)/2;
 		double th = value*(2*Math.PI)/(valueMax-valueMin)+(Math.PI/2);
 		
+		// Draw knob value line of dial
 		if (isEnabled()) {
 			if (entered | mouseDialing) {
 				g2.setColor(UIManager.getColor("nimbusOrange"));
@@ -184,12 +215,7 @@ public class JFireDial extends JComponent  {
 		int yV = (int)(Math.sin(th)*(radiusSize));
 		g2.drawLine(xI+radiusInner,yI+radiusInner,xV+radiusInner,yV+radiusInner);
 		
-		//g2.setStroke(new BasicStroke(1));
-		//g2.setColor(Color.BLACK);
-		//g2.drawArc(0,0,radiusOut*2, radiusOut*2, 45, 180);
-		//g2.drawArc(0,0,radiusOut*2, radiusOut*2, 225, 180);
-		
-		// Select color of dial circle
+		// Select color and draw dial circle
 		if (isEnabled()) {
 			if (mouseDialing) {
 				g2.setColor(UIManager.getColor("nimbusOrange"));
@@ -203,14 +229,15 @@ public class JFireDial extends JComponent  {
 		} else {
 			g2.setColor(UIManager.getColor("controlDkShadow"));
 		}
-		
 		g2.setStroke(new BasicStroke(2));
 		g2.drawArc(1,1,radiusSize*2, radiusSize*2, 45, 180);
 		g2.drawArc(1,1,radiusSize*2, radiusSize*2, 225, 180);
 		
+		// Draw background of text value
 		g2.setColor(UIManager.getColor("controlDkShadow"));
 		g2.fillRect(2, h-16, w-2, h+16);
 		
+		// Draw value as text
 		if (isEnabled()) {
 			g2.setColor(getForeground());
 		} else {
@@ -236,9 +263,6 @@ public class JFireDial extends JComponent  {
 			}
 			g2.drawString(valueStr, 4, h-4);
 		}
-
-		//double deg = th*(180/Math.PI);
-		//g2.fillArc(0,0,radius*2, radius*2,0,360-(int)deg);
 	}
 
 	public Dimension getPreferredSize() {

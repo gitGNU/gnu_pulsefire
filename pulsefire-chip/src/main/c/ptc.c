@@ -206,7 +206,7 @@ void PTC_loop(void) {
 	if (current_time < pf_data.ptc_sys_cnt) {
 		return;
 	}
-	pf_data.ptc_sys_cnt = current_time + 100; // run 10 times per seconds = 100ms to 100minutes
+	pf_data.ptc_sys_cnt = current_time + 50; // run 10 times per seconds
 
 #ifdef SF_ENABLE_PTT
 	ptt_check_triggers();

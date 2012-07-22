@@ -47,6 +47,8 @@ public enum PulseFireUISettingKeys {
 	UI_SPLIT_BOTTOM("570"),
 	UI_SPLIT_BOTTOM_LOG("600"),
 	LPM_RESULT_FIELDS("dev_volt,dev_amp,dev_temp,dev_freq"),
+	FLASH_MCU_TYPE("ALL"),
+	FLASH_MCU_SPEED("16Mhz"),
 	
 	LOG0_ENABLE("false"),
 	LOG0_TIMESTAMP("true"),

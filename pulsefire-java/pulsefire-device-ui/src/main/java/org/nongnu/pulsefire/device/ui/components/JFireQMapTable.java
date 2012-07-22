@@ -25,13 +25,19 @@ package org.nongnu.pulsefire.device.ui.components;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -39,7 +45,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.event.ChangeEvent;
@@ -74,6 +82,7 @@ public class JFireQMapTable extends JPanel {
 	
 	public JFireQMapTable(CommandName commandName,String colNameA,String colNameB) {
 		
+		// Create JTable for qmap.
 		tableModel = new DeviceConfigVariableTableModel(commandName,colNameA,colNameB);
 		qmapTable = new JTable(tableModel);
 		qmapTable.getTableHeader().setReorderingAllowed(false);
@@ -82,12 +91,44 @@ public class JFireQMapTable extends JPanel {
 		qmapTable.setFillsViewportHeight(true);
 		qmapTable.setShowHorizontalLines(true);
 		qmapTable.setRowMargin(2);
-		qmapTable.setRowHeight(26);
+		qmapTable.setRowHeight(26);		
+		
+		//qmapTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); // wait until bug 6210779 is fixed :(
+		qmapTable.addMouseListener(new MouseAdapter() { // workaround to auto close editors in most cases...
+			@Override
+			public void mouseExited(MouseEvent event) {
+				if (qmapTable.getCellEditor()==null) {
+					return;
+				}
+				Rectangle tableSpace = new Rectangle(qmapTable.getLocationOnScreen(), qmapTable.getSize());
+				if (tableSpace.contains(event.getXOnScreen(),event.getYOnScreen())==false) { 
+					qmapTable.getCellEditor().stopCellEditing();
+				}
+			}
+		});
+		
+		// Make enter handle the editor
+		qmapTable.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "handleEnter");
+		qmapTable.getActionMap().put("handleEnter", new AbstractAction() {
+			private static final long serialVersionUID = -103685686443767050L;
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (qmapTable.getCellEditor()!=null) { 
+					qmapTable.getCellEditor().stopCellEditing(); // store user input
+				} else {
+					int row = qmapTable.getSelectedRow();
+					int col = qmapTable.getSelectedColumn();
+					qmapTable.changeSelection(row, col, false, false);
+					qmapTable.editCellAt(row, col);
+				}
+			}
+		});
 		
 		// remove tooltip support in table which make it faster
 		ToolTipManager.sharedInstance().unregisterComponent(qmapTable);
 		ToolTipManager.sharedInstance().unregisterComponent(qmapTable.getTableHeader());
 		
+		// Config columns
 		TableColumn mapNum = qmapTable.getColumnModel().getColumn(0);
 		mapNum.setPreferredWidth(50);
 		TableColumn varId = qmapTable.getColumnModel().getColumn(1);
@@ -104,6 +145,7 @@ public class JFireQMapTable extends JPanel {
 		varIdx.setPreferredWidth(55);
 		varIdx.setCellEditor(new MapVariableIdxInputCellEditor());
 		
+		// Fixed border and add to layout
 		setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		setLayout(new BorderLayout());
 		add(qmapTable.getTableHeader(), BorderLayout.PAGE_START);
@@ -231,7 +273,7 @@ public class JFireQMapTable extends JPanel {
 			
 			fireTableCellUpdated(row, col);
 		}
-
+		
 		@Override
 		public void commandReceived(Command command) {
 			fireTableDataChanged();
@@ -248,10 +290,16 @@ public class JFireQMapTable extends JPanel {
 		public MapArguInputCellEditor() {
 			component = new JSpinner();
 			component.addChangeListener(this);
-					
+			component.addFocusListener(new FocusListener() {
+				public void focusGained(FocusEvent e) {
+					((JSpinner.DefaultEditor)component.getEditor()).getTextField().requestFocus();
+				}
+				public void focusLost(FocusEvent e) {}
+			});
+			
 			NumberFormat format = NumberFormat.getIntegerInstance();
 			format.setGroupingUsed(false); // or add the group chars to the filter
-			formatFactory = new DefaultFormatterFactory(
+			formatFactory = new DefaultFormatterFactory (
 					new InternationalFormatter(format) {
 						@Override
 						protected DocumentFilter getDocumentFilter() {
@@ -260,10 +308,14 @@ public class JFireQMapTable extends JPanel {
 					}
 				);
 		}
-
 		
 		public Component getTableCellEditorComponent(JTable table, Object value,
 				boolean isSelected, int rowIndex, int colIndex) {
+			SwingUtilities.invokeLater( new Runnable() {
+				public void run() {
+					component.requestFocus();
+				}
+			});
 			this.rowIndex=rowIndex;
 			this.colIndex=colIndex;
 			if (value==null) {
@@ -274,9 +326,6 @@ public class JFireQMapTable extends JPanel {
 			}
 			Integer valueInt = new Integer(value.toString());
 			component.setModel(new SpinnerNumberModel((int)valueInt,0,0xFFFF,1));
-			//JSpinner.NumberEditor jsEditor = (JSpinner.NumberEditor)component.getEditor();
-			//JFormattedTextField textField = jsEditor.getTextField();
-			//textField.setFormatterFactory(formatFactory);
 			return component;
 		}
 		
@@ -289,6 +338,7 @@ public class JFireQMapTable extends JPanel {
 			qmapTable.getModel().setValueAt(getCellEditorValue(), rowIndex, colIndex);
 		}
 	}
+	
 	class IntegerDocumentFilter extends DocumentFilter {
 		@Override
 		public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
@@ -321,20 +371,13 @@ public class JFireQMapTable extends JPanel {
 	
 	public class MapVariableIdInputCellRenderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 4124140489638626053L;
-
+		
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 			
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			/*
-			if ((row & 1) > 0) {
-				component.setBackground(UIManager.getColor("Table.background"));
-			} else {
-				component.setBackground(UIManager.getColor("Table.alternateRowColor"));
-			}
-			*/
 			JLabel component = this;
 			
 			if ("65535".equals(value)) {
@@ -360,7 +403,7 @@ public class JFireQMapTable extends JPanel {
 			}
 			setText("");
 			return this;
-		}		
+		}
 	}
 	
 	public class MapVariableIdInputCellEditor extends AbstractCellEditor implements TableCellEditor,DeviceConnectListener,ActionListener {
@@ -369,12 +412,17 @@ public class JFireQMapTable extends JPanel {
 		
 		public MapVariableIdInputCellEditor() {
 			component = new JComboBox();
-			//component.setOpaque(false);
 			component.addActionListener(this);
+			component.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 			PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		}
 		
 		public Component getTableCellEditorComponent(JTable table, Object value,boolean isSelected, int rowIndex, int vColIndex) {
+			SwingUtilities.invokeLater( new Runnable() {
+				public void run() {
+					component.requestFocus();
+				}
+			});
 			Integer valueInt = null;
 			try {
 				valueInt = new Integer(value.toString());
@@ -418,12 +466,12 @@ public class JFireQMapTable extends JPanel {
 				component.addItem(mapVar);
 			}
 		}
-
+		
 		@Override
 		public void deviceDisconnect() {
 			component.removeAllItems();
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			fireEditingStopped();
@@ -433,15 +481,20 @@ public class JFireQMapTable extends JPanel {
 	public class MapVariableIdxInputCellEditor extends AbstractCellEditor implements TableCellEditor,ActionListener {
 		private static final long serialVersionUID = 1890108511408714142L;
 		private JComboBox component = null;
-
+		
 		public MapVariableIdxInputCellEditor() {
 			component = new JComboBox();
 			component.addActionListener(this);
+			component.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		}
 		
 		public Component getTableCellEditorComponent(JTable table, Object value,boolean isSelected, int rowIndex, int vColIndex) {
 			
-			
+			SwingUtilities.invokeLater( new Runnable() {
+				public void run() {
+					component.requestFocus();
+				}
+			});
 			String cmdName = (String)table.getModel().getValueAt(rowIndex, 1);
 			if (cmdName.isEmpty() | "65535".equals(value)) {
 				component.addItem(value.toString());
@@ -472,14 +525,14 @@ public class JFireQMapTable extends JPanel {
 			component.addItem(value.toString());
 			return component;
 		}
-
+		
 		public Object getCellEditorValue() {
 			if (component.getSelectedItem()==null) {
 				return "0";
 			}
 			return component.getSelectedItem().toString();
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			fireEditingStopped();

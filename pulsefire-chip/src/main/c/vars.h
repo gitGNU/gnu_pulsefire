@@ -72,7 +72,7 @@ typedef uint8_t byte;
 #define VARS_INT_NUM_SIZE           4    // cache max 4 uniq vars from int based value change.
 #define VARS_INT_SIZE               3    // 0=idx,1=idxA,3=value
 
-extern CHIP_PROGMEM_ARRAY pmCmdList[];
+extern CHIP_PROGMEM_ARRAY const pmCmdList[];
 
 // PulseFire internal config
 typedef struct {
@@ -317,13 +317,13 @@ typedef struct {
 
 #ifdef SF_ENABLE_PTC
 	volatile uint32_t      ptc_sys_cnt;
-	volatile uint8_t       ptc_0cnt;
+	volatile uint16_t      ptc_0cnt;
 	volatile uint8_t       ptc_0run_cnt;
 	volatile uint8_t       ptc_0map_idx;
 	volatile uint16_t      ptc_0mul_cnt;
 	volatile uint8_t       ptc_0step;
 
-	volatile uint8_t       ptc_1cnt;
+	volatile uint16_t      ptc_1cnt;
 	volatile uint8_t       ptc_1run_cnt;
 	volatile uint8_t       ptc_1map_idx;
 	volatile uint16_t      ptc_1mul_cnt;
@@ -331,7 +331,7 @@ typedef struct {
 #endif
 #ifdef SF_ENABLE_PTT
 	volatile uint8_t       ptt_idx[PTT_TRIG_VAR_SIZE];
-	volatile uint8_t       ptt_cnt[PTT_TRIG_VAR_SIZE];
+	volatile uint16_t      ptt_cnt[PTT_TRIG_VAR_SIZE];
 	volatile uint8_t       ptt_fire[PTT_TRIG_VAR_SIZE];
 	volatile uint8_t       ptt_step[PTT_TRIG_VAR_SIZE];
 #endif
