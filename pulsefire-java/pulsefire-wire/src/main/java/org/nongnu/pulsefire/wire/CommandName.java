@@ -151,6 +151,9 @@ public enum CommandName {
 	avr_pin49_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
+	lcd_defp				(CommandVariableType.CONF,WireChipFlags.LCD),
+	lcd_mode				(CommandVariableType.CONF,WireChipFlags.LCD),
+	lcd_plp					(CommandVariableType.CONF,WireChipFlags.LCD),
 	
 	swc_delay				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_secs				(CommandVariableType.CONF,WireChipFlags.SWC),
@@ -212,6 +215,7 @@ public enum CommandName {
 	swc_secs_cnt			(CommandVariableType.DATA),
 	swc_duty_cnt			(CommandVariableType.DATA),
 	
+	lcd_input				(CommandVariableType.DATA),
 	lcd_time_cnt			(CommandVariableType.DATA),
 	lcd_page				(CommandVariableType.DATA),
 	lcd_redraw				(CommandVariableType.DATA),

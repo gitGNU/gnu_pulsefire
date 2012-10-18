@@ -4,7 +4,7 @@ Building PulseFire
 You need a few software packages;
 - java sdk 1.6 or higher.
 - maven 3 or higher.
-- make/avr-gcc
+- make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
 
 -- Create package --
 
@@ -30,6 +30,15 @@ or
 make clean atmega328p-007-isp;
 or 
 make clean all;
+
+-- Test Flash code manual --
+
+cd project-root/;
+java -Djava.library.path=pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-x86_64/src/main/jni/ \
+	-cp "pulsefire-java/pulsefire-device-flash/target/pulsefire-device-flash-1.0.5-SNAPSHOT.jar:pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-lib/target/pulsefire-rxtx-lib-1.0.5-SNAPSHOT.jar" \
+	org.nongnu.pulsefire.device.flash.FlashManager \
+	-P /dev/ttyACM0 -c arduino -f pulsefire-chip/src/main/c/build/atmega328p-007/pulsefire.hex
+
 
 -- Make release build --
 

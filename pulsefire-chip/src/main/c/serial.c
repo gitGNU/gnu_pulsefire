@@ -257,6 +257,8 @@ void cmd_print_help(uint8_t type) {
 			Serial_printCharP(pmCmdHelpIdx);
 		} else if (type==3) {
 			Serial_printCharP(pmCmdHelpBits);
+		} else if (type==4) {
+			Serial_printCharP(pmCmdHelpIdg);
 		}
 		Serial_print('.');
 		Serial_printChar(Vars_getName(i));
@@ -278,6 +280,8 @@ void cmd_print_help(uint8_t type) {
 			}
 		} else if (type==3) {
 			Serial_printDec(Vars_getBitsRaw(i));
+		} else if (type==4) {
+			Serial_printDec(i);
 		}
 		Serial_println();
 	}
@@ -319,6 +323,8 @@ void cmd_execute(char* cmd, char** args) {
 				cmd_print_help(2);
 			} else if ( strcmp(args[ZERO],UNPSTR(pmCmdHelpBits)) == ZERO ) {
 				cmd_print_help(3);
+			} else if ( strcmp(args[ZERO],UNPSTR(pmCmdHelpIdg)) == ZERO ) {
+				cmd_print_help(4);
 			} else {
 				Serial_printCharP(pmCmdUnknown);
 				Serial_println();

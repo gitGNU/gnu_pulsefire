@@ -92,7 +92,7 @@
 	#define STV_MIN_MAP_MAX          16  // Mapping of safety trashhold max values
 	#define STV_WARN_MAP_MAX          6  // Mapping of safety warning action
 	#define STV_ERROR_MAP_MAX         6  // Mapping of safety error action
-	#define DEV_VAR_MAX              16  // Generic device variables
+	#define DEV_VAR_MAX               6  // Generic device variables
 	#define VFC_MAP_MAX              12  // Virtual feedback channels  // NOTE: All these mega max are also ~max for gui support for layout issues.
 	#define LPM_RELAY_MAP_MAX         2  // Output mapping for relay pin
 #elif __AVR_ATmega328P__
@@ -110,7 +110,7 @@
 	#define STV_MIN_MAP_MAX           4
 	#define STV_WARN_MAP_MAX          2
 	#define STV_ERROR_MAP_MAX         2
-	#define DEV_VAR_MAX               4
+	#define DEV_VAR_MAX               2
 	#define VFC_MAP_MAX               3
 	#define LPM_RELAY_MAP_MAX         1
 #elif __AVR_ATmega168P__
@@ -128,7 +128,7 @@
 	#define STV_MIN_MAP_MAX           2
 	#define STV_WARN_MAP_MAX          1
 	#define STV_ERROR_MAP_MAX         1
-	#define DEV_VAR_MAX               2
+	#define DEV_VAR_MAX               1
 	#define VFC_MAP_MAX               1
     #define LPM_RELAY_MAP_MAX         1
 #elif __ARM_ARCH_7M__
@@ -146,7 +146,7 @@
 	#define STV_MIN_MAP_MAX           4
 	#define STV_WARN_MAP_MAX          2
 	#define STV_ERROR_MAP_MAX         2
-	#define DEV_VAR_MAX               4
+	#define DEV_VAR_MAX               2
 	#define VFC_MAP_MAX               3
     #define LPM_RELAY_MAP_MAX         1
 #else

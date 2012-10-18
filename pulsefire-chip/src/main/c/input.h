@@ -27,14 +27,17 @@
 
 #include "vars.h"
 #include "chip.h"
-#include "lcd.h"
 #include "ptc.h"
 #include "utils.h"
 
-void Input_loopLcd(void);
+#ifdef SF_ENABLE_DIC
 void Input_loopDic(void);
+#endif
+
+#ifdef SF_ENABLE_ADC
 void Input_loopAdc(void);
 void Input_adc_int(uint16_t result);
+#endif
 
 // end include
 #endif

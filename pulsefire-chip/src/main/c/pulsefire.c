@@ -65,7 +65,6 @@ int main(void) {
 		Vars_loop();
 		Serial_loop();
 #ifdef SF_ENABLE_LCD
-		Input_loopLcd();
 		lcd_loop();
 #endif
 #ifdef SF_ENABLE_ADC

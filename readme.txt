@@ -25,7 +25,7 @@ versions.txt        - Versions history.
 pulsefire-*         - Maven Java/Chip packages for pulsefire.
 src                 - site/schematic source.
 
-=== Licenced binary files ===
+=== Licensed binary files ===
 
 ./src/schemetic/avr-ext-chips.sch
 ./src/schemetic/pf-wfc-driver.sch
@@ -48,7 +48,7 @@ The binary files in the above listing fall all under
 the licence terms described in the licence.txt file.
 
 
-=== External licenced binary files ===
+=== External licensed binary files ===
 
 ./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-lib/src/main/lib/RXTXcomm.jar
 ./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-windows-x86/src/main/jni/rxtxSerial.dll

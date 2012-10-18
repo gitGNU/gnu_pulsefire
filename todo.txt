@@ -10,7 +10,6 @@ ERRATA:
 
 CHIP:
 - Add menu support for map variables.
-- Add lcd pages support
 - When using 16 pwm outputs last output step had extratime.
 - add hex id serial mode instead of acsii value of variable.
 - Added HHO MMW code to auto lpm
@@ -26,7 +25,7 @@ CHIP:
 - new io mode mapping to remove some spi build flags.
 
 CHIP PF_VARS:
-	- inverse nolimit flag in
+	- (DONE) inverse nolimit flag in
 	- Fix 32 bit variables set.
 	- Move idxA,idxB size in PF_VARS to type size column
 	- add non-push flag
@@ -34,6 +33,14 @@ CHIP PF_VARS:
 	- Make almost all code work via Vars_setValue for auto push.
 	- add non-push get info cmd.
 	- merge pf_data and pf_prog
+	- Make more easy to use current steps to add one variable are;
+		1) Add var in vars.h struct;					add;		volatile uint8_t	lcd_input;
+		2) Increase defined size in vars.h;		change; PF_VARS_LCD_SIZE	10
+		3) Add string in strings.c;						add;		const char pmDataLcdInput[]	CHIP_PROGMEM = "lcd_input";
+		4) Add string export in strings.h;		add;		extern const char pmDataLcdInput[];
+		5) Add var meta data line in vars.c;	add;		{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.lcd_input.....
+		6) optional add non zero defined default in vars.h and use in vars.c
+		7) optional add code for change listener or minimal value check in vars.c
 
 GUI:
 - Operation manual

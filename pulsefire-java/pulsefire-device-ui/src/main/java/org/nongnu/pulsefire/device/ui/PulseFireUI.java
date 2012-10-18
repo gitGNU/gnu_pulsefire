@@ -138,18 +138,14 @@ public class PulseFireUI extends SingleFrameApplication {
 	 */
 	private void loadSerialLib(boolean jniCopy,boolean jniCopyOs) {
 		try {
-			if (isWebStart()) {
-				// in webstart lib comes from jar and we need to load it extra
-				System.loadLibrary("rxtxSerial");
-				return;
-			}
-			
 			if (jniCopy==false) {
 				return; // nothing todo
 			}
 			String libName = System.mapLibraryName("rxtxSerial"); // add .so or .dll
 			File libFile = new File(libName);
 			if (libFile.exists()) {
+				logger.info("No copy, file exists: "+libFile);
+				System.loadLibrary("rxtxSerial");
 				return; // File is already copyed.
 			}
 
@@ -396,15 +392,6 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	public PulseFireUISettingManager getSettingsManager() {
 		return settingsManager;
-	}
-	
-	public boolean isWebStart() {
-		try {
-			Thread.currentThread().getContextClassLoader().loadClass("javax.jnlp.BasicService");
-			return true;
-		} catch (Exception e) {
-			return false;	
-		}
 	}
 	
 	class ShutdownManager implements ExitListener {

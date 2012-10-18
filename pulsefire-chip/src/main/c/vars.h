@@ -52,6 +52,7 @@ typedef uint8_t byte;
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
+#define LCD_PLP_MAX                 4    // Lcd plp always has 4 values.
 #define PTT_TRIG_VAR_SIZE           4    // we have always 4 triggers
 #define DOC_PORT_NUM_MAX           16    // max 16 digital outputs in duel extended mode
 #define PTC_RUN_OFF                 0    // Dont run ptc
@@ -107,11 +108,9 @@ typedef struct {
 
 #ifdef SF_ENABLE_LCD
 	volatile uint8_t       lcd_size;        // Lcd size type
-	//volatile uint8_t       lcd_page;      // Default lcd page view
-	//volatile uint8_t       lcd_cypage;    // bits: pages to cycle in view
-	//volatile uint8_t       lcd_cytime;    // bits: page cycle time in sec
-	//volatile uint8_t       lcd_mode;      // 0=Display only,1=User,2=Admin
-	//volatile uint8_t       lcd_skip[LCD_SKIP_NUM_MAX] // skip these menu entries based on var idx.
+	volatile uint8_t       lcd_defp;        // Default lcd page view
+	volatile uint8_t       lcd_mode;        // 0=off,1=page,2=2but,3=4but
+	volatile uint8_t       lcd_plp[LCD_PLP_MAX]; // Plp values
 #endif
 
 #ifdef SF_ENABLE_SWC
@@ -301,6 +300,7 @@ typedef struct {
 	volatile uint16_t      swc_duty_cnt;
 #endif
 #ifdef SF_ENABLE_LCD
+	volatile uint8_t       lcd_input;         // The lcd input pins input mappable variable
 	volatile uint8_t       lcd_page;          // The current lcd page being draw
 	volatile uint8_t       lcd_redraw;        // Notify lcd code to clear and redraw page.
 	volatile uint32_t      lcd_time_cnt;      // Timer until next redraw
@@ -337,9 +337,9 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_DEV
-	volatile uint16_t      dev_volt;               // Device volt variable for programatic usage.
-	volatile uint16_t      dev_amp;                // Device amps
-	volatile uint16_t      dev_temp;               // Device temperature
+	volatile uint16_t      dev_volt[DEV_VAR_MAX];  // Device volt variable for programatic usage.
+	volatile uint16_t      dev_amp[DEV_VAR_MAX];   // Device amps
+	volatile uint16_t      dev_temp[DEV_VAR_MAX];  // Device temperature
 	volatile uint16_t      dev_freq;               // Device freqencie
 	volatile uint16_t      dev_freq_cnt;           // Device freq counter from input pin.
 	volatile uint32_t      dev_freq_time_cnt;      // Device dev_freq value update counter.
@@ -385,6 +385,8 @@ typedef struct {
 	volatile uint8_t cmd_buff_idx;         // Command index
 	volatile uint8_t cmd_process;          // Processing command
 	volatile uint16_t vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
+	//volatile uint16_t pwm_data[64][2];
+
 
 	volatile uint32_t      sys_time_ticks; // Timer0 ticks
 	volatile uint32_t      sys_time_ssec;  // 1/10 of seconds ticks.
@@ -444,7 +446,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_CIP_SIZE  0
 #endif
 #ifdef SF_ENABLE_LCD
-	#define PF_VARS_LCD_SIZE  9
+	#define PF_VARS_LCD_SIZE  13
 #else
 	#define PF_VARS_LCD_SIZE  0
 #endif

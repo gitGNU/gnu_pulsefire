@@ -100,7 +100,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <maven-pmd-plugin.version>2.5</maven-pmd-plugin.version>
     <maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
     <maven-surefire-report-plugin.version>2.5</maven-surefire-report-plugin.version>
-    <maven-checkstyle-plugin.version>2.5</maven-checkstyle-plugin.version>
+    <maven-checkstyle-plugin.version>2.9.1</maven-checkstyle-plugin.version>
     <maven-enforcer-plugin.version>1.0-beta-1</maven-enforcer-plugin.version>
     <maven-project-info-reports-plugin.version>2.2</maven-project-info-reports-plugin.version>
     <maven-release-plugin.version>2.2.2</maven-release-plugin.version>
@@ -194,6 +194,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <source>${project.build.javaVersion}</source>
+          <target>${project.build.javaVersion}</target>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <optimize>true</optimize>
+          <fork>false</fork>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>com.agilejava.docbkx</groupId>
         <artifactId>docbkx-maven-plugin</artifactId>
