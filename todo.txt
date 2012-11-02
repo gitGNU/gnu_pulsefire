@@ -26,13 +26,13 @@ CHIP:
 
 CHIP PF_VARS:
 	- (DONE) inverse nolimit flag in
-	- Fix 32 bit variables set.
-	- Move idxA,idxB size in PF_VARS to type size column
+	- (DONE) Fix 32 bit variables set.
+	- (DONE) Move idxA,idxB size in PF_VARS to type size column
 	- add non-push flag
 	- Find precompiler way to find variable idx to 'replace' Vars_getIndexFromName for push data.
 	- Make almost all code work via Vars_setValue for auto push.
 	- add non-push get info cmd.
-	- merge pf_data and pf_prog
+	- (DONE) merge pf_data and pf_prog
 	- Make more easy to use current steps to add one variable are;
 		1) Add var in vars.h struct;					add;		volatile uint8_t	lcd_input;
 		2) Increase defined size in vars.h;		change; PF_VARS_LCD_SIZE	10

@@ -255,11 +255,11 @@ void lcd_print(uint16_t value) {
 }
 
 void lcd_printNum(uint16_t value,uint8_t numSize) {
-	u16toa(value,pf_prog.lcd_buff);
+	u16toa(value,pf_data.lcd_buff);
 	uint8_t nn = ZERO;
-	char* ss = pf_prog.lcd_buff;
+	char* ss = pf_data.lcd_buff;
 	while (*ss++) { nn++; }
-	lcd_printChar(pf_prog.lcd_buff);
+	lcd_printChar(pf_data.lcd_buff);
 	if (numSize > ZERO && (nn) < numSize) {
 		uint8_t i=ZERO;
 		for (i=ZERO;i<(numSize-nn);i++) {
@@ -278,8 +278,8 @@ void lcd_setup(void) {
 	lcd_cursor(ZERO,ONE);
 	lcd_printCharP(pmChipNameStr);
 	if (pf_conf.lcd_size == LCD_SIZE_4x20) {
-		lcd_cursor(ZERO,2);
-		lcd_printCharP(pmChipNameIdStr);
+		//lcd_cursor(ZERO,2);
+		//lcd_printCharP(pmChipNameIdStr);
 		lcd_cursor(ZERO,3);
 		lcd_printCharP(Chip_cpu_type());
 		lcd_printSpace();
@@ -363,12 +363,14 @@ void lcd_draw_main(void) {
 	lcd_printChar("S:");
 	lcd_printNum(pf_data.pulse_step,2);
 	lcd_cursor(col1,ONE);
+/*
 	lcd_printChar("DIR:");
 	if (pf_conf.pulse_dir == PULSE_DIR_LRRL) {
 		lcd_print(pf_data.pulse_dir_cnt);
 	} else {
 		lcd_print(pf_conf.pulse_dir);
 	}
+*/
 	lcd_cursor(col2,ONE);
 	lcd_printChar("MOD:");
 	lcd_print(pf_conf.pulse_mode);
@@ -431,7 +433,7 @@ void lcd_draw_menu_var(uint8_t idx,uint8_t idxA,boolean update_value,boolean cou
 
 	lcd_printCharP(pmLcdSelectedOption);
 	lcd_printChar(Vars_getName(idx));
-	if (Vars_isIndexA(pf_prog.lcd_menu_idx)) {
+	if (Vars_isIndexA(pf_data.lcd_menu_idx)) {
 		lcd_print(idxA);
 	}
 
@@ -469,34 +471,34 @@ void lcd_draw_menu_var(uint8_t idx,uint8_t idxA,boolean update_value,boolean cou
 		}
 	}
 	lcd_printCharP(pmLcdMultiply);
-	lcd_print(pf_prog.lcd_menu_mul);
+	lcd_print(pf_data.lcd_menu_mul);
 }
 
 
 void lcd_draw_menu(void) {
 	uint8_t input0 = lcd_button(LCD_BUTTON_ENTER);
 	uint8_t input1 = lcd_button(LCD_BUTTON_ESC);
-	if (pf_prog.lcd_menu_state == LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
+	if (pf_data.lcd_menu_state == LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
 		return; // nothing is pressed
 	}
 	uint32_t current_time = millis();
-	if (pf_prog.lcd_menu_state != LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
+	if (pf_data.lcd_menu_state != LCD_MENU_STATE_OFF && input0 == ONE && input1 == ONE) {
 
-		if (current_time < pf_prog.lcd_menu_time_cnt) {
+		if (current_time < pf_data.lcd_menu_time_cnt) {
 			return; // no input to process
 		}
-		pf_prog.lcd_menu_state     = LCD_MENU_STATE_OFF;
-		pf_prog.lcd_menu_value_idx = ZERO;
-		pf_prog.lcd_menu_idx       = ZERO;
-		pf_prog.lcd_menu_mul       = ONE;
+		pf_data.lcd_menu_state     = LCD_MENU_STATE_OFF;
+		pf_data.lcd_menu_value_idx = ZERO;
+		pf_data.lcd_menu_idx       = ZERO;
+		pf_data.lcd_menu_mul       = ONE;
 		return; // exit menu after idle counter timeout
 	}
-	pf_prog.lcd_menu_time_cnt = current_time + LCD_MENU_TIMEOUT;
+	pf_data.lcd_menu_time_cnt = current_time + LCD_MENU_TIMEOUT;
 
-	if (pf_prog.lcd_menu_state == LCD_MENU_STATE_OFF) {
+	if (pf_data.lcd_menu_state == LCD_MENU_STATE_OFF) {
 		if (input0 == ZERO) {
-			pf_prog.lcd_menu_state = LCD_MENU_STATE_SELECT;
-			pf_prog.lcd_menu_idx   = ZERO;
+			pf_data.lcd_menu_state = LCD_MENU_STATE_SELECT;
+			pf_data.lcd_menu_idx   = ZERO;
 		}
 		if (input1 == ZERO) {
 
@@ -519,23 +521,23 @@ void lcd_draw_menu(void) {
 		}
 	}
 
-	if (pf_prog.lcd_menu_state == LCD_MENU_STATE_SELECT) {
+	if (pf_data.lcd_menu_state == LCD_MENU_STATE_SELECT) {
 		if (input0 == ZERO) {
-			if (Vars_isTypeConf(pf_prog.lcd_menu_idx)==false) {
-				pf_prog.lcd_menu_idx = PF_VARS_SIZE;
+			if (Vars_isTypeData(pf_data.lcd_menu_idx)) {
+				pf_data.lcd_menu_idx = PF_VARS_SIZE;
 			}
-			if (pf_prog.lcd_menu_idx == PF_VARS_SIZE) {
+			if (pf_data.lcd_menu_idx == PF_VARS_SIZE) {
 				lcd_clear();
 				lcd_printCharP(pmLcdSelect);
 				lcd_printCharP(pmLcdSelectOption);
 				lcd_cursor(ZERO,ONE);
 				lcd_printCharP(pmCmdSave);
-				pf_prog.lcd_menu_idx++;
+				pf_data.lcd_menu_idx++;
 				Chip_delay(SYS_INPUT_DELAY);
 				return;
 			}
-			if (pf_prog.lcd_menu_idx == PF_VARS_SIZE+1) {
-				pf_prog.lcd_menu_idx = ZERO;
+			if (pf_data.lcd_menu_idx == PF_VARS_SIZE+1) {
+				pf_data.lcd_menu_idx = ZERO;
 			}
 			lcd_clear();
 			lcd_printCharP(pmLcdSelect);
@@ -544,7 +546,7 @@ void lcd_draw_menu(void) {
 			}
 			lcd_cursor(ZERO,ONE);
 			lcd_printCharP(pmLcdSelectedOption);
-			lcd_printChar(Vars_getName(pf_prog.lcd_menu_idx));
+			lcd_printChar(Vars_getName(pf_data.lcd_menu_idx));
 
 			if (pf_conf.lcd_size == LCD_SIZE_4x20) {
 				lcd_cursor(0,2);
@@ -558,19 +560,19 @@ void lcd_draw_menu(void) {
 				lcd_printCharP(pmLcdValue);
 			}
 
-			if (Vars_isIndexA(pf_prog.lcd_menu_idx)==false) {
-				lcd_print(Vars_getValue(pf_prog.lcd_menu_idx,ZERO,ZERO));
+			if (Vars_isIndexA(pf_data.lcd_menu_idx)==false) {
+				lcd_print(Vars_getValue(pf_data.lcd_menu_idx,ZERO,ZERO));
 			} else {
 				lcd_printCharP(pmLcdSelectIndex);
 			}
-			pf_prog.lcd_menu_idx++;
-			while (Vars_isMenuSkip(pf_prog.lcd_menu_idx)) {
-				pf_prog.lcd_menu_idx++; // skip one or more menu items.
+			pf_data.lcd_menu_idx++;
+			while (Vars_isMenuSkip(pf_data.lcd_menu_idx)) {
+				pf_data.lcd_menu_idx++; // skip one or more menu items.
 			}
 		}
 		if (input1 == ZERO) {
-			pf_prog.lcd_menu_idx--; // go to selected value
-			if (pf_prog.lcd_menu_idx == PF_VARS_SIZE) {
+			pf_data.lcd_menu_idx--; // go to selected value
+			if (pf_data.lcd_menu_idx == PF_VARS_SIZE) {
 				lcd_cursor(4,ONE);
 				uint8_t i=ZERO;
 				for (i=ZERO;i < 4;i++) {
@@ -586,53 +588,53 @@ void lcd_draw_menu(void) {
 				lcd_printCharP(pmDone);
 				return;
 			}
-			if (Vars_isIndexA(pf_prog.lcd_menu_idx)) {
-				pf_prog.lcd_menu_state=LCD_MENU_STATE_VALUE_INDEXED;
+			if (Vars_isIndexA(pf_data.lcd_menu_idx)) {
+				pf_data.lcd_menu_state=LCD_MENU_STATE_VALUE_INDEXED;
 				lcd_clear();
 				lcd_printCharP(pmLcdSelect);
 				lcd_printCharP(pmLcdSelectIndex);
 				lcd_cursor(ZERO,ONE);
 				lcd_printCharP(pmLcdSelectedOption);
-				lcd_printChar(Vars_getName(pf_prog.lcd_menu_idx));
-				lcd_print(pf_prog.lcd_menu_value_idx);
+				lcd_printChar(Vars_getName(pf_data.lcd_menu_idx));
+				lcd_print(pf_data.lcd_menu_value_idx);
 			} else {
-				pf_prog.lcd_menu_state=LCD_MENU_STATE_VALUE;
-				lcd_draw_menu_var(pf_prog.lcd_menu_idx,pf_prog.lcd_menu_value_idx,false,false,ZERO);
+				pf_data.lcd_menu_state=LCD_MENU_STATE_VALUE;
+				lcd_draw_menu_var(pf_data.lcd_menu_idx,pf_data.lcd_menu_value_idx,false,false,ZERO);
 			}
 			Chip_delay(SYS_INPUT_DELAY);
 			return; // After menu state change alway return so next check will run that state.
 		}
-	} else if (pf_prog.lcd_menu_state == LCD_MENU_STATE_VALUE_INDEXED) {
+	} else if (pf_data.lcd_menu_state == LCD_MENU_STATE_VALUE_INDEXED) {
 		if (input0 == ZERO) {
-			if (pf_prog.lcd_menu_value_idx > Vars_getIndexAMax(pf_prog.lcd_menu_idx)) { // was pf_conf.pulse_steps
-				pf_prog.lcd_menu_value_idx = ZERO;
+			if (pf_data.lcd_menu_value_idx > Vars_getIndexAMax(pf_data.lcd_menu_idx)) { // was pf_conf.pulse_steps
+				pf_data.lcd_menu_value_idx = ZERO;
 			}
 			lcd_clear();
 			lcd_printCharP(pmLcdSelect);
 			lcd_printCharP(pmLcdSelectIndex);
 			lcd_cursor(ZERO,ONE);
 			lcd_printCharP(pmLcdSelectedOption);
-			lcd_printChar(Vars_getName(pf_prog.lcd_menu_idx));
-			lcd_print(pf_prog.lcd_menu_value_idx);
-			pf_prog.lcd_menu_value_idx++;
+			lcd_printChar(Vars_getName(pf_data.lcd_menu_idx));
+			lcd_print(pf_data.lcd_menu_value_idx);
+			pf_data.lcd_menu_value_idx++;
 		}
 		if (input1 == ZERO) {
-			if (pf_prog.lcd_menu_value_idx != ZERO) {
-				pf_prog.lcd_menu_value_idx--;
+			if (pf_data.lcd_menu_value_idx != ZERO) {
+				pf_data.lcd_menu_value_idx--;
 			}
-			pf_prog.lcd_menu_state=LCD_MENU_STATE_VALUE;
+			pf_data.lcd_menu_state=LCD_MENU_STATE_VALUE;
 			Chip_delay(SYS_INPUT_DELAY);
 			return;
 		}
-	} else if (pf_prog.lcd_menu_state == LCD_MENU_STATE_VALUE) {
+	} else if (pf_data.lcd_menu_state == LCD_MENU_STATE_VALUE) {
 		if (input0 == ZERO && input1 == ZERO) {
-			if (pf_prog.lcd_menu_mul==10000) {
-				pf_prog.lcd_menu_mul = ONE;
+			if (pf_data.lcd_menu_mul==10000) {
+				pf_data.lcd_menu_mul = ONE;
 			} else {
-				pf_prog.lcd_menu_mul = pf_prog.lcd_menu_mul * 10;  // make up&down 10*faster
+				pf_data.lcd_menu_mul = pf_data.lcd_menu_mul * 10;  // make up&down 10*faster
 			}
 		}
-		lcd_draw_menu_var(pf_prog.lcd_menu_idx,pf_prog.lcd_menu_value_idx,true,input1==ZERO,pf_prog.lcd_menu_mul);
+		lcd_draw_menu_var(pf_data.lcd_menu_idx,pf_data.lcd_menu_value_idx,true,input1==ZERO,pf_data.lcd_menu_mul);
 	}
 	Chip_delay(SYS_INPUT_DELAY);
 
@@ -677,7 +679,7 @@ void lcd_draw_adc(void) {
 
 void lcd_draw_dic(void) {
 	lcd_cursor(ZERO,ZERO);
-	lcd_printCharP(pmChipFlagDIC);
+	lcd_printCharP(pmLcdValue); // was dic now V:
 
 	uint16_t data_row = pf_data.dic_value & 0xFF;
 	int ii=OUTPUT_MAX-ONE;
@@ -691,7 +693,7 @@ void lcd_draw_dic(void) {
 	}
 
 	lcd_cursor(ZERO,ONE);
-	lcd_printCharP(pmChipFlagDIC);
+	lcd_printCharP(pmLcdValue);
 	data_row = pf_data.dic_value >> 8;
 	for (ii=16-ONE;ii>=8;ii-- ) {
 		uint16_t out = (data_row >> ii) & ONE;
@@ -751,9 +753,12 @@ void lcd_loop(void) {
 	}
 	pf_data.lcd_time_cnt = current_time + LCD_REFRESH_TIME;
 
+
+	Chip_out_doc(); // TODO: move somewhere
+
 	lcd_loopMenu();
 
-	if (pf_prog.lcd_menu_state != LCD_MENU_STATE_OFF) {
+	if (pf_data.lcd_menu_state != LCD_MENU_STATE_OFF) {
 		pf_data.lcd_redraw = ZERO;
 		return; // we are off in menu mode.
 	}
@@ -765,28 +770,28 @@ void lcd_loop(void) {
 #endif
 
 #ifdef SF_ENABLE_STV
-	if (pf_prog.stv_state != STV_STATE_OKE ) {
+	if (pf_data.stv_state != STV_STATE_OKE ) {
 		lcd_clear();
-		if (pf_prog.stv_state == STV_STATE_WARNING_MAX || pf_prog.stv_state == STV_STATE_WARNING_MIN) {
+		if (pf_data.stv_state == STV_STATE_WARNING_MAX || pf_data.stv_state == STV_STATE_WARNING_MIN) {
 			lcd_printCharP(pmLcdSTVWarning);
 		} else {
 			lcd_printCharP(pmLcdSTVError);
 		}
-		if (pf_prog.stv_state == STV_STATE_WARNING_MAX || pf_prog.stv_state == STV_STATE_ERROR_MAX) {
+		if (pf_data.stv_state == STV_STATE_WARNING_MAX || pf_data.stv_state == STV_STATE_ERROR_MAX) {
 			lcd_printCharP(pmLcdSTVMax);
 		} else {
 			lcd_printCharP(pmLcdSTVMin);
 		}
 		if (pf_conf.lcd_size != LCD_SIZE_4x20 ) {
 			lcd_printCharP(pmLcdValue);
-			lcd_print(Vars_getValue(pf_prog.stv_map_idx,ZERO,ZERO));
+			lcd_print(Vars_getValue(pf_data.stv_map_idx,ZERO,ZERO));
 		}
 		lcd_cursor(0,1);lcd_printCharP(pmLcdSelectedOption);
 		uint8_t varIdx = ZERO;
-		if (pf_prog.stv_state == STV_STATE_WARNING_MAX || pf_prog.stv_state == STV_STATE_ERROR_MAX) {
-			varIdx = pf_conf.stv_max_map[pf_prog.stv_map_idx][QMAP_VAR];
+		if (pf_data.stv_state == STV_STATE_WARNING_MAX || pf_data.stv_state == STV_STATE_ERROR_MAX) {
+			varIdx = pf_conf.stv_max_map[pf_data.stv_map_idx][QMAP_VAR];
 		} else {
-			varIdx = pf_conf.stv_max_map[pf_prog.stv_map_idx][QMAP_VAR];
+			varIdx = pf_conf.stv_max_map[pf_data.stv_map_idx][QMAP_VAR];
 		}
 		lcd_printChar(Vars_getName(varIdx));
 		if (pf_conf.lcd_size == LCD_SIZE_4x20) {

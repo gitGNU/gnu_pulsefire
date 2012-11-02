@@ -67,7 +67,7 @@ uint32_t millis(void);
 
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin);
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value);
-void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte);
+uint8_t shiftOut(uint8_t dataByte);
 
 void    Chip_eeprom_read(void* eemem);
 void    Chip_eeprom_write(void* eemem);
@@ -79,11 +79,10 @@ void          Chip_reg_set(uint8_t reg,uint16_t value);
 void Chip_out_pwm(uint16_t data);
 void Chip_out_serial(uint8_t data);
 void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux);
-void Chip_out_doc(uint16_t data);
+void Chip_out_doc(void);
 
 void     Chip_in_int_pin(uint8_t pin,uint8_t enable);
 void     Chip_in_adc(uint8_t channel);
-uint8_t  Chip_in_menu(void);
 uint16_t Chip_in_dic(void);
 
 // end include

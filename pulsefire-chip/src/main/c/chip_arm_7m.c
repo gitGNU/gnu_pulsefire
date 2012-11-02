@@ -100,10 +100,6 @@ void Chip_in_adc(uint8_t channel) {
 
 }
 
-uint8_t Chip_in_menu(void) {
-	return ZERO;
-}
-
 uint16_t Chip_in_dic(void) {
 	return ZERO;
 }

@@ -25,11 +25,9 @@
 //Short name   : PulseFire
 //Short desc   : Automatic PulseFire Seqence Generator.
 //First created: 26-Apr-2011
-//Last modified: 22-Nov-2011
-//Last version : 1.0-Beta
 //First Author : Willem Cazander
 //License-Type : BSD 2-Clause (licence.txt and http://www.opensource.org/licenses/bsd-license.php)
-//IO-Hardware  : see IO_DEF_* or IO_EXT_* #defines in chip.h
+//IO-Hardware  : see IO_DEF_* or IO_SPI_* #defines in chip_*.c
 //USB-Serial   : 115200b + "Newline" on enter/return
 //Website      : http://www.nongnu.org/pulsefire/
 
@@ -52,26 +50,31 @@ int main(void) {
 	Vars_setup();
 	Chip_setup();
 	Serial_setup();
+#ifdef SF_ENABLE_DEBUG
+	Serial_printCharP(PSTR("setup oke."));
+	Serial_println();
+#endif
+	Chip_sei(); // enable interrupts after init
+#ifdef SF_ENABLE_DEBUG
+	Serial_printCharP(PSTR("sei oke."));
+	Serial_println();
+#endif
 #ifdef SF_ENABLE_LCD
-	lcd_setup();
+	lcd_setup(); //needs int in spi mode
 #endif
 #ifdef SF_ENABLE_LPM
 	LPM_setup();
 #endif
- 
-	Chip_sei(); // enable interrupts after init
 	for(;;) {
 		Chip_loop();
 		Vars_loop();
 		Serial_loop();
+		Input_loopDic();
 #ifdef SF_ENABLE_LCD
 		lcd_loop();
 #endif
 #ifdef SF_ENABLE_ADC
 		Input_loopAdc();
-#endif
-#ifdef SF_ENABLE_DIC
-		Input_loopDic();
 #endif
 #ifdef SF_ENABLE_LPM
 		LPM_loop();

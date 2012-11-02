@@ -65,7 +65,7 @@ void LPM_loop(void) {
 			Serial_printDec(pf_data.lpm_total_time/100 % 100);Serial_printChar(".");
 			Serial_printDec(pf_data.lpm_total_time/10 % 10);  Serial_printDec(pf_data.lpm_total_time % 10);
 			Serial_println();
-			if (pf_prog.req_tx_promt == ONE) {
+			if (pf_data.req_tx_promt == ONE) {
 				Serial_printCharP(pmPromt);
 			}
 		}

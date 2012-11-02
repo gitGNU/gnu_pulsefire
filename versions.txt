@@ -7,7 +7,15 @@ Version 1.1.0:
 - Added lcd paging and lcd_defp for default page.
 - Added 4 button support with lcd_mode 3.
 - Added lcd_plp; programatic lcd page with 4 vars.
-
+- Changed pwm to precalculated data/time steps.
+- Dropped pulse_inv and pulse_dir option.
+- Dropped pwm_loop_delta and pwm_tune_cnt option.
+- Dropped SF_ENABLE_DIC/_DOC/_PPM/_DEV compile flags.
+- Replaced SF_ENABLE_EXT_* with SF_ENABLE_SPI and spi_mode for hardware spi mode.
+- Added 32 bit variable support.
+- Replaces chip_name_id to sys_id as 32 bit integer.
+- Added sys_pass for future login system.
+- Added info_pwm to readout precalculated pwm data.
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 

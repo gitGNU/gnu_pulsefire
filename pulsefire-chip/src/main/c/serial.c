@@ -44,8 +44,8 @@ void Serial_printHex(uint8_t argu) {
 }
 
 void Serial_printDec(int argu) {
-	u16toa(argu,pf_prog.unpstr_buff);
-	Serial_printChar(pf_prog.unpstr_buff);
+	u16toa(argu,pf_data.unpstr_buff);
+	Serial_printChar(pf_data.unpstr_buff);
 }
 
 void Serial_printChar(char* dstring) {
@@ -113,7 +113,10 @@ void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 			Serial_printCharP(pmGetSpaced);
 		}
 		if (Vars_isBitSize32(i)) {
-			Serial_printDec(Vars_getValue32(i,0));
+			uint32_t value = Vars_getValue32(i,0);
+			u32toa(value,pf_data.unpstr_buff);
+			Serial_printChar(pf_data.unpstr_buff);
+			//Serial_printDec(Vars_getValue32(i,0));
 		} else {
 			Serial_printDec(Vars_getValue(i,0,0));
 		}
@@ -136,8 +139,8 @@ void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 void cmd_print_info_value_long(const char* dstring,uint32_t value) {
 	Serial_printCharP(dstring);
 	Serial_printCharP(pmGetSpaced);
-	u32toa(value,pf_prog.unpstr_buff);
-	Serial_printChar(pf_prog.unpstr_buff);
+	u32toa(value,pf_data.unpstr_buff);
+	Serial_printChar(pf_data.unpstr_buff);
 	Serial_println();
 }
 
@@ -145,7 +148,7 @@ void cmd_print_info_value_long(const char* dstring,uint32_t value) {
 void cmd_print_info_freq(void) {  
 #ifdef SF_ENABLE_PWM
 	for (uint8_t i=ZERO;i<pf_conf.pulse_steps;i++) {
-		Serial_printCharP(pmFreqPWMData);
+		Serial_printCharP(pmCmdInfoFreqData);
 		if(i<10) {Serial_print('0');}
 		Serial_printDec((int)i);
 		Serial_printCharP(pmGetSpaced);
@@ -179,14 +182,16 @@ void cmd_print_info_chip(void) {
 	cmd_print_info_value_long(pmChipFreeSram,        Chip_free_ram());
 	cmd_print_info_value_long(pmChipCPUFreq,         F_CPU);
 	Serial_println_get_P2(pmChipCPUType,             Chip_cpu_type());
-	Serial_println_get_P2(pmChipName,    pmChipNameStr);
-	Serial_println_get_P2(pmChipNameId,  pmChipNameIdStr);
-	Serial_println_get_P2(pmChipBuild,   pmChipBuildDate);
+	Serial_println_get_P2(pmChipName,                pmChipNameStr);
+	Serial_println_get_P2(pmChipBuild,               pmChipBuildDate);
 
 	Serial_printCharP(pmChipFlags);
 	Serial_printCharP(pmGetSpaced);
 #ifdef SF_ENABLE_PWM
 	Serial_printCharP(pmChipFlagPWM);
+#endif
+#ifdef SF_ENABLE_SPI
+	Serial_printCharP(pmChipFlagSPI);
 #endif
 #ifdef SF_ENABLE_CIT
 	Serial_printCharP(pmChipFlagCIT);
@@ -200,20 +205,8 @@ void cmd_print_info_chip(void) {
 #ifdef SF_ENABLE_LPM
 	Serial_printCharP(pmChipFlagLPM);
 #endif
-#ifdef SF_ENABLE_PPM
-	Serial_printCharP(pmChipFlagPPM);
-#endif
 #ifdef SF_ENABLE_ADC
 	Serial_printCharP(pmChipFlagADC);
-#endif
-#ifdef SF_ENABLE_DIC
-	Serial_printCharP(pmChipFlagDIC);
-#endif
-#ifdef SF_ENABLE_DOC
-	Serial_printCharP(pmChipFlagDOC);
-#endif
-#ifdef SF_ENABLE_DEV
-	Serial_printCharP(pmChipFlagDEV);
 #endif
 #ifdef SF_ENABLE_STV
 	Serial_printCharP(pmChipFlagSTV);
@@ -291,16 +284,13 @@ void cmd_print_help(uint8_t type) {
 void cmd_execute(char* cmd, char** args) {
 	uint8_t i=ZERO;
 	if ( strcmp(cmd,UNPSTR(pmCmdHelp)) == ZERO ) {
-		if (pf_prog.req_tx_promt == ONE) {
+		if (pf_data.req_tx_promt == ONE) {
 			Serial_printCharP(pmCmdHelpStart);
 		}
 		if (args[0] == NULL) {
 			uint8_t i=ZERO;
 			for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
 				// Remove unsupported cmds when flag is disabled.
-#ifndef SF_ENABLE_PPM
-				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
-#endif
 #ifndef SF_ENABLE_MAL
 				if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALCode) { continue; }
 #endif
@@ -308,7 +298,7 @@ void cmd_execute(char* cmd, char** args) {
 				Serial_println();
 			}
 			for (i=ZERO;i < PF_VARS_SIZE;i++) {
-				if (Vars_isTypeConf(i)==false) {
+				if (Vars_isTypeData(i)) {
 					continue;
 				}
 				Serial_printChar(Vars_getName(i));
@@ -334,7 +324,7 @@ void cmd_execute(char* cmd, char** args) {
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoConf)) == ZERO) {
 		for (i=ZERO;i < PF_VARS_SIZE;i++) {
-			if (Vars_isTypeConf(i) == false) {
+			if (Vars_isTypeData(i) == true) {
 				continue;
 			}
 			cmd_print_var(i,args[0] == NULL,false);
@@ -348,6 +338,7 @@ void cmd_execute(char* cmd, char** args) {
 			cmd_print_var(i,false,false);
 		}
 		Serial_println_done_P(pmCmdInfoData);
+/*
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoProg)) == ZERO) {
 		for (i=ZERO;i < PF_VARS_SIZE;i++) {
 			if (Vars_isTypeProg(i) == false) {
@@ -356,14 +347,14 @@ void cmd_execute(char* cmd, char** args) {
 			cmd_print_var(i,false,false);
 		}
 		Serial_println_done_P(pmCmdInfoProg);
-
+*/
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoChip)) == ZERO) {
 		cmd_print_info_chip();
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoFreq)) == ZERO) {
 		cmd_print_info_freq();
 
-#ifdef SF_ENABLE_PPM
+#ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPPM)) == ZERO) {
 		for (i=ZERO;i < OUTPUT_MAX;i++) {
 			Serial_printCharP(pmConfPPMDataA);
@@ -400,6 +391,36 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		Serial_println_done_P(pmCmdInfoPPM);
+
+	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPWM)) == ZERO) {
+		for (i=ZERO;i < pf_data.pwm_data_max;i++) {
+			uint16_t data_out = pf_data.pwm_data[i][PWM_DATA_OUT];
+			uint16_t data_cnt = pf_data.pwm_data[i][PWM_DATA_CNT];
+			Serial_printCharP(pmCmdInfoPWMData);
+			if (i <= 9) { Serial_print('0'); }
+			Serial_printDec(i);
+			Serial_printCharP(pmGetSpaced);
+			Serial_printDec(data_cnt);
+			Serial_printCharP(pmGetSpaced);
+			int ii=OUTPUT_MAX-ONE;
+			for (ii=OUTPUT_MAX-ONE;ii>=ZERO;ii-- ) {
+				uint16_t out = (data_out >> ii) & ONE;
+				if (out == ZERO) {
+					Serial_print('0');
+				} else {
+					Serial_print('1');
+				}
+			}
+			Serial_println();
+		}
+		Serial_printCharP(pmCmdInfoPWMData);
+		Serial_printDec(600);
+		Serial_printCharP(pmGetSpaced);
+		Serial_printDec(pf_data.pwm_data_max);
+		Serial_println();
+
+		Serial_println_done_P(pmCmdInfoPWM);
+
 #endif
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdResetConfig)) == ZERO) {
@@ -463,11 +484,11 @@ void cmd_execute(char* cmd, char** args) {
 		} else {
 			Serial_printCharP(pmSetSpaced);
 			uint16_t push = atou16(args[0]);
-			if (push == ZERO) {  pf_prog.req_tx_push = ZERO;
-			} else {             pf_prog.req_tx_push = ONE;
+			if (push == ZERO) {  pf_data.req_tx_push = ZERO;
+			} else {             pf_data.req_tx_push = ONE;
 			}
 		}
-		Serial_printDec((int)pf_prog.req_tx_push);
+		Serial_printDec((int)pf_data.req_tx_push);
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmProgTXEcho)) == ZERO) {
 		Serial_printCharP(pmProgTXEcho);
@@ -476,11 +497,11 @@ void cmd_execute(char* cmd, char** args) {
 		} else {
 			Serial_printCharP(pmSetSpaced);
 			uint16_t echo = atou16(args[0]);
-			if (echo == ZERO) {  pf_prog.req_tx_echo = ZERO;
-			} else {             pf_prog.req_tx_echo = ONE;
+			if (echo == ZERO) {  pf_data.req_tx_echo = ZERO;
+			} else {             pf_data.req_tx_echo = ONE;
 			}
 		}
-		Serial_printDec((int)pf_prog.req_tx_echo);
+		Serial_printDec((int)pf_data.req_tx_echo);
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmProgTXPromt)) == ZERO) {
 		Serial_printCharP(pmProgTXPromt);
@@ -489,11 +510,11 @@ void cmd_execute(char* cmd, char** args) {
 		} else {
 			Serial_printCharP(pmSetSpaced);
 			uint16_t promt = atou16(args[0]);
-			if (promt == ZERO) {  pf_prog.req_tx_promt = ZERO;
-			} else {              pf_prog.req_tx_promt = ONE;
+			if (promt == ZERO) {  pf_data.req_tx_promt = ZERO;
+			} else {              pf_data.req_tx_promt = ONE;
 			}
 		}
-		Serial_printDec((int)pf_prog.req_tx_promt);
+		Serial_printDec((int)pf_data.req_tx_promt);
 		Serial_println();
 
 #ifdef SF_ENABLE_MAL
@@ -527,7 +548,7 @@ void cmd_execute(char* cmd, char** args) {
 		// process all get/set properties
 		boolean done = false;
 		for (i=ZERO;i < PF_VARS_SIZE;i++) {
-			if (Vars_isTypeConf(i)==false) {
+			if (Vars_isTypeData(i)) {
 				continue;
 			}
 			if (strcmp(cmd,Vars_getName(i)) != ZERO) {
@@ -541,7 +562,11 @@ void cmd_execute(char* cmd, char** args) {
 			}
 
 			if (Vars_isIndexA(i)==false) {
-				Vars_setValueSerial(i,ZERO,ZERO,atou16(args[0]));
+				if (Vars_isBitSize32(i)) {
+					Vars_setValue32(i,ZERO,ZERO,atou32(args[0]));
+				} else {
+					Vars_setValueSerial(i,ZERO,ZERO,atou16(args[0]));
+				}
 			} else {
 				if (Vars_isIndexB(i)==false) {
 					if (args[1] == NULL) {
@@ -611,17 +636,17 @@ void cmd_execute(char* cmd, char** args) {
 
 // Parse the cmd from the cmd_buff
 void cmd_parse(void) {
-	if (pf_prog.req_tx_echo == ONE) {
-		Serial_printChar((char *)pf_prog.cmd_buff);
+	if (pf_data.req_tx_echo == ONE) {
+		Serial_printChar((char *)pf_data.cmd_buff);
 		Serial_println();
 	}
 	uint8_t idx = ZERO;
 	char *cmd, *ptr, *args[CMD_MAX_ARGS];
-	if (strtok((char *)pf_prog.cmd_buff,CMD_WHITE_SPACE) == NULL) {
+	if (strtok((char *)pf_data.cmd_buff,CMD_WHITE_SPACE) == NULL) {
 		Serial_printCharP(pmPromt);
 		return; // no command given so just print new promt.
 	}
-	cmd = (char *)pf_prog.cmd_buff;
+	cmd = (char *)pf_data.cmd_buff;
 	while( (ptr = strtok(NULL,CMD_WHITE_SPACE)) != NULL) {
 		args[idx] = ptr;
 		if (++idx == (CMD_MAX_ARGS - ONE)) {
@@ -630,7 +655,7 @@ void cmd_parse(void) {
 	}
 	args[idx] = NULL;
 	cmd_execute(cmd,args);
-	if (pf_prog.req_tx_promt == ONE) {
+	if (pf_data.req_tx_promt == ONE) {
 		Serial_printCharP(pmPromt);
 	}
 }
@@ -639,40 +664,40 @@ void Serial_rx_int(uint8_t c) {
 	if (c < 0x07 || c > 0x7E) {
 		return; // only process ascii chars, this is workaround for one unknown byte on SOME com ports under windows.
 	}
-	if (pf_prog.cmd_process == ZERO) {
+	if (pf_data.cmd_process == ZERO) {
 		return; // skip serial data ??? maybe store in some buff and apppend to cmd_buff when cmd is ready.
 	}
-	if (pf_prog.cmd_buff_idx > CMD_BUFF_SIZE) {
-		pf_prog.cmd_buff_idx = ZERO; // protect against to long input
+	if (pf_data.cmd_buff_idx > CMD_BUFF_SIZE) {
+		pf_data.cmd_buff_idx = ZERO; // protect against to long input
 	}
 	if (c=='\b') {
-		pf_prog.cmd_buff[pf_prog.cmd_buff_idx] = '\0';// backspace
-		pf_prog.cmd_buff_idx--;
-		if (pf_prog.req_tx_echo == ONE) {
+		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// backspace
+		pf_data.cmd_buff_idx--;
+		if (pf_data.req_tx_echo == ONE) {
 			Serial_print(' ');
 			Serial_print(c);
 		}
 	} else if (c=='\n') {
-		pf_prog.cmd_buff[pf_prog.cmd_buff_idx] = '\0';// newline
-		pf_prog.cmd_buff_idx = ZERO;
-		pf_prog.cmd_process  = ZERO;
+		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// newline
+		pf_data.cmd_buff_idx = ZERO;
+		pf_data.cmd_process  = ZERO;
 	} else {
-		pf_prog.cmd_buff[pf_prog.cmd_buff_idx] = c;   // store in buffer
-		pf_prog.cmd_buff_idx++;
+		pf_data.cmd_buff[pf_data.cmd_buff_idx] = c;   // store in buffer
+		pf_data.cmd_buff_idx++;
 	}
 }
 
 
 // Check for data from console and put in cmd_buff
 void Serial_loop(void) {
-	if (pf_prog.cmd_process==ZERO) {
+	if (pf_data.cmd_process==ZERO) {
 		cmd_parse();
-		pf_prog.cmd_process=ONE;
+		pf_data.cmd_process=ONE;
 	}
 }
 
 void Serial_setup(void) {
-	pf_prog.cmd_process  = ONE; // rm me
+	pf_data.cmd_process  = ONE; // rm me
 
 	// delay is needed else we get junk on terminal.
 	Chip_delay(100);

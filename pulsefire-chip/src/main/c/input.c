@@ -25,7 +25,6 @@
 #include "input.h"
 
 // read out digital values.
-#ifdef SF_ENABLE_DIC
 void Input_loopDic(void) {
 	uint32_t current_time = millis();
 	if (current_time < pf_data.dic_time_cnt) {
@@ -77,7 +76,6 @@ void Input_loopDic(void) {
 		}
 	}
 }
-#endif
 
 #ifdef SF_ENABLE_ADC
 void Input_adc_int(uint16_t result) {
@@ -108,7 +106,7 @@ void Input_loopAdc(void) {
 	for (uint8_t i=pf_data.adc_state_idx;i <= ADC_MAP_MAX;i++) {
 #ifdef SF_ENABLE_AVR
 #ifdef SF_ENABLE_LCD
-#ifndef SF_ENABLE_EXT_LCD
+#ifndef SF_ENABLE_SPI
 		if (i < 4) {
 			//pin_idx++;
 			continue; // only read 4 & 5 in normal connection mode.

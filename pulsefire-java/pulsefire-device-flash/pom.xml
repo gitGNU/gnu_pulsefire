@@ -15,8 +15,8 @@
       <artifactId>pulsefire-rxtx-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- This is to make eclipse happy  -->
     <dependency>
-      <!-- This is to make eclipse happy  -->
       <groupId>org.rxtx</groupId>
       <artifactId>rxtx</artifactId>
       <version>2.1.7</version>

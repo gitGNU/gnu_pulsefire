@@ -46,7 +46,7 @@ void ptc_time0_run(void) {
 			pf_data.ptc_0step = ONE;
 #ifdef SF_ENABLE_DEBUG
 			Serial_printCharP(PSTR("Do time0 step: "));Serial_printDec((int)pf_data.ptc_0map_idx);Serial_printChar(" ");
-			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
+			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_B]);Serial_printChar(" ");
 			Serial_printDec(pf_conf.ptc_0map[pf_data.ptc_0map_idx][QMAP_VALUE_A]);Serial_println();
 #endif
 			// Execute the steps
@@ -98,7 +98,7 @@ void ptc_time1_run(void) {
 			pf_data.ptc_1step = ONE;
 #ifdef SF_ENABLE_DEBUG
 			Serial_printCharP(PSTR("Do time1 step: "));Serial_printDec((int)pf_data.ptc_1map_idx);Serial_printChar(" ");
-			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(waitTime);Serial_printChar(" ");
+			Serial_printDec(varIdx);Serial_printChar(" ");Serial_printDec(pf_conf.ptc_0map[pf_data.ptc_1map_idx][QMAP_VALUE_B]);Serial_printChar(" ");
 			Serial_printDec(pf_conf.ptc_1map[pf_data.ptc_1map_idx][QMAP_VALUE_A]);Serial_println();
 #endif
 			// Execute the steps

@@ -67,27 +67,28 @@
 #define IO_DEF_ADC4_PIN             4  // PIN A4 = Only analog 4 and 5 are usable in default mode
 #define IO_DEF_ADC5_PIN             5  // PIN A5
 
-// PIN MAPPING FOR EXTENDED CONNECTION MODE
-#define IO_EXT_RX_PIN               0  // PIN 0
-#define IO_EXT_TX_PIN               1  // PIN 1
-#define IO_EXT_PIN2_PIN             2  // PIN 2
-#define IO_EXT_PIN3_PIN             3  // PIN 3
-#define IO_EXT_PIN4_PIN             4  // PIN 4
-#define IO_EXT_PIN5_PIN             5  // PIN 5
-#define IO_EXT_INPUT0_PIN           6  // PIN 6 = Digital inputs or maybe push out for pll stuff.
-#define IO_EXT_INPUT1_PIN           7  // PIN 7 = Will be finalized after some timer2 input code
-#define IO_EXT_OUT_DATA_PIN         0  // PIN 8 = output 0-7 and 8-15 via 2 chip casade
-#define IO_EXT_OUT_CLK_PIN          1  // PIN 9
-#define IO_EXT_OUT_E_PIN            2  // PIN 10
-#define IO_EXT_S2P_DATA_PIN         3  // PIN 11 lcd D0-D3,RS,E,mux0/1=Select digital input via dual 4to1 multiplexer
-#define IO_EXT_S2P_CLK_PIN          4  // PIN 12
-#define IO_EXT_S2P_E_PIN            5  // PIN 13
-#define IO_EXT_ADC0_PIN             0  // PIN A0
-#define IO_EXT_ADC1_PIN             1  // PIN A1
-#define IO_EXT_ADC2_PIN             2  // PIN A2
-#define IO_EXT_ADC3_PIN             3  // PIN A3
-#define IO_EXT_ADC4_PIN             4  // PIN A4
-#define IO_EXT_ADC5_PIN             5  // PIN A5
+// PIN MAPPING FOR EXTENDED SPI CONNECTION MODE
+#define IO_SPI_RX_PIN               0  // PIN 0 = Rx/Tx for serial is wired internally to USB
+#define IO_SPI_TX_PIN               1  // PIN 1
+#define IO_SPI_PIN2_PIN             2  // PIN 2 - in/out int0 Trigger
+#define IO_SPI_PIN3_PIN             3  // PIN 3 - in/out intB enter menu
+#define IO_SPI_PIN4_PIN             4  // PIN 4 - in/out 
+#define IO_SPI_PIN5_PIN             5  // PIN 5 - in/out
+#define IO_SPI_INPUT0_PIN           6  // PIN 6 - input dic0 - dic_mux0
+#define IO_SPI_INPUT1_PIN           7  // PIN 7 - input dic1 - dic_mux1
+#define IO_SPI_LCD_E_PIN            0  // PIN 8 - lcd D0-D3,RS,E,mux0/1=Select digital input via dual 4to1 multiplexer
+#define IO_SPI_DOC_E_PIN            1  // PIN 9
+#define IO_SPI_OUT_E_PIN            2  // PIN 10 = output 0-7 and 8-15 via 2 chip casade
+#define IO_SPI_MOSI_PIN             3  // PIN 11
+#define IO_SPI_MISO_PIN             4  // PIN 12
+#define IO_SPI_SCK_PIN              5  // PIN 13
+#define IO_SPI_ADC0_PIN             0  // PIN A0
+#define IO_SPI_ADC1_PIN             1  // PIN A1
+#define IO_SPI_ADC2_PIN             2  // PIN A2
+#define IO_SPI_ADC3_PIN             3  // PIN A3
+#define IO_SPI_ADC4_PIN             4  // PIN A4
+#define IO_SPI_ADC5_PIN             5  // PIN A5
+
 
 // Prototype and function for specific c init location.
 void SRAM_init(void) __attribute__((naked)) __attribute__ ((section (".init1")));
@@ -121,8 +122,7 @@ void Chip_setup(void) {
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
 	switch (pf_conf.avr_pin2_map) {
-		case PIN2_TRIG_IN:
-		case PIN2_FREQ_IN:
+		case PIN2_INT0_IN:
 		case PIN2_FIRE_IN:
 		case PIN2_HOLD_FIRE_IN:
 			Chip_in_int_pin(ZERO,ZERO); // turn on int0
@@ -135,7 +135,7 @@ void Chip_setup(void) {
 			break;
 	}
 	switch (pf_conf.avr_pin3_map) {
-		case PIN3_FREQ_IN:
+		case PIN3_INT1_IN:
 		case PIN3_FIRE_IN:
 		case PIN3_HOLD_FIRE_IN:
 			Chip_in_int_pin(ONE,ZERO); // turn on int1
@@ -168,7 +168,8 @@ void Chip_setup(void) {
 	DDRC = 0x00;
 	PORTC = 0x00;
 	// Map LCD pins
-#ifndef SF_ENABLE_EXT_LCD
+#ifdef SF_ENABLE_LCD
+#ifndef SF_ENABLE_SPI
 	DDRD  |=  (ONE<<IO_DEF_LCD_RS_PIN);
 	PORTD &= ~(ONE<<IO_DEF_LCD_RS_PIN);
 	DDRD  |=  (ONE<<IO_DEF_LCD_E_PIN);
@@ -179,8 +180,18 @@ void Chip_setup(void) {
 	DDRC  |=  (ONE<<PINC3);
 	PORTC  =  0x0F;
 #endif
+#endif
 
 	DDRB  = 0xFF; // Port B is in all connection modes always output
+
+#ifdef SF_ENABLE_SPI
+	SPCR |=  (1 << SPE) | (1 << MSTR); // SPI enable and master mode in 0 SPI mode
+	SPSR |=  (1 << SPI2X); // Double speed
+	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_OUT_E_PIN,ONE);
+	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_LCD_E_PIN,ONE);
+	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_DOC_E_PIN,ONE);
+#endif
+
 #ifdef SF_ENABLE_PWM
 	PWM_send_output(PULSE_DATA_OFF); // send off state to output
 #endif
@@ -190,7 +201,6 @@ void Chip_setup(void) {
 	TCCR1A = ZERO;
 	TCCR1B = (ONE+ONE) & 7;
 	TIMSK1|= (ONE << OCF1A);
-	TIMSK1|= (ONE << OCF1B);
 	TCNT1  = ZERO;
 #ifdef SF_ENABLE_PWM
 	TCCR1B = pf_conf.pwm_clock & 7;
@@ -217,8 +227,10 @@ void Chip_setup(void) {
 	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
 	ADCSRA |= (1<<ADIE); // enable interupts after conversion
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D); // disable digital input on adc pins
-#ifdef SF_ENABLE_EXT_LCD
+#ifdef SF_ENABLE_LCD
+#ifndef SF_ENABLE_SPI
 	DIDR0 |= (1 << ADC0D) | (1 << ADC1D) | (1 << ADC2D) | (1 << ADC3D);
+#endif
 #endif
 
 	// initialize UART0
@@ -242,7 +254,7 @@ void Chip_setup(void) {
 }
 
 uint32_t millis(void) {
-	return pf_prog.sys_time_ssec*10;
+	return pf_data.sys_time_ssec*10;
 }
 
 
@@ -291,13 +303,11 @@ void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
 	}
 }
 
-void shiftOut(volatile uint8_t *port,uint8_t dataPin,uint8_t clkPin,uint8_t dataByte) {
-	for( uint8_t i = 8;i>ZERO; i-- ){
-		digitalWrite(port,dataPin,(dataByte & 0x80)>ZERO);
-		dataByte <<= ONE;
-		digitalWrite(port,clkPin, ONE);
-		digitalWrite(port,clkPin, ZERO);
-	}
+uint8_t shiftOut(uint8_t dataByte) {
+	SPDR = dataByte;
+	while (!(SPSR & _BV(SPIF)))
+		;
+	return SPDR; // clear bit
 }
 
 void Chip_eeprom_read(void* eemem) {
@@ -326,12 +336,12 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_TCNT:		TCNT1 = value;			break;
 #endif
 #ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);			break;
+	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);		break;
 	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & 252) + (value & 3);TCCR2B = (TCCR2B & 247) + (value & 8);break; // bit 0/1 + bit 3/4 in B
-	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);			break;
-	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;									break;
+	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);		break;
+	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;					break;
 	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & 63)  + ((value << 6) & 192);	break; // bit 6/7
-	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;									break;
+	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;					break;
 	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & 207) + ((value << 4) & 48);	break; // bit 4/5
 #endif
 	default:
@@ -340,20 +350,20 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 }
 
 void Chip_out_pwm(uint16_t data) {
+
 	// Send data to output depending on connection mode; max outs 16,8,3,6
-#if defined(SF_ENABLE_EXT_OUT_16BIT)
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,ZERO);
-		shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)(data >> 8)); // high byte
-		shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)data);        // low byte, is last to that fist chip is zero !
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,ONE);
-#elif defined(SF_ENABLE_EXT_OUT)
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,ZERO);
-		shiftOut(IO_DEF_OUT_PORT,IO_EXT_OUT_DATA_PIN,IO_EXT_OUT_CLK_PIN,(uint8_t)data);
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_OUT_E_PIN,ONE);
-#elif defined(SF_ENABLE_EXT_LCD)
-	digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_0_PIN,(data & 1) >> 0); // only set 3 bits on output, other 3 are for lcd
-	digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_1_PIN,(data & 2) >> 1);
-	digitalWrite(IO_DEF_OUT_PORT,IO_DEF_OUT_2_PIN,(data & 4) >> 2);
+#if defined(SF_ENABLE_SPI)
+	uint8_t chips = pf_conf.spi_chips;
+	if ((chips & SPI_CHIPS_OUT8) > ZERO) {
+		digitalWrite(IO_DEF_OUT_PORT,IO_SPI_OUT_E_PIN,ZERO);	
+		if ((chips & SPI_CHIPS_OUT16) > ZERO) {
+			shiftOut((uint8_t)(data >> 8)); // high byte
+			shiftOut((uint8_t)data);        // low byte, is last to that fist chip is zero !
+		} else {
+			shiftOut((uint8_t)data);
+		}
+		digitalWrite(IO_DEF_OUT_PORT,IO_SPI_OUT_E_PIN,ONE);
+	}
 #else
 	volatile uint8_t *port = IO_DEF_OUT_PORT;
 	*port = data;
@@ -365,33 +375,13 @@ void Chip_out_serial(uint8_t data) {
 	UDR0 = data;
 }
 
-#ifdef SF_ENABLE_EXT_LCD
+#ifdef SF_ENABLE_SPI
 void lcd_write_s2p(uint8_t value) {
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_S2P_E_PIN,ZERO);
-#ifdef SF_ENABLE_EXT_LCD_DOC
-	uint16_t doc_out = ZERO;
-
-#ifdef SF_ENABLE_DOC
-	for (uint8_t t=ZERO;t<DOC_PORT_NUM_MAX;t++) {
-		if (pf_data.doc_port[t] > ZERO) {
-			doc_out += (ONE << t);
-		}
-	}
-#endif
-
-#ifdef SF_ENABLE_EXT_LCD_DOC_16BIT
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,(doc_out >> 8)); // send data to last chip first
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,doc_out);
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,value);
-#else
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,doc_out);
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,value);
-#endif
-
-#else
-	shiftOut(IO_DEF_OUT_PORT,IO_EXT_S2P_DATA_PIN,IO_EXT_S2P_CLK_PIN,value);
-#endif
-	digitalWrite(IO_DEF_OUT_PORT,IO_EXT_S2P_E_PIN,ONE);
+	// wait till free
+	while (pf_data.spi_int_req>ZERO) {}
+	pf_data.spi_int_pin = IO_SPI_LCD_E_PIN;
+	pf_data.spi_int_data8 = value;
+	pf_data.spi_int_req = 1;
 }
 #endif
 
@@ -400,7 +390,7 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 	uint8_t ln = data & 0x0F;
 
 	//Send high nibble
-#ifdef SF_ENABLE_EXT_LCD
+#ifdef SF_ENABLE_SPI
 	uint8_t lcd_out = hn + ((mux & 3) << 6);
 	if (cmd==LCD_SEND_DATA) {
 		lcd_out += 16; // make RS high
@@ -452,8 +442,30 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 	}
 }
 
-void Chip_out_doc(uint16_t data) {
-#ifdef SF_ENABLE_DOC
+void Chip_out_doc(void) {
+
+#ifdef SF_ENABLE_SPI
+	uint16_t doc_out = ZERO;
+	for (uint8_t t=ZERO;t<DOC_PORT_NUM_MAX;t++) {
+		if (pf_data.doc_port[t] > ZERO) {
+			doc_out += (ONE << t);
+		}
+	}
+	// wait till free
+	while (pf_data.spi_int_req>ZERO) {}
+	uint8_t chips = pf_conf.spi_chips;
+	if ((chips & SPI_CHIPS_DOC8) > ZERO) {
+		pf_data.spi_int_pin = IO_SPI_DOC_E_PIN;
+		if ((chips & SPI_CHIPS_DOC16) > ZERO) {
+			pf_data.spi_int_data8 = (doc_out >> 8); // send data to last chip first
+			pf_data.spi_int_data16 = doc_out;
+			pf_data.spi_int_req = 2;
+		} else {
+			pf_data.spi_int_data8 = doc_out;
+			pf_data.spi_int_req = 1;
+		}
+	}
+#endif
 	if (pf_conf.avr_pin2_map == PIN2_DOC2_OUT) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[2] > ZERO);
 	}
@@ -478,7 +490,6 @@ void Chip_out_doc(uint16_t data) {
 	if (pf_conf.avr_pin5_map == PIN5_DOC11_OUT) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[11] > ZERO);
 	}
-#endif
 }
 
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
@@ -502,18 +513,7 @@ void Chip_in_adc(uint8_t channel) {
 	ADCSRA |= (1<<ADSC); // request start
 }
 
-uint8_t Chip_in_menu(void) {
-	if (pf_conf.avr_pin3_map != PIN3_MENU0_IN || pf_conf.avr_pin4_map != PIN4_MENU1_IN) {
-		return 0xFF;// todo use adc or dic for menu pins.
-	}
-	uint8_t input0 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN3_PIN);
-	uint8_t input1 = digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN4_PIN);
-	uint8_t result = input0 + (input1 << 1);
-	return result;
-}
-
 uint16_t Chip_in_dic(void) {
-#ifdef SF_ENABLE_DIC
 	uint16_t result=ZERO;
 
 	// Special readout of pin2 into dic2 for 1or3 digital inputs without extension
@@ -542,43 +542,48 @@ uint16_t Chip_in_dic(void) {
 		result += digitalRead(IO_DEF_IO_PORT_IN,IO_DEF_PIN5_PIN) << 11;
 	}
 
-#ifdef SF_ENABLE_EXT_LCD_DIC
-	for (uint8_t i=ZERO;i < DIC_MAP_MAX/2  ;i++) {
-		Chip_out_lcd(0x80,LCD_SEND_CMD,i/2);
-		if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
-		if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
-		if (i==4  && pf_conf.avr_pin4_map == PIN4_DIC4_IN)  { continue; }
-		if (i==5  && pf_conf.avr_pin5_map == PIN5_DIC5_IN)  { continue; }
-		if (((result >> i) & ONE)==ZERO) {
-			if ((i & ONE)==ZERO) {
-				result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN) << i;
-			} else {
-				result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN) << i;
+#ifdef SF_ENABLE_SPI
+	uint8_t chips = pf_conf.spi_chips;
+	if ((chips & SPI_CHIPS_LCD_MUX) > ZERO) {
+		for (uint8_t i=ZERO;i < DIC_MAP_MAX/2  ;i++) {
+			Chip_out_lcd(0x80,LCD_SEND_CMD,i/2);
+			if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }
+			if (i==3  && pf_conf.avr_pin3_map == PIN3_DIC3_IN)  { continue; }
+			if (i==4  && pf_conf.avr_pin4_map == PIN4_DIC4_IN)  { continue; }
+			if (i==5  && pf_conf.avr_pin5_map == PIN5_DIC5_IN)  { continue; }
+			if (((result >> i) & ONE)==ZERO) {
+				if ((i & ONE)==ZERO) {
+					result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT0_PIN) << i;
+				} else {
+					result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT1_PIN) << i;
+				}
 			}
 		}
+	} else {
+		result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT0_PIN) << ZERO;
+		result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT1_PIN) << ONE;
 	}
 #else
-	result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT0_PIN) << ZERO;
-	result += digitalRead(IO_DEF_IO_PORT_IN,IO_EXT_INPUT1_PIN) << ONE;
+	result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT0_PIN) << ZERO;
+	result += digitalRead(IO_DEF_IO_PORT_IN,IO_SPI_INPUT1_PIN) << ONE;
 #endif
 	return result;
-#endif
 }
 
 // Pin2 input via interrupts
 ISR(INT0_vect) {
-	if (pf_conf.avr_pin2_map == PIN2_TRIG_IN) {
+	//if (pf_conf.avr_pin2_map == PIN2_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
-		PWM_pulsefire();
+	//	PWM_pulsefire();
 #endif
-		return;
-	}
-#ifdef SF_ENABLE_DEV
+	//	return;
+	//}
+/*
 	if (pf_conf.avr_pin2_map == PIN2_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
-#endif
+*/
 #ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin2_map == PIN2_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
@@ -592,12 +597,12 @@ ISR(INT0_vect) {
 }
 
 ISR(INT1_vect) {
-#ifdef SF_ENABLE_DEV
+/*
 	if (pf_conf.avr_pin3_map == PIN3_FREQ_IN) {
 		pf_data.dev_freq_cnt++;
 		return;
 	}
-#endif
+*/
 #ifdef SF_ENABLE_PWM
 	if (pf_conf.avr_pin3_map == PIN3_FIRE_IN && pf_data.pulse_fire == ZERO) {
 		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
@@ -611,28 +616,33 @@ ISR(INT1_vect) {
 }
 
 ISR(TIMER0_OVF_vect) {
-	pf_prog.sys_time_ticks++;
-	if (pf_prog.sys_time_ticks >= (F_CPU/8/256/100)) {
-		pf_prog.sys_time_ticks=ZERO;
-		pf_prog.sys_time_ssec++;
+	pf_data.sys_time_ticks++;
+	if (pf_data.sys_time_ticks >= (F_CPU/8/256/100)) { // 78 fits in 8bit on avr8
+		pf_data.sys_time_ticks=ZERO;
+		pf_data.sys_time_ssec++;
 	}
-}
-
-ISR(ADC_vect) {
-#ifdef SF_ENABLE_PWM
-	Input_adc_int(ADCW);
+#ifdef SF_ENABLE_SPI
+	if (pf_data.spi_int_req>ZERO) {
+		digitalWrite(IO_DEF_OUT_PORT,pf_data.spi_int_pin,ZERO);
+		if (pf_data.spi_int_req==2) {
+			shiftOut(pf_data.spi_int_data16); // shift high first
+		}
+		shiftOut(pf_data.spi_int_data8);
+		digitalWrite(IO_DEF_OUT_PORT,pf_data.spi_int_pin,ONE);
+		pf_data.spi_int_req=ZERO;
+	}
 #endif
 }
 
-ISR(TIMER1_COMPB_vect) {
-#ifdef SF_ENABLE_PWM
-	PWM_do_work_b();
+ISR(ADC_vect) {
+#ifdef SF_ENABLE_ADC
+	Input_adc_int(ADCW);
 #endif
 }
 
 ISR(TIMER1_COMPA_vect) {
 #ifdef SF_ENABLE_PWM
-	PWM_do_work_a();
+	PWM_do_work();
 #endif
 }
 

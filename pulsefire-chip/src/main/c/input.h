@@ -30,9 +30,7 @@
 #include "ptc.h"
 #include "utils.h"
 
-#ifdef SF_ENABLE_DIC
 void Input_loopDic(void);
-#endif
 
 #ifdef SF_ENABLE_ADC
 void Input_loopAdc(void);

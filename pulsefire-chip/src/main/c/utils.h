@@ -34,6 +34,7 @@ void reverse_str(char s[]);
 void u16toa(uint16_t n, char s[]);
 void u32toa(uint32_t n, char s[]);
 uint16_t atou16(char* s);
+uint32_t atou32(char* s);
 uint32_t htou32(char* s);
 uint16_t reverse_bits(uint16_t num,uint16_t num_bits);
 long mapValue(long x, long in_min, long in_max, long out_min, long out_max);

@@ -155,9 +155,9 @@ void Freq_loop(void) {
 	pf_data.pulse_fire_freq_cnt = ZERO;
 
 #ifdef SF_ENABLE_AVR
-	if ((pf_conf.avr_pin2_map != PIN2_FREQ_IN) & (pf_conf.avr_pin3_map != PIN3_FREQ_IN)) {
-		return;
-	}
+	//if ((pf_conf.avr_pin2_map != PIN2_FREQ_IN) & (pf_conf.avr_pin3_map != PIN3_FREQ_IN)) {
+	//	return;
+	//}
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
 	if ((pf_conf.avr_pin18_map != PIN18_FREQ_IN) & (pf_conf.avr_pin19_map != PIN19_FREQ_IN)) {

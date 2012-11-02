@@ -30,7 +30,7 @@ package org.nongnu.pulsefire.wire;
  */
 public class CommandNameVersionFactory {
 
-	static public final int CURRENT_VERSION = 10;
+	static public final int CURRENT_VERSION = 11;
 	
 	static public void configCommandMax(int version,CommandName commandName,int value) {
 		commandName.maxValue=value;
@@ -51,6 +51,9 @@ public class CommandNameVersionFactory {
 	static public boolean configCommandName(int version) {
 		if (version==CURRENT_VERSION) {
 			return configCurrentVersion();
+		}
+		if (version==10) {
+			return configVersion10();
 		}
 		if (version==9) {
 			return configVersion9();
@@ -306,6 +309,14 @@ public class CommandNameVersionFactory {
 		return true;
 	}
 
+	static private boolean configVersion10() {
+		
+		// Config like current
+		configCurrentVersion();
+		
+		return true;
+	}
+	
 	static private boolean configVersion9() {
 		
 		// Config like current

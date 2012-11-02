@@ -161,29 +161,12 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 			SpringLayoutGrid.makeCompactGrid(dialPanel,2,2,0,0,0,0);
 			out.add(dialPanel);
 			
+			/*
 			JPanel flagsPanel = new JPanel();
 			flagsPanel.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
-			//flagsPanel.setBorder(new JFireBorderChild(out));
-			//flagsPanel.setLayout(new SpringLayout());
-			//JPanel flags = new JPanel();
-			//flags.setLayout(new BoxLayout(flags,BoxLayout.PAGE_AXIS));
-			//JCheckBox pwmFlag = new JCheckBox();
-			//pwmFlag.setText("inv");
-			//pwmFlag.setEnabled(false);
-			////JComponentEnableStateListener.attach(pwmFlag,null);
-			//pwmFlag.putClientProperty("JComponent.sizeVariant", "mini");
-			//flags.add(pwmFlag);
-			//JCheckBox ppmFlag = new JCheckBox();
-			//ppmFlag.setText("inv");
-			//ppmFlag.setEnabled(false);
-			//ppmFlag.putClientProperty("JComponent.sizeVariant", "mini");
-			////JComponentEnableStateListener.attach(ppmFlag,null);
-			//flags.add(ppmFlag);
-			//flagsPanel.add(flags);
 			flagsPanel.add(new JCommandDial(CommandName.pwm_tune_cnt,i));
-			//SpringLayoutGrid.makeCompactGrid(flagsPanel,1,2,0,0,0,0);
-			
 			out.add(flagsPanel);
+			*/
 
 			JPanel ppmPanel = new JPanel();
 			ppmPanel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));

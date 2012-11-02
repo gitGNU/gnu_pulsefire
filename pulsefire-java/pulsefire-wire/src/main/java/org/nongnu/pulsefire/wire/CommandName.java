@@ -39,8 +39,9 @@ public enum CommandName {
 	info_conf				(CommandVariableType.INFO),
 	info_data				(CommandVariableType.INFO),
 	info_prog				(CommandVariableType.INFO),
-	info_freq				(CommandVariableType.INFO),
-	info_ppm				(CommandVariableType.INFO,WireChipFlags.PPM),
+	info_freq				(CommandVariableType.INFO,WireChipFlags.PWM),
+	info_pwm				(CommandVariableType.INFO,WireChipFlags.PWM),
+	info_ppm				(CommandVariableType.INFO,WireChipFlags.PWM),
 	info_chip				(CommandVariableType.INFO),
 	
 	reset_conf				(CommandVariableType.CMD),
@@ -56,6 +57,12 @@ public enum CommandName {
 	mal_ops					(CommandVariableType.CMD,WireChipFlags.MAL),
 	mal_ops_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
 	mal_mticks				(CommandVariableType.CMD,WireChipFlags.MAL),
+	
+	sys_id					(CommandVariableType.CONF),
+	sys_pass				(CommandVariableType.CONF),
+	
+	spi_mode				(CommandVariableType.CONF,WireChipFlags.SPI),
+	spi_clock				(CommandVariableType.CONF,WireChipFlags.SPI),
 	
 	pulse_enable			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_mode				(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -93,10 +100,10 @@ public enum CommandName {
 	pwm_req_duty			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_req_freq			(CommandVariableType.CONF,WireChipFlags.PWM),
 	
-	ppm_data_offset			(CommandVariableType.CONF,WireChipFlags.PPM),
-	ppm_data_len			(CommandVariableType.CONF,WireChipFlags.PPM),
-	ppm_data_a				(CommandVariableType.CONF,WireChipFlags.PPM),
-	ppm_data_b				(CommandVariableType.CONF,WireChipFlags.PPM),
+	ppm_data_offset			(CommandVariableType.CONF,WireChipFlags.PWM),
+	ppm_data_len			(CommandVariableType.CONF,WireChipFlags.PWM),
+	ppm_data_a				(CommandVariableType.CONF,WireChipFlags.PWM),
+	ppm_data_b				(CommandVariableType.CONF,WireChipFlags.PWM),
 	
 	lpm_done				(CommandVariableType.CMD,WireChipFlags.LPM),  // exception this is no cmd.
 	lpm_start				(CommandVariableType.CONF,WireChipFlags.LPM),
@@ -116,9 +123,9 @@ public enum CommandName {
 	ptt_2map				(CommandVariableType.CONF,WireChipFlags.PTT),
 	ptt_3map				(CommandVariableType.CONF,WireChipFlags.PTT),
 	
-	dev_volt_dot			(CommandVariableType.CONF,WireChipFlags.DEV),
-	dev_amp_dot				(CommandVariableType.CONF,WireChipFlags.DEV),
-	dev_temp_dot			(CommandVariableType.CONF,WireChipFlags.DEV),
+	dev_volt_dot			(CommandVariableType.CONF),
+	dev_amp_dot				(CommandVariableType.CONF),
+	dev_temp_dot			(CommandVariableType.CONF),
 	
 	stv_warn_secs			(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_warn_map			(CommandVariableType.CONF,WireChipFlags.STV),
@@ -134,10 +141,10 @@ public enum CommandName {
 	adc_enable				(CommandVariableType.CONF,WireChipFlags.ADC),
 	adc_jitter				(CommandVariableType.CONF,WireChipFlags.ADC),
 	
-	dic_map					(CommandVariableType.CONF,WireChipFlags.DIC),
-	dic_enable				(CommandVariableType.CONF,WireChipFlags.DIC),
-	dic_inv					(CommandVariableType.CONF,WireChipFlags.DIC),
-	dic_sync				(CommandVariableType.CONF,WireChipFlags.DIC),
+	dic_map					(CommandVariableType.CONF),
+	dic_enable				(CommandVariableType.CONF),
+	dic_inv					(CommandVariableType.CONF),
+	dic_sync				(CommandVariableType.CONF),
 	
 	avr_pin2_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin3_map			(CommandVariableType.CONF,WireChipFlags.AVR),
@@ -258,9 +265,6 @@ public enum CommandName {
 	pulse_reset_fire		(CommandVariableType.DATA),
 	pulse_resume_fire		(CommandVariableType.DATA),
 	pulse_step				(CommandVariableType.DATA),
-	pulse_data				(CommandVariableType.DATA),
-	pulse_dir_cnt			(CommandVariableType.DATA),
-	pulse_bank_cnt			(CommandVariableType.DATA),
 	pulse_trig_delay_cnt	(CommandVariableType.DATA),
 	pulse_post_delay_cnt	(CommandVariableType.DATA),
 	
@@ -283,7 +287,8 @@ public enum CommandName {
 	chip_build				(CommandVariableType.CHIP),
 	chip_flags				(CommandVariableType.CHIP),
 	
-	freq_pwm_data			(CommandVariableType.FREQ),
+	info_freq_data			(CommandVariableType.DATA),
+	info_pwm_data			(CommandVariableType.DATA),
 
 	sys_time_ticks			(CommandVariableType.PROG), /// new v1.0
 	sys_time_ssec			(CommandVariableType.PROG),
@@ -303,7 +308,13 @@ public enum CommandName {
 	stv_mode_org			(CommandVariableType.PROG),
 	stv_map_idx				(CommandVariableType.PROG),
 	
-	// Deleted command
+	// Deleted commands v1.0
+	freq_pwm_data			(CommandVariableType.FREQ), // renamed
+	pulse_data				(CommandVariableType.DATA),
+	pulse_dir_cnt			(CommandVariableType.DATA),
+	pulse_bank_cnt			(CommandVariableType.DATA),
+	
+	// Deleted commands v0.9
 	req_pwm_freq			(CommandVariableType.CHIP),
 	swc_trig				(CommandVariableType.CHIP),
 	swc_mode				(CommandVariableType.CHIP),

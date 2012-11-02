@@ -110,7 +110,8 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 	protected void connectPort(FlashControllerConfig flashControllerConfig) throws FlashException {
 		Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
 		while (e.hasMoreElements()) {
-			e.nextElement();// always reloop the ports before opening.
+			CommPortIdentifier port = (CommPortIdentifier)e.nextElement();
+			logMessage("port list: "+port.getName());// always reloop the ports before opening.
 		}
 		try {
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(flashControllerConfig.getPort());
@@ -126,6 +127,7 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 	}
 
 	protected void logConfig(FlashControllerConfig flashControllerConfig) {
+		logMessage("Flash port: "+flashControllerConfig.getPort());
 		logMessage("Flash data size: "+flashControllerConfig.getFlashData().length);
 		logMessage("Flash protocol: "+flashControllerConfig.getPortProtocol());
 		logMessage("Flash verify: "+flashControllerConfig.isFlashVerify());

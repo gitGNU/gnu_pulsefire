@@ -35,11 +35,8 @@ public enum WireChipFlags {
 	CIP,
 	LCD,
 	LPM,
-	PPM,
 	ADC,
-	DIC,
-	DOC,
-	DEV,
+	SPI,
 	STV,
 	PTC,
 	PTT,
@@ -51,6 +48,13 @@ public enum WireChipFlags {
 	AVR,
 	AVR_MEGA,
 	ARM_7M;
+	
+	
+	/* rmed in v1.1 */
+	//PPM,
+	//DIC,
+	//DOC,
+	//DEV,
 	
 	public boolean isFlagActive(Command cmd) {
 		if (cmd==null) {

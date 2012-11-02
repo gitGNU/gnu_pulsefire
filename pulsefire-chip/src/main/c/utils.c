@@ -26,15 +26,15 @@
 // Uncopy from program/flash memory to sram
 char* UNPSTR(const char* dstring) {
 	for (uint8_t i=ZERO;i < UNPSTR_BUFF_SIZE;i++) {
-		pf_prog.unpstr_buff[i]='\0'; // clean buffer
+		pf_data.unpstr_buff[i]='\0'; // clean buffer
 	}
 	int index = ZERO;
 	while (Chip_pgm_readByte(dstring) != 0x00) {
 		uint8_t c = Chip_pgm_readByte(dstring++);
-		pf_prog.unpstr_buff[index]=c;
+		pf_data.unpstr_buff[index]=c;
 		index++;
 	}
-	return pf_prog.unpstr_buff;
+	return pf_data.unpstr_buff;
 }
 
 // Fill pstr_buff from pointer
@@ -94,6 +94,22 @@ uint16_t atou16(char* s) {
 	}
 	return num;
 }
+
+uint32_t atou32(char* s) {
+	uint8_t nn = ZERO;
+	char* ss = s;
+	while (*ss++) { nn++; }
+	uint32_t num = ZERO;
+	for (uint8_t i=ZERO;i <= nn;i++) {
+		if (s[i] >= '0' && s[i] <= '9') {
+			num = num * 10 + s[i] - '0';
+		} else 	{
+			break;
+		}
+	}
+	return num;
+}
+
 
 uint32_t htou32(char* s) {
 	uint8_t nn = ZERO;
