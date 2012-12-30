@@ -84,7 +84,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
 		tabPanels.add(new JTabPanelCit());
-		//tabPanels.add(new JTabPanelCip());
+		tabPanels.add(new JTabPanelCip());
 		tabPanels.add(new JTabPanelStv());
 		tabPanels.add(new JTabPanelPtc());
 		tabPanels.add(new JTabPanelPtt());

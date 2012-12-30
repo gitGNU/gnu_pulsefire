@@ -48,11 +48,10 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
-#define PMCMDLIST_SIZE             16    // array size of other commands
+#define PMCMDLIST_SIZE             17    // array size of other commands
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define SPI_CLOCK_MAX               3    // 4 spi clock modes
-#define SPI_MODE_MAX                3    // 4 spi data modes
 #define ADC_VALUE_MAX            1023    // 10bit adc in avr chips
 #define LCD_PLP_MAX                 4    // Lcd plp always has 4 values.
 #define PTT_TRIG_VAR_SIZE           4    // we have always 4 triggers
@@ -108,11 +107,8 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_AVR_MEGA
-	volatile uint8_t       avr_pin18_map;   // Mapping for pin18
-	volatile uint8_t       avr_pin19_map;   // Mapping for pin19
-	volatile uint8_t       avr_pin47_map;   // Mapping for pin47
-	volatile uint8_t       avr_pin48_map;   // Mapping for pin48
-	volatile uint8_t       avr_pin49_map;   // Mapping for pin49
+	volatile uint8_t       avr_port_a;      // Mapping for port a
+	volatile uint8_t       avr_port_c;      // Mapping for port c
 #endif
 
 #ifdef SF_ENABLE_LCD
@@ -430,7 +426,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_CIT_SIZE  0
 #endif
 #ifdef SF_ENABLE_CIP
-	#define PF_VARS_CIP_SIZE  8
+	#define PF_VARS_CIP_SIZE  24
 #else
 	#define PF_VARS_CIP_SIZE  0
 #endif
@@ -485,7 +481,7 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_AVR_SIZE  0
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
-	#define PF_VARS_AVR_MEGA_SIZE  5
+	#define PF_VARS_AVR_MEGA_SIZE  2
 #else
 	#define PF_VARS_AVR_MEGA_SIZE  0
 #endif

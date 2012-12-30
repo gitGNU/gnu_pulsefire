@@ -21,20 +21,94 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+
+Arduino mega mappings table;
+
+- DEFAULT
+- SPI
+- LCD
+- LCD + SPI
+
+=========================================================================
+Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
+=========================================================================
+- 0     IN      USB-RX      <--         <--         <--
+- 1     OUT     USB-TX      <--         <--         <--
+- 2     OUT     OSC-3B      <--         <--         <--         CIP 1
+- 3     OUT     OSC-3C      <--         <--         <--         CIP 1
+- 4     n/a     free        free        free        free
+- 5     OUT     OSC-3A      <--         <--         <--         CIP 1
+- 6     OUT     OSC-4A      <--         <--         <--         CIP 2
+- 7     OUT     OSC-4B      <--         <--         <--         CIP 2
+- 8     OUT     OSC-4C      <--         <--         <--         CIP 2
+- 9     OUT     OSC-2B      <--         <--         <--         CIT 0 = 8 bit
+- 10    OUT     OSC-2A      <--         <--         <--         CIT 0 = 8 bit
+- 11    OUT     OSC-1A      <--         <--         <--         CIP 0
+- 12    OUT     OSC-1B      <--         <--         <--         CIP 0
+- 13    OUT     OSC-1C      <--         <--         <--         CIP 0
+- 14    n/a     free
+- 15    n/a     free
+- 16    n/a     free
+- 17    n/a     free
+- 18    IN      INT3        <--         <--         <--         INT 1
+- 19    IN      INT2        <--         <--         <--         INT 0
+- 20    I/O     SDA         <--         <--         <--         TODO
+- 21    I/O     SCL         <--         <--         <--         TODO
+- 22    OUT     PA0         <--         <--         <--         avr_port_a
+- 23    OUT     PA1         <--         <--         <--
+- 24    OUT     PA2         <--         <--         <--
+- 25    OUT     PA3         <--         <--         <--
+- 26    OUT     PA4         <--         <--         <--
+- 27    OUT     PA5         <--         <--         <--
+- 28    OUT     PA6         <--         <--         <--
+- 29    OUT     PA7         <--         <--         <--
+- 30    OUT     PC0         <--         <--         <--         avr_port_c
+- 31    OUT     PC1         <--         <--         <--
+- 32    OUT     PC2         <--         <--         <--
+- 33    OUT     PC3         <--         <--         <--
+- 34    OUT     PC4         <--         LCD-D0      LCD-D0
+- 35    OUT     PC5         <--         LCD-D1      LCD-D1
+- 36    OUT     PC6         <--         LCD-D2      LCD-D2
+- 37    OUT     PC7         <--         LCD-D3      LCD-D3
+- 38    OUT     free        free        LCD-RS      LCD-RS
+- 39    OUT     free        free        LCD-E       LCD-E
+- 40    OUT     DIC-MUX1    <--         <--         <--
+- 41    OUT     DIC-MUX0    <--         <--         <--
+- 42    IN      DIC-3       <--         <--         <--
+- 43    IN      DIC-2       <--         <--         <--
+- 44    IN      DIC-1       <--         <--         <--
+- 45    IN      DIC-0       <--         <--         <--
+- 46    OUT     free        SPI_DOC_E   free        SPI_DOC_E
+- 47    IN      PWM_CLK     <--         <--         <--
+- 48    n/a     free        <--         <--         <--
+- 49    n/a     free        <--         <--         <--
+- 50    OUT     free        MISO        free        MISO
+- 51    IN?     free        MOSI        free        MOSI
+- 52    OUT     free        SCK         free        SCK
+- 53    OUT     free        SPI_OUT_E   free        SPI_OUT_E
+
+- A0 - A7  = Analog inputs
+- A8 - A15 = Analog inputs
+*/
 
 // PIN MAPPING FOR MEGA CONNECTION MODE
 #define IO_MEGA_SERIAL_PORT      &PORTE
 #define IO_MEGA_RX_PIN               0  // PIN 0 = Rx/Tx for serial is wired internally to USB
 #define IO_MEGA_TX_PIN               1  // PIN 1
 
-#define IO_MEGA_PIN_TRIG_PORT    &PORTD
-#define IO_MEGA_PIN19_PIN            2  // PIN 19 = INT2  (def) off
-#define IO_MEGA_PIN18_PIN            3  // PIN 18 = INT3  (def) off
-#define IO_MEGA_PIN_CLK_PORT     &PORTL
-#define IO_MEGA_PIN49_PIN            0  // PIN 49 = (def) enter menu
-#define IO_MEGA_PIN48_PIN            1  // PIN 48 = (def) enter menu
-#define IO_MEGA_PIN47_PIN            2  // PIN 47 = T5 (def) External clock source for pwm
+#define IO_MEGA_PORT_A           &PORTA // PIN 22-29
+#define IO_MEGA_PORT_C           &PORTC // PIN 30-37
 
+#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN 34-37 = D0-D3 (if no lcd then OUT/DOC 8-15)
+#define IO_MEGA_LCD_RS_PORT      &PORTG //
+#define IO_MEGA_LCD_RS_PIN           2  // PIN 38
+#define IO_MEGA_LCD_E_PORT       &PORTD
+#define IO_MEGA_LCD_E_PIN            7  // PIN 39
+
+#define IO_MEGA_DIC_MUX_PORT     &PORTG
+#define IO_MEGA_DIC_MUX_0_PIN        0  // PIN 41
+#define IO_MEGA_DIC_MUX_1_PIN        1  // PIN 40
 #define IO_MEGA_DIC_PORT         &PORTL
 #define IO_MEGA_DIC_PORT_IN       &PINL
 #define IO_MEGA_DIC_0_PIN            4  // PIN 45
@@ -42,42 +116,19 @@
 #define IO_MEGA_DIC_2_PIN            6  // PIN 43
 #define IO_MEGA_DIC_3_PIN            7  // PIN 42
 
-#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN37-36-35-34 = D0-D3 (if no lcd then DIC8-15) (if glcd then 8bit data)
-#define IO_MEGA_LCD_CNTR_PORT    &PORTC //
-#define IO_MEGA_LCD_RS_PIN           6  // PIN 31
-#define IO_MEGA_LCD_E_PIN            7  // PIN 30
+#define IO_MEGA_PWM_CLK_PIN          2  // PIN 47
 
-#define IO_MEGA_DOC_PORT         &PORTB
-#define IO_MEGA_DOC_0_PIN            0  // PIN 53
-#define IO_MEGA_DOC_1_PIN            1  // PIN 52
-#define IO_MEGA_DOC_2_PIN            2  // PIN 51
-#define IO_MEGA_DOC_3_PIN            3  // PIN 50
+#define IO_MEGA_SPI_DOC_E_PORT   &PORTL
+#define IO_MEGA_SPI_DOC_E_PIN        3  // PIN 46
 
-#define IO_MEGA_OUT_PORT         &PORTA
-#define IO_MEGA_OUT_0_PIN            0  // PIN 22
-#define IO_MEGA_OUT_1_PIN            1  // PIN 23
-#define IO_MEGA_OUT_2_PIN            2  // PIN 24
-#define IO_MEGA_OUT_3_PIN            3  // PIN 25
-#define IO_MEGA_OUT_4_PIN            4  // PIN 26
-#define IO_MEGA_OUT_5_PIN            5  // PIN 27
-#define IO_MEGA_OUT_6_PIN            6  // PIN 28
-#define IO_MEGA_OUT_7_PIN            7  // PIN 29
-#define IO_MEGA_EXT_OUT_DATA_PIN     0  // PIN 22 = output 0-7 and 8-15 via 2 chip casade
-#define IO_MEGA_EXT_OUT_CLK_PIN      1  // PIN 23
-#define IO_MEGA_EXT_OUT_E_PIN        2  // PIN 24
-#define IO_MEGA_EXT_S2P_DATA_PIN     5  // PIN 27 = lcd D0-D3,RS,E, doc8, doc16
-#define IO_MEGA_EXT_S2P_CLK_PIN      6  // PIN 28
-#define IO_MEGA_EXT_S2P_E_PIN        7  // PIN 29
+#define IO_MEGA_SPI_MISO_PIN         3  // PIN 50
+#define IO_MEGA_SPI_MOSI_PIN         2  // PIN 51
+#define IO_MEGA_SPI_SCK_PIN          1  // PIN 52
+#define IO_MEGA_SPI_OUT_E_PORT   &PORTB
+#define IO_MEGA_SPI_OUT_E_PIN        0  // PIN 53
 
 #define IO_MEGA_ADCL_PORT        &PORTF // ANALOG 0-7
-#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15 (if GLCD then limited)
-
-#define IO_MEGA_GLCD_PORT        &PORTK
-#define IO_MEGA_GLCD_E_PIN           7  // ANALOG-15
-#define IO_MEGA_GLCD_RS_PIN          6  // ANALOG-14
-#define IO_MEGA_GLCD_CS0_PIN         5  // ANALOG-13
-#define IO_MEGA_GLCD_CS1_PIN         4  // ANALOG-12
-
+#define IO_MEGA_ADCH_PORT        &PORTK // ANALOG 8-15
 
 
 // Prototype and function for specific c init location.
@@ -109,125 +160,8 @@ void Chip_reset(void) {
 
 void Chip_setup(void) {
 
-	// Port 2 has only 2 pins connected used for interupt functions
-	DDRD = 0x00;  // default to input
-	PORTD = 0xFF; // with pullup
-	switch (pf_conf.avr_pin18_map) {
-        case PIN18_TRIG_IN:
-        case PIN18_FREQ_IN:
-        case PIN18_FIRE_IN:
-        case PIN18_HOLD_FIRE_IN:
-            Chip_in_int_pin(ZERO,ZERO); // turn on int0
-            break;
-		case PIN18_DOC4_OUT:
-		case PIN18_DOC6_OUT:
-			DDRD  |=  (ONE<<IO_MEGA_PIN18_PIN);
-			PORTD &= ~(ONE<<IO_MEGA_PIN18_PIN);
-		default:
-			break;
-	}
-	switch (pf_conf.avr_pin19_map) {
-        case PIN19_TRIG_IN:
-        case PIN19_FREQ_IN:
-        case PIN19_FIRE_IN:
-        case PIN19_HOLD_FIRE_IN:
-            Chip_in_int_pin(ONE,ZERO); // turn on int1
-            break;
-		case PIN19_DOC5_OUT:
-		case PIN19_DOC7_OUT:
-			DDRD  |=  (ONE<<IO_MEGA_PIN19_PIN);
-			PORTD &= ~(ONE<<IO_MEGA_PIN19_PIN);
-		default:
-			break;
-	}
-	// Conf dic and special ports
-	DDRL = 0x00;
-	PORTL = 0xFF;
-/*
-	switch (pf_conf.avr_pin47_map) {
-		case PIN47_RELAY_OUT:
-			DDRL  |=  (ONE<<IO_MEGA_PIN47_PIN);
-			PORTL &= ~(ONE<<IO_MEGA_PIN47_PIN);
-		default:
-			break;
-	}
-*/
-	switch (pf_conf.avr_pin48_map) {
-		case PIN48_DOC4_OUT:
-		case PIN48_DOC6_OUT:
-			DDRL  |=  (ONE<<IO_MEGA_PIN48_PIN);
-			PORTL &= ~(ONE<<IO_MEGA_PIN48_PIN);
-		default:
-			break;
-	}
-	switch (pf_conf.avr_pin49_map) {
-		case PIN49_DOC5_OUT:
-		case PIN49_DOC7_OUT:
-			DDRL  |=  (ONE<<IO_MEGA_PIN49_PIN);
-			PORTL &= ~(ONE<<IO_MEGA_PIN49_PIN);
-		default:
-			break;
-	}
+	// === Pin 0 and 1
 
-#ifndef SF_ENABLE_LCD
-	DDRC = ZERO; // all input for dic
-#elif SF_ENABLE_SPI
-	DDRC = ZERO; // all input for dic
-#else
-	DDRC = 0xFF; // all output for lcd
-	PORTC = ZERO;
-#endif
-
-	// pwm output
-	DDRA  = 0xFF; // Port A is in all connection modes always output
-#ifdef SF_ENABLE_PWM
-	PWM_send_output(PULSE_DATA_OFF); // send off state to output
-#endif
-
-	// Timer5 16bit timer used for pulse steps.
-	ICR5 = 0xFFFF;OCR5A = 0xFFFF;OCR5B = 0xFFFF;
-	TCCR5A = ZERO;
-	TCCR5B = (ONE+ONE) & 7;
-	TIMSK5|= (ONE << OCF5A);
-	TCNT5  = ZERO;
-#ifdef SF_ENABLE_PWM
-	TCCR5B = pf_conf.pwm_clock & 7;
-#endif
-
-	// Conf doc
-	DDRB = 0xFF;  // all output
-	PORTB = ZERO;
-
-	// setup interrupts signals
-	EICRA |= (1 << ISC21);  // Falling-Edge Triggered INT2
-	EICRA |= (1 << ISC31);  // Falling-Edge Triggered INT3
-
-	// Timer0 is used for timemanagement
-	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
-	TCCR0B |= (1 << CS01);  // prescaler /8
-	TIMSK0 |= (1 << TOIE0); // enable int op overflow
-	TCNT0 = ZERO;
-
-	// Timer2 8bit timer used CIT
-	OCR2A  = 0xFF;OCR2B  = 0xFF;
-	TCCR2A = ZERO;TCCR2B = ZERO;
-	//TIMSK2|= (ONE << TOIE2);
-	//TIMSK2|= (ONE << OCF2A);
-	//TIMSK2|= (ONE << OCF2B);
-
-	// enable adc
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) /* | (1 << ADPS1) */ | (1 << ADPS0); // div 32 if 1 then 128
-	DIDR0 |= (1 << ADC4D) | (1 << ADC5D) | (1 << ADC6D) | (1 << ADC7D); // disable digital input on adc pins
-	DIDR0 |= (1 << ADC0D) | (1 << ADC1D) | (1 << ADC2D) | (1 << ADC3D);
-	DIDR1 |= (1 << ADC8D) | (1 << ADC9D) | (1 << ADC10D) | (1 << ADC11D);
-#ifndef SF_ENABLE_GLCD
-	DIDR1 |= (1 << ADC12D) | (1 << ADC13D) | (1 << ADC14D) | (1 << ADC15D);
-#endif
-#ifdef SF_ENABLE_GLCD
-	DDRK = 0x0F; // set glcd control lines to output
-#endif
-
-	// initialize UART0
 	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
 	uint16_t ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
 	if (ubrr > 4095) {
@@ -244,6 +178,108 @@ void Chip_setup(void) {
 	DDRE &= ~_BV(PINE0);
 	PORTE |= _BV(PINE0);
 
+	// === Pin 2 - 13 Init (All) timers
+
+	// Timer0 is used for timemanagement
+	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
+	TCCR0B |= (1 << CS01);  // prescaler /8
+	TIMSK0 |= (1 << TOIE0); // enable int op overflow
+	TCNT0 = ZERO;
+
+	// Timer2 8bit timer used CIT
+#ifdef SF_ENABLE_CIT
+	OCR2A  = 0xFF;OCR2B  = 0xFF;
+	TCCR2A = ZERO;TCCR2B = ZERO;
+	//TIMSK2|= (ONE << TOIE2);
+	//TIMSK2|= (ONE << OCF2A);
+	//TIMSK2|= (ONE << OCF2B);
+#endif
+
+#ifdef SF_ENABLE_CIP
+	ICR1 = 0xFFFF;OCR1A = 0xFFFF;OCR1B = 0xFFFF;
+	TCNT1  = ZERO;
+	TCCR1A = ZERO;
+	TCCR1B = pf_conf.cip_0clock & 7;
+
+	ICR3 = 0xFFFF;OCR3A = 0xFFFF;OCR3B = 0xFFFF;
+	TCNT3  = ZERO;
+	TCCR3A = ZERO;
+	TCCR3B = pf_conf.cip_1clock & 7;
+
+	ICR4 = 0xFFFF;OCR4A = 0xFFFF;OCR4B = 0xFFFF;
+	TCNT4  = ZERO;
+	TCCR4A = ZERO;
+	TCCR4B = pf_conf.cip_2clock & 7;
+#endif
+
+#ifdef SF_ENABLE_PWM
+	// Timer5 16bit timer used for pulse steps.
+	ICR5 = 0xFFFF;OCR5A = 0xFFFF;OCR5B = 0xFFFF;
+	TCCR5A = ZERO;
+	TCCR5B = (ONE+ONE) & 7;
+	TIMSK5|= (ONE << OCF5A);
+	TCNT5  = ZERO;
+	TCCR5B = pf_conf.pwm_clock & 7;
+#endif
+
+	// === Pins 18 & 19
+
+	// setup interrupts signals
+	EICRA |= (1 << ISC21);  // Falling-Edge Triggered INT2
+	EICRA |= (1 << ISC31);  // Falling-Edge Triggered INT3
+
+
+	// === Pins 22 - 37
+
+	DDRA = 0xFF;  // all output
+	PORTA = ZERO;
+
+	DDRC = 0xFF;  // all output
+	PORTC = ZERO;
+
+	// === Pins 38 - 39
+
+	// LCD control lines
+	DDRG  |=  (ONE<<IO_MEGA_LCD_RS_PIN);
+	PORTG &= ~(ONE<<IO_MEGA_LCD_RS_PIN);
+
+	DDRD  |=  (ONE<<IO_MEGA_LCD_E_PIN);
+	PORTD &= ~(ONE<<IO_MEGA_LCD_E_PIN);
+
+
+	// === Pins 42 - 45
+
+	DDRL = 0x0F - IO_MEGA_PWM_CLK_PIN; // Input pins
+
+	// Conf doc
+	DDRB = 0xFF;  // all output
+	PORTB = ZERO;
+
+#ifdef SF_ENABLE_SPI
+	SPCR |=  (1 << SPE) | (1 << MSTR); // SPI enable and master mode in 0 SPI mode
+	SPSR |=  (1 << SPI2X); // Double speed
+	digitalWrite(IO_MEGA_SPI_OUT_E_PORT,IO_MEGA_SPI_OUT_E_PIN,ONE);
+	digitalWrite(IO_MEGA_SPI_DOC_E_PORT,IO_MEGA_SPI_DOC_E_PIN,ONE);
+#endif
+
+
+	// === Analog Inputs
+
+	// enable adc
+	DDRF = 0x00;
+	PORTF = 0x00;
+	DDRK = 0x00;
+	PORTK = 0x00;
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
+	ADCSRA |= (1<<ADIE); // enable interupts after conversion
+
+	DIDR0 |= (1 << ADC4D) | (1 << ADC5D) | (1 << ADC6D) | (1 << ADC7D); // disable digital input on adc pins
+	DIDR0 |= (1 << ADC0D) | (1 << ADC1D) | (1 << ADC2D) | (1 << ADC3D);
+	DIDR1 |= (1 << ADC8D) | (1 << ADC9D) | (1 << ADC10D) | (1 << ADC11D);
+	DIDR1 |= (1 << ADC12D) | (1 << ADC13D) | (1 << ADC14D) | (1 << ADC15D);
+
+	// === Finish
+
 	wdt_enable(WDT_MAIN_TIMEOUT); // enable watchdog timer, so if main loop to slow then reboot
 }
 
@@ -251,12 +287,12 @@ uint32_t millis(void) {
 	return pf_data.sys_time_ssec*10;
 }
 
-
 void Chip_delay(uint16_t delay) {
 	for (uint16_t i=ZERO;i<=delay;i++) {
 		_delay_ms(ONE);
 	}
 }
+
 void Chip_delayU(uint16_t delay) {
 	for (uint16_t i=ZERO;i<=delay;i++) {
 		_delay_us(ONE);
@@ -297,9 +333,11 @@ void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value) {
 	}
 }
 
-void shiftOut(uint8_t dataByte) {
-    SPDR = dataByte;
-    while (!(SPSR & _BV(SPIF))) {}
+uint8_t shiftOut(uint8_t dataByte) {
+	SPDR = dataByte;
+	while (!(SPSR & _BV(SPIF)))
+		;
+	return SPDR; // clear bit
 }
 
 void Chip_eeprom_read(void* eemem) {
@@ -360,10 +398,10 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_CIP2_MODE:	TCCR4A = (TCCR4A & 252) + (value & 3);TCCR4B = (TCCR4B & 231) + (value & 24);break;
 	case CHIP_REG_CIP2_OCR_A:	OCR4A = value;									break;
 	case CHIP_REG_CIP2_COM_A:	TCCR4A = (TCCR4A & 63)  + ((value << 4) & 192);	break;
-	case CHIP_REG_CI2P_OCR_B:	OCR4B = value;									break;
-	case CHIP_REG_CI2P_COM_B:	TCCR4A = (TCCR4A & 207) + ((value << 6) & 48);	break;
-	case CHIP_REG_CI2P_OCR_C:	OCR4C = value;									break;
-	case CHIP_REG_CI2P_COM_C:	TCCR4A = (TCCR4A & 243) + ((value << 6) & 12);	break;
+	case CHIP_REG_CIP2_OCR_B:	OCR4B = value;									break;
+	case CHIP_REG_CIP2_COM_B:	TCCR4A = (TCCR4A & 207) + ((value << 6) & 48);	break;
+	case CHIP_REG_CIP2_OCR_C:	OCR4C = value;									break;
+	case CHIP_REG_CIP2_COM_C:	TCCR4A = (TCCR4A & 243) + ((value << 6) & 12);	break;
 #endif
 	default:
 		break;
@@ -373,18 +411,23 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 void Chip_out_pwm(uint16_t data) {
 	// Send data to output depending on connection mode; max outs 16,8,3,6
 #if defined(SF_ENABLE_SPI)
-	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_OUT_E_PIN,ZERO);
-		if ((pf_conf.spi_mode & SPI_MODE_OUT8) > ZERO) {
+	digitalWrite(IO_MEGA_SPI_OUT_E_PORT,IO_MEGA_SPI_OUT_E_PIN,ZERO);
+		if ((pf_conf.spi_chips & SPI_CHIPS_OUT8) > ZERO) {
 			shiftOut((uint8_t)(data >> 8)); // high byte
 		}
-		if ((pf_conf.spi_mode & SPI_MODE_OUT16) > ZERO) {
+		if ((pf_conf.spi_chips & SPI_CHIPS_OUT16) > ZERO) {
 			shiftOut((uint8_t)data);        // low byte, is last to that fist chip is zero !
 		}
-	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_OUT_E_PIN,ONE);
-#else
-	volatile uint8_t *port = IO_MEGA_OUT_PORT;
-	*port = data;
+	digitalWrite(IO_MEGA_SPI_OUT_E_PORT,IO_MEGA_SPI_OUT_E_PIN,ONE);
 #endif
+	if (pf_conf.avr_port_a == PORTA_OUT8) {
+		volatile uint8_t *port = IO_MEGA_PORT_A;
+		*port = data;
+	}
+	if (pf_conf.avr_port_c == PORTC_OUT16) {
+		volatile uint8_t *port = IO_MEGA_PORT_C;
+		*port = data >> 8;
+	}
 }
 
 void Chip_out_serial(uint8_t data) {
@@ -392,150 +435,75 @@ void Chip_out_serial(uint8_t data) {
 	UDR0 = data;
 }
 
-#ifdef SF_ENABLE_SPI
-void Chip_lcd_write_spi_s2p(uint8_t value) {
-	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_S2P_E_PIN,ZERO);
-	shiftOut(value);
-	digitalWrite(IO_MEGA_OUT_PORT,IO_MEGA_EXT_S2P_E_PIN,ONE);
-}
-#endif
-
-#ifdef SF_ENABLE_SPI
-void Chip_lcd_write_spi(uint8_t data,uint8_t cmd,uint8_t mux) {
-	uint8_t hn = data >> 4;
-	uint8_t ln = data & 0x0F;
-	uint8_t lcd_out = hn + ((mux & 3) << 6);
-	if (cmd==LCD_SEND_DATA) {
-		lcd_out += 16; // make RS high
-	}
-	lcd_out += 32; // make E high
-	Chip_lcd_write_spi_s2p(lcd_out);
-	lcd_out -= 32; // Make E low
-	Chip_lcd_write_spi_s2p(lcd_out);
-	if (cmd!=LCD_SEND_INIT) {
-		asm volatile ("nop");
-		asm volatile ("nop");
-		uint8_t lcd_out = ln + ((mux & 3) << 6);
-		if (cmd==LCD_SEND_DATA) {
-			lcd_out += 16; // make RS high
-		}
-		lcd_out += 32; // make E high
-		Chip_lcd_write_spi_s2p(lcd_out);
-		lcd_out -= 32; // Make E low
-		Chip_lcd_write_spi_s2p(lcd_out);
-	}
-}
-#endif
-
 #ifdef SF_ENABLE_LCD
-#ifndef SF_ENABLE_SPI
 void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
 	uint8_t hn = data >> 4;
 	uint8_t ln = data & 0x0F;
 	if (cmd==LCD_SEND_DATA) {
-		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_RS_PIN,ONE); // write data
+		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ONE); // write data
 	} else {
-		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_RS_PIN,ZERO);  // write command
+		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ZERO);  // write command
 	}
 	volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
 	*port=(*port & 0xF0)|hn;
-	digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_E_PIN,ONE);
+	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ONE);
 	asm volatile ("nop");
 	asm volatile ("nop");
-	digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_E_PIN,ZERO);  //Now data lines are stable pull E low for transmission
+	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ZERO);  //Now data lines are stable pull E low for transmission
 	if (cmd!=LCD_SEND_INIT) {
 		asm volatile ("nop");
 		asm volatile ("nop");
 		volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
 		*port=(*port & 0xF0)|ln;
-		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_E_PIN,ONE);
+		digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ONE);
 		asm volatile ("nop");
 		asm volatile ("nop");
-		digitalWrite(IO_MEGA_LCD_CNTR_PORT,IO_MEGA_LCD_E_PIN,ZERO);
+		digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ZERO);
 	}
 }
-#endif
 #endif
 
-#ifdef SF_ENABLE_GLCD
-void Chip_lcd_write_glcd(uint8_t data,uint8_t cmd,uint8_t mux) {
-	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ZERO);
-	if ((cmd & 0x0F)==LCD_SEND_DATA) {
-		digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_RS_PIN,ONE);
-	} else {
-		digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_RS_PIN,ZERO);
-	}
-	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_CS0_PIN,(cmd >> 7) & ONE);
-	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_CS1_PIN,(cmd >> 6) & ONE);
-	Chip_delayU(30);
-	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ONE);
-	volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
-	*port=data;
-	Chip_delayU(10);
-	digitalWrite(IO_MEGA_GLCD_PORT,IO_MEGA_GLCD_E_PIN,ZERO);
-}
-#endif
 
 void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
-
-#ifdef SF_ENABLE_GLCD
-	Chip_lcd_write_glcd(data,cmd,mux);
-#elif SF_ENABLE_SPI
-	Chip_lcd_write_spi(data,cmd,mux);
-#elif SF_ENABLE_LCD
+#if SF_ENABLE_LCD
 	Chip_lcd_write_pins(data,cmd,mux);
-#endif
 	if ((cmd & 0x0F)==LCD_SEND_DATA) {
 		Chip_delayU(30);
 	} else {
 		Chip_delay(5); // wait for busy flag
 	}
+#endif
 }
 
-void Chip_out_doc(uint16_t data) {
-
-#ifdef SF_ENABLE_SPI
+void Chip_out_doc(void) {
 	uint16_t doc_out = ZERO;
 	for (uint8_t t=ZERO;t<DOC_PORT_NUM_MAX;t++) {
 		if (pf_data.doc_port[t] > ZERO) {
 			doc_out += (ONE << t);
 		}
 	}
-	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_DOC_E_PIN,ZERO);
-		if ((pf_conf.spi_mode & SPI_MODE_DOC8) > ZERO) {
+
+#ifdef SF_ENABLE_SPI
+	digitalWrite(IO_MEGA_SPI_DOC_E_PORT,IO_MEGA_SPI_DOC_E_PIN,ZERO);
+		if ((pf_conf.spi_chips & SPI_CHIPS_DOC8) > ZERO) {
 			shiftOut((doc_out >> 8)); // send data to last chip first
 		}
-		if ((pf_conf.spi_mode & SPI_MODE_DOC16) > ZERO) {
+		if ((pf_conf.spi_chips & SPI_CHIPS_DOC16) > ZERO) {
 			shiftOut(doc_out);
 		}
-	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_DOC_E_PIN,ZERO);
+	digitalWrite(IO_MEGA_SPI_DOC_E_PORT,IO_MEGA_SPI_DOC_E_PIN,ZERO);
 #endif
 
-
-	PORTB = data & 0x0F; // only write 4 bits
-	if (pf_conf.avr_pin18_map == PIN18_DOC4_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN,pf_data.doc_port[4] > ZERO);
+	if (pf_conf.avr_port_a == PORTA_DOC8) {
+		volatile uint8_t *port = IO_MEGA_PORT_A;
+		*port = doc_out;
 	}
-	if (pf_conf.avr_pin18_map == PIN18_DOC6_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN,pf_data.doc_port[6] > ZERO);
-	}
-	if (pf_conf.avr_pin19_map == PIN19_DOC5_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN19_PIN,pf_data.doc_port[5] > ZERO);
-	}
-	if (pf_conf.avr_pin19_map == PIN19_DOC7_OUT) {
-		digitalWrite(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN19_PIN,pf_data.doc_port[7] > ZERO);
-	}
-	if (pf_conf.avr_pin48_map == PIN48_DOC4_OUT) {
-		digitalWrite(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN48_PIN,pf_data.doc_port[4] > ZERO);
-	}
-	if (pf_conf.avr_pin48_map == PIN48_DOC6_OUT) {
-		digitalWrite(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN48_PIN,pf_data.doc_port[6] > ZERO);
-	}
-	if (pf_conf.avr_pin49_map == PIN49_DOC5_OUT) {
-		digitalWrite(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN49_PIN,pf_data.doc_port[5] > ZERO);
-	}
-	if (pf_conf.avr_pin49_map == PIN49_DOC7_OUT) {
-		digitalWrite(IO_MEGA_PIN_CLK_PORT,IO_MEGA_PIN49_PIN,pf_data.doc_port[7] > ZERO);
+	if (pf_conf.avr_port_c == PORTC_DOC8) {
+		volatile uint8_t *port = IO_MEGA_PORT_C;
+		*port = doc_out;
+	} else if (pf_conf.avr_port_c == PORTC_DOC16) {
+		volatile uint8_t *port = IO_MEGA_PORT_C;
+		*port = doc_out >> 8;
 	}
 }
 
@@ -570,35 +538,12 @@ uint16_t Chip_in_dic(void) {
 #elif SF_ENABLE_SPI
 	result += PINC << 8;
 #endif
-	if (pf_conf.avr_pin18_map == PIN18_DIC4_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN) << 4;
-	}
-	if (pf_conf.avr_pin18_map == PIN18_DIC6_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN18_PIN) << 6;
-	}
-	if (pf_conf.avr_pin19_map == PIN19_DIC5_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN19_PIN) << 5;
-	}
-	if (pf_conf.avr_pin19_map == PIN19_DIC7_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN19_PIN) << 7;
-	}
-	if (pf_conf.avr_pin48_map == PIN48_DIC4_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN48_PIN) << 4;
-	}
-	if (pf_conf.avr_pin48_map == PIN48_DIC6_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN48_PIN) << 6;
-	}
-	if (pf_conf.avr_pin49_map == PIN49_DIC5_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN49_PIN) << 5;
-	}
-	if (pf_conf.avr_pin49_map == PIN49_DIC7_IN) {
-		result += digitalRead(IO_MEGA_PIN_TRIG_PORT,IO_MEGA_PIN49_PIN) << 7;
-	}
 	return result;
 }
 
 // Pin19 input via interrupts
 ISR(INT2_vect) {
+	/*
 	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
 		PWM_pulsefire();
@@ -619,9 +564,11 @@ ISR(INT2_vect) {
 		return;
 	}
 #endif
+*/
 }
 
 ISR(INT3_vect) {
+	/*
 	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
 #ifdef SF_ENABLE_PWM
 		PWM_pulsefire();
@@ -642,6 +589,7 @@ ISR(INT3_vect) {
 		return;
 	}
 #endif
+*/
 }
 
 ISR(TIMER0_OVF_vect) {

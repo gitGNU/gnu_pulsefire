@@ -24,6 +24,7 @@
 package org.nongnu.pulsefire.device.ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -55,6 +56,9 @@ public class JConnectDialog extends JDialog implements MouseListener {
 	public JConnectDialog(JFrame parentFrame,String port) {
 		super(parentFrame,"Connect",true);
 		
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		//parentFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
 		logger = Logger.getLogger(JConnectDialog.class.getName());
 		bar = new JProgressBar(0, 100);
 		bar.setStringPainted(true);
@@ -79,6 +83,12 @@ public class JConnectDialog extends JDialog implements MouseListener {
 		setVisible(true);
 	}
 	
+	private void clearAndHide() {
+		setCursor(Cursor.getDefaultCursor());
+		setVisible(false);
+		dispose();
+	}
+	
 	class UpdateProgressThread extends Thread {
 		@Override
 		public void run() {
@@ -94,8 +104,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							setVisible(false);
-							dispose();
+							clearAndHide();
 						}
 					});
 					return; // we are done
@@ -108,8 +117,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					setVisible(false);
-					dispose();
+					clearAndHide();
 				}
 			});
 		}
@@ -143,8 +151,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 			@Override
 			public void run() {
 				try { Thread.sleep(333); } catch (InterruptedException e) {}
-				setVisible(false);
-				dispose();
+				clearAndHide();
 			}
 		});
 	}

@@ -65,6 +65,9 @@ int main(void) {
 #ifdef SF_ENABLE_LPM
 	LPM_setup();
 #endif
+#ifdef SF_ENABLE_PWM
+	PWM_send_output(PULSE_DATA_OFF); // send off state to output
+#endif
 	for(;;) {
 		Chip_loop();
 		Vars_loop();

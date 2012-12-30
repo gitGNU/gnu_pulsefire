@@ -76,7 +76,7 @@ public class JTabPanelCit extends AbstractFireTabPanel {
 		firePanel.add(panel);
 		
 		firePanel.add(new JCommandDial(CommandName.cit_0a_ocr));
-		firePanel.add(new JCommandDial(CommandName.cit_0b_ocr));		
+		firePanel.add(new JCommandDial(CommandName.cit_0b_ocr));
 		return firePanel;
 	}
 	

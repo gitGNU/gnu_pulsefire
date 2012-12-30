@@ -160,9 +160,9 @@ void Freq_loop(void) {
 	//}
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
-	if ((pf_conf.avr_pin18_map != PIN18_FREQ_IN) & (pf_conf.avr_pin19_map != PIN19_FREQ_IN)) {
-		return;
-	}
+	//if ((pf_conf.avr_pin18_map != PIN18_FREQ_IN) & (pf_conf.avr_pin19_map != PIN19_FREQ_IN)) {
+	//	return; tood: rm me
+	//}
 #endif
 	if (pf_data.dev_freq_cnt != pf_data.dev_freq) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataDevFreq)),ZERO,ZERO,pf_data.dev_freq_cnt);

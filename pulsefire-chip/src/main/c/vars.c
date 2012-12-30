@@ -10,7 +10,7 @@ pf_conf_struct EEMEM pf_conf_eeprom;
 CHIP_PROGMEM_ARRAY const pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
 		pmCmdHelp,pmCmdSave,
 		pmCmdInfoConf,pmCmdInfoData,pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoPWM,pmCmdInfoChip,
-		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,pmCmdReqTrigger,
+		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,pmCmdReqTrigger,pmCmdReqDoc,
 		pmProgTXPush,pmProgTXEcho,pmProgTXPromt,pmConfMALCode
 };
 
@@ -55,7 +55,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	#if defined(SF_ENABLE_SPI)
 		OUTPUT_MAX,
 	#elif defined(SF_ENABLE_AVR_MEGA)
-		8,
+		OUTPUT_MAX,
 	#else
 		6,
 	#endif
@@ -110,7 +110,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_SPI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.spi_clock,           (CHIP_PTR_TYPE)&pmConfSpiClock,        SPI_CLOCK_MAX,       PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.spi_chips,           (CHIP_PTR_TYPE)&pmConfSpiChips,        SPI_MODE_MAX,        PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.spi_chips,           (CHIP_PTR_TYPE)&pmConfSpiChips,        0xFF,                PFVB_NONE,                      ZERO},
 #endif
 
 #ifdef SF_ENABLE_LPM
@@ -184,11 +184,8 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 
 #ifdef SF_ENABLE_AVR_MEGA
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin18_map,       (CHIP_PTR_TYPE)&pmConfAVRPin18Map,     PIN18_HOLD_FIRE_IN,  PFVB_NOMAP+PFVB_NOMENU,         PIN18_OFF},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin19_map,       (CHIP_PTR_TYPE)&pmConfAVRPin19Map,     PIN19_HOLD_FIRE_IN,  PFVB_NOMAP+PFVB_NOMENU,         PIN19_OFF},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin47_map,       (CHIP_PTR_TYPE)&pmConfAVRPin47Map,     PIN47_CLOCK_IN,      PFVB_NOMAP+PFVB_NOMENU,         PIN47_CLOCK_IN},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin48_map,       (CHIP_PTR_TYPE)&pmConfAVRPin48Map,     PIN48_DOC6_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN48_MENU0_IN},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_pin49_map,       (CHIP_PTR_TYPE)&pmConfAVRPin49Map,     PIN49_DOC7_OUT,      PFVB_NOMAP+PFVB_NOMENU,         PIN49_MENU1_IN},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_port_a,          (CHIP_PTR_TYPE)&pmConfAVRPortA,        PORTA_OFF,           PFVB_NOMAP+PFVB_NOMENU,         PORTA_DOC8},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.avr_port_c,          (CHIP_PTR_TYPE)&pmConfAVRPortC,        PORTC_OFF,           PFVB_NOMAP+PFVB_NOMENU,         PORTC_DOC16},
 #endif
 
 #ifdef SF_ENABLE_LCD
@@ -237,6 +234,24 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0b_com,          (CHIP_PTR_TYPE)&pmConfCip0bCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0c_ocr,          (CHIP_PTR_TYPE)&pmConfCip0cOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0c_com,          (CHIP_PTR_TYPE)&pmConfCip0cCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_1clock,          (CHIP_PTR_TYPE)&pmConfCip1Clock,       8,                   PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_1mode,           (CHIP_PTR_TYPE)&pmConfCip1Mode,        3,                   PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1a_ocr,          (CHIP_PTR_TYPE)&pmConfCip1aOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1a_com,          (CHIP_PTR_TYPE)&pmConfCip1aCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1b_ocr,          (CHIP_PTR_TYPE)&pmConfCip1bOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1b_com,          (CHIP_PTR_TYPE)&pmConfCip1bCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1c_ocr,          (CHIP_PTR_TYPE)&pmConfCip1cOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1c_com,          (CHIP_PTR_TYPE)&pmConfCip1cCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_2clock,          (CHIP_PTR_TYPE)&pmConfCip2Clock,       8,                   PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_2mode,           (CHIP_PTR_TYPE)&pmConfCip2Mode,        3,                   PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2a_ocr,          (CHIP_PTR_TYPE)&pmConfCip2aOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2a_com,          (CHIP_PTR_TYPE)&pmConfCip2aCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2b_ocr,          (CHIP_PTR_TYPE)&pmConfCip2bOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2b_com,          (CHIP_PTR_TYPE)&pmConfCip2bCom,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2c_ocr,          (CHIP_PTR_TYPE)&pmConfCip2cOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2c_com,          (CHIP_PTR_TYPE)&pmConfCip2cCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 #endif
 
 // =============== pf_data vars = +64
@@ -790,11 +805,12 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 		}
 	}
 
-
+#ifdef SF_ENABLE_PWM
 	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_CPWM;
 	if (bits > ZERO) {
 		PWM_calc_data();
 	}
+#endif
 
 	// Some fields require extra update code;
 	uint16_t varName = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_NAME]));
@@ -816,6 +832,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
+	/*
 	if ( varName == (uint16_t)&pmConfAVRPin18Map) {
 		if (pf_conf.avr_pin18_map == PIN18_TRIG_IN || pf_conf.avr_pin18_map == PIN18_FREQ_IN || pf_conf.avr_pin18_map == PIN18_FIRE_IN || pf_conf.avr_pin18_map == PIN18_HOLD_FIRE_IN) {
 			Chip_in_int_pin(ZERO,ZERO);
@@ -830,6 +847,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 			Chip_in_int_pin(ONE,ONE);
 		}
 	}
+	*/
 #endif
 #ifdef SF_ENABLE_PWM
 	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMClock)  {	Chip_reg_set(CHIP_REG_PWM_CLOCK,value);		}
@@ -1101,7 +1119,9 @@ void Vars_setup(void) {
 		pf_data.vars_int_buff[i][1] = ZERO;
 		pf_data.vars_int_buff[i][2] = ZERO;
 	}
+#ifdef SF_ENABLE_PWM
 	PWM_calc_data();
+#endif
 }
 
 

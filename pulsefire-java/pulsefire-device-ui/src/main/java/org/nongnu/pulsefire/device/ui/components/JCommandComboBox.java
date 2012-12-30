@@ -46,14 +46,20 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 	private static final long serialVersionUID = -8483163326183468077L;
 	private DeviceWireManager deviceManager = null;
 	private Command command = null;
+	private int idx = -1;
 	volatile private boolean noEvent = false;
 	
 	public JCommandComboBox(CommandName commandName) {
-		this(commandName,commandName.getListValues());
+		this(commandName,commandName.getListValues(),-1);
 	}
 	
-	public JCommandComboBox(CommandName commandName,String[] values) {
+	public JCommandComboBox(CommandName commandName,int idx) {
+		this(commandName,commandName.getListValues(),idx);
+	}
+	
+	public JCommandComboBox(CommandName commandName,String[] values,int idx) {
 		super(values);
+		this.idx=idx;
 		deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		command = new Command(commandName);
 		this.addActionListener(this);
@@ -72,6 +78,9 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 					command.setArgu0(new Integer(255).toString());
 				} else {
 					command.setArgu0(new Integer(i).toString());
+				}
+				if (idx != -1) {
+					command.setArgu1(""+idx);
 				}
 				if (noEvent==false) {
 					deviceManager.requestCommand(command);
@@ -92,6 +101,14 @@ public class JCommandComboBox extends JComboBox implements ActionListener,Device
 				}
 			} finally {
 				noEvent = false;
+			}
+		}
+		if (idx != -1) {
+			if (command.getArgu1()==null) {
+				return;
+			}
+			if (new Integer(command.getArgu1()).equals(idx)==false) {
+				return; // not for me.
 			}
 		}
 		Integer idx = Integer.parseInt(command.getArgu0());

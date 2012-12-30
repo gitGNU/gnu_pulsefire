@@ -24,6 +24,7 @@
 package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -42,6 +43,7 @@ import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -53,6 +55,7 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
+import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
@@ -80,8 +83,9 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createSystemConfig());
 		wrap.add(createSystemIO());
+		wrap.add(createSystemLcd());
 		wrap.add(createSystemWarmup());		
-		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
+		SpringLayoutGrid.makeCompactGrid(wrap,1,4);
 		add(wrap);
 	}
 	
@@ -271,9 +275,6 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(new JCommandLabel(CommandName.lcd_size));
-		ioPanel.add(new JCommandComboBox(CommandName.lcd_size));
-		
 		ioPanel.add(new JCommandLabel(CommandName.dev_volt_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_volt_dot));
 		
@@ -283,8 +284,77 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		ioPanel.add(new JCommandLabel(CommandName.dev_temp_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
 		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,4,2);
+		ioPanel.add(new JCommandLabel(CommandName.spi_clock));
+		ioPanel.add(new JCommandComboBox(CommandName.spi_clock));
+		
+		ioPanel.add(new JCommandLabel(CommandName.spi_chips));
+		JPanel chipsPanel = new JPanel();
+		chipsPanel.setLayout(new GridLayout(0,2));
+		ioPanel.add(chipsPanel);
+		JCheckBox box = null;
+		
+		box = new JCommandCheckBox(CommandName.spi_chips,0);
+		box.setText("OUT8");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,1);
+		box.setText("OUT16");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,2);
+		box.setText("LCD");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,3);
+		box.setText("LCD_MUX");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,4);
+		box.setText("DOC8");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,5);
+		box.setText("DOC16");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,6);
+		box.setText("FREE0");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,7);
+		box.setText("FREE1");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		
+		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
 		wrapPanel.add(ioPanel);
+		return wrapPanel;
+	}
+	
+	private JPanel createSystemLcd() {
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"lcd");
+		JPanel lcdPanel = new JPanel();
+		lcdPanel.setLayout(new SpringLayout());
+		
+		lcdPanel.add(new JCommandLabel(CommandName.lcd_size));
+		lcdPanel.add(new JCommandComboBox(CommandName.lcd_size));
+		
+		lcdPanel.add(new JCommandLabel(CommandName.lcd_defp));
+		lcdPanel.add(new JCommandComboBox(CommandName.lcd_defp));
+		
+		lcdPanel.add(new JCommandLabel(CommandName.lcd_mode));
+		lcdPanel.add(new JCommandComboBox(CommandName.lcd_mode));
+		
+		lcdPanel.add(new JCommandLabel(CommandName.lcd_plp));
+		JPanel plpPanel = new JPanel();
+		//plpPanel.setLayout(new GridLayout(4,0));
+		lcdPanel.add(plpPanel);
+		
+		JFireQMapTable t = new JFireQMapTable(CommandName.lcd_plp);
+		plpPanel.add(t);
+		
+		SpringLayoutGrid.makeCompactGrid(lcdPanel,4,2);
+		wrapPanel.add(lcdPanel);
 		return wrapPanel;
 	}
 	

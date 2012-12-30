@@ -477,6 +477,23 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_printDec(ONE);
 		Serial_println();
  
+	} else if (strcmp(cmd,UNPSTR(pmCmdReqDoc)) == ZERO) {
+
+		if (args[0] != NULL && args[1] != NULL) {
+			uint8_t docIdx = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.doc_port);
+			uint16_t port = atou16(args[0]);
+			uint16_t value = atou16(args[1]);
+			Vars_setValue(docIdx,port,0,value);
+
+			Serial_printCharP(pmCmdReqDoc);
+			Serial_printDec(port);
+			Serial_printCharP(pmSetSpaced);
+			Serial_printDec(value);
+			Serial_println();
+		} else {
+			Serial_println_done_P(pmCmdReqDoc);	
+		}
+
 	} else if (strcmp(cmd,UNPSTR(pmProgTXPush)) == ZERO) {
 		Serial_printCharP(pmProgTXPush);
 		if (args[0] == NULL) {

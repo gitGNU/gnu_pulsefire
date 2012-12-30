@@ -34,6 +34,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -79,11 +80,21 @@ public class JFireQMapTable extends JPanel {
 	private static final long serialVersionUID = 6413723813214593946L;
 	private DeviceConfigVariableTableModel tableModel = null;
 	private JTable qmapTable = null;
+	private List<String> columns = null;
 	
 	public JFireQMapTable(CommandName commandName,String colNameA,String colNameB) {
+		this(commandName,Arrays.asList(new String[] {colNameA,colNameB}));
+	}
+	
+	public JFireQMapTable(CommandName commandName) {
+		this(commandName,new ArrayList<String>(0));
+	}
+	
+	public JFireQMapTable(CommandName commandName,List<String> columns) {
 		
 		// Create JTable for qmap.
-		tableModel = new DeviceConfigVariableTableModel(commandName,colNameA,colNameB);
+		this.columns=columns;
+		tableModel = new DeviceConfigVariableTableModel(commandName);
 		qmapTable = new JTable(tableModel);
 		qmapTable.getTableHeader().setReorderingAllowed(false);
 		qmapTable.getTableHeader().setResizingAllowed(false);
@@ -135,15 +146,18 @@ public class JFireQMapTable extends JPanel {
 		varId.setPreferredWidth(160);
 		varId.setCellEditor(new MapVariableIdInputCellEditor());
 		varId.setCellRenderer(new MapVariableIdInputCellRenderer());
-		TableColumn colA = qmapTable.getColumnModel().getColumn(2);
-		colA.setPreferredWidth(90);
-		colA.setCellEditor(new MapArguInputCellEditor());
-		TableColumn colB = qmapTable.getColumnModel().getColumn(3);
-		colB.setCellEditor(new MapArguInputCellEditor());
-		colB.setPreferredWidth(90);
-		TableColumn varIdx = qmapTable.getColumnModel().getColumn(4);
-		varIdx.setPreferredWidth(55);
-		varIdx.setCellEditor(new MapVariableIdxInputCellEditor());
+		
+		if (columns.isEmpty()==false) {
+			TableColumn colA = qmapTable.getColumnModel().getColumn(2);
+			colA.setPreferredWidth(90);
+			colA.setCellEditor(new MapArguInputCellEditor());
+			TableColumn colB = qmapTable.getColumnModel().getColumn(3);
+			colB.setCellEditor(new MapArguInputCellEditor());
+			colB.setPreferredWidth(90);
+			TableColumn varIdx = qmapTable.getColumnModel().getColumn(4);
+			varIdx.setPreferredWidth(55);
+			varIdx.setCellEditor(new MapVariableIdxInputCellEditor());
+		}
 		
 		// Fixed border and add to layout
 		setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
@@ -159,14 +173,10 @@ public class JFireQMapTable extends JPanel {
 		private CommandName variableName = null;
 		volatile private int indexMaxA  = 2;
 		private DeviceData deviceData = null;
-		private String colNameA = null;
-		private String colNameB = null;
 		private boolean connected = false;
 		
-		public DeviceConfigVariableTableModel(CommandName variableName,String colNameA,String colNameB) {
+		public DeviceConfigVariableTableModel(CommandName variableName) {
 			this.variableName=variableName;
-			this.colNameA=colNameA;
-			this.colNameB=colNameB;
 			deviceData = PulseFireUI.getInstance().getDeviceData();
 			PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 			PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(variableName, this);
@@ -188,16 +198,18 @@ public class JFireQMapTable extends JPanel {
 		}
 		
 		public String getColumnName(int col) {
-			if (col==2) {
-				return colNameA;
-			}
-			if (col==3) {
-				return colNameB;
+			if ((col==2 | col==3) && (columns.isEmpty()==false)) {
+				return columns.get(col-2);
 			}
 			return columnNames[col];
 		}
 		public int getRowCount() { return indexMaxA; }
-		public int getColumnCount() { return columnNames.length; }
+		public int getColumnCount() {
+			if (columns.size() > 0) {
+				return columnNames.length;	
+			}
+			return 2;
+		}
 		public Object getValueAt(int row, int col) {
 			Command cmd = deviceData.getDeviceParameterIndexed(variableName,row);
 			if (cmd==null) {
@@ -210,7 +222,11 @@ public class JFireQMapTable extends JPanel {
 				return row;
 			}
 			if (col==1) {
-				return cmd.getArgu1();
+				if (columns.isEmpty()) {
+					return cmd.getArgu0();
+				} else {
+					return cmd.getArgu1();
+				}
 			}
 			if (col==2) {
 				return cmd.getArgu2();
@@ -257,7 +273,11 @@ public class JFireQMapTable extends JPanel {
 				return;
 			}
 			if (col==1) {
-				cmd.setArgu1((String)value);
+				if (columns.isEmpty()) {
+					cmd.setArgu0((String)value);
+				} else {
+					cmd.setArgu1((String)value);
+				}
 			}
 			if (col==2) {
 				cmd.setArgu2((String)value);
@@ -396,13 +416,19 @@ public class JFireQMapTable extends JPanel {
 				return component;
 			}
 			for (CommandName var:CommandName.values()) {
-				if (var.isMappable() && valueInt.equals(var.getMapIndex())) {
+				if (valueInt.equals(var.getId())==false) {
+					continue;
+				}
+				if (columns.isEmpty()) {
 					component.setText(var.name());
 					return component;
+				} else if (var.isMappable()) {
+					component.setText(var.name());
+					return component;	
 				}
 			}
 			setText("");
-			return this;
+			return component;
 		}
 	}
 	
@@ -435,7 +461,7 @@ public class JFireQMapTable extends JPanel {
 					continue;
 				}
 				CommandName var = CommandName.valueOf(varName);
-				if (var.isMappable() && valueInt.equals(var.getMapIndex())) {
+				if (valueInt.equals(var.getId())) {
 					component.setSelectedIndex(i);
 				}
 			}
@@ -449,7 +475,7 @@ public class JFireQMapTable extends JPanel {
 			if (component.getSelectedIndex()==0) {
 				return ""+0xFFFF;
 			}
-			return ""+CommandName.valueOf(component.getSelectedItem().toString()).getMapIndex();
+			return ""+CommandName.valueOf(component.getSelectedItem().toString()).getId();
 		}
 		
 		@Override
@@ -457,9 +483,16 @@ public class JFireQMapTable extends JPanel {
 			component.addItem("NONE");
 			List<String> mapVars = new ArrayList<String>(50);
 			for (CommandName var:CommandName.values()) {
-				if (var.isMappable()) {
-					mapVars.add(var.name());
+				if (columns.isEmpty()==false && var.isMappable()==false) {
+					continue;
 				}
+				if (var.getMaxIndexB() != -1) {
+					continue;
+				}
+				if (var.getId() == -1) {
+					continue;
+				}
+				mapVars.add(var.name());
 			}
 			Collections.sort(mapVars);
 			for (String mapVar:mapVars) {

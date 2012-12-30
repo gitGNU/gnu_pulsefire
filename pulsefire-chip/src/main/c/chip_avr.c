@@ -39,7 +39,44 @@
 //      (D 7) PD7 13|    |16  PB2 (D 10)
 //      (D 8) PB0 14|    |15  PB1 (D 9)
 //                  +----+
-//
+
+/*
+Arduino mappings table;
+
+- DEFAULT
+- LCD
+- SPI
+- SPI+LCD
+
+=========================================================================
+Pin#	I/O		DEFAULT		LCD			SPI			SPI+LCD		PulseFire
+=========================================================================
+- 0     IN      USB-RX      <--         <--         <--
+- 1     OUT     USB-TX      <--         <--         <--
+- 2     I/O     PIN2        <--         <--         <--
+- 3     I/O     PIN3        <--         <--         <--
+- 4     I/O     PIN4        <--         <--         <--
+- 5     I/O     PIN5        <--         <--         <--
+- 6     I/O     DIC0        LCD_RS      DIC0        <--
+- 7     I/0     DIC1        LCD_E       DIC1        <--
+- 8     OUT     OUT0        <--         SPI_LCD_E   <--
+- 9     OUT     OUT1        <--         SPI_DOC_E   <--
+- 10    OUT     OUT2        <--         SPI_OUT_E   <--
+- 11    OUT     OUT3        <--         SPI_MOSI    <--
+- 12    OUT     OUT4        <--         SPI_MISO    <--
+- 13    OUT     OUT5        <--         SPI_SCK     <--
+
+- A0    I/O     ADC0        LCD_D0      ADC0        <--
+- A1    I/O     ADC1        LCD_D1      ADC1        <--
+- A2    I/0     ADC2        LCD_D2      ADC2        <--
+- A3    I/0     ADC3        LCD_D3      ADC1        <--
+- A4    IN      ADC4        <--         <--         <--
+- A5    IN      ADC5        <--         <--         <--
+
+
+*/
+
+
 
 // PIN MAPPING FOR DEFAULT CONNECTION MODE
 #define IO_DEF_IO_PORT          &PORTD
@@ -118,7 +155,27 @@ void Chip_reset(void) {
 }
 
 void Chip_setup(void) {
-	// Config pin2 which is multi function
+
+	// === Pin 0 and 1
+
+	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
+	uint16_t ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
+	if (ubrr > 4095) {
+		UCSR0A = ZERO;
+		ubrr = (F_CPU/8/SERIAL_SPEED-ONE)/2;
+	}
+	UBRR0H = ubrr>>8;  // set baud rate
+	UBRR0L = ubrr;
+
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0);  // enable Rx & Tx
+	UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);          // 8n1
+
+	// Enable pull-up on D0/RX, to supress line noise
+	DDRD &= ~_BV(PIND0);
+	PORTD |= _BV(PIND0);
+
+	// === Pin 2 - 5
+
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
 	switch (pf_conf.avr_pin2_map) {
@@ -165,22 +222,7 @@ void Chip_setup(void) {
 			break;
 	}
 
-	DDRC = 0x00;
-	PORTC = 0x00;
-	// Map LCD pins
-#ifdef SF_ENABLE_LCD
-#ifndef SF_ENABLE_SPI
-	DDRD  |=  (ONE<<IO_DEF_LCD_RS_PIN);
-	PORTD &= ~(ONE<<IO_DEF_LCD_RS_PIN);
-	DDRD  |=  (ONE<<IO_DEF_LCD_E_PIN);
-	PORTD &= ~(ONE<<IO_DEF_LCD_E_PIN);
-	DDRC  |=  (ONE<<PINC0);
-	DDRC  |=  (ONE<<PINC1);
-	DDRC  |=  (ONE<<PINC2);
-	DDRC  |=  (ONE<<PINC3);
-	PORTC  =  0x0F;
-#endif
-#endif
+	// === Pin
 
 	DDRB  = 0xFF; // Port B is in all connection modes always output
 
@@ -192,9 +234,17 @@ void Chip_setup(void) {
 	digitalWrite(IO_DEF_OUT_PORT,IO_SPI_DOC_E_PIN,ONE);
 #endif
 
-#ifdef SF_ENABLE_PWM
-	PWM_send_output(PULSE_DATA_OFF); // send off state to output
-#endif
+	// setup interrupts signals
+	EICRA |= (1 << ISC01);  // Falling-Edge Triggered INT0
+	EICRA |= (1 << ISC11);  // Falling-Edge Triggered INT1
+
+	// === Init all timers
+
+	// Timer0 is used for timemanagement
+	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
+	TCCR0B |= (1 << CS01);                 // prescaler /8
+	TIMSK0 |= (1 << TOIE0);                // int op overflow
+	TCNT0 = ZERO;
 
 	// Timer1 16bit timer used for pulse steps.
 	ICR1 = 0xFFFF;OCR1A = 0xFFFF;OCR1B = 0xFFFF;
@@ -213,42 +263,32 @@ void Chip_setup(void) {
 	//TIMSK2|= (ONE << OCF2A);
 	//TIMSK2|= (ONE << OCF2B);
 
-	// setup interrupts signals
-	EICRA |= (1 << ISC01);  // Falling-Edge Triggered INT0
-	EICRA |= (1 << ISC11);  // Falling-Edge Triggered INT1
 
-	// Timer0 is used for timemanagement
-	TCCR0A |= (1 << WGM00) | (1 << WGM01); // Fast pwm
-	TCCR0B |= (1 << CS01);                 // prescaler /8
-	TIMSK0 |= (1 << TOIE0);                // int op overflow
-	TCNT0 = ZERO;
+	// === Analog Inputs
 
 	// enable adc
+	DDRC = 0x00;
+	PORTC = 0x00;
 	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
 	ADCSRA |= (1<<ADIE); // enable interupts after conversion
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D); // disable digital input on adc pins
 #ifdef SF_ENABLE_LCD
 #ifndef SF_ENABLE_SPI
 	DIDR0 |= (1 << ADC0D) | (1 << ADC1D) | (1 << ADC2D) | (1 << ADC3D);
+
+	DDRD  |=  (ONE<<IO_DEF_LCD_RS_PIN); // Map LCD pins
+	PORTD &= ~(ONE<<IO_DEF_LCD_RS_PIN);
+	DDRD  |=  (ONE<<IO_DEF_LCD_E_PIN);
+	PORTD &= ~(ONE<<IO_DEF_LCD_E_PIN);
+	DDRC  |=  (ONE<<PINC0);
+	DDRC  |=  (ONE<<PINC1);
+	DDRC  |=  (ONE<<PINC2);
+	DDRC  |=  (ONE<<PINC3);
+	PORTC  =  0x0F;
 #endif
 #endif
 
-	// initialize UART0
-	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
-	uint16_t ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
-	if (ubrr > 4095) {
-		UCSR0A = ZERO;
-		ubrr = (F_CPU/8/SERIAL_SPEED-ONE)/2;
-	}
-	UBRR0H = ubrr>>8;  // set baud rate
-	UBRR0L = ubrr;
-
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0);  // enable Rx & Tx
-	UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);          // 8n1
-
-	// Enable pull-up on D0/RX, to supress line noise
-	DDRD &= ~_BV(PIND0);
-	PORTD |= _BV(PIND0);
+	// === Finish
 
 	wdt_enable(WDT_MAIN_TIMEOUT); // enable watchdog timer, so if main loop to slow then reboot
 }

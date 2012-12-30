@@ -407,6 +407,8 @@ void PWM_do_work(void) {
 			pf_data.pwm_state = PWM_STATE_WAIT_POST;        // timeout after pulse train
 		}
 	} else {
+		asm volatile ("nop");
+		asm volatile ("nop");
 		asm volatile ("nop"); // todo: count set zero cycle for best timing
 	}
 	uint16_t data_out = pf_data.pwm_data[pf_data.pulse_step][PWM_DATA_OUT];
@@ -418,9 +420,6 @@ void PWM_do_work(void) {
 	pf_data.pulse_step++;
 
 	Chip_out_pwm(data_out);
-
-	if (pf_data.pulse_step == pf_data.pwm_data_max-ONE) {
-
 }
 
 

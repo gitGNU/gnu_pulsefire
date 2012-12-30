@@ -119,6 +119,8 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		requestCommand(new Command(CommandName.help,		"map")).waitForResponseChecked();
 		connectPhase = "help idx";connectProgress = 25;
 		requestCommand(new Command(CommandName.help,		"idx")).waitForResponseChecked();
+		connectPhase = "help idg";connectProgress = 27;
+		requestCommand(new Command(CommandName.help,		"idg")).waitForResponseChecked();
 		
 		connectPhase = "info_conf";connectProgress = 30;
 		requestCommand(new Command(CommandName.info_conf,	"all")).waitForResponseChecked();

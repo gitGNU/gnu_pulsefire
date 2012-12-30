@@ -24,6 +24,7 @@
 package org.nongnu.pulsefire.device.ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -49,6 +50,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +74,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -121,8 +125,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private String nativeFlashCmd = null;
 	private String nativeFlashConfig = null;
 	private String[] columnNames = new String[] {"name","speed",
-			"EXT_OUT","EXT_O16","EXT_LCD","EXT_DIC","EXT_DOC",
-			"PWM","LCD","LPM","PPM","ADC","DIC","DOC","DEV","PTC","PTT","STV","VFC","SWC","MAL","GLCD","CIT","CIP"};
+			"SPI","LCD","PWM","ADC","PTC","PTT","STV","VFC","SWC","MAL","CIT","CIP"};
 			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);
@@ -303,6 +306,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				saveToFile(burnName.getText(),fileSelect.getSelectedFile());
 			}
+			return;
 		}
 		if (e.getSource()==flashButton) {
 			if (burnName.getText().isEmpty()) {
@@ -319,6 +323,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				JComponentFactory.showWarningDialog(this.getRootPane(), "Hex data error", "There has been an error in loading or parsing the flash hex data correctly.\nMessage: "+hexException.getMessage());
 				return;
 			}
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			
 			portsComboBox.setEnabled(false);
 			progComboBox.setEnabled(false);
@@ -403,6 +408,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 			} catch (Exception runException) {
 				logger.log(Level.WARNING,runException.getMessage(),runException);
 			} finally {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						JFlashDialog.this.setCursor(Cursor.getDefaultCursor());
+					}
+				});
 				flashProgramController.removeFlashLogListener(JFlashDialog.this);
 				flashProgramController = null;
 				logger.fine("Stopped flash thread.");
@@ -468,14 +479,16 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	public void clearAndHide() {
 		setVisible(false);
 	}
-
+	
 	public class DeviceImagesTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = -1432038909521987705L;
+		private BuildOptionComparator dataComp = null;
 		private List<BuildOption> data = null;
 		private List<BuildOption> dataFull = null;
 		
 		public DeviceImagesTableModel() {
+			dataComp = new BuildOptionComparator();
 			data = new ArrayList<BuildOption>(100);
 			dataFull = new ArrayList<BuildOption>(100);
 			try {
@@ -528,6 +541,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 				}
 				data.add(option);
 			}
+			Collections.sort(data,dataComp);
 			fireTableDataChanged();
 		}
 		
@@ -549,31 +563,9 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		public Object getValueAt(int row, int col) {
 			BuildOption option = data.get(row);
 			switch (col) {
-			default:
 			case 0:		return option.name;
 			case 1:		return option.speed;
-			case 2:		return checkFlag(option,"EXT_OUT");
-			case 3:		return checkFlag(option,"EXT_OUT_16BIT");
-			case 4:		return checkFlag(option,"EXT_LCD");
-			case 5:		return checkFlag(option,"EXT_LCD_DIC");
-			case 6:		return checkFlag(option,"EXT_LCD_DOC");
-			case 7:		return checkFlag(option,"PWM");
-			case 8:		return checkFlag(option,"LCD");
-			case 9:		return checkFlag(option,"LPM");
-			case 10:	return checkFlag(option,"PPM");
-			case 11:	return checkFlag(option,"ADC");
-			case 12:	return checkFlag(option,"DIC");
-			case 13:	return checkFlag(option,"DOC");
-			case 14:	return checkFlag(option,"DEV");
-			case 15:	return checkFlag(option,"PTC");
-			case 16:	return checkFlag(option,"PTT");
-			case 17:	return checkFlag(option,"STV");
-			case 18:	return checkFlag(option,"VFC");
-			case 19:	return checkFlag(option,"SWC");
-			case 20:	return checkFlag(option,"MAL");
-			case 21:	return checkFlag(option,"GLCD");
-			case 22:	return checkFlag(option,"CIT");
-			case 23:	return checkFlag(option,"CIP");
+			default:	return checkFlag(option,columnNames[col]);
 			}
 		}
 		
@@ -608,6 +600,13 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		public String ispProg;
 		public List<String> flags = new ArrayList<String>(20);
 		public List<String> options = new ArrayList<String>(20);
+	}
+	
+	class BuildOptionComparator implements Comparator<BuildOption> {
+		@Override
+		public int compare(BuildOption o1, BuildOption o2) {
+			return o1.name.compareTo(o2.name);
+		}
 	}
 	
 	public Collection<BuildOption> readBuildOptionsFile(File inputFile) throws IOException {
@@ -740,17 +739,6 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		}
 		
 		String name = tableModel.getColumnName(modelIndex);
-		
-		// fix long EXT_ names
-		if ("EXT_O16".equals(name)) {
-			name = "EXT_OUT_16BIT";
-		}
-		if ("EXT_DIC".equals(name)) {
-			name = "EXT_LCD_DIC";
-		}
-		if ("EXT_DOC".equals(name)) {
-			name = "EXT_LCD_DOC";
-		}
 		
 		FilterItem fi = filterItems.get(name);
 		if (fi==null) {

@@ -26,6 +26,7 @@ package org.nongnu.pulsefire.device.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -96,7 +97,7 @@ public class JNimbusColorFrame extends JFrame {
 		for (String colorName:NIMBUS_PRIMARY_COLORS) {
 			addColorSetting(panel,colorName,true);	
 		}
-		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_PRIMARY_COLORS.size(),6);
+		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_PRIMARY_COLORS.size(),7);
 		return panel;
 	}
 	
@@ -107,7 +108,7 @@ public class JNimbusColorFrame extends JFrame {
 		for (String colorName:NIMBUS_SECONDARY_COLORS) {
 			addColorSetting(panel,colorName,false);	
 		}
-		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_SECONDARY_COLORS.size(),6);
+		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_SECONDARY_COLORS.size(),7);
 		return panel;
 	}
 	
@@ -133,6 +134,9 @@ public class JNimbusColorFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Color c = (Color)((JButton)e.getSource()).getClientProperty("showColor");
 				Color cNew = JColorChooser.showDialog(((Component) e.getSource()).getParent(), "Choose Color", c);
+				if (cNew==null) {
+					return; // cancel
+				}
 				((JButton)e.getSource()).putClientProperty("showColor", cNew);
 				((JButton)e.getSource()).repaint();
 				cs.setColor(cNew);
@@ -150,6 +154,11 @@ public class JNimbusColorFrame extends JFrame {
 			spinner.setEditor(new JSpinner.NumberEditor(spinner));
 			panel.add(spinner);
 		}
+		
+		JLabel hexLabel = new JLabel();
+		cs.hexLabel=hexLabel;
+		panel.add(hexLabel);
+		cs.setHexLabel();
 	}
 	
 	class ColorModel extends SpinnerNumberModel {
@@ -204,14 +213,15 @@ public class JNimbusColorFrame extends JFrame {
 			Color cNew = null;
 			switch (t) {
 			default:
-			case 0: cNew = new Color(v,c.getBlue(),c.getGreen(),c.getAlpha());break;
-			case 1: cNew = new Color(c.getRed(),v,c.getGreen(),c.getAlpha());break;
-			case 2: cNew = new Color(c.getRed(),c.getBlue(),v,c.getAlpha());break;
-			case 3: cNew = new Color(c.getRed(),c.getBlue(),c.getGreen(),v);break;
+			case 0: cNew = new Color(v,c.getGreen(),c.getBlue(),c.getAlpha());break;
+			case 1: cNew = new Color(c.getRed(),v,c.getBlue(),c.getAlpha());break;
+			case 2: cNew = new Color(c.getRed(),c.getGreen(),v,c.getAlpha());break;
+			case 3: cNew = new Color(c.getRed(),c.getGreen(),c.getBlue(),v);break;
 			}
 			colorSetting.setColor(cNew);
 			colorSetting.preview.putClientProperty("showColor", cNew);
 			colorSetting.preview.repaint();
+			colorSetting.setHexLabel();
 			fireStateChanged();
 		}
 		
@@ -220,13 +230,34 @@ public class JNimbusColorFrame extends JFrame {
 	
 	class ColorSetting {
 		String colorName = null;
+		JLabel hexLabel = null;
 		JButton preview = null;
 		ColorModel colorModel = null;
-
+		
+		public void setHexLabel() {
+			Color c = getColor();
+			String hexRed = Integer.toHexString(c.getRed());
+			if (hexRed.length()==1) {
+				hexRed = "0"+hexRed;
+			}
+			String hexGreen = Integer.toHexString(c.getGreen());
+			if (hexGreen.length()==1) {
+				hexGreen = "0"+hexGreen;
+			}
+			String hexBlue = Integer.toHexString(c.getBlue());
+			if (hexBlue.length()==1) {
+				hexBlue = "0"+hexBlue;
+			}
+			String hexColor = "#"+hexRed+hexGreen+hexBlue;
+			hexLabel.setText(hexColor.toUpperCase());
+		}
 		public Color getColor() {
 			return UIManager.getColor(colorName);
 		}
 		public void setColor(Color c) {
+			for (JFrame f:colorFrames) {
+				f.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			}
 			UIManager.put(colorName, c);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -238,6 +269,10 @@ public class JNimbusColorFrame extends JFrame {
 						UIManager.setLookAndFeel(UIManager.getLookAndFeel().getClass().getName());
 					} catch (Exception lafException) {
 						logger.log(Level.WARNING,lafException.getMessage(),lafException);
+					} finally {
+						for (JFrame f:colorFrames) {
+							f.setCursor(Cursor.getDefaultCursor());
+						}
 					}
 				}
 			});

@@ -103,519 +103,173 @@ ARM_OBJCOPY = ~/bin/arm-gcc/bin/arm-none-eabi-objcopy
 # Define all src files.
 SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./stv.c ./serial.c ./utils.c 
 
-all: atmega328p-001 \
-atmega328p-002 \
-atmega328p-003 \
-atmega328p-004 \
-atmega328p-005 \
-atmega328p-006 \
-atmega328p-007 \
-atmega328p-020 \
-atmega328p-021 \
-atmega328p-022 \
-atmega168p-001 \
-atmega168p-002 \
-atmega168p-003 \
-atmega168p-004 \
-atmega168p-005 \
+all: \
+atmega328p-1601 \
+atmega328p-1602 \
+atmega328p-1603 \
+atmega328p-1604 \
+atmega328p-1691 \
 atmega328p-2001 \
 atmega328p-2002 \
 atmega328p-2003 \
 atmega328p-2004 \
-atmega328p-2005 \
-atmega328p-2006 \
-atmega328p-2007 \
-atmega328p-2008 \
-atmega168p-2001 \
-atmega168p-2002 \
+atmega328p-2091 \
+atmega168p-1601 \
+atmega168p-1602 \
+atmega168p-1691 \
 atmega1280-1601 \
 atmega1280-1602 \
 atmega1280-1603 \
 atmega1280-1604 \
-atmega1280-1605 \
-atmega1280-1606 \
-atmega1280-1607 \
-atmega1280-1608 \
+atmega1280-1691 \
 atmega2560-1601 \
 atmega2560-1602 \
 atmega2560-1603 \
 atmega2560-1604 \
-atmega2560-1605 \
-atmega2560-1606 \
-atmega2560-1607 \
-atmega2560-1608
-
-#
-#====================================
-#-------- 16 Mhz targets
-#====================================
-#
-
-atmega328p-001: MCU = atmega328p
-atmega328p-001: F_CPU = 16000000
-atmega328p-001: CFLAGS += -mmcu=$(MCU)
-atmega328p-001: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-001: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-001: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-001: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-001: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-001: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-001: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-001: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-001: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-001: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-001: PFLAGS += -DSF_ENABLE_STV
-atmega328p-001: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-001: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-001: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-001: TARGET = atmega328p-001
-atmega328p-001: $(TPATH)/atmega328p-001/pulsefire.hex
-$(TPATH)/atmega328p-001/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-001-isp: atmega328p-001
-atmega328p-001-isp: TARGET = atmega328p-001
-atmega328p-001-isp: ISP_MCU = m328p
-atmega328p-001-isp: ISP_PROG = arduino
-atmega328p-001-isp: avr-flash
-
-atmega328p-002: MCU = atmega328p
-atmega328p-002: F_CPU = 16000000
-atmega328p-002: CFLAGS += -mmcu=$(MCU)
-atmega328p-002: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-002: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-002: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-002: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-002: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-002: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-002: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-002: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-002: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-002: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-002: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-002: PFLAGS += -DSF_ENABLE_STV
-atmega328p-002: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-002: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-002: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-002: TARGET = atmega328p-002
-atmega328p-002: $(TPATH)/atmega328p-002/pulsefire.hex
-$(TPATH)/atmega328p-002/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-002-isp: atmega328p-002
-atmega328p-002-isp: TARGET = atmega328p-002
-atmega328p-002-isp: ISP_MCU = m328p
-atmega328p-002-isp: ISP_PROG = arduino
-atmega328p-002-isp: avr-flash
-
-atmega328p-003: MCU = atmega328p
-atmega328p-003: F_CPU = 16000000
-atmega328p-003: CFLAGS += -mmcu=$(MCU)
-atmega328p-003: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-003: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-003: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-003: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-003: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-003: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-003: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-003: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-003: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-003: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-003: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-003: PFLAGS += -DSF_ENABLE_STV
-atmega328p-003: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-003: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-003: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-003: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-003: TARGET = atmega328p-003
-atmega328p-003: $(TPATH)/atmega328p-003/pulsefire.hex
-$(TPATH)/atmega328p-003/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-003-isp: atmega328p-003
-atmega328p-003-isp: TARGET = atmega328p-003
-atmega328p-003-isp: ISP_MCU = m328p
-atmega328p-003-isp: ISP_PROG = arduino
-atmega328p-003-isp: avr-flash
-
-atmega328p-004: MCU = atmega328p
-atmega328p-004: F_CPU = 16000000
-atmega328p-004: CFLAGS += -mmcu=$(MCU)
-atmega328p-004: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-004: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-004: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-004: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-004: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-004: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-004: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-004: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-004: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-004: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-004: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-004: PFLAGS += -DSF_ENABLE_STV
-atmega328p-004: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-004: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-004: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-004: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-004: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-004: TARGET = atmega328p-004
-atmega328p-004: $(TPATH)/atmega328p-004/pulsefire.hex
-$(TPATH)/atmega328p-004/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-004-isp: atmega328p-004
-atmega328p-004-isp: TARGET = atmega328p-004
-atmega328p-004-isp: ISP_MCU = m328p
-atmega328p-004-isp: ISP_PROG = arduino
-atmega328p-004-isp: avr-flash
-
-atmega328p-005: MCU = atmega328p
-atmega328p-005: F_CPU = 16000000
-atmega328p-005: CFLAGS += -mmcu=$(MCU)
-atmega328p-005: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-005: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-005: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-005: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-005: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-005: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-005: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-005: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-005: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-005: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-005: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-005: PFLAGS += -DSF_ENABLE_STV
-atmega328p-005: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-005: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-005: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-005: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-005: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-005: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-005: TARGET = atmega328p-005
-atmega328p-005: $(TPATH)/atmega328p-005/pulsefire.hex
-$(TPATH)/atmega328p-005/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-005-isp: atmega328p-005
-atmega328p-005-isp: TARGET = atmega328p-005
-atmega328p-005-isp: ISP_MCU = m328p
-atmega328p-005-isp: ISP_PROG = arduino
-atmega328p-005-isp: avr-flash
-
-atmega328p-006: MCU = atmega328p
-atmega328p-006: F_CPU = 16000000
-atmega328p-006: CFLAGS += -mmcu=$(MCU)
-atmega328p-006: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-006: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-006: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-006: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-006: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-006: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-006: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-006: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-006: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-006: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-006: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-006: PFLAGS += -DSF_ENABLE_STV
-atmega328p-006: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-006: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-006: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-006: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-006: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-006: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-006: PFLAGS += -DSF_ENABLE_EXT_LCD_DIC
-atmega328p-006: TARGET = atmega328p-006
-atmega328p-006: $(TPATH)/atmega328p-006/pulsefire.hex
-$(TPATH)/atmega328p-006/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-006-isp: atmega328p-006
-atmega328p-006-isp: TARGET = atmega328p-006
-atmega328p-006-isp: ISP_MCU = m328p
-atmega328p-006-isp: ISP_PROG = arduino
-atmega328p-006-isp: avr-flash
-
-
-atmega328p-007: MCU = atmega328p
-atmega328p-007: F_CPU = 16000000
-atmega328p-007: CFLAGS += -mmcu=$(MCU)
-atmega328p-007: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-007: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-007: PFLAGS += -DSF_ENABLE_LCD
-#atmega328p-007: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-007: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-007: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-007: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-007: PFLAGS += -DSF_ENABLE_STV
-atmega328p-007: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-007: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-007: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-007: PFLAGS += -DSF_ENABLE_SPI
-atmega328p-007: TARGET = atmega328p-007
-atmega328p-007: $(TPATH)/atmega328p-007/pulsefire.hex
-$(TPATH)/atmega328p-007/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-007-isp: atmega328p-007
-atmega328p-007-isp: TARGET = atmega328p-007
-atmega328p-007-isp: ISP_MCU = m328p
-atmega328p-007-isp: ISP_PROG = arduino
-atmega328p-007-isp: avr-flash
-
-
-atmega328p-020: MCU = atmega328p
-atmega328p-020: F_CPU = 16000000
-atmega328p-020: CFLAGS += -mmcu=$(MCU)
-atmega328p-020: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-020: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-020: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-020: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-020: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-020: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-020: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-020: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-020: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-020: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-020: PFLAGS += -DSF_ENABLE_STV
-atmega328p-020: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-020: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-020: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-020: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-020: TARGET = atmega328p-020
-atmega328p-020: $(TPATH)/atmega328p-020/pulsefire.hex
-$(TPATH)/atmega328p-020/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-020-isp: atmega328p-020
-atmega328p-020-isp: TARGET = atmega328p-020
-atmega328p-020-isp: ISP_MCU = m328p
-atmega328p-020-isp: ISP_PROG = arduino
-atmega328p-020-isp: avr-flash
-
-atmega328p-021: MCU = atmega328p
-atmega328p-021: F_CPU = 16000000
-atmega328p-021: CFLAGS += -mmcu=$(MCU)
-atmega328p-021: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-021: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-021: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-021: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-021: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-021: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-021: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-021: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-021: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-021: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-021: PFLAGS += -DSF_ENABLE_STV
-atmega328p-021: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-021: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-021: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-021: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-021: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-021: TARGET = atmega328p-021
-atmega328p-021: $(TPATH)/atmega328p-021/pulsefire.hex
-$(TPATH)/atmega328p-021/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-021-isp: atmega328p-021
-atmega328p-021-isp: TARGET = atmega328p-021
-atmega328p-021-isp: ISP_MCU = m328p
-atmega328p-021-isp: ISP_PROG = arduino
-atmega328p-021-isp: avr-flash
-
-
-
-atmega328p-022: MCU = atmega328p
-atmega328p-022: F_CPU = 16000000
-atmega328p-022: CFLAGS += -mmcu=$(MCU)
-atmega328p-022: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-022: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-022: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-022: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-022: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-022: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-022: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-022: PFLAGS += -DSF_ENABLE_STV
-atmega328p-022: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-022: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-022: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-022: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-022: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-022: TARGET = atmega328p-022
-atmega328p-022: $(TPATH)/atmega328p-022/pulsefire.hex
-$(TPATH)/atmega328p-022/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-022-isp: atmega328p-022
-atmega328p-022-isp: TARGET = atmega328p-022
-atmega328p-022-isp: ISP_MCU = m328p
-atmega328p-022-isp: ISP_PROG = arduino
-atmega328p-022-isp: avr-flash
-
-
-atmega168p-001: MCU = atmega168p
-atmega168p-001: F_CPU = 16000000
-atmega168p-001: CFLAGS += -mmcu=$(MCU)
-atmega168p-001: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-001: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-001: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-001: PFLAGS += -DSF_ENABLE_DOC
-atmega168p-001: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-001: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-001: PFLAGS += -DSF_ENABLE_PTT
-atmega168p-001: PFLAGS += -DSF_ENABLE_STV
-atmega168p-001: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-001: PFLAGS += -DSF_ENABLE_SWC
-atmega168p-001: TARGET = atmega168p-001
-atmega168p-001: $(TPATH)/atmega168p-001/pulsefire.hex
-$(TPATH)/atmega168p-001/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-001-isp: atmega168p-001
-atmega168p-001-isp: TARGET = atmega168p-001
-atmega168p-001-isp: ISP_MCU = m168p
-atmega168p-001-isp: ISP_PROG = arduino
-atmega168p-001-isp: avr-flash
-
-atmega168p-002: MCU = atmega168p
-atmega168p-002: F_CPU = 16000000
-atmega168p-002: CFLAGS += -mmcu=$(MCU)
-atmega168p-002: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-002: PFLAGS += -DSF_ENABLE_PPM
-atmega168p-002: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-002: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-002: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-002: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-002: PFLAGS += -DSF_ENABLE_STV
-atmega168p-002: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-002: TARGET = atmega168p-002
-atmega168p-002: $(TPATH)/atmega168p-002/pulsefire.hex
-$(TPATH)/atmega168p-002/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-002-isp: atmega168p-002
-atmega168p-002-isp: TARGET = atmega168p-002
-atmega168p-002-isp: ISP_MCU = m168p
-atmega168p-002-isp: ISP_PROG = arduino
-atmega168p-002-isp: avr-flash
-
-
-atmega168p-003: MCU = atmega168p
-atmega168p-003: F_CPU = 16000000
-atmega168p-003: CFLAGS += -mmcu=$(MCU)
-atmega168p-003: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-003: PFLAGS += -DSF_ENABLE_PPM
-atmega168p-003: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-003: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-003: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-003: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-003: PFLAGS += -DSF_ENABLE_STV
-atmega168p-003: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-003: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega168p-003: TARGET = atmega168p-003
-atmega168p-003: $(TPATH)/atmega168p-003/pulsefire.hex
-$(TPATH)/atmega168p-003/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-003-isp: atmega168p-003
-atmega168p-003-isp: TARGET = atmega168p-003
-atmega168p-003-isp: ISP_MCU = m168p
-atmega168p-003-isp: ISP_PROG = arduino
-atmega168p-003-isp: avr-flash
-
-
-atmega168p-004: MCU = atmega168p
-atmega168p-004: F_CPU = 16000000
-atmega168p-004: CFLAGS += -mmcu=$(MCU)
-atmega168p-004: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-004: PFLAGS += -DSF_ENABLE_PPM
-atmega168p-004: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-004: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-004: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-004: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-004: PFLAGS += -DSF_ENABLE_STV
-atmega168p-004: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-004: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega168p-004: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega168p-004: TARGET = atmega168p-004
-atmega168p-004: $(TPATH)/atmega168p-004/pulsefire.hex
-$(TPATH)/atmega168p-004/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-004-isp: atmega168p-004
-atmega168p-004-isp: TARGET = atmega168p-004
-atmega168p-004-isp: ISP_MCU = m168p
-atmega168p-004-isp: ISP_PROG = arduino
-atmega168p-004-isp: avr-flash
-
-
-atmega168p-005: MCU = atmega168p
-atmega168p-005: F_CPU = 16000000
-atmega168p-005: CFLAGS += -mmcu=$(MCU)
-atmega168p-005: PFLAGS += -DSF_ENABLE_CIT
-atmega168p-005: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-005: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-005: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-005: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-005: PFLAGS += -DSF_ENABLE_STV
-atmega168p-005: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-005: TARGET = atmega168p-005
-atmega168p-005: $(TPATH)/atmega168p-005/pulsefire.hex
-$(TPATH)/atmega168p-005/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-005-isp: atmega168p-005
-atmega168p-005-isp: TARGET = atmega168p-005
-atmega168p-005-isp: ISP_MCU = m168p
-atmega168p-005-isp: ISP_PROG = arduino
-atmega168p-005-isp: avr-flash
+atmega2560-1691 
 
 
 #
 #====================================
-#-------- 20 Mhz targets
+#-------- 328p targets
 #====================================
 #
+
+atmega328p-1601: MCU = atmega328p
+atmega328p-1601: F_CPU = 16000000
+atmega328p-1601: CFLAGS += -mmcu=$(MCU)
+atmega328p-1601: PFLAGS += -DSF_ENABLE_PWM
+atmega328p-1601: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-1601: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-1601: PFLAGS += -DSF_ENABLE_PTC
+atmega328p-1601: PFLAGS += -DSF_ENABLE_PTT
+atmega328p-1601: PFLAGS += -DSF_ENABLE_STV
+atmega328p-1601: PFLAGS += -DSF_ENABLE_VFC
+atmega328p-1601: PFLAGS += -DSF_ENABLE_SWC
+atmega328p-1601: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-1601: TARGET = atmega328p-1601
+atmega328p-1601: $(TPATH)/atmega328p-1601/pulsefire.hex
+$(TPATH)/atmega328p-1601/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-1601-isp: atmega328p-1601
+atmega328p-1601-isp: TARGET = atmega328p-1601
+atmega328p-1601-isp: ISP_MCU = m328p
+atmega328p-1601-isp: ISP_PROG = arduino
+atmega328p-1601-isp: avr-flash
+
+
+atmega328p-1602: MCU = atmega328p
+atmega328p-1602: F_CPU = 16000000
+atmega328p-1602: CFLAGS += -mmcu=$(MCU)
+atmega328p-1602: PFLAGS += -DSF_ENABLE_PWM
+atmega328p-1602: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-1602: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-1602: PFLAGS += -DSF_ENABLE_PTC
+atmega328p-1602: PFLAGS += -DSF_ENABLE_PTT
+atmega328p-1602: PFLAGS += -DSF_ENABLE_STV
+atmega328p-1602: PFLAGS += -DSF_ENABLE_VFC
+atmega328p-1602: PFLAGS += -DSF_ENABLE_SWC
+atmega328p-1602: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-1602: PFLAGS += -DSF_ENABLE_SPI
+atmega328p-1602: TARGET = atmega328p-1602
+atmega328p-1602: $(TPATH)/atmega328p-1602/pulsefire.hex
+$(TPATH)/atmega328p-1602/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-1602-isp: atmega328p-1602
+atmega328p-1602-isp: TARGET = atmega328p-1602
+atmega328p-1602-isp: ISP_MCU = m328p
+atmega328p-1602-isp: ISP_PROG = arduino
+atmega328p-1602-isp: avr-flash
+
+
+atmega328p-1603: MCU = atmega328p
+atmega328p-1603: F_CPU = 16000000
+atmega328p-1603: CFLAGS += -mmcu=$(MCU)
+atmega328p-1603: PFLAGS += -DSF_ENABLE_PWM
+atmega328p-1603: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-1603: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-1603: PFLAGS += -DSF_ENABLE_PTC
+atmega328p-1603: PFLAGS += -DSF_ENABLE_PTT
+atmega328p-1603: PFLAGS += -DSF_ENABLE_STV
+atmega328p-1603: PFLAGS += -DSF_ENABLE_VFC
+atmega328p-1603: PFLAGS += -DSF_ENABLE_SWC
+atmega328p-1603: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-1603: PFLAGS += -DSF_ENABLE_LCD
+atmega328p-1603: TARGET = atmega328p-1603
+atmega328p-1603: $(TPATH)/atmega328p-1603/pulsefire.hex
+$(TPATH)/atmega328p-1603/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-1603-isp: atmega328p-1603
+atmega328p-1603-isp: TARGET = atmega328p-1603
+atmega328p-1603-isp: ISP_MCU = m328p
+atmega328p-1603-isp: ISP_PROG = arduino
+atmega328p-1603-isp: avr-flash
+
+
+atmega328p-1604: MCU = atmega328p
+atmega328p-1604: F_CPU = 16000000
+atmega328p-1604: CFLAGS += -mmcu=$(MCU)
+atmega328p-1604: PFLAGS += -DSF_ENABLE_PWM
+atmega328p-1604: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-1604: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-1604: PFLAGS += -DSF_ENABLE_PTC
+atmega328p-1604: PFLAGS += -DSF_ENABLE_PTT
+atmega328p-1604: PFLAGS += -DSF_ENABLE_STV
+atmega328p-1604: PFLAGS += -DSF_ENABLE_VFC
+atmega328p-1604: PFLAGS += -DSF_ENABLE_SWC
+atmega328p-1604: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-1604: PFLAGS += -DSF_ENABLE_LCD
+atmega328p-1604: PFLAGS += -DSF_ENABLE_SPI
+atmega328p-1604: TARGET = atmega328p-1604
+atmega328p-1604: $(TPATH)/atmega328p-1604/pulsefire.hex
+$(TPATH)/atmega328p-1604/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-1604-isp: atmega328p-1604
+atmega328p-1604-isp: TARGET = atmega328p-1604
+atmega328p-1604-isp: ISP_MCU = m328p
+atmega328p-1604-isp: ISP_PROG = arduino
+atmega328p-1604-isp: avr-flash
+
+
+atmega328p-1691: MCU = atmega328p
+atmega328p-1691: F_CPU = 16000000
+atmega328p-1691: CFLAGS += -mmcu=$(MCU)
+atmega328p-1691: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-1691: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-1691: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-1691: PFLAGS += -DSF_ENABLE_SPI
+atmega328p-1691: TARGET = atmega328p-1691
+atmega328p-1691: $(TPATH)/atmega328p-1691/pulsefire.hex
+$(TPATH)/atmega328p-1691/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega328p-1691-isp: atmega328p-1691
+atmega328p-1691-isp: TARGET = atmega328p-1691
+atmega328p-1691-isp: ISP_MCU = m328p
+atmega328p-1691-isp: ISP_PROG = arduino
+atmega328p-1691-isp: avr-flash
+
 
 atmega328p-2001: MCU = atmega328p
 atmega328p-2001: F_CPU = 20000000
 atmega328p-2001: CFLAGS += -mmcu=$(MCU)
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PWM
 atmega328p-2001: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2001: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2001: PFLAGS += -DSF_ENABLE_PPM
 atmega328p-2001: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2001: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2001: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2001: PFLAGS += -DSF_ENABLE_DEV
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PTT
 atmega328p-2001: PFLAGS += -DSF_ENABLE_STV
@@ -635,24 +289,20 @@ atmega328p-2001-isp: ISP_MCU = m328p
 atmega328p-2001-isp: ISP_PROG = arduino
 atmega328p-2001-isp: avr-flash
 
+
 atmega328p-2002: MCU = atmega328p
 atmega328p-2002: F_CPU = 20000000
 atmega328p-2002: CFLAGS += -mmcu=$(MCU)
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PWM
 atmega328p-2002: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2002: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2002: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2002: PFLAGS += -DSF_ENABLE_PPM
 atmega328p-2002: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2002: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2002: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2002: PFLAGS += -DSF_ENABLE_DEV
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PTT
 atmega328p-2002: PFLAGS += -DSF_ENABLE_STV
 atmega328p-2002: PFLAGS += -DSF_ENABLE_VFC
 atmega328p-2002: PFLAGS += -DSF_ENABLE_SWC
 atmega328p-2002: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-2002: PFLAGS += -DSF_ENABLE_SPI
 atmega328p-2002: TARGET = atmega328p-2002
 atmega328p-2002: $(TPATH)/atmega328p-2002/pulsefire.hex
 $(TPATH)/atmega328p-2002/pulsefire.hex:
@@ -666,25 +316,20 @@ atmega328p-2002-isp: ISP_MCU = m328p
 atmega328p-2002-isp: ISP_PROG = arduino
 atmega328p-2002-isp: avr-flash
 
+
 atmega328p-2003: MCU = atmega328p
 atmega328p-2003: F_CPU = 20000000
 atmega328p-2003: CFLAGS += -mmcu=$(MCU)
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PWM
 atmega328p-2003: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2003: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2003: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2003: PFLAGS += -DSF_ENABLE_PPM
 atmega328p-2003: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2003: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2003: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2003: PFLAGS += -DSF_ENABLE_DEV
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PTT
 atmega328p-2003: PFLAGS += -DSF_ENABLE_STV
 atmega328p-2003: PFLAGS += -DSF_ENABLE_VFC
 atmega328p-2003: PFLAGS += -DSF_ENABLE_SWC
 atmega328p-2003: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2003: PFLAGS += -DSF_ENABLE_EXT_LCD
+atmega328p-2003: PFLAGS += -DSF_ENABLE_LCD
 atmega328p-2003: TARGET = atmega328p-2003
 atmega328p-2003: $(TPATH)/atmega328p-2003/pulsefire.hex
 $(TPATH)/atmega328p-2003/pulsefire.hex:
@@ -698,25 +343,21 @@ atmega328p-2003-isp: ISP_MCU = m328p
 atmega328p-2003-isp: ISP_PROG = arduino
 atmega328p-2003-isp: avr-flash
 
+
 atmega328p-2004: MCU = atmega328p
 atmega328p-2004: F_CPU = 20000000
 atmega328p-2004: CFLAGS += -mmcu=$(MCU)
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PWM
 atmega328p-2004: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2004: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2004: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2004: PFLAGS += -DSF_ENABLE_PPM
 atmega328p-2004: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2004: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2004: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2004: PFLAGS += -DSF_ENABLE_DEV
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PTT
 atmega328p-2004: PFLAGS += -DSF_ENABLE_STV
 atmega328p-2004: PFLAGS += -DSF_ENABLE_VFC
 atmega328p-2004: PFLAGS += -DSF_ENABLE_SWC
 atmega328p-2004: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2004: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega328p-2004: PFLAGS += -DSF_ENABLE_LCD
+atmega328p-2004: PFLAGS += -DSF_ENABLE_SPI
 atmega328p-2004: TARGET = atmega328p-2004
 atmega328p-2004: $(TPATH)/atmega328p-2004/pulsefire.hex
 $(TPATH)/atmega328p-2004/pulsefire.hex:
@@ -730,211 +371,116 @@ atmega328p-2004-isp: ISP_MCU = m328p
 atmega328p-2004-isp: ISP_PROG = arduino
 atmega328p-2004-isp: avr-flash
 
-atmega328p-2005: MCU = atmega328p
-atmega328p-2005: F_CPU = 20000000
-atmega328p-2005: CFLAGS += -mmcu=$(MCU)
-atmega328p-2005: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2005: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2005: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2005: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2005: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-2005: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-2005: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-2005: PFLAGS += -DSF_ENABLE_STV
-atmega328p-2005: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-2005: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2005: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-2005: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-2005: TARGET = atmega328p-2005
-atmega328p-2005: $(TPATH)/atmega328p-2005/pulsefire.hex
-$(TPATH)/atmega328p-2005/pulsefire.hex:
+
+atmega328p-2091: MCU = atmega328p
+atmega328p-2091: F_CPU = 20000000
+atmega328p-2091: CFLAGS += -mmcu=$(MCU)
+atmega328p-2091: PFLAGS += -DSF_ENABLE_CIT
+atmega328p-2091: PFLAGS += -DSF_ENABLE_ADC
+atmega328p-2091: PFLAGS += -DSF_ENABLE_MAL
+atmega328p-2091: PFLAGS += -DSF_ENABLE_SPI
+atmega328p-2091: TARGET = atmega328p-2091
+atmega328p-2091: $(TPATH)/atmega328p-2091/pulsefire.hex
+$(TPATH)/atmega328p-2091/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
 	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-atmega328p-2005-isp: atmega328p-2005
-atmega328p-2005-isp: TARGET = atmega328p-2005
-atmega328p-2005-isp: ISP_MCU = m328p
-atmega328p-2005-isp: ISP_PROG = arduino
-atmega328p-2005-isp: avr-flash
+atmega328p-2091-isp: atmega328p-2091
+atmega328p-2091-isp: TARGET = atmega328p-2091
+atmega328p-2091-isp: ISP_MCU = m328p
+atmega328p-2091-isp: ISP_PROG = arduino
+atmega328p-2091-isp: avr-flash
 
-atmega328p-2006: MCU = atmega328p
-atmega328p-2006: F_CPU = 20000000
-atmega328p-2006: CFLAGS += -mmcu=$(MCU)
-atmega328p-2006: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2006: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2006: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2006: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2006: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-2006: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-2006: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-2006: PFLAGS += -DSF_ENABLE_STV
-atmega328p-2006: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-2006: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2006: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-2006: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-2006: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-2006: TARGET = atmega328p-2006
-atmega328p-2006: $(TPATH)/atmega328p-2006/pulsefire.hex
-$(TPATH)/atmega328p-2006/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-2006-isp: atmega328p-2006
-atmega328p-2006-isp: TARGET = atmega328p-2006
-atmega328p-2006-isp: ISP_MCU = m328p
-atmega328p-2006-isp: ISP_PROG = arduino
-atmega328p-2006-isp: avr-flash
-
-atmega328p-2007: MCU = atmega328p
-atmega328p-2007: F_CPU = 20000000
-atmega328p-2007: CFLAGS += -mmcu=$(MCU)
-atmega328p-2007: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2007: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2007: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2007: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2007: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-2007: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-2007: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-2007: PFLAGS += -DSF_ENABLE_STV
-atmega328p-2007: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-2007: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2007: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-2007: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-2007: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-2007: PFLAGS += -DSF_ENABLE_EXT_LCD_DIC
-atmega328p-2007: TARGET = atmega328p-2007
-atmega328p-2007: $(TPATH)/atmega328p-2007/pulsefire.hex
-$(TPATH)/atmega328p-2007/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-2007-isp: atmega328p-2007
-atmega328p-2007-isp: TARGET = atmega328p-2007
-atmega328p-2007-isp: ISP_MCU = m328p
-atmega328p-2007-isp: ISP_PROG = arduino
-atmega328p-2007-isp: avr-flash
-
-atmega328p-2008: MCU = atmega328p
-atmega328p-2008: F_CPU = 20000000
-atmega328p-2008: CFLAGS += -mmcu=$(MCU)
-atmega328p-2008: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2008: PFLAGS += -DSF_ENABLE_CIT
-atmega328p-2008: PFLAGS += -DSF_ENABLE_LCD
-atmega328p-2008: PFLAGS += -DSF_ENABLE_LPM
-atmega328p-2008: PFLAGS += -DSF_ENABLE_PPM
-atmega328p-2008: PFLAGS += -DSF_ENABLE_ADC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_DIC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_DOC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_DEV
-atmega328p-2008: PFLAGS += -DSF_ENABLE_PTC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_PTT
-atmega328p-2008: PFLAGS += -DSF_ENABLE_STV
-atmega328p-2008: PFLAGS += -DSF_ENABLE_VFC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_SWC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_MAL
-atmega328p-2008: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega328p-2008: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega328p-2008: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega328p-2008: PFLAGS += -DSF_ENABLE_EXT_LCD_DIC
-atmega328p-2008: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
-atmega328p-2008: TARGET = atmega328p-2008
-atmega328p-2008: $(TPATH)/atmega328p-2008/pulsefire.hex
-$(TPATH)/atmega328p-2008/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega328p-2008-isp: atmega328p-2008
-atmega328p-2008-isp: TARGET = atmega328p-2008
-atmega328p-2008-isp: ISP_MCU = m328p
-atmega328p-2008-isp: ISP_PROG = arduino
-atmega328p-2008-isp: avr-flash
-
-
-atmega168p-2001: MCU = atmega168p
-atmega168p-2001: F_CPU = 20000000
-atmega168p-2001: CFLAGS += -mmcu=$(MCU)
-atmega168p-2001: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-2001: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-2001: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-2001: PFLAGS += -DSF_ENABLE_DOC
-atmega168p-2001: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-2001: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-2001: PFLAGS += -DSF_ENABLE_PTT
-atmega168p-2001: PFLAGS += -DSF_ENABLE_STV
-atmega168p-2001: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-2001: PFLAGS += -DSF_ENABLE_SWC
-atmega168p-2001: TARGET = atmega168p-2001
-atmega168p-2001: $(TPATH)/atmega168p-2001/pulsefire.hex
-$(TPATH)/atmega168p-2001/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-2001-isp: atmega168p-2001
-atmega168p-2001-isp: TARGET = atmega168p-2001
-atmega168p-2001-isp: ISP_MCU = m168p
-atmega168p-2001-isp: ISP_PROG = arduino
-atmega168p-2001-isp: avr-flash
-
-atmega168p-2002: MCU = atmega168p
-atmega168p-2002: F_CPU = 20000000
-atmega168p-2002: CFLAGS += -mmcu=$(MCU)
-atmega168p-2002: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-2002: PFLAGS += -DSF_ENABLE_PPM
-atmega168p-2002: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-2002: PFLAGS += -DSF_ENABLE_DIC
-atmega168p-2002: PFLAGS += -DSF_ENABLE_DEV
-atmega168p-2002: PFLAGS += -DSF_ENABLE_PTC
-atmega168p-2002: PFLAGS += -DSF_ENABLE_STV
-atmega168p-2002: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-2002: TARGET = atmega168p-2002
-atmega168p-2002: $(TPATH)/atmega168p-2002/pulsefire.hex
-$(TPATH)/atmega168p-2002/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-2002-isp: atmega168p-2002
-atmega168p-2002-isp: TARGET = atmega168p-2002
-atmega168p-2002-isp: ISP_MCU = m168p
-atmega168p-2002-isp: ISP_PROG = arduino
-atmega168p-2002-isp: avr-flash
 
 #
-# MEGA 1280 targets
+#====================================
+#-------- 168p targets
+#====================================
+#
+
+atmega168p-1601: MCU = atmega168p
+atmega168p-1601: F_CPU = 16000000
+atmega168p-1601: CFLAGS += -mmcu=$(MCU)
+atmega168p-1601: PFLAGS += -DSF_ENABLE_PWM
+atmega168p-1601: PFLAGS += -DSF_ENABLE_ADC
+atmega168p-1601: PFLAGS += -DSF_ENABLE_PTC
+atmega168p-1601: PFLAGS += -DSF_ENABLE_PTT
+atmega168p-1601: PFLAGS += -DSF_ENABLE_STV
+atmega168p-1601: PFLAGS += -DSF_ENABLE_VFC
+atmega168p-1601: PFLAGS += -DSF_ENABLE_SWC
+atmega168p-1601: TARGET = atmega168p-1601
+atmega168p-1601: $(TPATH)/atmega168p-1601/pulsefire.hex
+$(TPATH)/atmega168p-1601/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega168p-1601-isp: atmega168p-1601
+atmega168p-1601-isp: TARGET = atmega168p-1601
+atmega168p-1601-isp: ISP_MCU = m168p
+atmega168p-1601-isp: ISP_PROG = arduino
+atmega168p-1601-isp: avr-flash
+
+
+atmega168p-1602: MCU = atmega168p
+atmega168p-1602: F_CPU = 16000000
+atmega168p-1602: CFLAGS += -mmcu=$(MCU)
+atmega168p-1602: PFLAGS += -DSF_ENABLE_PWM
+atmega168p-1602: PFLAGS += -DSF_ENABLE_ADC
+atmega168p-1602: PFLAGS += -DSF_ENABLE_PTC
+atmega168p-1602: PFLAGS += -DSF_ENABLE_PTT
+atmega168p-1602: PFLAGS += -DSF_ENABLE_STV
+atmega168p-1602: PFLAGS += -DSF_ENABLE_VFC
+atmega168p-1602: PFLAGS += -DSF_ENABLE_SWC
+atmega168p-1602: PFLAGS += -DSF_ENABLE_SPI
+atmega168p-1602: TARGET = atmega168p-1602
+atmega168p-1602: $(TPATH)/atmega168p-1602/pulsefire.hex
+$(TPATH)/atmega168p-1602/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega168p-1602-isp: atmega168p-1602
+atmega168p-1602-isp: TARGET = atmega168p-1602
+atmega168p-1602-isp: ISP_MCU = m168p
+atmega168p-1602-isp: ISP_PROG = arduino
+atmega168p-1602-isp: avr-flash
+
+
+atmega168p-1691: MCU = atmega168p
+atmega168p-1691: F_CPU = 16000000
+atmega168p-1691: CFLAGS += -mmcu=$(MCU)
+atmega168p-1691: PFLAGS += -DSF_ENABLE_MAL
+atmega168p-1691: PFLAGS += -DSF_ENABLE_ADC
+atmega168p-1691: PFLAGS += -DSF_ENABLE_CIT
+atmega168p-1691: PFLAGS += -DSF_ENABLE_SPI
+atmega168p-1691: TARGET = atmega168p-1691
+atmega168p-1691: $(TPATH)/atmega168p-1691/pulsefire.hex
+$(TPATH)/atmega168p-1691/pulsefire.hex:
+	mkdir -p $(TPATH)/$(TARGET)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
+
+atmega168p-1691-isp: atmega168p-1691
+atmega168p-1691-isp: TARGET = atmega168p-1691
+atmega168p-1691-isp: ISP_MCU = m168p
+atmega168p-1691-isp: ISP_PROG = arduino
+atmega168p-1691-isp: avr-flash
+
+#
+#====================================
+#-------- Mega 1280 targets
+#====================================
 #
 
 atmega1280-1601: MCU = atmega1280
 atmega1280-1601: F_CPU = 16000000
 atmega1280-1601: CFLAGS += -mmcu=$(MCU)
-atmega1280-1601: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1601: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1601: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1601: PFLAGS += -DSF_ENABLE_PPM
 atmega1280-1601: PFLAGS += -DSF_ENABLE_PWM
+atmega1280-1601: PFLAGS += -DSF_ENABLE_CIT
+atmega1280-1601: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1601: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1601: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1601: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1601: PFLAGS += -DSF_ENABLE_DEV
 atmega1280-1601: PFLAGS += -DSF_ENABLE_PTC
 atmega1280-1601: PFLAGS += -DSF_ENABLE_PTT
 atmega1280-1601: PFLAGS += -DSF_ENABLE_STV
@@ -957,20 +503,17 @@ atmega1280-1601-isp: avr-flash
 atmega1280-1602: MCU = atmega1280
 atmega1280-1602: F_CPU = 16000000
 atmega1280-1602: CFLAGS += -mmcu=$(MCU)
-atmega1280-1602: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1602: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1602: PFLAGS += -DSF_ENABLE_PPM
 atmega1280-1602: PFLAGS += -DSF_ENABLE_PWM
+atmega1280-1602: PFLAGS += -DSF_ENABLE_CIT
+atmega1280-1602: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1602: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1602: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1602: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1602: PFLAGS += -DSF_ENABLE_DEV
 atmega1280-1602: PFLAGS += -DSF_ENABLE_PTC
 atmega1280-1602: PFLAGS += -DSF_ENABLE_PTT
 atmega1280-1602: PFLAGS += -DSF_ENABLE_STV
 atmega1280-1602: PFLAGS += -DSF_ENABLE_VFC
 atmega1280-1602: PFLAGS += -DSF_ENABLE_SWC
 atmega1280-1602: PFLAGS += -DSF_ENABLE_MAL
+atmega1280-1602: PFLAGS += -DSF_ENABLE_SPI
 atmega1280-1602: TARGET = atmega1280-1602
 atmega1280-1602: $(TPATH)/atmega1280-1602/pulsefire.hex
 $(TPATH)/atmega1280-1602/pulsefire.hex:
@@ -988,22 +531,17 @@ atmega1280-1602-isp: avr-flash
 atmega1280-1603: MCU = atmega1280
 atmega1280-1603: F_CPU = 16000000
 atmega1280-1603: CFLAGS += -mmcu=$(MCU)
-atmega1280-1603: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1603: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1603: PFLAGS += -DSF_ENABLE_PPM
 atmega1280-1603: PFLAGS += -DSF_ENABLE_PWM
 atmega1280-1603: PFLAGS += -DSF_ENABLE_CIT
+atmega1280-1603: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1603: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1603: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1603: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1603: PFLAGS += -DSF_ENABLE_DEV
 atmega1280-1603: PFLAGS += -DSF_ENABLE_PTC
 atmega1280-1603: PFLAGS += -DSF_ENABLE_PTT
 atmega1280-1603: PFLAGS += -DSF_ENABLE_STV
 atmega1280-1603: PFLAGS += -DSF_ENABLE_VFC
 atmega1280-1603: PFLAGS += -DSF_ENABLE_SWC
 atmega1280-1603: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1603: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega1280-1603: PFLAGS += -DSF_ENABLE_LCD
 atmega1280-1603: TARGET = atmega1280-1603
 atmega1280-1603: $(TPATH)/atmega1280-1603/pulsefire.hex
 $(TPATH)/atmega1280-1603/pulsefire.hex:
@@ -1021,190 +559,61 @@ atmega1280-1603-isp: avr-flash
 atmega1280-1604: MCU = atmega1280
 atmega1280-1604: F_CPU = 16000000
 atmega1280-1604: CFLAGS += -mmcu=$(MCU)
-atmega1280-1604: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1604: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1604: PFLAGS += -DSF_ENABLE_PPM
 atmega1280-1604: PFLAGS += -DSF_ENABLE_PWM
 atmega1280-1604: PFLAGS += -DSF_ENABLE_CIT
+atmega1280-1604: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1604: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1604: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1604: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1604: PFLAGS += -DSF_ENABLE_DEV
 atmega1280-1604: PFLAGS += -DSF_ENABLE_PTC
 atmega1280-1604: PFLAGS += -DSF_ENABLE_PTT
 atmega1280-1604: PFLAGS += -DSF_ENABLE_STV
 atmega1280-1604: PFLAGS += -DSF_ENABLE_VFC
 atmega1280-1604: PFLAGS += -DSF_ENABLE_SWC
 atmega1280-1604: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1604: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega1280-1604: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega1280-1604: TARGET = atmega1280-1603
-atmega1280-1604: $(TPATH)/atmega1280-1603/pulsefire.hex
-$(TPATH)/atmega1280-1603/pulsefire.hex:
+atmega1280-1604: PFLAGS += -DSF_ENABLE_LCD
+atmega1280-1604: PFLAGS += -DSF_ENABLE_SPI
+atmega1280-1604: TARGET = atmega1280-1604
+atmega1280-1604: $(TPATH)/atmega1280-1604/pulsefire.hex
+$(TPATH)/atmega1280-1604/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
 	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-atmega1280-1604-isp: atmega1280-1603
-atmega1280-1604-isp: TARGET = atmega1280-1603
+atmega1280-1604-isp: atmega1280-1604
+atmega1280-1604-isp: TARGET = atmega1280-1604
 atmega1280-1604-isp: ISP_MCU = m1280
 atmega1280-1604-isp: ISP_PROG = stk500
 atmega1280-1604-isp: avr-flash
 
 
-atmega1280-1605: MCU = atmega1280
-atmega1280-1605: F_CPU = 16000000
-atmega1280-1605: CFLAGS += -mmcu=$(MCU)
-atmega1280-1605: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1605: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1605: PFLAGS += -DSF_ENABLE_PPM
-atmega1280-1605: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1605: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1605: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_DEV
-atmega1280-1605: PFLAGS += -DSF_ENABLE_PTC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_PTT
-atmega1280-1605: PFLAGS += -DSF_ENABLE_STV
-atmega1280-1605: PFLAGS += -DSF_ENABLE_VFC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_SWC
-atmega1280-1605: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1605: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega1280-1605: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega1280-1605: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega1280-1605: TARGET = atmega1280-1605
-atmega1280-1605: $(TPATH)/atmega1280-1605/pulsefire.hex
-$(TPATH)/atmega1280-1605/pulsefire.hex:
+atmega1280-1691: MCU = atmega1280
+atmega1280-1691: F_CPU = 16000000
+atmega1280-1691: CFLAGS += -mmcu=$(MCU)
+atmega1280-1691: PFLAGS += -DSF_ENABLE_CIT
+atmega1280-1691: PFLAGS += -DSF_ENABLE_CIP
+atmega1280-1691: PFLAGS += -DSF_ENABLE_ADC
+atmega1280-1691: PFLAGS += -DSF_ENABLE_MAL
+atmega1280-1691: PFLAGS += -DSF_ENABLE_SPI
+atmega1280-1691: TARGET = atmega1280-1691
+atmega1280-1691: $(TPATH)/atmega1280-1691/pulsefire.hex
+$(TPATH)/atmega1280-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
 	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-atmega1280-1605-isp: atmega1280-1605
-atmega1280-1605-isp: TARGET = atmega1280-1605
-atmega1280-1605-isp: ISP_MCU = m1280
-atmega1280-1605-isp: ISP_PROG = stk500
-atmega1280-1605-isp: avr-flash
-
-
-atmega1280-1606: MCU = atmega1280
-atmega1280-1606: F_CPU = 16000000
-atmega1280-1606: CFLAGS += -mmcu=$(MCU)
-atmega1280-1606: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1606: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1606: PFLAGS += -DSF_ENABLE_PPM
-atmega1280-1606: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1606: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1606: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_DEV
-atmega1280-1606: PFLAGS += -DSF_ENABLE_PTC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_PTT
-atmega1280-1606: PFLAGS += -DSF_ENABLE_STV
-atmega1280-1606: PFLAGS += -DSF_ENABLE_VFC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_SWC
-atmega1280-1606: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1606: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega1280-1606: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega1280-1606: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega1280-1606: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
-atmega1280-1606: TARGET = atmega1280-1606
-atmega1280-1606: $(TPATH)/atmega1280-1606/pulsefire.hex
-$(TPATH)/atmega1280-1606/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega1280-1606-isp: atmega1280-1606
-atmega1280-1606-isp: TARGET = atmega1280-1606
-atmega1280-1606-isp: ISP_MCU = m1280
-atmega1280-1606-isp: ISP_PROG = stk500
-atmega1280-1606-isp: avr-flash
-
-
-atmega1280-1607: MCU = atmega1280
-atmega1280-1607: F_CPU = 16000000
-atmega1280-1607: CFLAGS += -mmcu=$(MCU)
-atmega1280-1607: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1607: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1607: PFLAGS += -DSF_ENABLE_PPM
-atmega1280-1607: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1607: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1607: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_DEV
-atmega1280-1607: PFLAGS += -DSF_ENABLE_PTC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_PTT
-atmega1280-1607: PFLAGS += -DSF_ENABLE_STV
-atmega1280-1607: PFLAGS += -DSF_ENABLE_VFC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_SWC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1607: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega1280-1607: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega1280-1607: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega1280-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
-atmega1280-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC_16BIT
-atmega1280-1607: TARGET = atmega1280-1607
-atmega1280-1607: $(TPATH)/atmega1280-1607/pulsefire.hex
-$(TPATH)/atmega1280-1607/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega1280-1607-isp: atmega1280-1607
-atmega1280-1607-isp: TARGET = atmega1280-1607
-atmega1280-1607-isp: ISP_MCU = m1280
-atmega1280-1607-isp: ISP_PROG = stk500
-atmega1280-1607-isp: avr-flash
-
-
-atmega1280-1608: MCU = atmega1280
-atmega1280-1608: F_CPU = 16000000
-atmega1280-1608: CFLAGS += -mmcu=$(MCU)
-atmega1280-1608: PFLAGS += -DSF_ENABLE_LCD
-atmega1280-1608: PFLAGS += -DSF_ENABLE_GLCD
-atmega1280-1608: PFLAGS += -DSF_ENABLE_LPM
-atmega1280-1608: PFLAGS += -DSF_ENABLE_PPM
-atmega1280-1608: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1608: PFLAGS += -DSF_ENABLE_CIT
-atmega1280-1608: PFLAGS += -DSF_ENABLE_ADC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_DIC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_DOC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_DEV
-atmega1280-1608: PFLAGS += -DSF_ENABLE_PTC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_PTT
-atmega1280-1608: PFLAGS += -DSF_ENABLE_STV
-atmega1280-1608: PFLAGS += -DSF_ENABLE_VFC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_SWC
-atmega1280-1608: PFLAGS += -DSF_ENABLE_MAL
-atmega1280-1608: TARGET = atmega1280-1608
-atmega1280-1608: $(TPATH)/atmega1280-1608/pulsefire.hex
-$(TPATH)/atmega1280-1608/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega1280-1608-isp: atmega1280-1608
-atmega1280-1608-isp: TARGET = atmega1280-1608
-atmega1280-1608-isp: ISP_MCU = m1280
-atmega1280-1608-isp: ISP_PROG = stk500
-atmega1280-1608-isp: avr-flash
+atmega1280-1691-isp: atmega1280-1691
+atmega1280-1691-isp: TARGET = atmega1280-1691
+atmega1280-1691-isp: ISP_MCU = m1280
+atmega1280-1691-isp: ISP_PROG = stk500
+atmega1280-1691-isp: avr-flash
 
 
 atmega2560-1601: MCU = atmega2560
 atmega2560-1601: F_CPU = 16000000
 atmega2560-1601: CFLAGS += -mmcu=$(MCU)
-atmega2560-1601: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1601: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1601: PFLAGS += -DSF_ENABLE_PPM
 atmega2560-1601: PFLAGS += -DSF_ENABLE_PWM
 atmega2560-1601: PFLAGS += -DSF_ENABLE_CIT
+atmega2560-1601: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1601: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1601: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1601: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1601: PFLAGS += -DSF_ENABLE_DEV
 atmega2560-1601: PFLAGS += -DSF_ENABLE_PTC
 atmega2560-1601: PFLAGS += -DSF_ENABLE_PTT
 atmega2560-1601: PFLAGS += -DSF_ENABLE_STV
@@ -1224,23 +633,21 @@ atmega2560-1601-isp: ISP_MCU = m2560
 atmega2560-1601-isp: ISP_PROG = stk500v2
 atmega2560-1601-isp: avr-flash
 
+
 atmega2560-1602: MCU = atmega2560
 atmega2560-1602: F_CPU = 16000000
 atmega2560-1602: CFLAGS += -mmcu=$(MCU)
-atmega2560-1602: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1602: PFLAGS += -DSF_ENABLE_PPM
 atmega2560-1602: PFLAGS += -DSF_ENABLE_PWM
 atmega2560-1602: PFLAGS += -DSF_ENABLE_CIT
+atmega2560-1602: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1602: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1602: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1602: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1602: PFLAGS += -DSF_ENABLE_DEV
 atmega2560-1602: PFLAGS += -DSF_ENABLE_PTC
 atmega2560-1602: PFLAGS += -DSF_ENABLE_PTT
 atmega2560-1602: PFLAGS += -DSF_ENABLE_STV
 atmega2560-1602: PFLAGS += -DSF_ENABLE_VFC
 atmega2560-1602: PFLAGS += -DSF_ENABLE_SWC
 atmega2560-1602: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1602: PFLAGS += -DSF_ENABLE_SPI
 atmega2560-1602: TARGET = atmega2560-1602
 atmega2560-1602: $(TPATH)/atmega2560-1602/pulsefire.hex
 $(TPATH)/atmega2560-1602/pulsefire.hex:
@@ -1258,22 +665,17 @@ atmega2560-1602-isp: avr-flash
 atmega2560-1603: MCU = atmega2560
 atmega2560-1603: F_CPU = 16000000
 atmega2560-1603: CFLAGS += -mmcu=$(MCU)
-atmega2560-1603: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1603: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1603: PFLAGS += -DSF_ENABLE_PPM
 atmega2560-1603: PFLAGS += -DSF_ENABLE_PWM
 atmega2560-1603: PFLAGS += -DSF_ENABLE_CIT
+atmega2560-1603: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1603: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1603: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1603: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1603: PFLAGS += -DSF_ENABLE_DEV
 atmega2560-1603: PFLAGS += -DSF_ENABLE_PTC
 atmega2560-1603: PFLAGS += -DSF_ENABLE_PTT
 atmega2560-1603: PFLAGS += -DSF_ENABLE_STV
 atmega2560-1603: PFLAGS += -DSF_ENABLE_VFC
 atmega2560-1603: PFLAGS += -DSF_ENABLE_SWC
 atmega2560-1603: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1603: PFLAGS += -DSF_ENABLE_EXT_OUT
+atmega2560-1603: PFLAGS += -DSF_ENABLE_LCD
 atmega2560-1603: TARGET = atmega2560-1603
 atmega2560-1603: $(TPATH)/atmega2560-1603/pulsefire.hex
 $(TPATH)/atmega2560-1603/pulsefire.hex:
@@ -1291,191 +693,60 @@ atmega2560-1603-isp: avr-flash
 atmega2560-1604: MCU = atmega2560
 atmega2560-1604: F_CPU = 16000000
 atmega2560-1604: CFLAGS += -mmcu=$(MCU)
-atmega2560-1604: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1604: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1604: PFLAGS += -DSF_ENABLE_PPM
 atmega2560-1604: PFLAGS += -DSF_ENABLE_PWM
 atmega2560-1604: PFLAGS += -DSF_ENABLE_CIT
+atmega2560-1604: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1604: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1604: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1604: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1604: PFLAGS += -DSF_ENABLE_DEV
 atmega2560-1604: PFLAGS += -DSF_ENABLE_PTC
 atmega2560-1604: PFLAGS += -DSF_ENABLE_PTT
 atmega2560-1604: PFLAGS += -DSF_ENABLE_STV
 atmega2560-1604: PFLAGS += -DSF_ENABLE_VFC
 atmega2560-1604: PFLAGS += -DSF_ENABLE_SWC
 atmega2560-1604: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1604: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega2560-1604: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega2560-1604: TARGET = atmega2560-1603
-atmega2560-1604: $(TPATH)/atmega2560-1603/pulsefire.hex
-$(TPATH)/atmega2560-1603/pulsefire.hex:
+atmega2560-1604: PFLAGS += -DSF_ENABLE_LCD
+atmega2560-1604: PFLAGS += -DSF_ENABLE_SPI
+atmega2560-1604: TARGET = atmega2560-1604
+atmega2560-1604: $(TPATH)/atmega2560-1604/pulsefire.hex
+$(TPATH)/atmega2560-1604/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
 	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-atmega2560-1604-isp: atmega2560-1603
-atmega2560-1604-isp: TARGET = atmega2560-1603
+atmega2560-1604-isp: atmega2560-1604
+atmega2560-1604-isp: TARGET = atmega2560-1604
 atmega2560-1604-isp: ISP_MCU = m2560
 atmega2560-1604-isp: ISP_PROG = stk500v2
 atmega2560-1604-isp: avr-flash
 
 
-atmega2560-1605: MCU = atmega2560
-atmega2560-1605: F_CPU = 16000000
-atmega2560-1605: CFLAGS += -mmcu=$(MCU)
-atmega2560-1605: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1605: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1605: PFLAGS += -DSF_ENABLE_PPM
-atmega2560-1605: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1605: PFLAGS += -DSF_ENABLE_CIT
-atmega2560-1605: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_DEV
-atmega2560-1605: PFLAGS += -DSF_ENABLE_PTC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_PTT
-atmega2560-1605: PFLAGS += -DSF_ENABLE_STV
-atmega2560-1605: PFLAGS += -DSF_ENABLE_VFC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_SWC
-atmega2560-1605: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega2560-1605: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega2560-1605: TARGET = atmega2560-1605
-atmega2560-1605: $(TPATH)/atmega2560-1605/pulsefire.hex
-$(TPATH)/atmega2560-1605/pulsefire.hex:
+atmega2560-1691: MCU = atmega2560
+atmega2560-1691: F_CPU = 16000000
+atmega2560-1691: CFLAGS += -mmcu=$(MCU)
+atmega2560-1691: PFLAGS += -DSF_ENABLE_ADC
+atmega2560-1691: PFLAGS += -DSF_ENABLE_CIT
+atmega2560-1691: PFLAGS += -DSF_ENABLE_CIP
+atmega2560-1691: PFLAGS += -DSF_ENABLE_MAL
+atmega2560-1691: PFLAGS += -DSF_ENABLE_SPI
+atmega2560-1691: TARGET = atmega2560-1691
+atmega2560-1691: $(TPATH)/atmega2560-1691/pulsefire.hex
+$(TPATH)/atmega2560-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
 	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
-atmega2560-1605-isp: atmega2560-1605
-atmega2560-1605-isp: TARGET = atmega2560-1605
-atmega2560-1605-isp: ISP_MCU = m2560
-atmega2560-1605-isp: ISP_PROG = stk500v2
-atmega2560-1605-isp: avr-flash
-
-
-atmega2560-1606: MCU = atmega2560
-atmega2560-1606: F_CPU = 16000000
-atmega2560-1606: CFLAGS += -mmcu=$(MCU)
-atmega2560-1606: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1606: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1606: PFLAGS += -DSF_ENABLE_PPM
-atmega2560-1606: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1606: PFLAGS += -DSF_ENABLE_CIT
-atmega2560-1606: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_DEV
-atmega2560-1606: PFLAGS += -DSF_ENABLE_PTC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_PTT
-atmega2560-1606: PFLAGS += -DSF_ENABLE_STV
-atmega2560-1606: PFLAGS += -DSF_ENABLE_VFC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_SWC
-atmega2560-1606: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega2560-1606: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
-atmega2560-1606: TARGET = atmega2560-1606
-atmega2560-1606: $(TPATH)/atmega2560-1606/pulsefire.hex
-$(TPATH)/atmega2560-1606/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega2560-1606-isp: atmega2560-1606
-atmega2560-1606-isp: TARGET = atmega2560-1606
-atmega2560-1606-isp: ISP_MCU = m2560
-atmega2560-1606-isp: ISP_PROG = stk500v2
-atmega2560-1606-isp: avr-flash
-
-
-atmega2560-1607: MCU = atmega2560
-atmega2560-1607: F_CPU = 16000000
-atmega2560-1607: CFLAGS += -mmcu=$(MCU)
-atmega2560-1607: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1607: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1607: PFLAGS += -DSF_ENABLE_PPM
-atmega2560-1607: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1607: PFLAGS += -DSF_ENABLE_CIT
-atmega2560-1607: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_DEV
-atmega2560-1607: PFLAGS += -DSF_ENABLE_PTC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_PTT
-atmega2560-1607: PFLAGS += -DSF_ENABLE_STV
-atmega2560-1607: PFLAGS += -DSF_ENABLE_VFC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_SWC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_OUT
-atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_OUT_16BIT
-atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD
-atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC
-atmega2560-1607: PFLAGS += -DSF_ENABLE_EXT_LCD_DOC_16BIT
-atmega2560-1607: TARGET = atmega2560-1607
-atmega2560-1607: $(TPATH)/atmega2560-1607/pulsefire.hex
-$(TPATH)/atmega2560-1607/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega2560-1607-isp: atmega2560-1607
-atmega2560-1607-isp: TARGET = atmega2560-1607
-atmega2560-1607-isp: ISP_MCU = m2560
-atmega2560-1607-isp: ISP_PROG = stk500v2
-atmega2560-1607-isp: avr-flash
-
-
-atmega2560-1608: MCU = atmega2560
-atmega2560-1608: F_CPU = 16000000
-atmega2560-1608: CFLAGS += -mmcu=$(MCU)
-atmega2560-1608: PFLAGS += -DSF_ENABLE_LCD
-atmega2560-1608: PFLAGS += -DSF_ENABLE_GLCD
-atmega2560-1608: PFLAGS += -DSF_ENABLE_LPM
-atmega2560-1608: PFLAGS += -DSF_ENABLE_PPM
-atmega2560-1608: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1608: PFLAGS += -DSF_ENABLE_CIT
-atmega2560-1608: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_DIC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_DOC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_DEV
-atmega2560-1608: PFLAGS += -DSF_ENABLE_PTC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_PTT
-atmega2560-1608: PFLAGS += -DSF_ENABLE_STV
-atmega2560-1608: PFLAGS += -DSF_ENABLE_VFC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_SWC
-atmega2560-1608: PFLAGS += -DSF_ENABLE_MAL
-atmega2560-1608: TARGET = atmega2560-1608
-atmega2560-1608: $(TPATH)/atmega2560-1608/pulsefire.hex
-$(TPATH)/atmega2560-1608/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega2560-1608-isp: atmega2560-1608
-atmega2560-1608-isp: TARGET = atmega2560-1608
-atmega2560-1608-isp: ISP_MCU = m2560
-atmega2560-1608-isp: ISP_PROG = stk500v2
-atmega2560-1608-isp: avr-flash
-
+atmega2560-1691-isp: atmega2560-1691
+atmega2560-1691-isp: TARGET = atmega2560-1691
+atmega2560-1691-isp: ISP_MCU = m2560
+atmega2560-1691-isp: ISP_PROG = stk500v2
+atmega2560-1691-isp: avr-flash
 
 
 arm-lpc1343-7201: MCU = cortex-m3
 arm-lpc1343-7201: F_CPU = 72000000
 arm-lpc1343-7201: CFLAGS += -mcpu=$(MCU) -mthumb
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_LCD
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_LPM
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PPM
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PWM
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_CIT
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_ADC
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DIC
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DOC
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_DEV
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTC
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTT
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_STV

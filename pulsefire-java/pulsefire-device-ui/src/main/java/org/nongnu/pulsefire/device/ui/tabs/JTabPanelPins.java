@@ -86,22 +86,13 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		
-		ioPanel.add(new JCommandLabel	(CommandName.avr_pin18_map));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin18_map));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_port_a));
+		ioPanel.add(new JCommandComboBox(CommandName.avr_port_a));
 		
-		ioPanel.add(new JCommandLabel	(CommandName.avr_pin19_map));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin19_map));
+		ioPanel.add(new JCommandLabel	(CommandName.avr_port_c));
+		ioPanel.add(new JCommandComboBox(CommandName.avr_port_c));
 		
-		ioPanel.add(new JCommandLabel	(CommandName.avr_pin47_map));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin47_map));
-		
-		ioPanel.add(new JCommandLabel	(CommandName.avr_pin48_map));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin48_map));
-		
-		ioPanel.add(new JCommandLabel	(CommandName.avr_pin49_map));
-		ioPanel.add(new JCommandComboBox(CommandName.avr_pin49_map));
-		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
+		SpringLayoutGrid.makeCompactGrid(ioPanel,2,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

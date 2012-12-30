@@ -27,21 +27,19 @@
 
 // External defines for building PulseFire custum fit.
 // SoftwareFlags to enable features by the build, see makefile.
-#//define SF_ENABLE_SPI               // enable spi code       (+...)
-#//define SF_ENABLE_PWM               // enable pwm code       (+...) !! note no dep check
+#//define SF_ENABLE_PWM               // enable pwm code       (+...)
 #//define SF_ENABLE_CIT               // enable cit code       (+...)
 #//define SF_ENABLE_CIP               // enable cip code       (+...) (DEP: MEGA)
-#//define SF_ENABLE_LCD               // enable lcd output     (+3520)
-#//define SF_ENABLE_GLCD              // enable glcd output    (+...) (deps on MEGA !!)
-#//define SF_ENABLE_LPM               // enable lpm code       (+2094) (DEP: DIC & DOC)
-#//define SF_ENABLE_ADC               // enable adc code       (+952)
+#//define SF_ENABLE_ADC               // enable adc code       (+...)
 #//define SF_ENABLE_PTC               // enable ptc timers     (+...)
 #//define SF_ENABLE_PTT               // enable ptt timers     (+...)
 #//define SF_ENABLE_STV               // enable stv code       (+...)
 #//define SF_ENABLE_VFC               // enable vfc code       (+...)
-#//define SF_ENABLE_SWC               // enable soft warmup    (+480) (DEP: PWM)
-#//define SF_ENABLE_MAL               // enable mal code       (+2250)
-#//define SF_ENABLE_DEBUG             // enable some debug     (+1044)
+#//define SF_ENABLE_SWC               // enable soft warmup    (+...)
+#//define SF_ENABLE_MAL               // enable mal code       (+...)
+#//define SF_ENABLE_SPI               // enable spi code       (+...)
+#//define SF_ENABLE_LCD               // enable lcd output     (+...)
+#//define SF_ENABLE_DEBUG             // enable some debug     (+...)
 
 // Customizable data
 #define LCD_INIT_MSG_TIME         555    // Welcome message timeout

@@ -61,7 +61,7 @@ public enum CommandName {
 	sys_id					(CommandVariableType.CONF),
 	sys_pass				(CommandVariableType.CONF),
 	
-	spi_mode				(CommandVariableType.CONF,WireChipFlags.SPI),
+	spi_chips				(CommandVariableType.CONF,WireChipFlags.SPI),
 	spi_clock				(CommandVariableType.CONF,WireChipFlags.SPI),
 	
 	pulse_enable			(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -151,11 +151,8 @@ public enum CommandName {
 	avr_pin4_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin5_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	
-	avr_pin18_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
-	avr_pin19_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
-	avr_pin47_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
-	avr_pin48_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
-	avr_pin49_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_port_a				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_port_c				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	lcd_defp				(CommandVariableType.CONF,WireChipFlags.LCD),
@@ -308,6 +305,13 @@ public enum CommandName {
 	stv_mode_org			(CommandVariableType.PROG),
 	stv_map_idx				(CommandVariableType.PROG),
 	
+	// Deleted command v1.1
+	avr_pin18_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin19_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin47_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin48_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	avr_pin49_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	
 	// Deleted commands v1.0
 	freq_pwm_data			(CommandVariableType.FREQ), // renamed
 	pulse_data				(CommandVariableType.DATA),
@@ -326,6 +330,7 @@ public enum CommandName {
 	
 	private CommandVariableType type = null;
 	protected WireChipFlags chipFlagDependency = null;
+	protected int id = -1;
 	protected int maxValue = 65535;
 	protected int maxIndexA = -1;
 	protected int maxIndexB = -1;
@@ -397,6 +402,10 @@ public enum CommandName {
 
 	public int getMapIndex() {
 		return mapIndex;
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 	public boolean isMapIndexTrigger() {

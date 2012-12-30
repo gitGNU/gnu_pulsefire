@@ -230,6 +230,9 @@ public class SerialDeviceWireThread extends Thread {
 		} else if (scannedInput.startsWith("idx.")) {
 			scannedInput = scannedInput.substring(4);
 			t = 3;
+		} else if (scannedInput.startsWith("idg.")) {
+			scannedInput = scannedInput.substring(4);
+			t = 4;
 		}
 		Command cmd = null;
 		try {
@@ -308,6 +311,8 @@ public class SerialDeviceWireThread extends Thread {
 			if (cmd.getArgu1()!=null && "null".equals(cmd.getArgu1())==false) {
 				CommandNameVersionFactory.configCommandMaxIndexB(deviceVersion, cmdName, new Integer(cmd.getArgu1()));
 			}
+		} else if (t==4) {
+			CommandNameVersionFactory.configCommandId(deviceVersion, cmdName, value);
 		}
 	}
 	

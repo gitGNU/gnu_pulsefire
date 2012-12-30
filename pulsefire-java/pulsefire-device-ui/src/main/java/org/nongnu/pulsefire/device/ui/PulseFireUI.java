@@ -37,9 +37,11 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -347,6 +349,49 @@ public class PulseFireUI extends SingleFrameApplication {
 				Color colorValue = Color.decode(value);
 				UIManager.put(key,colorValue);
 			}
+			
+			// Invert focus painters
+			List<Object> keys = new ArrayList<Object>(UIManager.getLookAndFeelDefaults().keySet());
+			for (Object keyObj:keys) {
+				if ((keyObj instanceof String)==false) {
+					continue;
+				}
+				String key = (String)keyObj;
+				
+				if (key.endsWith("[Focused].backgroundPainter")==false & key.endsWith("[Focused].iconPainter")==false) {
+					continue;
+				}
+				String preKey = key.substring(0,key.indexOf("["));
+				String postKey = "backgroundPainter";
+				if (key.contains("iconPainter")) {
+					postKey = "iconPainter";
+				}
+				
+				logger.finer("Flipping painters of key: "+preKey);
+				
+				Object focusPainter = UIManager.getLookAndFeelDefaults().get(preKey+"[Focused]."+postKey);
+				Object mouseOverPainter = UIManager.getLookAndFeelDefaults().get(preKey+"[MouseOver]."+postKey);
+				UIManager.getLookAndFeelDefaults().put(preKey+"[Focused]."+postKey,mouseOverPainter);
+				UIManager.getLookAndFeelDefaults().put(preKey+"[MouseOver]."+postKey,focusPainter);
+				
+				if (key.contains("iconPainter")) {
+					Object focusPainterSelected = UIManager.getLookAndFeelDefaults().get(preKey+"[Focused+Selected]."+postKey);
+					Object mouseOverPainterSelected = UIManager.getLookAndFeelDefaults().get(preKey+"[MouseOver+Selected]."+postKey);
+					UIManager.getLookAndFeelDefaults().put(preKey+"[Focused+Selected]."+postKey,mouseOverPainterSelected);
+					UIManager.getLookAndFeelDefaults().put(preKey+"[MouseOver+Selected]."+postKey,focusPainterSelected);
+				}
+			}
+			/*
+			Object tabFocusPainter = UIManager.getLookAndFeelDefaults().get("TabbedPane:TabbedPaneTab[Focused+MouseOver+Selected].backgroundPainter");
+			Object tabMouseOverPainter = UIManager.getLookAndFeelDefaults().get("TabbedPane:TabbedPaneTab[Enabled+MouseOver].backgroundPainter");
+			UIManager.getLookAndFeelDefaults().put("TabbedPane:TabbedPaneTab[Focused+MouseOver+Selected].backgroundPainter",tabMouseOverPainter);
+			UIManager.getLookAndFeelDefaults().put("TabbedPane:TabbedPaneTab[Enabled+MouseOver].backgroundPainter",tabFocusPainter);
+			
+			Object tabPressedFocusPainter = UIManager.getLookAndFeelDefaults().get("TabbedPane:TabbedPaneTab[Focused+Pressed+Selected].backgroundPainter");
+			Object tabPressedMouseOverPainter = UIManager.getLookAndFeelDefaults().get("TabbedPane:TabbedPaneTab[Pressed+Selected].backgroundPainter");
+			UIManager.getLookAndFeelDefaults().put("TabbedPane:TabbedPaneTab[Focused+Pressed+Selected].backgroundPainter",tabPressedMouseOverPainter);
+			UIManager.getLookAndFeelDefaults().put("TabbedPane:TabbedPaneTab[Pressed+Selected].backgroundPainter",tabPressedFocusPainter);
+			*/
 		} catch (IOException e) {
 			logger.warning("Could not load color schema: "+colorName+" error: "+e.getMessage());
 		} finally {

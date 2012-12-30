@@ -131,7 +131,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		});
 		filterPanel.add(filterIndexedCheckBox);
 		filterPanel.add(new JLabel("Data"));
-		JComboBox filterDataBox = new JComboBox(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX"});
+		JComboBox filterDataBox = new JComboBox(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX","ID"});
 		filterDataBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -300,6 +300,8 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 					return cmd.getCommandName().getMaxIndexB();
 				} else if (filterData==4) {
 					return cmd.getCommandName().getMaxValue();
+				} else if (filterData==5) {
+					return cmd.getCommandName().getId();
 				} else {
 					return "";
 				}

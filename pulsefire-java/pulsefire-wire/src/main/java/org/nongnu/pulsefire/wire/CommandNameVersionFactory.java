@@ -32,6 +32,9 @@ public class CommandNameVersionFactory {
 
 	static public final int CURRENT_VERSION = 11;
 	
+	static public void configCommandId(int version,CommandName commandName,int value) {
+		commandName.id=value;
+	}
 	static public void configCommandMax(int version,CommandName commandName,int value) {
 		commandName.maxValue=value;
 	}
@@ -194,11 +197,83 @@ public class CommandNameVersionFactory {
 				"B_CLEAR",
 				"B_SET"
 			};
+
+		CommandName.cip_0clock.listValues = new String[] {
+				"STOP",
+				"ON_1",
+				"ON_8",
+				"ON_32",
+				"ON_64",
+				"ON_128",
+				"ON_256",
+				"ON_1024"
+			};
+		CommandName.cip_0mode.listValues = new String[] {
+				"NORMAL",
+				"PWM_TOP",
+				"CTC",
+				"PWM_FAST",
+				"RESERVED",
+				"PWM_OCRA",
+				"RESERVED",
+				"PWM_OCRA_RV"
+			};		
+		CommandName.cip_0a_com.listValues = new String[] {
+				"A_NONE",
+				"A_TOGGLE",
+				"A_CLEAR",
+				"A_SET"
+			};
+		CommandName.cip_0b_com.listValues = new String[] {
+				"B_NONE",
+				"B_TOGGLE",
+				"B_CLEAR",
+				"B_SET"
+			};
+		CommandName.cip_0c_com.listValues = new String[] {
+				"B_NONE",
+				"B_TOGGLE",
+				"B_CLEAR",
+				"B_SET"
+			};
+		
+		CommandName.cip_1clock.listValues = CommandName.cip_0clock.listValues;
+		CommandName.cip_1mode.listValues  = CommandName.cip_0mode.listValues;
+		CommandName.cip_1a_com.listValues = CommandName.cip_0a_com.listValues;
+		CommandName.cip_1b_com.listValues = CommandName.cip_0b_com.listValues;
+		CommandName.cip_1c_com.listValues = CommandName.cip_0c_com.listValues;
+		
+		CommandName.cip_2clock.listValues = CommandName.cip_0clock.listValues;
+		CommandName.cip_2mode.listValues  = CommandName.cip_0mode.listValues;
+		CommandName.cip_2a_com.listValues = CommandName.cip_0a_com.listValues;
+		CommandName.cip_2b_com.listValues = CommandName.cip_0b_com.listValues;
+		CommandName.cip_2c_com.listValues = CommandName.cip_0c_com.listValues;
 		
 		CommandName.lcd_size.listValues = new String[] {
 				"LCD_2x16",
 				"LCD_2x20",
 				"LCD_4x20"
+			};
+		CommandName.lcd_defp.listValues = new String[] {
+				"PAGE_MAIN",
+				"PAGE_ADC",
+				"PAGE_DIC",
+				"PAGE_PLP"
+			};
+		CommandName.lcd_mode.listValues = new String[] {
+				"MENU_OFF",
+				"MENU_PAGE",
+				"MENU_2BUTTON",
+				"MENU_4BUTTON"
+			};
+		
+		CommandName.spi_clock.listValues = new String[] {
+				"/0",
+				"/8",
+				"/16",
+				"/32",
+				"/64",
+				"/128"
 			};
 
 		CommandName.dev_volt_dot.listValues = new String[] {
@@ -250,7 +325,41 @@ public class CommandNameVersionFactory {
 				"PIN5_DOC5_OUT",
 				"PIN5_DOC11_OUT"
 			};
-	
+		
+		CommandName.avr_port_a.listValues = new String[] {
+				"PORTA_OFF",
+				"PORTA_OUT8",
+				"PORTA_DOC8"
+			};
+		
+		CommandName.avr_port_c.listValues = new String[] {
+				"PORTC_OFF",
+				"PORTC_OUT16",
+				"PORTC_DOC8",
+				"PORTC_DOC16"
+			};
+		
+		
+		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
+		CommandName.freq_pwm_data.maxIndexB=3;
+	//	CommandName.req_ptt_fire.maxIndexA=3;
+	//	CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
+	//	CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
+		
+		CommandName.req_pwm_freq.disabled=true;
+		CommandName.swc_trig.disabled=true;
+		CommandName.swc_mode.disabled=true;
+		CommandName.swc_mode_org.disabled=true;
+		CommandName.stv_warn_mode.disabled=true;
+		CommandName.stv_error_mode.disabled=true;
+		return true;
+	}
+
+	static private boolean configVersion10() {
+		
+		// Config like current
+		configCurrentVersion();
+		
 		CommandName.avr_pin18_map.listValues = new String[] {
 				"PIN18_OFF",
 				"PIN18_TRIG_IN",
@@ -293,26 +402,6 @@ public class CommandNameVersionFactory {
 				"PIN49_DOC5_OUT",
 				"PIN49_DOC7_OUT"
 			};
-		
-		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
-		CommandName.freq_pwm_data.maxIndexB=3;
-	//	CommandName.req_ptt_fire.maxIndexA=3;
-	//	CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
-	//	CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
-		
-		CommandName.req_pwm_freq.disabled=true;
-		CommandName.swc_trig.disabled=true;
-		CommandName.swc_mode.disabled=true;
-		CommandName.swc_mode_org.disabled=true;
-		CommandName.stv_warn_mode.disabled=true;
-		CommandName.stv_error_mode.disabled=true;
-		return true;
-	}
-
-	static private boolean configVersion10() {
-		
-		// Config like current
-		configCurrentVersion();
 		
 		return true;
 	}
