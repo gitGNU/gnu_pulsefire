@@ -25,7 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.nongnu.pulsefire</groupId>
   <artifactId>pulsefire-root</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>pulsefire-root</name>
   <description>pulsefire-root is the root maven project for the pulsefire build modules.</description>
@@ -91,19 +91,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     -->
     
     <!-- Build plugin versions -->
-    <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
     <maven-source-plugin.version>2.1.2</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>2.8.1</maven-javadoc-plugin.version>
-    <maven-assembly-plugin.version>2.3</maven-assembly-plugin.version>
+    <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
+    <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
-    <maven-site-plugin.version>3.0</maven-site-plugin.version>
+    <maven-site-plugin.version>3.2</maven-site-plugin.version>
     <maven-pmd-plugin.version>2.5</maven-pmd-plugin.version>
-    <maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>2.13</maven-surefire-plugin.version>
     <maven-surefire-report-plugin.version>2.5</maven-surefire-report-plugin.version>
     <maven-checkstyle-plugin.version>2.9.1</maven-checkstyle-plugin.version>
     <maven-enforcer-plugin.version>1.0-beta-1</maven-enforcer-plugin.version>
     <maven-project-info-reports-plugin.version>2.2</maven-project-info-reports-plugin.version>
-    <maven-release-plugin.version>2.2.2</maven-release-plugin.version>
+    <maven-release-plugin.version>2.4</maven-release-plugin.version>
     
     <!-- Build non-maven plugin versions -->
     <webstart-maven-plugin.version>1.0-beta-1</webstart-maven-plugin.version>
@@ -111,13 +111,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <findbugs-maven-plugin.version>2.3.1</findbugs-maven-plugin.version>
     <cobertura-maven-plugin.version>2.4</cobertura-maven-plugin.version>
     <taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
+    <docbkx-maven-plugin.version>2.0.14</docbkx-maven-plugin.version>
     
     <!-- Build lib versions -->
     <ant-contrib.version>1.0b3</ant-contrib.version>
     <ant-nodeps.version>1.8.1</ant-nodeps.version>
     
     <!-- Build test lib versions -->
-    <mockito-all.version>1.9.0</mockito-all.version>
+    <mockito-all.version>1.9.5</mockito-all.version>
     <testng.version>5.7</testng.version>
     
     <!-- Application lib versions -->
@@ -211,7 +212,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin>
         <groupId>com.agilejava.docbkx</groupId>
         <artifactId>docbkx-maven-plugin</artifactId>
-        <version>2.0.13</version>
+        <version>${docbkx-maven-plugin.version}</version>
         <configuration>
           <sourceDirectory>src/docbook/</sourceDirectory>
           <targetDirectory>target/docbook/</targetDirectory>
