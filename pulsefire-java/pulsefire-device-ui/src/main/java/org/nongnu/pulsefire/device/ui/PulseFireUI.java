@@ -403,11 +403,12 @@ public class PulseFireUI extends SingleFrameApplication {
 		return colorName;
 	}
 	
+	/**
+	 * Small hack, is called after main frame is visable so that dialog is centered on application.
+	 */
 	@Override
 	protected void ready() {
-		JMainPanel mainPanel = (JMainPanel)getMainView().getComponent(); 
-		/// mmm this can beter..
-		// small hack to make main frame visable so dialog is centered on application.
+		JMainPanel mainPanel = (JMainPanel)getMainView().getComponent();
 		mainPanel.topPanelSerial.autoConnect();
 	}
 

@@ -227,7 +227,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 #ifdef SF_ENABLE_CIP
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0clock,          (CHIP_PTR_TYPE)&pmConfCip0Clock,       8,                   PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0mode,           (CHIP_PTR_TYPE)&pmConfCip0Mode,        3,                   PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0mode,           (CHIP_PTR_TYPE)&pmConfCip0Mode,        16,                  PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0a_ocr,          (CHIP_PTR_TYPE)&pmConfCip0aOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0a_com,          (CHIP_PTR_TYPE)&pmConfCip0aCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0b_ocr,          (CHIP_PTR_TYPE)&pmConfCip0bOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
@@ -236,7 +236,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_0c_com,          (CHIP_PTR_TYPE)&pmConfCip0cCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_1clock,          (CHIP_PTR_TYPE)&pmConfCip1Clock,       8,                   PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_1mode,           (CHIP_PTR_TYPE)&pmConfCip1Mode,        3,                   PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_1mode,           (CHIP_PTR_TYPE)&pmConfCip1Mode,        16,                  PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1a_ocr,          (CHIP_PTR_TYPE)&pmConfCip1aOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1a_com,          (CHIP_PTR_TYPE)&pmConfCip1aCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1b_ocr,          (CHIP_PTR_TYPE)&pmConfCip1bOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
@@ -245,7 +245,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_1c_com,          (CHIP_PTR_TYPE)&pmConfCip1cCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_2clock,          (CHIP_PTR_TYPE)&pmConfCip2Clock,       8,                   PFVB_NONE,                      ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_2mode,           (CHIP_PTR_TYPE)&pmConfCip2Mode,        3,                   PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_2mode,           (CHIP_PTR_TYPE)&pmConfCip2Mode,        16,                  PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2a_ocr,          (CHIP_PTR_TYPE)&pmConfCip2aOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2a_com,          (CHIP_PTR_TYPE)&pmConfCip2aCom,        0xFFFF,              PFVB_NONE,                      ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.cip_2b_ocr,          (CHIP_PTR_TYPE)&pmConfCip2bOcr,        0xFFFF,              PFVB_NONE,                      ZERO},
@@ -871,6 +871,24 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0bCom)  {	Chip_reg_set(CHIP_REG_CIP0_COM_B,value);	}
 	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0cOcr)  {	Chip_reg_set(CHIP_REG_CIP0_OCR_C,value);	}
 	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0cCom)  {	Chip_reg_set(CHIP_REG_CIP0_COM_C,value);	}
+
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1Clock) {	Chip_reg_set(CHIP_REG_CIP1_CLOCK,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1Mode)  {	Chip_reg_set(CHIP_REG_CIP1_MODE,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1aOcr)  {	Chip_reg_set(CHIP_REG_CIP1_OCR_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1aCom)  {	Chip_reg_set(CHIP_REG_CIP1_COM_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1bOcr)  {	Chip_reg_set(CHIP_REG_CIP1_OCR_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1bCom)  {	Chip_reg_set(CHIP_REG_CIP1_COM_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1cOcr)  {	Chip_reg_set(CHIP_REG_CIP1_OCR_C,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip1cCom)  {	Chip_reg_set(CHIP_REG_CIP1_COM_C,value);	}
+
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2Clock) {	Chip_reg_set(CHIP_REG_CIP2_CLOCK,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2Mode)  {	Chip_reg_set(CHIP_REG_CIP2_MODE,value);		}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2aOcr)  {	Chip_reg_set(CHIP_REG_CIP2_OCR_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2aCom)  {	Chip_reg_set(CHIP_REG_CIP2_COM_A,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2bOcr)  {	Chip_reg_set(CHIP_REG_CIP2_OCR_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2bCom)  {	Chip_reg_set(CHIP_REG_CIP2_COM_B,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2cOcr)  {	Chip_reg_set(CHIP_REG_CIP2_OCR_C,value);	}
+	if ( varName == (CHIP_PTR_TYPE)&pmConfCip2cCom)  {	Chip_reg_set(CHIP_REG_CIP2_COM_C,value);	}
 #endif
 	if (trig==false) {
 		return value; // no update of triggers

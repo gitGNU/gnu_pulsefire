@@ -63,14 +63,14 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 27    OUT     PA5         <--         <--         <--
 - 28    OUT     PA6         <--         <--         <--
 - 29    OUT     PA7         <--         <--         <--
-- 30    OUT     PC0         <--         <--         <--         avr_port_c
-- 31    OUT     PC1         <--         <--         <--
-- 32    OUT     PC2         <--         <--         <--
-- 33    OUT     PC3         <--         <--         <--
-- 34    OUT     PC4         <--         LCD-D0      LCD-D0
-- 35    OUT     PC5         <--         LCD-D1      LCD-D1
-- 36    OUT     PC6         <--         LCD-D2      LCD-D2
-- 37    OUT     PC7         <--         LCD-D3      LCD-D3
+- 30    OUT     PC7         <--         LCD-D3      LCD-D3      avr_port_c
+- 31    OUT     PC6         <--         LCD-D2      LCD-D2
+- 32    OUT     PC5         <--         LCD-D1      LCD-D1
+- 33    OUT     PC4         <--         LCD-D0      LCD-D0
+- 34    OUT     PC3         <--         <--         <--
+- 35    OUT     PC2         <--         <--         <--
+- 36    OUT     PC1         <--         <--         <--
+- 37    OUT     PC0         <--         <--         <--
 - 38    OUT     free        free        LCD-RS      LCD-RS
 - 39    OUT     free        free        LCD-E       LCD-E
 - 40    OUT     DIC-MUX1    <--         <--         <--
@@ -100,7 +100,7 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 #define IO_MEGA_PORT_A           &PORTA // PIN 22-29
 #define IO_MEGA_PORT_C           &PORTC // PIN 30-37
 
-#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN 34-37 = D0-D3 (if no lcd then OUT/DOC 8-15)
+#define IO_MEGA_LCD_DATA_PORT    &PORTC // PIN  = D0-D3 (if no lcd then OUT/DOC 8-15)
 #define IO_MEGA_LCD_RS_PORT      &PORTG //
 #define IO_MEGA_LCD_RS_PIN           2  // PIN 38
 #define IO_MEGA_LCD_E_PORT       &PORTD
@@ -188,28 +188,54 @@ void Chip_setup(void) {
 
 	// Timer2 8bit timer used CIT
 #ifdef SF_ENABLE_CIT
-	OCR2A  = 0xFF;OCR2B  = 0xFF;
-	TCCR2A = ZERO;TCCR2B = ZERO;
+	DDRH |= (1<<PINH6); // OC2B
+	DDRB |= (1<<PINB4); // OC2A
+
+	//OCR2A  = 0xFF;OCR2B  = 0xFF;
+	//TCCR2A = ZERO;TCCR2B = ZERO;
 	//TIMSK2|= (ONE << TOIE2);
 	//TIMSK2|= (ONE << OCF2A);
 	//TIMSK2|= (ONE << OCF2B);
+	Chip_reg_set(CHIP_REG_CIT0_CLOCK,	pf_conf.cit_0clock);
+	Chip_reg_set(CHIP_REG_CIT0_MODE,	pf_conf.cit_0mode);
+	Chip_reg_set(CHIP_REG_CIT0_INT,		pf_conf.cit_0int);
+	Chip_reg_set(CHIP_REG_CIT0_OCR_A,	pf_conf.cit_0a_ocr);
+	Chip_reg_set(CHIP_REG_CIT0_COM_A,	pf_conf.cit_0a_com);
+	Chip_reg_set(CHIP_REG_CIT0_OCR_B,	pf_conf.cit_0b_ocr);
+	Chip_reg_set(CHIP_REG_CIT0_COM_B,	pf_conf.cit_0b_com);
 #endif
 
 #ifdef SF_ENABLE_CIP
-	ICR1 = 0xFFFF;OCR1A = 0xFFFF;OCR1B = 0xFFFF;
-	TCNT1  = ZERO;
-	TCCR1A = ZERO;
-	TCCR1B = pf_conf.cip_0clock & 7;
+	DDRE |= (1<<PINE3)|(1<<PINE4)|(1<<PINE5); // OC3A,OC3B,OC3C - cip1
+	DDRH |= (1<<PINH3)|(1<<PINH4)|(1<<PINH5); // OC4A,OC4B,OC4C - cip2
+	DDRB |= (1<<PINB5)|(1<<PINB6)|(1<<PINB7); // OC1A,OC1B,OC1C - cip0
 
-	ICR3 = 0xFFFF;OCR3A = 0xFFFF;OCR3B = 0xFFFF;
-	TCNT3  = ZERO;
-	TCCR3A = ZERO;
-	TCCR3B = pf_conf.cip_1clock & 7;
+	Chip_reg_set(CHIP_REG_CIP0_CLOCK,	pf_conf.cip_0clock);
+	Chip_reg_set(CHIP_REG_CIP0_MODE,	pf_conf.cip_0mode);
+	Chip_reg_set(CHIP_REG_CIP0_OCR_A,	pf_conf.cip_0a_ocr);
+	Chip_reg_set(CHIP_REG_CIP0_COM_A,	pf_conf.cip_0a_com);
+	Chip_reg_set(CHIP_REG_CIP0_OCR_B,	pf_conf.cip_0b_ocr);
+	Chip_reg_set(CHIP_REG_CIP0_COM_B,	pf_conf.cip_0b_com);
+	Chip_reg_set(CHIP_REG_CIP0_OCR_C,	pf_conf.cip_0c_ocr);
+	Chip_reg_set(CHIP_REG_CIP0_COM_C,	pf_conf.cip_0c_com);
 
-	ICR4 = 0xFFFF;OCR4A = 0xFFFF;OCR4B = 0xFFFF;
-	TCNT4  = ZERO;
-	TCCR4A = ZERO;
-	TCCR4B = pf_conf.cip_2clock & 7;
+	Chip_reg_set(CHIP_REG_CIP1_CLOCK,	pf_conf.cip_1clock);
+	Chip_reg_set(CHIP_REG_CIP1_MODE,	pf_conf.cip_1mode);
+	Chip_reg_set(CHIP_REG_CIP1_OCR_A,	pf_conf.cip_1a_ocr);
+	Chip_reg_set(CHIP_REG_CIP1_COM_A,	pf_conf.cip_1a_com);
+	Chip_reg_set(CHIP_REG_CIP1_OCR_B,	pf_conf.cip_1b_ocr);
+	Chip_reg_set(CHIP_REG_CIP1_COM_B,	pf_conf.cip_1b_com);
+	Chip_reg_set(CHIP_REG_CIP1_OCR_C,	pf_conf.cip_1c_ocr);
+	Chip_reg_set(CHIP_REG_CIP1_COM_C,	pf_conf.cip_1c_com);
+
+	Chip_reg_set(CHIP_REG_CIP2_CLOCK,	pf_conf.cip_2clock);
+	Chip_reg_set(CHIP_REG_CIP2_MODE,	pf_conf.cip_2mode);
+	Chip_reg_set(CHIP_REG_CIP2_OCR_A,	pf_conf.cip_2a_ocr);
+	Chip_reg_set(CHIP_REG_CIP2_COM_A,	pf_conf.cip_2a_com);
+	Chip_reg_set(CHIP_REG_CIP2_OCR_B,	pf_conf.cip_2b_ocr);
+	Chip_reg_set(CHIP_REG_CIP2_COM_B,	pf_conf.cip_2b_com);
+	Chip_reg_set(CHIP_REG_CIP2_OCR_C,	pf_conf.cip_2c_ocr);
+	Chip_reg_set(CHIP_REG_CIP2_COM_C,	pf_conf.cip_2c_com);
 #endif
 
 #ifdef SF_ENABLE_PWM
@@ -367,41 +393,45 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_TCNT:		TCNT5 = value;			break;
 #endif
 #ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);			break;
-	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & 252) + (value & 3);TCCR2B = (TCCR2B & 247) + (value & 8);break; // bit 0/1 + bit 3 in B
-	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);			break;
-	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;									break;
-	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & 63)  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;									break;
-	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & 207) + ((value << 6) & 48);	break;
+	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & (0xFF-7)) + (value & 7);				break;
+	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & (0xFF-3)) + (value & 3);
+								TCCR2B = (TCCR2B & (0xFF-8)) + ((value << 1) & 8);		break; // bit 0/1 + bit 3 in B
+	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & (0xFF-7)) + (value & 7);				break;
+	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;											break;
+	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & (0xFF-192)) + ((value & 3) << 6);	break;
+	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;											break;
+	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & (0xFF-48))  + ((value & 3) << 4);	break;
 #endif
 #ifdef SF_ENABLE_CIP
-	case CHIP_REG_CIP0_CLOCK:	TCCR1B = (TCCR1B & 247) + (value & 7);			break;
-	case CHIP_REG_CIP0_MODE:	TCCR1A = (TCCR1A & 252) + (value & 3);TCCR1B = (TCCR1B & 231) + (value & 24);break; // bit 0/1 + bit 3/4 in B
-	case CHIP_REG_CIP0_OCR_A:	OCR1A = value;									break;
-	case CHIP_REG_CIP0_COM_A:	TCCR1A = (TCCR1A & 63)  + ((value << 4) & 192);	break; // bit 6/7
-	case CHIP_REG_CIP0_OCR_B:	OCR1B = value;									break;
-	case CHIP_REG_CIP0_COM_B:	TCCR1A = (TCCR1A & 207) + ((value << 6) & 48);	break; // bit 4/5
-	case CHIP_REG_CIP0_OCR_C:	OCR1C = value;									break;
-	case CHIP_REG_CIP0_COM_C:	TCCR1A = (TCCR1A & 243) + ((value << 6) & 12);	break; // bit 2/3
+	case CHIP_REG_CIP0_CLOCK:	TCCR1B = (TCCR1B & (0xFF-7))   + (value & 7);			break;
+	case CHIP_REG_CIP0_MODE:	TCCR1A = (TCCR1A & (0xFF-3))   + (value & 3);
+								TCCR1B = (TCCR1B & (0xFF-24))  + ((value << 1) & 24);	break;
+	case CHIP_REG_CIP0_OCR_A:	OCR1A = value;											break;
+	case CHIP_REG_CIP0_COM_A:	TCCR1A = (TCCR1A & (0xFF-192)) + ((value & 3) << 6);	break;
+	case CHIP_REG_CIP0_OCR_B:	OCR1B = value;											break;
+	case CHIP_REG_CIP0_COM_B:	TCCR1A = (TCCR1A & (0xFF-48))  + ((value & 3) << 4);	break;
+	case CHIP_REG_CIP0_OCR_C:	OCR1C = value;											break;
+	case CHIP_REG_CIP0_COM_C:	TCCR1A = (TCCR1A & (0xFF-12))  + ((value & 3) << 2);	break;
 
-	case CHIP_REG_CIP1_CLOCK:	TCCR3B = (TCCR3B & 247) + (value & 7);			break;
-	case CHIP_REG_CIP1_MODE:	TCCR3A = (TCCR3A & 252) + (value & 3);TCCR3B = (TCCR3B & 231) + (value & 24);break;
-	case CHIP_REG_CIP1_OCR_A:	OCR3A = value;									break;
-	case CHIP_REG_CIP1_COM_A:	TCCR3A = (TCCR3A & 63)  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIP1_OCR_B:	OCR3B = value;									break;
-	case CHIP_REG_CIP1_COM_B:	TCCR3A = (TCCR3A & 207) + ((value << 6) & 48);	break;
-	case CHIP_REG_CIP1_OCR_C:	OCR3C = value;									break;
-	case CHIP_REG_CIP1_COM_C:	TCCR3A = (TCCR3A & 243) + ((value << 6) & 12);	break;
+	case CHIP_REG_CIP1_CLOCK:	TCCR3B = (TCCR3B & (0xFF-7))   + (value & 7);			break;
+	case CHIP_REG_CIP1_MODE:	TCCR3A = (TCCR3A & (0xFF-3))   + (value & 3);
+								TCCR3B = (TCCR3B & (0xFF-24))  + ((value << 1) & 24);	break;
+	case CHIP_REG_CIP1_OCR_A:	OCR3A = value;											break;
+	case CHIP_REG_CIP1_COM_A:	TCCR3A = (TCCR3A & (0xFF-192)) + ((value & 3) << 6);	break;
+	case CHIP_REG_CIP1_OCR_B:	OCR3B = value;											break;
+	case CHIP_REG_CIP1_COM_B:	TCCR3A = (TCCR3A & (0xFF-48))  + ((value & 3) << 4);	break;
+	case CHIP_REG_CIP1_OCR_C:	OCR3C = value;											break;
+	case CHIP_REG_CIP1_COM_C:	TCCR3A = (TCCR3A & (0xFF-12))  + ((value & 3) << 2);	break;
 
-	case CHIP_REG_CIP2_CLOCK:	TCCR4B = (TCCR4B & 247) + (value & 7);			break;
-	case CHIP_REG_CIP2_MODE:	TCCR4A = (TCCR4A & 252) + (value & 3);TCCR4B = (TCCR4B & 231) + (value & 24);break;
-	case CHIP_REG_CIP2_OCR_A:	OCR4A = value;									break;
-	case CHIP_REG_CIP2_COM_A:	TCCR4A = (TCCR4A & 63)  + ((value << 4) & 192);	break;
-	case CHIP_REG_CIP2_OCR_B:	OCR4B = value;									break;
-	case CHIP_REG_CIP2_COM_B:	TCCR4A = (TCCR4A & 207) + ((value << 6) & 48);	break;
-	case CHIP_REG_CIP2_OCR_C:	OCR4C = value;									break;
-	case CHIP_REG_CIP2_COM_C:	TCCR4A = (TCCR4A & 243) + ((value << 6) & 12);	break;
+	case CHIP_REG_CIP2_CLOCK:	TCCR4B = (TCCR4B & (0xFF-7))   + (value & 7);			break;
+	case CHIP_REG_CIP2_MODE:	TCCR4A = (TCCR4A & (0xFF-3))   + (value & 3);
+								TCCR4B = (TCCR4B & (0xFF-24))  + ((value << 1) & 24);	break;
+	case CHIP_REG_CIP2_OCR_A:	OCR4A = value;											break;
+	case CHIP_REG_CIP2_COM_A:	TCCR4A = (TCCR4A & (0xFF-192)) + ((value & 3) << 6);	break;
+	case CHIP_REG_CIP2_OCR_B:	OCR4B = value;											break;
+	case CHIP_REG_CIP2_COM_B:	TCCR4A = (TCCR4A & (0xFF-48))  + ((value & 3) << 4);	break;
+	case CHIP_REG_CIP2_OCR_C:	OCR4C = value;											break;
+	case CHIP_REG_CIP2_COM_C:	TCCR4A = (TCCR4A & (0xFF-12))  + ((value & 3) << 2);	break;
 #endif
 	default:
 		break;
@@ -426,7 +456,12 @@ void Chip_out_pwm(uint16_t data) {
 	}
 	if (pf_conf.avr_port_c == PORTC_OUT16) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
+#ifdef SF_ENABLE_LCD
+		*port = (*port & 0xF0)|((data >> 8) & 0x0F);
+#else
 		*port = data >> 8;
+#endif
+
 	}
 }
 
@@ -445,7 +480,7 @@ void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
 		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ZERO);  // write command
 	}
 	volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
-	*port=(*port & 0xF0)|hn;
+	*port=(*port & 0x0F)|(hn << 4);
 	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ONE);
 	asm volatile ("nop");
 	asm volatile ("nop");
@@ -454,7 +489,7 @@ void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
 		asm volatile ("nop");
 		asm volatile ("nop");
 		volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
-		*port=(*port & 0xF0)|ln;
+		*port=(*port & 0x0F)|(ln << 4);
 		digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ONE);
 		asm volatile ("nop");
 		asm volatile ("nop");
@@ -500,10 +535,18 @@ void Chip_out_doc(void) {
 	}
 	if (pf_conf.avr_port_c == PORTC_DOC8) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
+#ifdef SF_ENABLE_LCD
+		*port= (*port & 0xF0)|((doc_out) & 0x0F);
+#else
 		*port = doc_out;
+#endif
 	} else if (pf_conf.avr_port_c == PORTC_DOC16) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
+#ifdef SF_ENABLE_LCD
+		*port= (*port & 0xF0)|((doc_out >> 8) & 0x0F);
+#else
 		*port = doc_out >> 8;
+#endif
 	}
 }
 

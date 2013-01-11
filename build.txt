@@ -40,6 +40,11 @@ java -Djava.library.path=pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-x86_
 	-P /dev/ttyACM0 -c arduino -f pulsefire-chip/src/main/c/build/atmega328p-007/pulsefire.hex
 
 
+-- Change pom.xml versions --
+
+cd project-root/;
+mvn versions:set -DnewVersion=2.3.4-SNAPSHOT
+
 -- Make release build --
 
 cd project-root/;

@@ -202,21 +202,29 @@ public class CommandNameVersionFactory {
 				"STOP",
 				"ON_1",
 				"ON_8",
-				"ON_32",
 				"ON_64",
-				"ON_128",
 				"ON_256",
-				"ON_1024"
+				"ON_1024",
+				"ON_TN_FALL",
+				"ON_TN_RISE"
 			};
 		CommandName.cip_0mode.listValues = new String[] {
 				"NORMAL",
-				"PWM_TOP",
+				"PWM_PHASE_8BIT",
+				"PWM_PHASE_9BIT",
+				"PWM_PHASE_10BIT",
 				"CTC",
-				"PWM_FAST",
+				"PWM_FAST_8BIT",
+				"PWM_FAST_9BIT",
+				"PWM_FAST_10BIT",
+				"PWM_FREQ_ICR",
+				"PWM_FREQ_OCR_A",
+				"PWM_PHASE_ICR",
+				"PWM_PHASE_OCR_A",
+				"CTC",
 				"RESERVED",
-				"PWM_OCRA",
-				"RESERVED",
-				"PWM_OCRA_RV"
+				"PWM_FAST_ICR",
+				"PWM_FAST_OCR_A"
 			};		
 		CommandName.cip_0a_com.listValues = new String[] {
 				"A_NONE",
@@ -231,10 +239,10 @@ public class CommandNameVersionFactory {
 				"B_SET"
 			};
 		CommandName.cip_0c_com.listValues = new String[] {
-				"B_NONE",
-				"B_TOGGLE",
-				"B_CLEAR",
-				"B_SET"
+				"C_NONE",
+				"C_TOGGLE",
+				"C_CLEAR",
+				"C_SET"
 			};
 		
 		CommandName.cip_1clock.listValues = CommandName.cip_0clock.listValues;
