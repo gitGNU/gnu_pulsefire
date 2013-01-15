@@ -50,8 +50,9 @@
 # error "Don't know how to run on your MCU_TYPE."
 #endif
 
-#include "vars.h"
 #include "pwm.h"
+#include "sys.h"
+#include "vars.h"
 #include "input.h"
 #include "serial.h"
 

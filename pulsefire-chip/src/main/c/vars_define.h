@@ -28,7 +28,6 @@
 // External defines for building PulseFire custum fit.
 // SoftwareFlags to enable features by the build, see makefile.
 #//define SF_ENABLE_PWM               // enable pwm code       (+...)
-#//define SF_ENABLE_CIT               // enable cit code       (+...)
 #//define SF_ENABLE_CIP               // enable cip code       (+...) (DEP: MEGA)
 #//define SF_ENABLE_ADC               // enable adc code       (+...)
 #//define SF_ENABLE_PTC               // enable ptc timers     (+...)
@@ -69,6 +68,7 @@
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
 	#define SF_ENABLE_AVR_MEGA           // Define avr mega
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
+	#define INT_MAP_MAX               4  // Set variables on interrupt.
 	#define MAL_CODE_SIZE           512  // Micro asm program code size
 	#define MAL_FIRE_MAX              6  // Micro fire jump table
 	#define FIRE_MAP_MAX              3  // Event on pulse logic
@@ -87,6 +87,7 @@
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
+	#define INT_MAP_MAX               2
 	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
 	#define FIRE_MAP_MAX              1
@@ -105,6 +106,7 @@
 #elif __AVR_ATmega168P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE        512  // 512 bytes eeprom
+	#define INT_MAP_MAX               1
 	#define MAL_CODE_SIZE            24  // note: if all on then config is >512 so todo: check smaller builds.
 	#define MAL_FIRE_MAX              1
 	#define FIRE_MAP_MAX              1
@@ -123,6 +125,7 @@
 #elif __ARM_ARCH_7M__
 	#define SF_ENABLE_ARM_7M             // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
+	#define INT_MAP_MAX               2
 	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
 	#define FIRE_MAP_MAX              1

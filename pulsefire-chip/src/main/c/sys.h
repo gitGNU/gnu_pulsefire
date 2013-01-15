@@ -13,55 +13,25 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
  * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+ // Include singleton
+#ifndef _SYS_H
+#define _SYS_H
 
-package org.nongnu.pulsefire.wire;
+#include "vars.h"
+#include "utils.h"
+#include "chip.h"
 
-/**
- * WirePulseMode describs all pulse modes.
- * 
- * @author Willem Cazander
- */
-public enum WirePulseMode {
+void Sys_time_int(void);
+void Sys_do_int(uint8_t pin_int);
+void Sys_loop(void);
 
-	OFF,
-	FLASH,
-	FLASH_ZERO,
-	TRAIN,
-	PPM;
-		
-	static public String[] getModeList() {
-		return new String[] {
-				WirePulseMode.OFF.name(),
-				WirePulseMode.FLASH.name(),
-				WirePulseMode.FLASH_ZERO.name(),
-				WirePulseMode.TRAIN.name(),
-				WirePulseMode.PPM.name()
-			};
-	}
-	static public String[] getModeList(String magicMode) {
-		return new String[] {
-				WirePulseMode.OFF.name(),
-				WirePulseMode.FLASH.name(),
-				WirePulseMode.FLASH_ZERO.name(),
-				WirePulseMode.TRAIN.name(),
-				WirePulseMode.PPM.name(),
-				magicMode
-			};
-	}
-	
-	static public WirePulseMode[] valuesOn() {
-		return new WirePulseMode[] {
-				WirePulseMode.FLASH,
-				WirePulseMode.FLASH_ZERO,
-				WirePulseMode.TRAIN,
-				WirePulseMode.PPM,
-			};
-	}
-}
+// end include
+#endif

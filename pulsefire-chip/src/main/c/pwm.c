@@ -40,7 +40,7 @@ void PWM_pulsefire(void) {
 	}
 	pf_data.pwm_state            = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
 	pf_data.pulse_step           = ZERO;                     // goto step zero
-	pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
+	//pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
 	pf_data.pulse_fire_cnt++;
 	pf_data.pulse_fire_freq_cnt++;
 	Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
@@ -146,9 +146,9 @@ boolean PWM_soft_warmup(void) {
 
 
 void PWM_pulse_mode_off(void) {
-	pf_data.pwm_data_max = 1;
-	pf_data.pwm_data[ZERO][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
-	pf_data.pwm_data[ZERO][PWM_DATA_CNT]=0xFFFF;
+	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
+	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=0xFFFF;
+	pf_data.pwm_data_max++;
 }
 
 void PWM_pulse_mode_flash_zero(void) {
@@ -161,19 +161,20 @@ void PWM_pulse_mode_flash_zero(void) {
 		pwm_on = pf_conf.pwm_on_cnt_b[ZERO];
 		pwm_off = pf_conf.pwm_off_cnt_b[ZERO];
 	}
-	pf_data.pwm_data_max = 2;
-	pf_data.pwm_data[ZERO][PWM_DATA_OUT]=PWM_filter_data(0xFFFF);
-	pf_data.pwm_data[ZERO][PWM_DATA_CNT]=pwm_on;
-	pf_data.pwm_data[ONE][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
+	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_ON);
+	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=pwm_on;
+	pf_data.pwm_data_max++;
+	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
 	if (pwm_off > ZERO ) {
-		pf_data.pwm_data[ONE][PWM_DATA_CNT]=pwm_off;
+		pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=pwm_off;
 	} else {
-		pf_data.pwm_data[ONE][PWM_DATA_CNT]=pwm_on;
+		pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=pwm_on;
 	}
+	pf_data.pwm_data_max++;
 }
 
 void PWM_pulse_mode_flash(void) {
-	uint8_t index = ZERO;
+	uint8_t index = pf_data.pwm_data_max;
 	for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
 		uint16_t pwm_on = ZERO;
 		uint16_t pwm_off = ZERO;
@@ -184,11 +185,11 @@ void PWM_pulse_mode_flash(void) {
 			pwm_on = pf_conf.pwm_on_cnt_b[i];
 			pwm_off = pf_conf.pwm_off_cnt_b[i];
 		}
-		pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0xFFFF);
+		pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_ON);
 		pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_on;
 		index++;
 		if (pwm_off > ZERO) {
-			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0x0000);
+			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
 			pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_off;
 			index++;
 		}
@@ -199,7 +200,7 @@ void PWM_pulse_mode_flash(void) {
 void PWM_pulse_mode_train(void) {
 	uint8_t pulse_dir = pf_conf.pulse_dir;
 	uint16_t pwm_data = ZERO;
-	uint8_t index = ZERO;
+	uint8_t index = pf_data.pwm_data_max;
 	for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
 		uint16_t pwm_on = ZERO;
 		uint16_t pwm_off = ZERO;
@@ -219,85 +220,18 @@ void PWM_pulse_mode_train(void) {
 		pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_on;
 		index++;
 		if (pwm_off > ZERO) {
-			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0x0000);
+			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
 			pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_off;
 			index++;
-		}
-	}
-
-	if (pulse_dir == PULSE_DIR_LRRL) {
-		for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
-			uint16_t pwm_on = ZERO;
-			uint16_t pwm_off = ZERO;
-			if (pf_conf.pulse_bank==ZERO) {
-				pwm_data = pf_conf.pulse_init_a << i;
-				pwm_on = pf_conf.pwm_on_cnt_a[i];
-				pwm_off = pf_conf.pwm_off_cnt_a[i];
-			} else {
-				pwm_data = pf_conf.pulse_init_b << i;
-				pwm_on = pf_conf.pwm_on_cnt_b[i];
-				pwm_off = pf_conf.pwm_off_cnt_b[i];
-			}
-			pf_data.pwm_data[index][PWM_DATA_OUT]=reverse_bits(PWM_filter_data(pwm_data),pf_conf.pulse_steps);
-			pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_on;
-			index++;
-			if (pwm_off > ZERO) {
-				pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0x0000);
-				pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_off;
-				index++;
-			}
 		}
 	}
 	pf_data.pwm_data_max = index;
 }
 
-/*
-boolean PWM_pulse_mode_ppm(uint8_t step_zero,boolean interleaved) {
-	// Do ppm seqence shifting
-	uint16_t out_data = ZERO;
-	if (pf_data.pulse_bank_cnt==ZERO) {
-		uint16_t ppm_data = (pf_conf.ppm_data_a[step_zero] >> pf_data.ppm_idx[step_zero]) & ONE;
-		out_data |= ppm_data << pf_data.pulse_step;
-	} else {
-		uint16_t ppm_data = (pf_conf.ppm_data_b[step_zero] >> pf_data.ppm_idx[step_zero]) & ONE;
-		out_data |= ppm_data << pf_data.pulse_step;
-	}
-
-	// do future step with offset for phasing effect
-	if (pf_conf.ppm_data_offset > ZERO && pf_conf.ppm_data_offset >= pf_data.ppm_idx[step_zero]) {
-		int off_out = step_zero + ONE;
-		if (off_out < pf_conf.pulse_steps) {
-			if (pf_data.pulse_bank_cnt==ZERO) {
-				out_data |= (((pf_conf.ppm_data_a[off_out] >> pf_data.ppm_idx[off_out]) & ONE) << off_out);
-			} else {
-				out_data |= (((pf_conf.ppm_data_b[off_out] >> pf_data.ppm_idx[off_out]) & ONE) << off_out);
-			}
-			if (pf_data.ppm_idx[off_out] >= pf_conf.ppm_data_length - ONE) {
-				pf_data.ppm_idx[off_out] = ZERO;
-			} else {
-				pf_data.ppm_idx[off_out]++;
-			}
-		}
-	}
-	pf_data.pulse_data = out_data;
-	if (pf_data.ppm_idx[step_zero] >= pf_conf.ppm_data_length - ONE) {
-		pf_data.ppm_idx[step_zero] = ZERO;
-		return true;
-	} else {
-		pf_data.ppm_idx[step_zero]++;
-		if (interleaved) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-}
-*/
-
 void PWM_pulse_mode_ppm(void) {
 	uint8_t pulse_dir = pf_conf.pulse_dir;
 	// Shift all channel data out every step.
-	uint8_t index = ZERO;
+	uint8_t index = pf_data.pwm_data_max;
 	for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
 		uint16_t pwm_data = ZERO;
 		uint16_t pwm_on = ZERO;
@@ -309,7 +243,6 @@ void PWM_pulse_mode_ppm(void) {
 			pwm_on = pf_conf.pwm_on_cnt_b[i];
 			pwm_off = pf_conf.pwm_off_cnt_b[i];
 		}
-
 		for (uint8_t p=pf_conf.ppm_data_offset;p < pf_conf.ppm_data_length;p++) {
 			uint16_t ppm_data = ZERO;
 			if (pf_conf.pulse_bank==ZERO) {
@@ -326,100 +259,138 @@ void PWM_pulse_mode_ppm(void) {
 		pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_on;
 		index++;
 		if (pwm_off > ZERO) {
-			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0x0000);
+			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
 			pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_off;
 			index++;
-		}
-	}
-	if (pulse_dir == PULSE_DIR_LRRL) {
-		for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
-			uint16_t pwm_data = ZERO;
-			uint16_t pwm_on = ZERO;
-			uint16_t pwm_off = ZERO;
-			if (pf_conf.pulse_bank==ZERO) {
-				pwm_on = pf_conf.pwm_on_cnt_a[i];
-				pwm_off = pf_conf.pwm_off_cnt_a[i];
-			} else {
-				pwm_on = pf_conf.pwm_on_cnt_b[i];
-				pwm_off = pf_conf.pwm_off_cnt_b[i];
-			}
-
-			for (uint8_t p=pf_conf.ppm_data_offset;p < pf_conf.ppm_data_length;p++) {
-				uint16_t ppm_data = ZERO;
-				if (pf_conf.pulse_bank==ZERO) {
-					ppm_data = pf_conf.ppm_data_a[p];
-				} else {
-					ppm_data = pf_conf.ppm_data_b[p];
-				}
-				pwm_data |= ((ppm_data >> i) & ONE) << p;
-			}
-			pwm_data = reverse_bits(pwm_data,pf_conf.pulse_steps);
-			pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(pwm_data);
-			pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_on;
-			index++;
-			if (pwm_off > ZERO) {
-				pf_data.pwm_data[index][PWM_DATA_OUT]=PWM_filter_data(0x0000);
-				pf_data.pwm_data[index][PWM_DATA_CNT]=pwm_off;
-				index++;
-			}
 		}
 	}
 	pf_data.pwm_data_max = index;
 }
 
+void PWM_calc_data_dir(void) {
+	if (pf_conf.pulse_dir <= PULSE_DIR_RL) {
+		return; // no extra step in LR and RL.
+	}
+	uint8_t pulse_mode = pf_conf.pulse_mode;
+	if (pulse_mode < PULSE_MODE_TRAIN) {
+		return; // only train and ppm can be reversed.
+	}
+
+	// Auto reverse pulse data
+	uint8_t index = pf_data.pwm_data_max;
+	uint8_t start_index = pf_data.pwm_data_max-ONE;
+	uint8_t stop_index = ZERO;
+	if (pf_conf.pulse_dir == PULSE_DIR_LRRL_2) {
+		start_index = start_index-1;
+		stop_index = stop_index+1; // Skip first and last step when not in full mode.
+	}
+	if (pf_conf.pulse_dir == PULSE_DIR_LRLR) {
+		for (uint8_t i=stop_index;i <= start_index;i++) {
+			uint16_t pwm_data = pf_data.pwm_data[i][PWM_DATA_OUT];
+			uint16_t pwm_cnt  = pf_data.pwm_data[i][PWM_DATA_CNT];
+			pf_data.pwm_data[index][PWM_DATA_OUT] = pwm_data;
+			pf_data.pwm_data[index][PWM_DATA_CNT] = pwm_cnt;
+			index++;
+		}
+	} else {
+		for (uint8_t i=start_index+ONE;i >= stop_index+ONE;i--) {
+			uint16_t pwm_data = pf_data.pwm_data[i-ONE][PWM_DATA_OUT];
+			uint16_t pwm_cnt  = pf_data.pwm_data[i-ONE][PWM_DATA_CNT];
+			pf_data.pwm_data[index][PWM_DATA_OUT] = pwm_data;
+			pf_data.pwm_data[index][PWM_DATA_CNT] = pwm_cnt;
+			index++;
+		}
+	}
+	pf_data.pwm_data_max = index;
+}
 
 void PWM_calc_data(void) {
-	switch (pf_conf.pulse_mode) {
-		case PULSE_MODE_FLASH_ZERO:    PWM_pulse_mode_flash_zero();         break;
-		case PULSE_MODE_FLASH:         PWM_pulse_mode_flash();              break;
-		case PULSE_MODE_TRAIN:         PWM_pulse_mode_train();              break;
-		case PULSE_MODE_PPM:           PWM_pulse_mode_ppm(); break;
-		case PULSE_MODE_PPMA:          PWM_pulse_mode_ppm();               break;
-		case PULSE_MODE_PPMI:          PWM_pulse_mode_ppm();  break;
-		case PULSE_MODE_OFF:default:   PWM_pulse_mode_off();               break;
+
+	// Reset data counter to zero
+	pf_data.pwm_data_max = ZERO;
+
+	// Calc pre delay steps
+	if (pf_conf.pulse_pre_delay > ZERO) {
+		uint8_t max = pf_conf.pulse_pre_mul;
+		for (uint8_t i=0;i < max;i++) {
+			pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
+			pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=pf_conf.pulse_pre_delay;
+			pf_data.pwm_data_max++;
+		}
+	}
+
+	// Calc pulse data based on mode.
+	uint8_t pulse_mode = pf_conf.pulse_mode;
+	switch (pulse_mode) {
+		case PULSE_MODE_FLASH_ZERO:    PWM_pulse_mode_flash_zero();    break;
+		case PULSE_MODE_FLASH:         PWM_pulse_mode_flash();         break;
+		case PULSE_MODE_TRAIN:         PWM_pulse_mode_train();         break;
+		case PULSE_MODE_PPM:           PWM_pulse_mode_ppm();           break;
+		case PULSE_MODE_OFF:default:   PWM_pulse_mode_off();           break;
+	}
+
+	// Calc reverse or dub data step
+	PWM_calc_data_dir();
+
+	// Add post delay step
+	if (pf_conf.pulse_post_delay > ZERO) {
+		uint8_t max = pf_conf.pulse_post_mul;
+		uint16_t data = PWM_filter_data(PULSE_DATA_OFF);
+		if (pf_conf.pulse_post_hold==ONE) {
+			data = pf_data.pwm_data[pf_data.pwm_data_max-ONE][PWM_DATA_OUT];
+		}
+		for (uint8_t i=0;i < max;i++) {
+			pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=data;
+			pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=pf_conf.pulse_post_delay;
+			pf_data.pwm_data_max++;
+		}
 	}
 }
 
 // Do all work per timer step cnt
 void PWM_do_work(void) {
-
-	if (pf_data.pwm_state == PWM_STATE_STEP_DUTY || pf_data.pwm_state == PWM_STATE_FIRE_HOLD) {
+	uint8_t pwm_state = pf_data.pwm_state;
+	if (pwm_state == PWM_STATE_STEP_DUTY) {
 		return; // waiting for step duty
 	}
-	if (pf_conf.pulse_trig != PULSE_TRIG_LOOP && (pf_data.pwm_state == PWM_STATE_IDLE || pf_data.pwm_state == PWM_STATE_FIRE_RESET)) {
-		return; // disable when in manuale trigger fire.
+	if (pwm_state == PWM_STATE_FIRE_HOLD) {
+		return; // wait in fire hold
+	}
+	uint8_t pulse_trig = pf_conf.pulse_trig;
+	if (pulse_trig != PULSE_TRIG_LOOP && (pwm_state == PWM_STATE_IDLE || pwm_state == PWM_STATE_FIRE_RESET)) {
+		return; // disable when in manual trigger fire.
 	}
 
 	// time step with counter
-	if (pf_conf.pwm_loop > ZERO) {
-		pf_data.pwm_loop_cnt++;
-		if (pf_data.pwm_loop_cnt <= pf_conf.pwm_loop) {
+	uint8_t pwm_loop = pf_conf.pwm_loop;
+	if (pwm_loop > ZERO) {
+		if (pf_data.pwm_loop_cnt < pwm_loop) {
+			pf_data.pwm_loop_cnt++;
 			return;
 		}
 		pf_data.pwm_loop_cnt = ZERO;
 	}
 
-	if (pf_data.pulse_step > pf_data.pwm_data_max-ONE) {
-		pf_data.pulse_step = ZERO;
-		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
-			pf_data.pwm_state = PWM_STATE_FIRE_END;         // timeout after trigger
-		} else if (pf_conf.pulse_post_delay > ZERO) {
-			pf_data.pwm_state = PWM_STATE_WAIT_POST;        // timeout after pulse train
-		}
-	} else {
-		asm volatile ("nop");
-		asm volatile ("nop");
-		asm volatile ("nop"); // todo: count set zero cycle for best timing
-	}
-	uint16_t data_out = pf_data.pwm_data[pf_data.pulse_step][PWM_DATA_OUT];
-	uint16_t data_cnt = pf_data.pwm_data[pf_data.pulse_step][PWM_DATA_CNT];
+	// Get step data and wait time
+	uint8_t pulse_step = pf_data.pulse_step;
+	uint16_t data_out = pf_data.pwm_data[pulse_step][PWM_DATA_OUT];
+	uint16_t data_cnt = pf_data.pwm_data[pulse_step][PWM_DATA_CNT];
 
+	// Set output and set registers.
+	Chip_out_pwm(data_out);
 	Chip_reg_set(CHIP_REG_PWM_OCR_A,data_cnt);
 	Chip_reg_set(CHIP_REG_PWM_TCNT,ZERO);
 
-	pf_data.pulse_step++;
-
-	Chip_out_pwm(data_out);
+	// Loop pulse steps
+	if (pulse_step >= pf_data.pwm_data_max-ONE) {
+		pulse_step = ZERO;
+		if (pulse_trig != PULSE_TRIG_LOOP) {
+			pf_data.pwm_state = PWM_STATE_FIRE_END; // timeout after trigger
+		}
+	} else {
+		pulse_step++; // Goto next step
+	}
+	pf_data.pulse_step = pulse_step;
 }
 
 
@@ -479,14 +450,7 @@ void PWM_do_work_aa(void) {
 		pf_data.pulse_step     = ZERO;                    // goto step zero
 		pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
 		pf_data.pulse_bank_cnt = pf_conf.pulse_bank;      // load pulse bank after pulse
-		if (pf_conf.pulse_dir    == PULSE_DIR_LRRL) {
-//			pf_data.pwm_loop_cnt = pf_data.pwm_loop_max;    // skip wait after reversal
-			if (pf_data.pulse_dir_cnt  == PULSE_DIR_LR) {
-				pf_data.pulse_dir_cnt     = PULSE_DIR_RL;
-			} else { 
-				pf_data.pulse_dir_cnt     = PULSE_DIR_LR;   // Auto direction reversal
-			}
-		}
+
 		if (pf_conf.pulse_trig != PULSE_TRIG_LOOP) {
 			pf_data.pwm_state = PWM_STATE_FIRE_END;         // timeout after trigger
 		} else if (pf_conf.pulse_post_delay > ZERO) {

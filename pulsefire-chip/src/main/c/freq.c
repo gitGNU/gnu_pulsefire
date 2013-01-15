@@ -141,34 +141,6 @@ void Freq_requestTrainFreq(void) {
 	Vars_setValue(pwmLoopIdx,0,0,pwmLoop);
 }
 
-void Freq_loop(void) {
-	uint32_t current_time = millis();
-	if (current_time < pf_data.dev_freq_time_cnt) {
-		return;
-	}
-	pf_data.dev_freq_time_cnt = current_time + 1000; // check every second
-
-	// also update pulse_fire_freq here when is different
-	if (pf_data.pulse_fire_freq_cnt != pf_data.pulse_fire_freq) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFireFreq)),ZERO,ZERO,pf_data.pulse_fire_freq_cnt);
-	}
-	pf_data.pulse_fire_freq_cnt = ZERO;
-
-#ifdef SF_ENABLE_AVR
-	//if ((pf_conf.avr_pin2_map != PIN2_FREQ_IN) & (pf_conf.avr_pin3_map != PIN3_FREQ_IN)) {
-	//	return;
-	//}
-#endif
-#ifdef SF_ENABLE_AVR_MEGA
-	//if ((pf_conf.avr_pin18_map != PIN18_FREQ_IN) & (pf_conf.avr_pin19_map != PIN19_FREQ_IN)) {
-	//	return; tood: rm me
-	//}
-#endif
-	if (pf_data.dev_freq_cnt != pf_data.dev_freq) {
-		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataDevFreq)),ZERO,ZERO,pf_data.dev_freq_cnt);
-	}
-	pf_data.dev_freq_cnt = ZERO;
-}
 #endif
 
 

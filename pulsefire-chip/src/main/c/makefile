@@ -101,7 +101,7 @@ ARM_CC = ~/bin/arm-gcc/bin/arm-none-eabi-gcc
 ARM_OBJCOPY = ~/bin/arm-gcc/bin/arm-none-eabi-objcopy
 
 # Define all src files.
-SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./stv.c ./serial.c ./utils.c 
+SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./input.c ./sys.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./stv.c ./serial.c ./utils.c 
 
 all: \
 atmega328p-1601 \
@@ -139,7 +139,6 @@ atmega328p-1601: MCU = atmega328p
 atmega328p-1601: F_CPU = 16000000
 atmega328p-1601: CFLAGS += -mmcu=$(MCU)
 atmega328p-1601: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-1601: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-1601: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-1601: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-1601: PFLAGS += -DSF_ENABLE_PTT
@@ -165,7 +164,6 @@ atmega328p-1602: MCU = atmega328p
 atmega328p-1602: F_CPU = 16000000
 atmega328p-1602: CFLAGS += -mmcu=$(MCU)
 atmega328p-1602: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-1602: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-1602: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-1602: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-1602: PFLAGS += -DSF_ENABLE_PTT
@@ -192,7 +190,6 @@ atmega328p-1603: MCU = atmega328p
 atmega328p-1603: F_CPU = 16000000
 atmega328p-1603: CFLAGS += -mmcu=$(MCU)
 atmega328p-1603: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-1603: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-1603: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-1603: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-1603: PFLAGS += -DSF_ENABLE_PTT
@@ -219,7 +216,6 @@ atmega328p-1604: MCU = atmega328p
 atmega328p-1604: F_CPU = 16000000
 atmega328p-1604: CFLAGS += -mmcu=$(MCU)
 atmega328p-1604: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-1604: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-1604: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-1604: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-1604: PFLAGS += -DSF_ENABLE_PTT
@@ -246,7 +242,6 @@ atmega328p-1604-isp: avr-flash
 atmega328p-1691: MCU = atmega328p
 atmega328p-1691: F_CPU = 16000000
 atmega328p-1691: CFLAGS += -mmcu=$(MCU)
-atmega328p-1691: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-1691: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-1691: PFLAGS += -DSF_ENABLE_MAL
 atmega328p-1691: PFLAGS += -DSF_ENABLE_SPI
@@ -268,7 +263,6 @@ atmega328p-2001: MCU = atmega328p
 atmega328p-2001: F_CPU = 20000000
 atmega328p-2001: CFLAGS += -mmcu=$(MCU)
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2001: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-2001: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2001: PFLAGS += -DSF_ENABLE_PTT
@@ -294,7 +288,6 @@ atmega328p-2002: MCU = atmega328p
 atmega328p-2002: F_CPU = 20000000
 atmega328p-2002: CFLAGS += -mmcu=$(MCU)
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2002: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-2002: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2002: PFLAGS += -DSF_ENABLE_PTT
@@ -321,7 +314,6 @@ atmega328p-2003: MCU = atmega328p
 atmega328p-2003: F_CPU = 20000000
 atmega328p-2003: CFLAGS += -mmcu=$(MCU)
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2003: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-2003: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2003: PFLAGS += -DSF_ENABLE_PTT
@@ -348,7 +340,6 @@ atmega328p-2004: MCU = atmega328p
 atmega328p-2004: F_CPU = 20000000
 atmega328p-2004: CFLAGS += -mmcu=$(MCU)
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PWM
-atmega328p-2004: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-2004: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PTC
 atmega328p-2004: PFLAGS += -DSF_ENABLE_PTT
@@ -375,7 +366,6 @@ atmega328p-2004-isp: avr-flash
 atmega328p-2091: MCU = atmega328p
 atmega328p-2091: F_CPU = 20000000
 atmega328p-2091: CFLAGS += -mmcu=$(MCU)
-atmega328p-2091: PFLAGS += -DSF_ENABLE_CIT
 atmega328p-2091: PFLAGS += -DSF_ENABLE_ADC
 atmega328p-2091: PFLAGS += -DSF_ENABLE_MAL
 atmega328p-2091: PFLAGS += -DSF_ENABLE_SPI
@@ -453,7 +443,6 @@ atmega168p-1691: F_CPU = 16000000
 atmega168p-1691: CFLAGS += -mmcu=$(MCU)
 atmega168p-1691: PFLAGS += -DSF_ENABLE_MAL
 atmega168p-1691: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-1691: PFLAGS += -DSF_ENABLE_CIT
 atmega168p-1691: PFLAGS += -DSF_ENABLE_SPI
 atmega168p-1691: TARGET = atmega168p-1691
 atmega168p-1691: $(TPATH)/atmega168p-1691/pulsefire.hex
@@ -478,7 +467,6 @@ atmega1280-1601: MCU = atmega1280
 atmega1280-1601: F_CPU = 16000000
 atmega1280-1601: CFLAGS += -mmcu=$(MCU)
 atmega1280-1601: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1601: PFLAGS += -DSF_ENABLE_CIT
 atmega1280-1601: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1601: PFLAGS += -DSF_ENABLE_ADC
 atmega1280-1601: PFLAGS += -DSF_ENABLE_PTC
@@ -504,7 +492,6 @@ atmega1280-1602: MCU = atmega1280
 atmega1280-1602: F_CPU = 16000000
 atmega1280-1602: CFLAGS += -mmcu=$(MCU)
 atmega1280-1602: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1602: PFLAGS += -DSF_ENABLE_CIT
 atmega1280-1602: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1602: PFLAGS += -DSF_ENABLE_ADC
 atmega1280-1602: PFLAGS += -DSF_ENABLE_PTC
@@ -532,7 +519,6 @@ atmega1280-1603: MCU = atmega1280
 atmega1280-1603: F_CPU = 16000000
 atmega1280-1603: CFLAGS += -mmcu=$(MCU)
 atmega1280-1603: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1603: PFLAGS += -DSF_ENABLE_CIT
 atmega1280-1603: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1603: PFLAGS += -DSF_ENABLE_ADC
 atmega1280-1603: PFLAGS += -DSF_ENABLE_PTC
@@ -560,7 +546,6 @@ atmega1280-1604: MCU = atmega1280
 atmega1280-1604: F_CPU = 16000000
 atmega1280-1604: CFLAGS += -mmcu=$(MCU)
 atmega1280-1604: PFLAGS += -DSF_ENABLE_PWM
-atmega1280-1604: PFLAGS += -DSF_ENABLE_CIT
 atmega1280-1604: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1604: PFLAGS += -DSF_ENABLE_ADC
 atmega1280-1604: PFLAGS += -DSF_ENABLE_PTC
@@ -588,7 +573,6 @@ atmega1280-1604-isp: avr-flash
 atmega1280-1691: MCU = atmega1280
 atmega1280-1691: F_CPU = 16000000
 atmega1280-1691: CFLAGS += -mmcu=$(MCU)
-atmega1280-1691: PFLAGS += -DSF_ENABLE_CIT
 atmega1280-1691: PFLAGS += -DSF_ENABLE_CIP
 atmega1280-1691: PFLAGS += -DSF_ENABLE_ADC
 atmega1280-1691: PFLAGS += -DSF_ENABLE_MAL
@@ -611,7 +595,6 @@ atmega2560-1601: MCU = atmega2560
 atmega2560-1601: F_CPU = 16000000
 atmega2560-1601: CFLAGS += -mmcu=$(MCU)
 atmega2560-1601: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1601: PFLAGS += -DSF_ENABLE_CIT
 atmega2560-1601: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1601: PFLAGS += -DSF_ENABLE_ADC
 atmega2560-1601: PFLAGS += -DSF_ENABLE_PTC
@@ -638,7 +621,6 @@ atmega2560-1602: MCU = atmega2560
 atmega2560-1602: F_CPU = 16000000
 atmega2560-1602: CFLAGS += -mmcu=$(MCU)
 atmega2560-1602: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1602: PFLAGS += -DSF_ENABLE_CIT
 atmega2560-1602: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1602: PFLAGS += -DSF_ENABLE_ADC
 atmega2560-1602: PFLAGS += -DSF_ENABLE_PTC
@@ -666,7 +648,6 @@ atmega2560-1603: MCU = atmega2560
 atmega2560-1603: F_CPU = 16000000
 atmega2560-1603: CFLAGS += -mmcu=$(MCU)
 atmega2560-1603: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1603: PFLAGS += -DSF_ENABLE_CIT
 atmega2560-1603: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1603: PFLAGS += -DSF_ENABLE_ADC
 atmega2560-1603: PFLAGS += -DSF_ENABLE_PTC
@@ -694,7 +675,6 @@ atmega2560-1604: MCU = atmega2560
 atmega2560-1604: F_CPU = 16000000
 atmega2560-1604: CFLAGS += -mmcu=$(MCU)
 atmega2560-1604: PFLAGS += -DSF_ENABLE_PWM
-atmega2560-1604: PFLAGS += -DSF_ENABLE_CIT
 atmega2560-1604: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1604: PFLAGS += -DSF_ENABLE_ADC
 atmega2560-1604: PFLAGS += -DSF_ENABLE_PTC
@@ -723,7 +703,6 @@ atmega2560-1691: MCU = atmega2560
 atmega2560-1691: F_CPU = 16000000
 atmega2560-1691: CFLAGS += -mmcu=$(MCU)
 atmega2560-1691: PFLAGS += -DSF_ENABLE_ADC
-atmega2560-1691: PFLAGS += -DSF_ENABLE_CIT
 atmega2560-1691: PFLAGS += -DSF_ENABLE_CIP
 atmega2560-1691: PFLAGS += -DSF_ENABLE_MAL
 atmega2560-1691: PFLAGS += -DSF_ENABLE_SPI
@@ -745,7 +724,6 @@ arm-lpc1343-7201: MCU = cortex-m3
 arm-lpc1343-7201: F_CPU = 72000000
 arm-lpc1343-7201: CFLAGS += -mcpu=$(MCU) -mthumb
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PWM
-arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_CIT
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_ADC
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTC
 arm-lpc1343-7201: PFLAGS += -DSF_ENABLE_PTT

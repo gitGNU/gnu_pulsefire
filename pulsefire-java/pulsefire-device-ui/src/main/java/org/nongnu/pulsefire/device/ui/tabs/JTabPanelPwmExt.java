@@ -73,9 +73,9 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		pulsePanel.add(new JCommandComboBox	(CommandName.pulse_steps));
 		pulsePanel.add(new JCommandLabel	(CommandName.pulse_enable));
 		pulsePanel.add(new JCommandCheckBox	(CommandName.pulse_enable));
-		pulsePanel.add(new JCommandLabel	(CommandName.pulse_inv));
-		pulsePanel.add(new JCommandCheckBox	(CommandName.pulse_inv));
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,3,2);
+		//pulsePanel.add(new JCommandLabel	(CommandName.pulse_inv));
+		//pulsePanel.add(new JCommandCheckBox	(CommandName.pulse_inv));
+		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,2);
 		topPanel.add(pulsePanel);
 		return topPanel;
 	}

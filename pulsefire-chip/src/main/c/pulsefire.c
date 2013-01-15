@@ -23,16 +23,17 @@
 
 
 //Short name   : PulseFire
-//Short desc   : Automatic PulseFire Seqence Generator.
+//Short desc   : Automatic PulseFire Sequence Generator.
 //First created: 26-Apr-2011
 //First Author : Willem Cazander
-//License-Type : BSD 2-Clause (licence.txt and http://www.opensource.org/licenses/bsd-license.php)
-//IO-Hardware  : see IO_DEF_* or IO_SPI_* #defines in chip_*.c
+//License-Type : BSD 2-Clause (see licence.txt)
+//IO-Hardware  : see chip_avr.c and chip_avr_mega.c
 //USB-Serial   : 115200b + "Newline" on enter/return
 //Website      : http://www.nongnu.org/pulsefire/
 
 #include "vars.h"
 #include "serial.h"
+#include "sys.h"
 #include "ptc.h"
 #include "stv.h"
 #include "lpm.h"
@@ -73,6 +74,7 @@ int main(void) {
 		Vars_loop();
 		Serial_loop();
 		Input_loopDic();
+		Sys_loop();
 #ifdef SF_ENABLE_LCD
 		lcd_loop();
 #endif
@@ -87,9 +89,6 @@ int main(void) {
 #endif
 #ifdef SF_ENABLE_PTC
 		PTC_loop();
-#endif
-#ifdef SF_ENABLE_PWM
-		Freq_loop();
 #endif
 #ifdef SF_ENABLE_MAL
 		Mal_loop();

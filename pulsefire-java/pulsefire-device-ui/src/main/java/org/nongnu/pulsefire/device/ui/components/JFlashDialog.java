@@ -125,7 +125,7 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private String nativeFlashCmd = null;
 	private String nativeFlashConfig = null;
 	private String[] columnNames = new String[] {"name","speed",
-			"SPI","LCD","PWM","ADC","PTC","PTT","STV","VFC","SWC","MAL","CIT","CIP"};
+			"SPI","LCD","PWM","ADC","PTC","PTT","STV","VFC","SWC","MAL","CIP"};
 			
 	public JFlashDialog(Frame aFrame) {
 		super(aFrame, true);

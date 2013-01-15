@@ -403,8 +403,8 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		pwmPanel.setLayout(new SpringLayout());
 		splitPanel.add(pwmPanel);
 		pwmPanel.add(new JCommandDial(CommandName.pwm_loop));
-		pwmPanel.add(new JCommandDial(CommandName.pwm_loop_delta));
-		SpringLayoutGrid.makeCompactGrid(pwmPanel,1,2);
+		//pwmPanel.add(new JCommandDial(CommandName.pwm_loop_delta));
+		SpringLayoutGrid.makeCompactGrid(pwmPanel,1,1);
 		
 		JPanel clockPanel = new JPanel();
 		clockPanel.setLayout(new SpringLayout());
@@ -430,7 +430,7 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_mode));
 		pulsePanel.add(new JCommandComboBox(CommandName.pulse_mode));
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));		
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_trig));
 		pulsePanel.add(new JCommandComboBox(CommandName.pulse_trig));
 		pulsePanel.add(new JCommandLabel(CommandName.pulse_bank));
@@ -440,9 +440,25 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		JPanel delayPanel = new JPanel();
 		delayPanel.setLayout(new SpringLayout());
 		splitPanel.add(delayPanel);
-		delayPanel.add(new JCommandDial(CommandName.pulse_trig_delay));
+		delayPanel.add(new JCommandDial(CommandName.pulse_pre_delay));
 		delayPanel.add(new JCommandDial(CommandName.pulse_post_delay));
 		SpringLayoutGrid.makeCompactGrid(delayPanel,1,2);
+		
+		JPanel mulPanel = new JPanel();
+		mulPanel.setLayout(new SpringLayout());
+		splitPanel.add(mulPanel);
+		mulPanel.add(new JCommandLabel(CommandName.pulse_pre_mul));
+		mulPanel.add(new JCommandComboBox(CommandName.pulse_pre_mul));
+		mulPanel.add(new JCommandLabel(CommandName.pulse_post_mul));
+		mulPanel.add(new JCommandComboBox(CommandName.pulse_post_mul));
+		SpringLayoutGrid.makeCompactGrid(mulPanel,2,2);
+		
+		JPanel postPanel = new JPanel();
+		postPanel.setLayout(new SpringLayout());
+		splitPanel.add(postPanel);
+		postPanel.add(new JCommandLabel(CommandName.pulse_post_hold));
+		postPanel.add(new JCommandComboBox(CommandName.pulse_post_hold));
+		SpringLayoutGrid.makeCompactGrid(postPanel,2,1);
 		
 		return borderPanel;
 	}

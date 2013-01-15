@@ -53,8 +53,8 @@ Pin#	I/O		DEFAULT		LCD			SPI			SPI+LCD		PulseFire
 =========================================================================
 - 0     IN      USB-RX      <--         <--         <--
 - 1     OUT     USB-TX      <--         <--         <--
-- 2     I/O     PIN2        <--         <--         <--
-- 3     I/O     PIN3        <--         <--         <--
+- 2     IN      PIN2        <--         <--         <--
+- 3     IN      PIN3        <--         <--         <--
 - 4     I/O     PIN4        <--         <--         <--
 - 5     I/O     PIN5        <--         <--         <--
 - 6     I/O     DIC0        LCD_RS      DIC0        <--
@@ -178,32 +178,11 @@ void Chip_setup(void) {
 
 	DDRD = 0x00;  // default to input
 	PORTD = 0xFF; // with pullup
-	switch (pf_conf.avr_pin2_map) {
-		case PIN2_INT0_IN:
-		case PIN2_FIRE_IN:
-		case PIN2_HOLD_FIRE_IN:
-			Chip_in_int_pin(ZERO,ZERO); // turn on int0
-			break;
-		case PIN2_DOC2_OUT:
-		case PIN2_DOC8_OUT:
-			DDRD  |=  (ONE<<IO_DEF_PIN2_PIN);
-			PORTD &= ~(ONE<<IO_DEF_PIN2_PIN);
-		default:
-			break;
+	if (pf_conf.avr_pin2_map == PIN2_INT0_IN) {
+		Chip_in_int_pin(ZERO,ZERO); // turn on int0
 	}
-	switch (pf_conf.avr_pin3_map) {
-		case PIN3_INT1_IN:
-		case PIN3_FIRE_IN:
-		case PIN3_HOLD_FIRE_IN:
-			Chip_in_int_pin(ONE,ZERO); // turn on int1
-			break;
-		case PIN3_DOC3_OUT:
-		case PIN3_DOC9_OUT:
-		case PIN3_CIT0B_OUT:
-			DDRD  |=  (ONE<<IO_DEF_PIN3_PIN);
-			PORTD &= ~(ONE<<IO_DEF_PIN3_PIN);
-		default:
-			break;
+	if (pf_conf.avr_pin3_map == PIN3_INT1_IN) {
+		Chip_in_int_pin(ONE,ZERO); // turn on int1
 	}
 	switch (pf_conf.avr_pin4_map) {
 		case PIN4_DOC4_OUT:
@@ -256,9 +235,9 @@ void Chip_setup(void) {
 	TCCR1B = pf_conf.pwm_clock & 7;
 #endif
 
-	// Timer2 8bit timer used CIT
-	OCR2A  = 0xFF;OCR2B  = 0xFF;
-	TCCR2A = ZERO;TCCR2B = ZERO;
+	// Timer2 8bit timer is free
+	//OCR2A  = 0xFF;OCR2B  = 0xFF;
+	//TCCR2A = ZERO;TCCR2B = ZERO;
 	//TIMSK2|= (ONE << TOIE2);
 	//TIMSK2|= (ONE << OCF2A);
 	//TIMSK2|= (ONE << OCF2B);
@@ -374,15 +353,6 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_OCR_A:	OCR1A = value;			break;
 	case CHIP_REG_PWM_OCR_B:	OCR1B = value;			break;
 	case CHIP_REG_PWM_TCNT:		TCNT1 = value;			break;
-#endif
-#ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & 247) + (value & 7);		break;
-	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & 252) + (value & 3);TCCR2B = (TCCR2B & 247) + (value & 8);break; // bit 0/1 + bit 3/4 in B
-	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & 247) + (value & 7);		break;
-	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;					break;
-	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & 63)  + ((value << 6) & 192);	break; // bit 6/7
-	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;					break;
-	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & 207) + ((value << 4) & 48);	break; // bit 4/5
 #endif
 	default:
 		break;
@@ -506,23 +476,11 @@ void Chip_out_doc(void) {
 		}
 	}
 #endif
-	if (pf_conf.avr_pin2_map == PIN2_DOC2_OUT) {
-		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[2] > ZERO);
-	}
-	if (pf_conf.avr_pin3_map == PIN3_DOC3_OUT) {
-		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[3] > ZERO);
-	}
 	if (pf_conf.avr_pin4_map == PIN4_DOC4_OUT) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[4] > ZERO);
 	}
 	if (pf_conf.avr_pin5_map == PIN5_DOC5_OUT) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN5_PIN,pf_data.doc_port[5] > ZERO);
-	}
-	if (pf_conf.avr_pin2_map == PIN2_DOC8_OUT) {
-		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN2_PIN,pf_data.doc_port[8] > ZERO);
-	}
-	if (pf_conf.avr_pin3_map == PIN3_DOC9_OUT) {
-		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN3_PIN,pf_data.doc_port[9] > ZERO);
 	}
 	if (pf_conf.avr_pin4_map == PIN4_DOC10_OUT) {
 		digitalWrite(IO_DEF_IO_PORT,IO_DEF_PIN4_PIN,pf_data.doc_port[10] > ZERO);
@@ -612,55 +570,15 @@ uint16_t Chip_in_dic(void) {
 
 // Pin2 input via interrupts
 ISR(INT0_vect) {
-	//if (pf_conf.avr_pin2_map == PIN2_TRIG_IN) {
-#ifdef SF_ENABLE_PWM
-	//	PWM_pulsefire();
-#endif
-	//	return;
-	//}
-/*
-	if (pf_conf.avr_pin2_map == PIN2_FREQ_IN) {
-		pf_data.dev_freq_cnt++;
-		return;
-	}
-*/
-#ifdef SF_ENABLE_PWM
-	if (pf_conf.avr_pin2_map == PIN2_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
-		return;
-	}
-	if (pf_conf.avr_pin2_map == PIN2_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
-		return;
-	}
-#endif
+	Sys_do_int(ZERO);
 }
 
 ISR(INT1_vect) {
-/*
-	if (pf_conf.avr_pin3_map == PIN3_FREQ_IN) {
-		pf_data.dev_freq_cnt++;
-		return;
-	}
-*/
-#ifdef SF_ENABLE_PWM
-	if (pf_conf.avr_pin3_map == PIN3_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
-		return;
-	}
-	if (pf_conf.avr_pin3_map == PIN3_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
-		return;
-	}
-#endif
+	Sys_do_int(ONE);
 }
 
 ISR(TIMER0_OVF_vect) {
-	pf_data.sys_time_ticks++;
-	if (pf_data.sys_time_ticks >= (F_CPU/8/256/100)) { // 78 fits in 8bit on avr8
-		pf_data.sys_time_ticks=ZERO;
-		pf_data.sys_time_ssec++;
-	}
+	Sys_time_int();
 #ifdef SF_ENABLE_SPI
 	if (pf_data.spi_int_req>ZERO) {
 		digitalWrite(IO_DEF_OUT_PORT,pf_data.spi_int_pin,ZERO);

@@ -24,7 +24,6 @@
 package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -43,7 +42,6 @@ import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -55,7 +53,6 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
@@ -284,49 +281,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		ioPanel.add(new JCommandLabel(CommandName.dev_temp_dot));
 		ioPanel.add(new JCommandComboBox(CommandName.dev_temp_dot));
 		
-		ioPanel.add(new JCommandLabel(CommandName.spi_clock));
-		ioPanel.add(new JCommandComboBox(CommandName.spi_clock));
-		
-		ioPanel.add(new JCommandLabel(CommandName.spi_chips));
-		JPanel chipsPanel = new JPanel();
-		chipsPanel.setLayout(new GridLayout(0,2));
-		ioPanel.add(chipsPanel);
-		JCheckBox box = null;
-		
-		box = new JCommandCheckBox(CommandName.spi_chips,0);
-		box.setText("OUT8");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,1);
-		box.setText("OUT16");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,2);
-		box.setText("LCD");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,3);
-		box.setText("LCD_MUX");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,4);
-		box.setText("DOC8");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,5);
-		box.setText("DOC16");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,6);
-		box.setText("FREE0");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,7);
-		box.setText("FREE1");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,5,2);
+		SpringLayoutGrid.makeCompactGrid(ioPanel,3,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}

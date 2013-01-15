@@ -47,8 +47,8 @@ typedef uint8_t byte;
 #define ONE                         1    // one
 #define false                       0    // false
 #define true                        1    // true
-#define ALL_BANK_MAX                2    // 0=A, 1=A, 2=AB
-#define PMCMDLIST_SIZE             17    // array size of other commands
+#define PWM_DATA_MAX               64    // PWM output steps buffer.
+#define PMCMDLIST_SIZE             17    // Array size of other commands.
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define SPI_CLOCK_MAX               3    // 4 spi clock modes
@@ -71,6 +71,8 @@ typedef uint8_t byte;
 #define CMD_WHITE_SPACE       " \r\t\n"  // All diffent white space chars to split commands on
 #define PULSE_DATA_OFF           0x0000  // Data for OFF output
 #define PULSE_DATA_ON            0xFFFF  // Data for ON  output
+#define PULSE_BANK_MAX              2    // 0=A, 1=A, 2=AB
+#define PULSE_DELAY_MUL_MAX        10    // Max extra steps for pre/post delay (2x10=20 steps)
 #define VARS_INT_NUM_SIZE           4    // cache max 4 uniq vars from int based value change.
 #define VARS_INT_SIZE               3    // 0=idx,1=idxA,3=value
 
@@ -107,8 +109,8 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_AVR_MEGA
-	volatile uint8_t       avr_port_a;      // Mapping for port a
-	volatile uint8_t       avr_port_c;      // Mapping for port c
+	volatile uint8_t       mega_port_a;      // Mapping for port a
+	volatile uint8_t       mega_port_c;      // Mapping for port c
 #endif
 
 #ifdef SF_ENABLE_LCD
@@ -132,8 +134,11 @@ typedef struct {
 	volatile uint8_t       pulse_trig;             // Pulse trigger fireing
 	volatile uint8_t       pulse_bank;             // Pulse bank selection
 	volatile uint8_t       pulse_dir;              // Pulse direction selection
-	volatile uint16_t      pulse_trig_delay;       // Delay before full pulse train
-	volatile uint16_t      pulse_post_delay;       // Off duty after full pulse train.
+	volatile uint16_t      pulse_pre_delay;        // Delay before full pulse train
+	volatile uint8_t       pulse_pre_mul;          // Delay multiplier
+	volatile uint16_t      pulse_post_delay;       // Delay after full pulse train.
+	volatile uint8_t       pulse_post_mul;         // Delay multiplier
+	volatile uint8_t       pulse_post_hold;        // 0 = OFF, 1 = Data last step.
 	volatile uint16_t      pulse_mask_a;           // Disable some output pins
 	volatile uint16_t      pulse_mask_b;           // Mask for bank B
 	volatile uint16_t      pulse_init_a;           // Init data for train mode
@@ -212,28 +217,14 @@ typedef struct {
 	volatile uint16_t      mal_mticks;               // Main loop time tick wait
 #endif
 
-/*
-	volatile uint8_t       int_0enable;
-	volatile uint8_t       int_0trig;
+	volatile uint16_t      int_map[INT_MAP_MAX][QMAP_SIZE];
 	volatile uint8_t       int_0mode;
-	volatile uint16_t      int_0map[INT_MAP_MAX][QMAP_SIZE];
-
-	volatile uint8_t       int_1enable;
-	volatile uint8_t       int_1trig;
+	volatile uint8_t       int_0trig;
+	volatile uint8_t       int_0freq_mul;
 	volatile uint8_t       int_1mode;
-	volatile uint16_t      int_1map[INT_MAP_MAX][QMAP_SIZE];
+	volatile uint8_t       int_1trig;
+	volatile uint8_t       int_1freq_mul;
 
-*/
-
-#ifdef SF_ENABLE_CIT
-	volatile uint8_t       cit_0clock;
-	volatile uint8_t       cit_0mode;
-	volatile uint8_t       cit_0int; // 3 bits
-	volatile uint8_t       cit_0a_ocr;
-	volatile uint8_t       cit_0a_com;
-	volatile uint8_t       cit_0b_ocr;
-	volatile uint8_t       cit_0b_com;
-#endif
 #ifdef SF_ENABLE_CIP
 	volatile uint8_t       cip_0clock;
 	volatile uint8_t       cip_0mode;
@@ -276,6 +267,12 @@ typedef struct {
 	volatile uint8_t       adc_state_idx;
 	volatile uint16_t      adc_state_value;
 #endif
+
+	volatile uint16_t      int_0freq;              // int0 freq
+	volatile uint16_t      int_0freq_cnt;          // int0 freq counter
+	volatile uint16_t      int_1freq;              // int1 freq
+	volatile uint16_t      int_1freq_cnt;          // int1 freq counter
+	volatile uint32_t      int_time_cnt;           // Freq time counter
 
 	volatile uint32_t      dic_time_cnt;
 	volatile uint16_t      dic_value;
@@ -326,9 +323,6 @@ typedef struct {
 	volatile uint16_t      dev_volt[DEV_VAR_MAX];  // Device volt variable for programatic usage.
 	volatile uint16_t      dev_amp[DEV_VAR_MAX];   // Device amps
 	volatile uint16_t      dev_temp[DEV_VAR_MAX];  // Device temperature
-	volatile uint16_t      dev_freq;               // Device freqencie
-	volatile uint16_t      dev_freq_cnt;           // Device freq counter from input pin.
-	volatile uint32_t      dev_freq_time_cnt;      // Device dev_freq value update counter.
 	volatile uint16_t      dev_var[DEV_VAR_MAX];   // Generic device parameters for programatic use.
 
 #ifdef SF_ENABLE_PWM
@@ -340,8 +334,6 @@ typedef struct {
 	volatile uint8_t       pulse_reset_fire;       // Resets pulse train
 	volatile uint8_t       pulse_resume_fire;      // Resume pulse train after hold.
 	volatile uint8_t       pulse_step;             // The current pulse step
-	volatile uint32_t      pulse_trig_delay_cnt;   // Trigger delay counter
-	volatile uint32_t      pulse_post_delay_cnt;   // The post pulse delay timer counter of pulse off duty
 
 	volatile uint8_t       pwm_state;              // Interal state of pwm
 	volatile uint8_t       pwm_loop_cnt;           // Pwm loop counter for this step
@@ -360,7 +352,7 @@ typedef struct {
 	volatile uint8_t       cmd_buff_idx;         // Command index
 	volatile uint8_t       cmd_process;          // Processing command
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
-	volatile uint16_t      pwm_data[64][2];
+	volatile uint16_t      pwm_data[PWM_DATA_MAX][2];
 	volatile uint8_t       pwm_data_max;
 
 	volatile uint8_t       spi_int_req;
@@ -409,21 +401,16 @@ extern pf_conf_struct       pf_conf;
 
 // Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     25
+#define PF_VARS_PF_SIZE     33
 #ifdef SF_ENABLE_SPI
 	#define PF_VARS_SPI_SIZE  2
 #else
 	#define PF_VARS_SPI_SIZE  0
 #endif
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  47
+	#define PF_VARS_PWM_SIZE  48
 #else
 	#define PF_VARS_PWM_SIZE  0
-#endif
-#ifdef SF_ENABLE_CIT
-	#define PF_VARS_CIT_SIZE  7
-#else
-	#define PF_VARS_CIT_SIZE  0
 #endif
 #ifdef SF_ENABLE_CIP
 	#define PF_VARS_CIP_SIZE  24

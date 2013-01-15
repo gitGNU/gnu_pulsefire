@@ -9,8 +9,7 @@ Version 1.1.0:
 - Added lcd_plp; programatic lcd page with 4 vars.
 - Added info_pwm to readout precalculated pwm data.
 - Changed pwm to precalculated data/time steps.
-- Dropped pulse_inv and pulse_dir option.
-- Dropped pwm_loop_delta and pwm_tune_cnt option.
+- Dropped pulse_inv/pwm_loop_delta/pwm_tune_cnt options.
 - Dropped SF_ENABLE_DIC/_DOC/_PPM/_DEV compile flags.
 - Replaced SF_ENABLE_EXT_* with SF_ENABLE_SPI and spi_mode for hardware spi mode.
 - Added spi_chips and spi_clock settings.
@@ -20,9 +19,19 @@ Version 1.1.0:
 - Added req_doc to request doc port output bit.
 - Dropped LPM from chip code and moved to application.
 - Dropped experimental GLCD support to free pins.
+- Replaced mega pin mapping with mega_port_a and mega_port_c.
 - Small update for dark-red and black-white color thema.
 - Added new yellow-purple color thema.
-
+- Added two new pulse_dir modes; LRRL-2 and LRLR
+- Removed two pulse_modes PPM_ALL and PPM_INTERL.
+- Renamed pulse_trig_delay to pulse_pre_delay.
+- Added pulse_pre/post_mul step multiplier.
+- Added pulse_post_hold to select off or last step.
+- Added int0/1 variables to fire/hold/trigger/etc on int.
+- Replaced dev_freq.* to int_0freq/etc.
+- Dropped CIT (8bit-timer) support.
+- Changed avr_pin2/3 to input only.
+ 
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 

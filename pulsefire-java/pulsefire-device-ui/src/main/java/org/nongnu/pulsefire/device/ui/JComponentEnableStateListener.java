@@ -181,10 +181,10 @@ public class JComponentEnableStateListener implements DeviceConnectListener,Devi
 		if (commandName==null) {
 			return true;
 		}
-		if (index!=null && (WirePulseMode.FLASH_ZERO==newMode || WirePulseMode.PPM_ALL==newMode)) {
-			if (WirePulseMode.PPM_ALL==newMode && index>0 && commandName.name().startsWith("ppm_data")) {
-				return true;
-			}
+		if (index!=null && WirePulseMode.FLASH_ZERO==newMode) {
+			//if (WirePulseMode.PPM_ALL==newMode && index>0 && commandName.name().startsWith("ppm_data")) {
+			//	return true;
+			//}
 			if (CommandName.pwm_tune_cnt==commandName && index>0) {
 				return false;
 			}

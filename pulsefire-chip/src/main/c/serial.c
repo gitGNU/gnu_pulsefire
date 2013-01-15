@@ -393,6 +393,10 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_println_done_P(pmCmdInfoPPM);
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPWM)) == ZERO) {
+		Serial_printCharP(pmCmdInfoPWMSteps);
+		Serial_printCharP(pmGetSpaced);
+		Serial_printDec(pf_data.pwm_data_max);
+		Serial_println();
 		for (i=ZERO;i < pf_data.pwm_data_max;i++) {
 			uint16_t data_out = pf_data.pwm_data[i][PWM_DATA_OUT];
 			uint16_t data_cnt = pf_data.pwm_data[i][PWM_DATA_CNT];
@@ -413,12 +417,6 @@ void cmd_execute(char* cmd, char** args) {
 			}
 			Serial_println();
 		}
-		Serial_printCharP(pmCmdInfoPWMData);
-		Serial_printDec(600);
-		Serial_printCharP(pmGetSpaced);
-		Serial_printDec(pf_data.pwm_data_max);
-		Serial_println();
-
 		Serial_println_done_P(pmCmdInfoPWM);
 
 #endif
@@ -436,7 +434,6 @@ void cmd_execute(char* cmd, char** args) {
 	} else if (strcmp(cmd,UNPSTR(pmCmdSave)) == ZERO) {
 		Vars_writeConfig();
 		Serial_println_done_P(pmCmdSave);
-
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqTrigger)) == ZERO) {
 		if (args[ZERO] == NULL) {
@@ -476,7 +473,7 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_print(' ');
 		Serial_printDec(ONE);
 		Serial_println();
- 
+
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqDoc)) == ZERO) {
 
 		if (args[0] != NULL && args[1] != NULL) {

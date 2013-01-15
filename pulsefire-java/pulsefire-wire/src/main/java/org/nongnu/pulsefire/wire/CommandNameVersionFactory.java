@@ -101,23 +101,34 @@ public class CommandNameVersionFactory {
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
-				WirePulseMode.PPM,
-				WirePulseMode.PPM_ALL,
-				WirePulseMode.PPM_INTERL
+				WirePulseMode.PPM
 			};
 		
 		CommandName.pulse_dir.listValues = new String[] {
 				"LR",
 				"RL",
-				"LRRL"
+				"LRRL-2",
+				"LRRL",
+				"LRLR"
 			};
 		CommandName.pulse_bank.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_bank.listValues = new String[] {
 				"BANK_A",
 				"BANK_B"
 			};
-		CommandName.pulse_trig_delay.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_pre_delay.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_pre_mul.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_pre_mul.listValues = new String[] {
+				"OFF",
+				"1","2","3","4","5","6","7","8","9","10"
+			};
 		CommandName.pulse_post_delay.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_post_mul.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_post_mul.listValues = CommandName.pulse_pre_mul.listValues;
+		CommandName.pulse_post_hold.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_post_hold.listValues = new String[] {
+				"OFF","LAST"
+			};
 		CommandName.pulse_mask_a.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_mask_b.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_init_a.pulseModeDependency = new WirePulseMode[] { WirePulseMode.TRAIN };
@@ -139,7 +150,6 @@ public class CommandNameVersionFactory {
 		CommandName.pwm_off_cnt_b.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_tune_cnt.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_loop.pulseModeDependency = WirePulseMode.valuesOn();
-		CommandName.pwm_loop_delta.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_req_idx.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_req_duty.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pwm_req_freq.pulseModeDependency = WirePulseMode.valuesOn();
@@ -160,44 +170,31 @@ public class CommandNameVersionFactory {
 				"8","9","10","11","12","13","14","15",
 				"ALL"
 			};
-		CommandName.ppm_data_offset.pulseModeDependency = WirePulseMode.valuesPPM();
-		CommandName.ppm_data_len.pulseModeDependency = WirePulseMode.valuesPPM();
-		CommandName.ppm_data_a.pulseModeDependency = WirePulseMode.valuesPPM();
-		CommandName.ppm_data_b.pulseModeDependency = WirePulseMode.valuesPPM();
+		CommandName.ppm_data_offset.pulseModeDependency = new WirePulseMode[] {WirePulseMode.PPM};
+		CommandName.ppm_data_len.pulseModeDependency = new WirePulseMode[] {WirePulseMode.PPM};
+		CommandName.ppm_data_a.pulseModeDependency = new WirePulseMode[] {WirePulseMode.PPM};
+		CommandName.ppm_data_b.pulseModeDependency = new WirePulseMode[] {WirePulseMode.PPM};
 		
-		CommandName.cit_0clock.listValues = new String[] {
-				"STOP",
-				"ON_1",
-				"ON_8",
-				"ON_32",
-				"ON_64",
-				"ON_128",
-				"ON_256",
-				"ON_1024"
+		CommandName.int_0mode.listValues = new String[] {
+				"OFF",
+				"PULSE_FIRE",
+				"PULSE_HOLD",
+				"MAP_SET"
 			};
-		CommandName.cit_0mode.listValues = new String[] {
-				"NORMAL",
-				"PWM_TOP",
-				"CTC",
-				"PWM_FAST",
-				"RESERVED",
-				"PWM_OCRA",
-				"RESERVED",
-				"PWM_OCRA_RV"
-			};		
-		CommandName.cit_0a_com.listValues = new String[] {
-				"A_NONE",
-				"A_TOGGLE",
-				"A_CLEAR",
-				"A_SET"
+		CommandName.int_0trig.listValues = new String[] {
+				"LOW",
+				"EDGE_ANY",
+				"EDGE_FALL",
+				"EDGE_RISE"
 			};
-		CommandName.cit_0b_com.listValues = new String[] {
-				"B_NONE",
-				"B_TOGGLE",
-				"B_CLEAR",
-				"B_SET"
+		CommandName.int_0freq_mul.listValues = new String[] {
+				"*1","*2","*3","*4","*5","*6","*7","*8","*9","*10","*11","*12","*100",
+				"/1","/2","/3","/4","/5","/6","/7","/8","/9","/10","/11","/12","/100"
 			};
-
+		CommandName.int_1mode.listValues = CommandName.int_0mode.listValues ;
+		CommandName.int_1trig.listValues = CommandName.int_0trig.listValues ;
+		CommandName.int_1freq_mul.listValues = CommandName.int_0freq_mul.listValues ;
+		
 		CommandName.cip_0clock.listValues = new String[] {
 				"STOP",
 				"ON_1",
@@ -296,26 +293,15 @@ public class CommandNameVersionFactory {
 		
 		CommandName.avr_pin2_map.listValues = new String[] {
 				"PIN2_OFF",
-				"PIN2_TRIG_IN",
 				"PIN2_DIC2_IN",
 				"PIN2_DIC8_IN",
-				"PIN2_DOC2_OUT",
-				"PIN2_DOC8_OUT",
-				"PIN2_FREQ_IN",
-				"PIN2_FIRE_IN",
-				"PIN2_HOLD_FIRE_IN"
+				"PIN2_INT0_IN"
 			};
 		CommandName.avr_pin3_map.listValues = new String[] {
 				"PIN3_OFF",
-				"PIN3_MENU0_IN",
 				"PIN3_DIC3_IN",
 				"PIN3_DIC9_IN",
-				"PIN3_DOC3_OUT",
-				"PIN3_DOC9_OUT",
-				"PIN3_FREQ_IN",
-				"PIN3_FIRE_IN",
-				"PIN3_HOLD_FIRE_IN",
-				"PIN3_CIT0B_OUT"
+				"PIN3_INT1_IN"
 			};
 		CommandName.avr_pin4_map.listValues = new String[] {
 				"PIN4_OFF",
@@ -334,13 +320,13 @@ public class CommandNameVersionFactory {
 				"PIN5_DOC11_OUT"
 			};
 		
-		CommandName.avr_port_a.listValues = new String[] {
+		CommandName.mega_port_a.listValues = new String[] {
 				"PORTA_OFF",
 				"PORTA_OUT8",
 				"PORTA_DOC8"
 			};
 		
-		CommandName.avr_port_c.listValues = new String[] {
+		CommandName.mega_port_c.listValues = new String[] {
 				"PORTC_OFF",
 				"PORTC_OUT16",
 				"PORTC_DOC8",
@@ -368,6 +354,36 @@ public class CommandNameVersionFactory {
 		// Config like current
 		configCurrentVersion();
 		
+		CommandName.pwm_loop_delta.pulseModeDependency = WirePulseMode.valuesOn();
+		CommandName.pulse_dir.listValues = new String[] {
+				"LR",
+				"RL",
+				"LRRL"
+			};
+		
+		CommandName.avr_pin2_map.listValues = new String[] {
+				"PIN2_OFF",
+				"PIN2_TRIG_IN",
+				"PIN2_DIC2_IN",
+				"PIN2_DIC8_IN",
+				"PIN2_DOC2_OUT",
+				"PIN2_DOC8_OUT",
+				"PIN2_FREQ_IN",
+				"PIN2_FIRE_IN",
+				"PIN2_HOLD_FIRE_IN"
+			};
+		CommandName.avr_pin3_map.listValues = new String[] {
+				"PIN3_OFF",
+				"PIN3_MENU0_IN",
+				"PIN3_DIC3_IN",
+				"PIN3_DIC9_IN",
+				"PIN3_DOC3_OUT",
+				"PIN3_DOC9_OUT",
+				"PIN3_FREQ_IN",
+				"PIN3_FIRE_IN",
+				"PIN3_HOLD_FIRE_IN",
+				"PIN3_CIT0B_OUT"
+			};
 		CommandName.avr_pin18_map.listValues = new String[] {
 				"PIN18_OFF",
 				"PIN18_TRIG_IN",
@@ -472,9 +488,11 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_mode.listValues = new String[] {
 				WirePulseMode.OFF.name(),
 				WirePulseMode.FLASH.name(),
-				WirePulseMode.PPM.name(),
+				WirePulseMode.PPM.name()
+				/*
 				WirePulseMode.PPM_ALL.name(),
 				WirePulseMode.PPM_INTERL.name(),
+				*/
 			};
 		CommandName.pulse_bank.disabled=true;
 		CommandName.pwm_on_cnt_b.disabled=true;

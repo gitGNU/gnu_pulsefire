@@ -70,9 +70,11 @@ public enum CommandName {
 	pulse_trig				(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_dir				(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_bank				(CommandVariableType.CONF,WireChipFlags.PWM),
-	pulse_inv				(CommandVariableType.CONF,WireChipFlags.PWM),
-	pulse_trig_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_pre_delay			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_pre_mul			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_post_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_post_mul			(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_post_hold			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_mask_a			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_mask_b			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_init_a			(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -133,13 +135,21 @@ public enum CommandName {
 	stv_error_map			(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_max_map				(CommandVariableType.CONF,WireChipFlags.STV),
 	stv_min_map				(CommandVariableType.CONF,WireChipFlags.STV),
-
+	
 	vfc_input_map			(CommandVariableType.CONF,WireChipFlags.VFC),
 	vfc_output_map			(CommandVariableType.CONF,WireChipFlags.VFC),
 	
 	adc_map					(CommandVariableType.CONF,WireChipFlags.ADC),
 	adc_enable				(CommandVariableType.CONF,WireChipFlags.ADC),
 	adc_jitter				(CommandVariableType.CONF,WireChipFlags.ADC),
+	
+	int_map					(CommandVariableType.CONF),
+	int_0mode				(CommandVariableType.CONF),
+	int_0trig				(CommandVariableType.CONF),
+	int_0freq_mul			(CommandVariableType.CONF),
+	int_1mode				(CommandVariableType.CONF),
+	int_1trig				(CommandVariableType.CONF),
+	int_1freq_mul			(CommandVariableType.CONF),
 	
 	dic_map					(CommandVariableType.CONF),
 	dic_enable				(CommandVariableType.CONF),
@@ -151,8 +161,8 @@ public enum CommandName {
 	avr_pin4_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin5_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	
-	avr_port_a				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
-	avr_port_c				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	mega_port_a				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	mega_port_c				(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	lcd_defp				(CommandVariableType.CONF,WireChipFlags.LCD),
@@ -163,14 +173,6 @@ public enum CommandName {
 	swc_secs				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_duty				(CommandVariableType.CONF,WireChipFlags.SWC),
 	swc_map					(CommandVariableType.CONF,WireChipFlags.SWC),
-
-	cit_0clock				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0mode				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0int				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0a_ocr				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0a_com				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0b_ocr				(CommandVariableType.CONF,WireChipFlags.CIT),
-	cit_0b_com				(CommandVariableType.CONF,WireChipFlags.CIT),
 	
 	cip_0clock				(CommandVariableType.CONF,WireChipFlags.CIP),
 	cip_0mode				(CommandVariableType.CONF,WireChipFlags.CIP),
@@ -212,6 +214,12 @@ public enum CommandName {
 	adc_state_idx			(CommandVariableType.DATA),
 	adc_state_value			(CommandVariableType.DATA),
 	
+	int_time_cnt			(CommandVariableType.DATA),
+	int_0freq				(CommandVariableType.DATA),
+	int_0freq_cnt			(CommandVariableType.DATA),
+	int_1freq				(CommandVariableType.DATA),
+	int_1freq_cnt			(CommandVariableType.DATA),
+	
 	dic_time_cnt			(CommandVariableType.DATA),
 	dic_value				(CommandVariableType.DATA),
 	doc_port				(CommandVariableType.DATA),
@@ -251,8 +259,6 @@ public enum CommandName {
 	dev_volt				(CommandVariableType.DATA),
 	dev_amp					(CommandVariableType.DATA),
 	dev_temp				(CommandVariableType.DATA),
-	dev_freq				(CommandVariableType.DATA),
-	dev_freq_cnt			(CommandVariableType.DATA),
 	dev_var					(CommandVariableType.DATA),
 	
 	pulse_fire				(CommandVariableType.DATA),
@@ -262,8 +268,6 @@ public enum CommandName {
 	pulse_reset_fire		(CommandVariableType.DATA),
 	pulse_resume_fire		(CommandVariableType.DATA),
 	pulse_step				(CommandVariableType.DATA),
-	pulse_trig_delay_cnt	(CommandVariableType.DATA),
-	pulse_post_delay_cnt	(CommandVariableType.DATA),
 	
 	pwm_state				(CommandVariableType.DATA),
 	pwm_loop_cnt			(CommandVariableType.DATA),
@@ -306,6 +310,12 @@ public enum CommandName {
 	stv_map_idx				(CommandVariableType.PROG),
 	
 	// Deleted command v1.1
+	pulse_inv				(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_trig_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
+	pulse_trig_delay_cnt	(CommandVariableType.DATA),
+	pulse_post_delay_cnt	(CommandVariableType.DATA),
+	dev_freq				(CommandVariableType.DATA),
+	dev_freq_cnt			(CommandVariableType.DATA),
 	avr_pin18_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	avr_pin19_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	avr_pin47_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
@@ -348,7 +358,7 @@ public enum CommandName {
 	private CommandName(CommandVariableType type,WireChipFlags chipFlagDependency) {
 		this.type=type;
 		this.chipFlagDependency=chipFlagDependency;
-		this.listValues = new String[] {"DISCONNECTED"}; // note this is quick fix for layout todo
+		this.listValues = new String[] {"DISCONN"}; // note this is quick fix for layout todo
 	}
 	
 	public boolean isMappable() {

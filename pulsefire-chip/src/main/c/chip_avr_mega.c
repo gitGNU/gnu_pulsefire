@@ -186,24 +186,14 @@ void Chip_setup(void) {
 	TIMSK0 |= (1 << TOIE0); // enable int op overflow
 	TCNT0 = ZERO;
 
-	// Timer2 8bit timer used CIT
-#ifdef SF_ENABLE_CIT
-	DDRH |= (1<<PINH6); // OC2B
-	DDRB |= (1<<PINB4); // OC2A
-
+	// Timer2 8bit timer is free
+	//DDRH |= (1<<PINH6); // OC2B
+	//DDRB |= (1<<PINB4); // OC2A
 	//OCR2A  = 0xFF;OCR2B  = 0xFF;
 	//TCCR2A = ZERO;TCCR2B = ZERO;
 	//TIMSK2|= (ONE << TOIE2);
 	//TIMSK2|= (ONE << OCF2A);
 	//TIMSK2|= (ONE << OCF2B);
-	Chip_reg_set(CHIP_REG_CIT0_CLOCK,	pf_conf.cit_0clock);
-	Chip_reg_set(CHIP_REG_CIT0_MODE,	pf_conf.cit_0mode);
-	Chip_reg_set(CHIP_REG_CIT0_INT,		pf_conf.cit_0int);
-	Chip_reg_set(CHIP_REG_CIT0_OCR_A,	pf_conf.cit_0a_ocr);
-	Chip_reg_set(CHIP_REG_CIT0_COM_A,	pf_conf.cit_0a_com);
-	Chip_reg_set(CHIP_REG_CIT0_OCR_B,	pf_conf.cit_0b_ocr);
-	Chip_reg_set(CHIP_REG_CIT0_COM_B,	pf_conf.cit_0b_com);
-#endif
 
 #ifdef SF_ENABLE_CIP
 	DDRE |= (1<<PINE3)|(1<<PINE4)|(1<<PINE5); // OC3A,OC3B,OC3C - cip1
@@ -254,6 +244,8 @@ void Chip_setup(void) {
 	EICRA |= (1 << ISC21);  // Falling-Edge Triggered INT2
 	EICRA |= (1 << ISC31);  // Falling-Edge Triggered INT3
 
+	Chip_in_int_pin(ZERO,ZERO);
+	Chip_in_int_pin(ONE,ZERO);
 
 	// === Pins 22 - 37
 
@@ -392,16 +384,6 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_OCR_B:	OCR5B = value;			break;
 	case CHIP_REG_PWM_TCNT:		TCNT5 = value;			break;
 #endif
-#ifdef SF_ENABLE_CIT
-	case CHIP_REG_CIT0_CLOCK:	TCCR2B = (TCCR2B & (0xFF-7)) + (value & 7);				break;
-	case CHIP_REG_CIT0_MODE:	TCCR2A = (TCCR2A & (0xFF-3)) + (value & 3);
-								TCCR2B = (TCCR2B & (0xFF-8)) + ((value << 1) & 8);		break; // bit 0/1 + bit 3 in B
-	case CHIP_REG_CIT0_INT:		TIMSK2 = (TIMSK2 & (0xFF-7)) + (value & 7);				break;
-	case CHIP_REG_CIT0_OCR_A:	OCR2A = value;											break;
-	case CHIP_REG_CIT0_COM_A:	TCCR2A = (TCCR2A & (0xFF-192)) + ((value & 3) << 6);	break;
-	case CHIP_REG_CIT0_OCR_B:	OCR2B = value;											break;
-	case CHIP_REG_CIT0_COM_B:	TCCR2A = (TCCR2A & (0xFF-48))  + ((value & 3) << 4);	break;
-#endif
 #ifdef SF_ENABLE_CIP
 	case CHIP_REG_CIP0_CLOCK:	TCCR1B = (TCCR1B & (0xFF-7))   + (value & 7);			break;
 	case CHIP_REG_CIP0_MODE:	TCCR1A = (TCCR1A & (0xFF-3))   + (value & 3);
@@ -450,11 +432,11 @@ void Chip_out_pwm(uint16_t data) {
 		}
 	digitalWrite(IO_MEGA_SPI_OUT_E_PORT,IO_MEGA_SPI_OUT_E_PIN,ONE);
 #endif
-	if (pf_conf.avr_port_a == PORTA_OUT8) {
+	if (pf_conf.mega_port_a == PORTA_OUT8) {
 		volatile uint8_t *port = IO_MEGA_PORT_A;
 		*port = data;
 	}
-	if (pf_conf.avr_port_c == PORTC_OUT16) {
+	if (pf_conf.mega_port_c == PORTC_OUT16) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
 #ifdef SF_ENABLE_LCD
 		*port = (*port & 0xF0)|((data >> 8) & 0x0F);
@@ -519,28 +501,34 @@ void Chip_out_doc(void) {
 	}
 
 #ifdef SF_ENABLE_SPI
-	digitalWrite(IO_MEGA_SPI_DOC_E_PORT,IO_MEGA_SPI_DOC_E_PIN,ZERO);
-		if ((pf_conf.spi_chips & SPI_CHIPS_DOC8) > ZERO) {
-			shiftOut((doc_out >> 8)); // send data to last chip first
+	// wait till free
+	while (pf_data.spi_int_req>ZERO) {}
+	uint8_t chips = pf_conf.spi_chips;
+	if ((chips & SPI_CHIPS_DOC8) > ZERO) {
+		pf_data.spi_int_pin = IO_MEGA_SPI_DOC_E_PIN;
+		if ((chips & SPI_CHIPS_DOC16) > ZERO) {
+			pf_data.spi_int_data8 = (doc_out >> 8); // send data to last chip first
+			pf_data.spi_int_data16 = doc_out;
+			pf_data.spi_int_req = 2;
+		} else {
+			pf_data.spi_int_data8 = doc_out;
+			pf_data.spi_int_req = 1;
 		}
-		if ((pf_conf.spi_chips & SPI_CHIPS_DOC16) > ZERO) {
-			shiftOut(doc_out);
-		}
-	digitalWrite(IO_MEGA_SPI_DOC_E_PORT,IO_MEGA_SPI_DOC_E_PIN,ZERO);
+	}
 #endif
 
-	if (pf_conf.avr_port_a == PORTA_DOC8) {
+	if (pf_conf.mega_port_a == PORTA_DOC8) {
 		volatile uint8_t *port = IO_MEGA_PORT_A;
 		*port = doc_out;
 	}
-	if (pf_conf.avr_port_c == PORTC_DOC8) {
+	if (pf_conf.mega_port_c == PORTC_DOC8) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
 #ifdef SF_ENABLE_LCD
 		*port= (*port & 0xF0)|((doc_out) & 0x0F);
 #else
 		*port = doc_out;
 #endif
-	} else if (pf_conf.avr_port_c == PORTC_DOC16) {
+	} else if (pf_conf.mega_port_c == PORTC_DOC16) {
 		volatile uint8_t *port = IO_MEGA_PORT_C;
 #ifdef SF_ENABLE_LCD
 		*port= (*port & 0xF0)|((doc_out >> 8) & 0x0F);
@@ -586,61 +574,26 @@ uint16_t Chip_in_dic(void) {
 
 // Pin19 input via interrupts
 ISR(INT2_vect) {
-	/*
-	if (pf_conf.avr_pin19_map == PIN19_TRIG_IN) {
-#ifdef SF_ENABLE_PWM
-		PWM_pulsefire();
-#endif
-		return;
-	}
-	if (pf_conf.avr_pin19_map == PIN19_FREQ_IN) {
-		pf_data.dev_freq_cnt++;
-		return;
-	}
-#ifdef SF_ENABLE_PWM
-	if (pf_conf.avr_pin19_map == PIN19_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
-		return;
-	}
-	if (pf_conf.avr_pin19_map == PIN19_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
-		return;
-	}
-#endif
-*/
+	Sys_do_int(ZERO);
 }
 
 ISR(INT3_vect) {
-	/*
-	if (pf_conf.avr_pin18_map == PIN18_TRIG_IN) {
-#ifdef SF_ENABLE_PWM
-		PWM_pulsefire();
-#endif
-		return;
-	}
-	if (pf_conf.avr_pin18_map == PIN18_FREQ_IN) {
-		pf_data.dev_freq_cnt++;
-		return;
-	}
-#ifdef SF_ENABLE_PWM
-	if (pf_conf.avr_pin18_map == PIN18_FIRE_IN && pf_data.pulse_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_fire),ZERO,ZERO,ONE);
-		return;
-	}
-	if (pf_conf.avr_pin18_map == PIN18_HOLD_FIRE_IN && pf_data.pulse_hold_fire == ZERO) {
-		Vars_setValueInt(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.pulse_hold_fire),ZERO,ZERO,ONE);
-		return;
-	}
-#endif
-*/
+	Sys_do_int(ONE);
 }
 
 ISR(TIMER0_OVF_vect) {
-	pf_data.sys_time_ticks++;
-	if (pf_data.sys_time_ticks >= (F_CPU/8/256/100)) {
-		pf_data.sys_time_ticks=ZERO;
-		pf_data.sys_time_ssec++;
+	Sys_time_int();
+#ifdef SF_ENABLE_SPI
+	if (pf_data.spi_int_req>ZERO) {
+		digitalWrite(IO_MEGA_SPI_DOC_E_PORT,pf_data.spi_int_pin,ZERO);
+		if (pf_data.spi_int_req==2) {
+			shiftOut(pf_data.spi_int_data16); // shift high first
+		}
+		shiftOut(pf_data.spi_int_data8);
+		digitalWrite(IO_MEGA_SPI_DOC_E_PORT,pf_data.spi_int_pin,ONE);
+		pf_data.spi_int_req=ZERO;
 	}
+#endif
 }
 
 ISR(ADC_vect) {

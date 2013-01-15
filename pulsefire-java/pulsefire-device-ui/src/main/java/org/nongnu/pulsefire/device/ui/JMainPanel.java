@@ -40,7 +40,6 @@ import javax.swing.UIManager;
 import org.nongnu.pulsefire.device.ui.tabs.AbstractFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCip;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCit;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelInput;
@@ -83,7 +82,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabPanels.add(new JTabPanelSystem());
 		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
-		tabPanels.add(new JTabPanelCit());
 		tabPanels.add(new JTabPanelCip());
 		tabPanels.add(new JTabPanelStv());
 		tabPanels.add(new JTabPanelPtc());

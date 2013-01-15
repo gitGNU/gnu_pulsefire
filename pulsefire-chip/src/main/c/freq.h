@@ -35,7 +35,6 @@ uint32_t calc_pwm_speed(uint8_t idx);
 uint32_t calc_pwm_loop(uint8_t idx);
 uint32_t calc_pwm_freq(uint8_t idx);
 void Freq_requestTrainFreq(void);
-void Freq_loop(void);
 #endif
 
 // end include
