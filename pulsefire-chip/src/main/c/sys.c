@@ -86,11 +86,13 @@ void Sys_loop(void) {
 	}
 	pf_data.int_time_cnt = current_time + 1000; // check every second
 
+#ifdef SF_ENABLE_PWM
 	// also update pulse_fire_freq here when is different
 	if (pf_data.pulse_fire_freq_cnt != pf_data.pulse_fire_freq) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataPulseFireFreq)),ZERO,ZERO,pf_data.pulse_fire_freq_cnt);
 	}
 	pf_data.pulse_fire_freq_cnt = ZERO;
+#endif
 
 	if (pf_data.int_0freq_cnt != pf_data.int_0freq) {
 		Vars_setValue(Vars_getIndexFromName(UNPSTR(pmDataInt0Freq)),ZERO,ZERO,pf_data.int_0freq_cnt);
