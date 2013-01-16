@@ -89,6 +89,7 @@ const char pmConfDicMap[]              CHIP_PROGMEM = "dic_map";
 const char pmConfDicEnable[]           CHIP_PROGMEM = "dic_enable";
 const char pmConfDicInv[]              CHIP_PROGMEM = "dic_inv";
 const char pmConfDicSync[]             CHIP_PROGMEM = "dic_sync";
+const char pmConfDicMux[]              CHIP_PROGMEM = "dic_mux";
 const char pmConfAdcMap[]              CHIP_PROGMEM = "adc_map";
 const char pmConfAdcEnable[]           CHIP_PROGMEM = "adc_enable";
 const char pmConfAdcJitter[]           CHIP_PROGMEM = "adc_jitter";

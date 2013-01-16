@@ -225,6 +225,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_enable,          (CHIP_PTR_TYPE)&pmConfDicEnable,       0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_inv,             (CHIP_PTR_TYPE)&pmConfDicInv,          0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.dic_sync,            (CHIP_PTR_TYPE)&pmConfDicSync,         0xFFFF,              PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.dic_mux,             (CHIP_PTR_TYPE)&pmConfDicMux,          ONE,                 PFVB_NOMAP+PFVB_NOMENU,         ZERO},
 
 #ifdef SF_ENABLE_CIP
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.cip_0clock,          (CHIP_PTR_TYPE)&pmConfCip0Clock,       8,                   PFVB_NONE,                      ZERO},
@@ -831,26 +832,26 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
-	/*
-	if ( varName == (uint16_t)&pmConfAVRPin18Map) {
-		if (pf_conf.avr_pin18_map == PIN18_TRIG_IN || pf_conf.avr_pin18_map == PIN18_FREQ_IN || pf_conf.avr_pin18_map == PIN18_FIRE_IN || pf_conf.avr_pin18_map == PIN18_HOLD_FIRE_IN) {
+	if ( varName == (uint16_t)&pmConfInt0Mode) {
+		if (value > ZERO) {
 			Chip_in_int_pin(ZERO,ZERO);
 		} else {
-			Chip_in_int_pin(ZERO,ONE);
+			Chip_in_int_pin(ZERO,ONE); // on mega turn int off when mode is off.
 		}
 	}
-	if ( varName == (uint16_t)&pmConfAVRPin19Map) {
-		if (pf_conf.avr_pin19_map == PIN19_FREQ_IN || pf_conf.avr_pin19_map == PIN19_FIRE_IN || pf_conf.avr_pin19_map == PIN19_HOLD_FIRE_IN) {
+	if ( varName == (uint16_t)&pmConfInt0Mode) {
+		if (value > ZERO) {
 			Chip_in_int_pin(ONE,ZERO);
 		} else {
 			Chip_in_int_pin(ONE,ONE);
 		}
 	}
-	*/
+#endif
+#ifdef SF_ENABLE_SPI
+	if ( varName == (CHIP_PTR_TYPE)&pmConfSpiClock)  {	Chip_reg_set(CHIP_REG_SPI_CLOCK,value);		}
 #endif
 #ifdef SF_ENABLE_PWM
 	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMClock)  {	Chip_reg_set(CHIP_REG_PWM_CLOCK,value);		}
-	//if ( varName == (CHIP_PTR_TYPE)&pmConfPulseMode) {	Vars_resetData();	}
 #endif
 #ifdef SF_ENABLE_CIP
 	if ( varName == (CHIP_PTR_TYPE)&pmConfCip0Clock) {	Chip_reg_set(CHIP_REG_CIP0_CLOCK,value);	}

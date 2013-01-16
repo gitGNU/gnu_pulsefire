@@ -31,6 +31,7 @@ Version 1.1.0:
 - Replaced dev_freq.* to int_0freq/etc.
 - Dropped CIT (8bit-timer) support.
 - Changed avr_pin2/3 to input only.
+- Added dic_mux for mux chip mode select.
  
 
 Version 1.0.4:

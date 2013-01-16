@@ -42,8 +42,8 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 6     OUT     OSC-4A      <--         <--         <--         CIP 2
 - 7     OUT     OSC-4B      <--         <--         <--         CIP 2
 - 8     OUT     OSC-4C      <--         <--         <--         CIP 2
-- 9     OUT     OSC-2B      <--         <--         <--         CIT 0 = 8 bit
-- 10    OUT     OSC-2A      <--         <--         <--         CIT 0 = 8 bit
+- 9     n/a     free        <--         <--         <--
+- 10    n/a     free        <--         <--         <--
 - 11    OUT     OSC-1A      <--         <--         <--         CIP 0
 - 12    OUT     OSC-1B      <--         <--         <--         CIP 0
 - 13    OUT     OSC-1C      <--         <--         <--         CIP 0
@@ -415,6 +415,9 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_CIP2_OCR_C:	OCR4C = value;											break;
 	case CHIP_REG_CIP2_COM_C:	TCCR4A = (TCCR4A & (0xFF-12))  + ((value & 3) << 2);	break;
 #endif
+#ifdef SF_ENABLE_SPI
+	case CHIP_REG_SPI_CLOCK:	SPCR = (SPCR & (0xFF-3))   + (value & 3);;		break;
+#endif
 	default:
 		break;
 	}
@@ -561,14 +564,16 @@ void Chip_in_adc(uint8_t channel) {
 }
 
 uint16_t Chip_in_dic(void) {
-	uint16_t result = PINL >> 4; // read upper nibble for 4 bit DIC
-
-	// Read high dic only if no lcd or when lcd is extended.
-#ifndef SF_ENABLE_LCD
-	result += PINC << 8;
-#elif SF_ENABLE_SPI
-	result += PINC << 8;
-#endif
+	uint16_t result = ZERO;
+	if (pf_conf.dic_mux > ZERO) {
+		for (uint8_t i=ZERO;i < DIC_MAP_MAX/4  ;i++) {
+			digitalWrite(IO_MEGA_DIC_MUX_PORT,IO_MEGA_DIC_MUX_0_PIN,i & 1);
+			digitalWrite(IO_MEGA_DIC_MUX_PORT,IO_MEGA_DIC_MUX_1_PIN,(i & 2) > ZERO);
+			result += (PINL >> 4) << (i*4);
+		}
+	} else {
+		result = PINL >> 4; // read upper nibble for 4 bit DIC
+	}
 	return result;
 }
 

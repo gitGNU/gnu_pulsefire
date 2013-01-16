@@ -273,12 +273,10 @@ public class CommandNameVersionFactory {
 			};
 		
 		CommandName.spi_clock.listValues = new String[] {
-				"/0",
+				"/2",
 				"/8",
-				"/16",
 				"/32",
-				"/64",
-				"/128"
+				"/64"
 			};
 
 		CommandName.dev_volt_dot.listValues = new String[] {
@@ -292,45 +290,44 @@ public class CommandNameVersionFactory {
 		CommandName.dev_temp_dot.listValues = CommandName.dev_volt_dot.listValues;
 		
 		CommandName.avr_pin2_map.listValues = new String[] {
-				"PIN2_OFF",
-				"PIN2_DIC2_IN",
-				"PIN2_DIC8_IN",
-				"PIN2_INT0_IN"
+				"OFF",
+				"DIC2_IN",
+				"DIC8_IN",
+				"INT0_IN"
 			};
 		CommandName.avr_pin3_map.listValues = new String[] {
-				"PIN3_OFF",
-				"PIN3_DIC3_IN",
-				"PIN3_DIC9_IN",
-				"PIN3_INT1_IN"
+				"OFF",
+				"DIC3_IN",
+				"DIC9_IN",
+				"INT1_IN"
 			};
 		CommandName.avr_pin4_map.listValues = new String[] {
-				"PIN4_OFF",
-				"PIN4_MENU1_IN",
-				"PIN4_DIC4_IN",
-				"PIN4_DIC10_IN",
-				"PIN4_DOC4_OUT",
-				"PIN4_DOC10_OUT"
+				"OFF",
+				"DIC4_IN",
+				"DIC10_IN",
+				"DOC4_OUT",
+				"DOC10_OUT"
 			};
 		CommandName.avr_pin5_map.listValues = new String[] {
-				"PIN5_OFF",
-				"PIN5_CLOCK_IN",
-				"PIN5_DIC5_IN",
-				"PIN5_DIC11_IN",
-				"PIN5_DOC5_OUT",
-				"PIN5_DOC11_OUT"
+				"OFF",
+				"DIC5_IN",
+				"DIC11_IN",
+				"DOC5_OUT",
+				"DOC11_OUT",
+				"PWM_CLK_IN",
 			};
 		
 		CommandName.mega_port_a.listValues = new String[] {
-				"PORTA_OFF",
-				"PORTA_OUT8",
-				"PORTA_DOC8"
+				"OFF",
+				"OUT8",
+				"DOC8"
 			};
 		
 		CommandName.mega_port_c.listValues = new String[] {
-				"PORTC_OFF",
-				"PORTC_OUT16",
-				"PORTC_DOC8",
-				"PORTC_DOC16"
+				"OFF",
+				"OUT16",
+				"DOC8",
+				"DOC16"
 			};
 		
 		

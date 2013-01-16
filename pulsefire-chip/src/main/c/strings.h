@@ -91,6 +91,7 @@ extern const char pmConfDicMap[];
 extern const char pmConfDicEnable[];
 extern const char pmConfDicInv[];
 extern const char pmConfDicSync[];
+extern const char pmConfDicMux[];
 extern const char pmConfAdcMap[];
 extern const char pmConfAdcEnable[];
 extern const char pmConfAdcJitter[];

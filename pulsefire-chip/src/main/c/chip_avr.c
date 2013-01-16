@@ -354,6 +354,9 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_PWM_OCR_B:	OCR1B = value;			break;
 	case CHIP_REG_PWM_TCNT:		TCNT1 = value;			break;
 #endif
+#ifdef SF_ENABLE_SPI
+	case CHIP_REG_SPI_CLOCK:	SPCR = (SPCR & (0xFF-3))   + (value & 3);;		break;
+#endif
 	default:
 		break;
 	}
@@ -541,8 +544,7 @@ uint16_t Chip_in_dic(void) {
 	}
 
 #ifdef SF_ENABLE_SPI
-	uint8_t chips = pf_conf.spi_chips;
-	if ((chips & SPI_CHIPS_LCD_MUX) > ZERO) {
+	if (pf_conf.dic_mux > ZERO) {
 		for (uint8_t i=ZERO;i < DIC_MAP_MAX/2  ;i++) {
 			Chip_out_lcd(0x80,LCD_SEND_CMD,i/2);
 			if (i==2  && pf_conf.avr_pin2_map == PIN2_DIC2_IN)  { continue; }

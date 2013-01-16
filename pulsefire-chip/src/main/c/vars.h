@@ -96,6 +96,7 @@ typedef struct {
 	volatile uint16_t      adc_map[ADC_MAP_MAX][QMAP_SIZE]; // Map analog inputs to variable
 #endif
 
+	volatile uint8_t       dic_mux;                         // Dic multiplex enable
 	volatile uint16_t      dic_enable;                      // Per input enable bit field.
 	volatile uint16_t      dic_inv;                         // Per input invert bit field.
 	volatile uint16_t      dic_sync;                        // Per input sync bit field if true then mapping if run on change event else trigger to zero.
@@ -401,7 +402,7 @@ extern pf_conf_struct       pf_conf;
 
 // Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     33
+#define PF_VARS_PF_SIZE     34
 #ifdef SF_ENABLE_SPI
 	#define PF_VARS_SPI_SIZE  2
 #else

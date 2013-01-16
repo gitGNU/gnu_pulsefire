@@ -49,18 +49,20 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 	
 	
 	public JTabPanelPwmExt() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new SpringLayout());
 		topPanel.add(createPulseOutput());
 		topPanel.add(createPulseHold());
 		topPanel.add(createPulseTriggers());
 		SpringLayoutGrid.makeCompactGrid(topPanel,1,3,0,0,0,0);
+		
+		JPanel wrap = new JPanel();
+		wrap.setLayout(new SpringLayout());
 		wrap.add(topPanel);
 		wrap.add(createPulseEvents());
-		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,0,6,6);
+		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,6,6);
+		
+		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(wrap);
 	}
 

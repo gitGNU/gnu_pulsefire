@@ -155,6 +155,7 @@ public enum CommandName {
 	dic_enable				(CommandVariableType.CONF),
 	dic_inv					(CommandVariableType.CONF),
 	dic_sync				(CommandVariableType.CONF),
+	dic_mux					(CommandVariableType.CONF),
 	
 	avr_pin2_map			(CommandVariableType.CONF,WireChipFlags.AVR),
 	avr_pin3_map			(CommandVariableType.CONF,WireChipFlags.AVR),

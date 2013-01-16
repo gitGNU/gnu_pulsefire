@@ -50,15 +50,12 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 	private static final long serialVersionUID = -552322342345005654L;
 
 	public JTabPanelPins() {
-		//setLayout(new SpringLayout());
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
 		JPanel wrapL = new JPanel();
 		wrapL.setLayout(new SpringLayout());
-		wrapL.add(createSpi());
+		wrapL.add(createChips());
 		wrapL.add(createPinsAvrMega());
 		SpringLayoutGrid.makeCompactGrid(wrapL,2,1,0,0,6,6);
 		
@@ -67,19 +64,23 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		wrapT.add(wrapL);
 		wrapT.add(createPinsAvr());
 		wrapT.add(createPinsArm());
-		SpringLayoutGrid.makeCompactGrid(wrapT,1,3);
+		SpringLayoutGrid.makeCompactGrid(wrapT,1,3,0,0,6,6);
 		
 		wrap.add(wrapT);
 		wrap.add(createInt());
-		SpringLayoutGrid.makeCompactGrid(wrap,2,1,0,0,0,0);
-		add(wrap);
+		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,0,0);
 		
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(wrap);
 	}
 	
-	private JPanel createSpi() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"spi");
+	private JPanel createChips() {
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"chips");
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
+		
+		ioPanel.add(new JCommandLabel(CommandName.dic_mux));
+		ioPanel.add(new JCommandCheckBox(CommandName.dic_mux));
 		
 		ioPanel.add(new JCommandLabel(CommandName.spi_clock));
 		ioPanel.add(new JCommandComboBox(CommandName.spi_clock));
@@ -99,31 +100,31 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
 		box = new JCommandCheckBox(CommandName.spi_chips,2);
-		box.setText("LCD");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,3);
-		box.setText("LCD_MUX");
-		box.putClientProperty("JComponent.sizeVariant", "mini");
-		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,4);
 		box.setText("DOC8");
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,5);
+		box = new JCommandCheckBox(CommandName.spi_chips,3);
 		box.setText("DOC16");
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,6);
+		box = new JCommandCheckBox(CommandName.spi_chips,4);
+		box.setText("LCD");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,5);
 		box.setText("FREE0");
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
-		box = new JCommandCheckBox(CommandName.spi_chips,7);
+		box = new JCommandCheckBox(CommandName.spi_chips,6);
 		box.setText("FREE1");
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
+		box = new JCommandCheckBox(CommandName.spi_chips,7);
+		box.setText("FREE2");
+		box.putClientProperty("JComponent.sizeVariant", "mini");
+		chipsPanel.add(box);
 		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,2,2);
+		SpringLayoutGrid.makeCompactGrid(ioPanel,3,2);
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}
@@ -200,7 +201,10 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		SpringLayoutGrid.makeCompactGrid(ioPanel,2,6);
 		
 		wrapPanel.add(ioPanel);
-		wrapPanel.add(new JFireQMapTable(CommandName.int_map,"int0","int1"));
+		JPanel tablePanel = new JPanel();
+		tablePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		tablePanel.add(new JFireQMapTable(CommandName.int_map,"int0","int1"));
+		wrapPanel.add(tablePanel);
 		
 		return wrapPanel;
 	}
