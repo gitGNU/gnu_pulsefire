@@ -32,7 +32,9 @@ Version 1.1.0:
 - Dropped CIT (8bit-timer) support.
 - Changed avr_pin2/3 to input only.
 - Added dic_mux for mux chip mode select.
- 
+- Added info_vars to output all variable meta data in one go.
+- Removed all(5) help arguments, now it only lists the help.
+
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 

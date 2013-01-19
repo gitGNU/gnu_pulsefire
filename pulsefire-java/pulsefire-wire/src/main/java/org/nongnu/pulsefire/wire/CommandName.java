@@ -36,6 +36,7 @@ public enum CommandName {
 	help					(CommandVariableType.CMD),
 	save					(CommandVariableType.CMD),
 	
+	info_vars				(CommandVariableType.INFO),
 	info_conf				(CommandVariableType.INFO),
 	info_data				(CommandVariableType.INFO),
 	info_prog				(CommandVariableType.INFO),
@@ -272,8 +273,6 @@ public enum CommandName {
 	
 	pwm_state				(CommandVariableType.DATA),
 	pwm_loop_cnt			(CommandVariableType.DATA),
-	pwm_loop_max			(CommandVariableType.DATA),
-	ppm_idx					(CommandVariableType.DATA),
 	
 	mal_fire				(CommandVariableType.DATA),
 	mal_time_cnt			(CommandVariableType.DATA),
@@ -291,6 +290,7 @@ public enum CommandName {
 	
 	info_freq_data			(CommandVariableType.DATA),
 	info_pwm_data			(CommandVariableType.DATA),
+	info_pwm_steps			(CommandVariableType.DATA),
 
 	sys_time_ticks			(CommandVariableType.PROG), /// new v1.0
 	sys_time_ssec			(CommandVariableType.PROG),
@@ -315,6 +315,8 @@ public enum CommandName {
 	pulse_trig_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_trig_delay_cnt	(CommandVariableType.DATA),
 	pulse_post_delay_cnt	(CommandVariableType.DATA),
+	pwm_loop_max			(CommandVariableType.DATA),
+	ppm_idx					(CommandVariableType.DATA),
 	dev_freq				(CommandVariableType.DATA),
 	dev_freq_cnt			(CommandVariableType.DATA),
 	avr_pin18_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
@@ -346,6 +348,7 @@ public enum CommandName {
 	protected int maxIndexA = -1;
 	protected int maxIndexB = -1;
 	protected int mapIndex = -1;
+	protected int bits = -1;
 	protected boolean mapIndexTrigger = false;
 	protected boolean disabled = false;
 	protected String[] listValues = null;
@@ -437,6 +440,10 @@ public enum CommandName {
 	
 	public boolean isMagicTopListValue() {
 		return magicTopListValue;
+	}
+	
+	public int getBits() {
+		return bits;
 	}
 	
 	static public CommandName valueOfMapIndex(int mapIdx) {

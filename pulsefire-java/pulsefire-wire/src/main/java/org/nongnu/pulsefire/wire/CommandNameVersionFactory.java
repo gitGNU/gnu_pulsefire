@@ -35,6 +35,9 @@ public class CommandNameVersionFactory {
 	static public void configCommandId(int version,CommandName commandName,int value) {
 		commandName.id=value;
 	}
+	static public void configCommandBits(int version,CommandName commandName,int value) {
+		commandName.bits=value;
+	}
 	static public void configCommandMax(int version,CommandName commandName,int value) {
 		commandName.maxValue=value;
 	}
@@ -330,7 +333,7 @@ public class CommandNameVersionFactory {
 				"DOC16"
 			};
 		
-		
+		CommandName.info_pwm_data.maxIndexA=64; // todo: redesign.
 		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
 		CommandName.freq_pwm_data.maxIndexB=3;
 	//	CommandName.req_ptt_fire.maxIndexA=3;

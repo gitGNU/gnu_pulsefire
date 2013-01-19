@@ -48,7 +48,7 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define PWM_DATA_MAX               64    // PWM output steps buffer.
-#define PMCMDLIST_SIZE             17    // Array size of other commands.
+#define PMCMDLIST_SIZE             18    // Array size of other commands.
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define SPI_CLOCK_MAX               3    // 4 spi clock modes
@@ -259,6 +259,8 @@ typedef struct {
 
 // PulseFire internal data
 typedef struct {
+	volatile uint8_t       rm_this_align_fill_bug; // TODO: fixme else 32b counter upper byte comes in cip_2c_com
+
 	volatile uint32_t      sys_main_loop_cnt;      // Counter of main loop
 	volatile uint32_t      sys_input_time_cnt;
 #ifdef SF_ENABLE_ADC
@@ -330,7 +332,7 @@ typedef struct {
 	volatile uint8_t       pulse_fire;             // The Pulse Fire for internal triggering of pulse
 	volatile uint16_t      pulse_fire_cnt;         // Counter for pulsefire 
 	volatile uint16_t      pulse_fire_freq;        // The pulsefire cnt freq
-	volatile uint16_t      pulse_fire_freq_cnt;    // The pulsefire cnt freq internal counter
+	volatile uint16_t      pulse_fire_freq_cnt;    // The pulsefire cnt freq internal counter // todo missing in vars
 	volatile uint8_t       pulse_hold_fire;        // Holds or resets the pulse fire state.
 	volatile uint8_t       pulse_reset_fire;       // Resets pulse train
 	volatile uint8_t       pulse_resume_fire;      // Resume pulse train after hold.
@@ -338,8 +340,6 @@ typedef struct {
 
 	volatile uint8_t       pwm_state;              // Interal state of pwm
 	volatile uint8_t       pwm_loop_cnt;           // Pwm loop counter for this step
-
-	volatile uint8_t       ppm_idx[OUTPUT_MAX];    // PPM data index of output state.
 #endif
 
 #ifdef SF_ENABLE_MAL
@@ -348,19 +348,18 @@ typedef struct {
 
 
 	// == 5 Special variables because these 4 are not in the VARS list !!! ==
-	char unpstr_buff[UNPSTR_BUFF_SIZE];    // buffer to copy progmem data into
-	volatile char          cmd_buff[CMD_BUFF_SIZE]; // Command buffer for serial cmds
-	volatile uint8_t       cmd_buff_idx;         // Command index
-	volatile uint8_t       cmd_process;          // Processing command
+	char                   unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
+	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
+	volatile uint8_t       cmd_buff_idx;                  // Command index
+	volatile uint8_t       cmd_process;                   // Processing command
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
 	volatile uint16_t      pwm_data[PWM_DATA_MAX][2];
 	volatile uint8_t       pwm_data_max;
 
-	volatile uint8_t       spi_int_req;
+	volatile uint8_t       spi_int_req;  // note spi_ not in vars !
 	volatile uint8_t       spi_int_pin;
 	volatile uint8_t       spi_int_data8;
 	volatile uint8_t       spi_int_data16;
-
 
 	volatile uint8_t       sys_time_ticks; // Timer0 ticks
 	volatile uint32_t      sys_time_ssec;  // 1/10 of seconds ticks.
@@ -384,13 +383,13 @@ typedef struct {
 	volatile uint8_t       mal_pc_fire;          // Temp store pc when run from trigger (NOTE; not in PF_VARS)
 	volatile uint8_t       mal_state;            // program state
 	volatile uint16_t      mal_var[MAL_VAR_MAX]; // mal internal variables
-	volatile uint32_t      mal_time_cnt;         // mal time cnt
+	volatile uint32_t      mal_time_cnt;         // mal time cnt // todo in data var not in prog ?
 #endif
 
 #ifdef SF_ENABLE_STV
 	volatile uint8_t       stv_state;
 	volatile uint32_t      stv_time_cnt;
-	volatile uint8_t       stv_wait_cnt;
+	volatile uint8_t       stv_wait_cnt; // todo missing in vars
 	volatile uint8_t       stv_map_idx;
 #endif
 
@@ -402,14 +401,14 @@ extern pf_conf_struct       pf_conf;
 
 // Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     34
+#define PF_VARS_PF_SIZE     36
 #ifdef SF_ENABLE_SPI
 	#define PF_VARS_SPI_SIZE  2
 #else
 	#define PF_VARS_SPI_SIZE  0
 #endif
 #ifdef SF_ENABLE_PWM
-	#define PF_VARS_PWM_SIZE  48
+	#define PF_VARS_PWM_SIZE  47
 #else
 	#define PF_VARS_PWM_SIZE  0
 #endif
@@ -484,11 +483,11 @@ boolean Vars_isNolimit(byte idx);
 boolean Vars_isIndexA(byte idx);
 boolean Vars_isIndexB(byte idx);
 boolean Vars_isNomap(byte idx);
-boolean Vars_isBitSize32(byte idx);
 boolean Vars_isMenuSkip(byte idx);
 boolean Vars_isNoReset(byte idx);
 boolean Vars_isTypeData(byte idx);
 char*   Vars_getName(uint8_t idx);
+uint8_t Vars_getBitType(byte idx);
 uint8_t Vars_getIndexAMax(uint8_t idx);
 uint8_t Vars_getIndexBMax(uint8_t idx);
 uint16_t Vars_getDefaultValue(uint8_t idx);

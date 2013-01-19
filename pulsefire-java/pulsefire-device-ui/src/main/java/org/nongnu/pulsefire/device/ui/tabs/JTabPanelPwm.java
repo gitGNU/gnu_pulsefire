@@ -50,6 +50,7 @@ import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireBorderChild;
+import org.nongnu.pulsefire.device.ui.components.JFirePwmInfo;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -67,7 +68,19 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 
 	public JTabPanelPwm() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
+		//setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
+		add(createContent());
+	}
+	
+	public JPanel getJPanelSide() {
+		JPanel result = new JPanel();
+		result.setLayout(new GridLayout(1,1,0,0));
+		result.add(new JFirePwmInfo());
+		return result;
+	}
+	
+	private JPanel createContent() {
+		JPanel result = new JPanel();
 		
 		channels = new ArrayList<JPanel>(16);
 		channelsEmpty = new ArrayList<JPanel>(16);
@@ -85,6 +98,9 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		topLayoutPanel.setLayout(new FlowLayout(FlowLayout.LEFT,6,0));
 		JPanel pulsePanel = createTopPulse();
 		topLayoutPanel.add(pulsePanel);
+		JPanel delayPanel = createTopDelay();
+		delayPanel.setPreferredSize(new Dimension(delayPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
+		topLayoutPanel.add(delayPanel);
 		JPanel pwmPanel = createTopPWM();
 		pwmPanel.setPreferredSize(new Dimension(pwmPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
 		topLayoutPanel.add(pwmPanel);
@@ -103,7 +119,9 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		splitPanel.add(createChannelAll());
 		topPanel.add(splitPanel,BorderLayout.CENTER);
 		
-		add(topPanel);
+		result.add(topPanel);
+		
+		return result;
 	}
 	
 	private JPanel createChannelAll() {
@@ -416,26 +434,12 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		return resultPanel;
 	}
 	
-	private JPanel createTopPulse() {
-		JPanel borderPanel = JComponentFactory.createJFirePanel(this,"pulse");
+	private JPanel createTopDelay() {
+		JPanel borderPanel = JComponentFactory.createJFirePanel(this,"delay");
 		
 		JPanel splitPanel = new JPanel();
 		splitPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		borderPanel.add(splitPanel);
-		
-		JPanel pulsePanel = new JPanel();
-		pulsePanel.setLayout(new SpringLayout());
-		splitPanel.add(pulsePanel);
-		
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_mode));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_mode));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_trig));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_trig));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_bank));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_bank));
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,4);
 		
 		JPanel delayPanel = new JPanel();
 		delayPanel.setLayout(new SpringLayout());
@@ -460,6 +464,30 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		postPanel.add(new JCommandComboBox(CommandName.pulse_post_hold));
 		SpringLayoutGrid.makeCompactGrid(postPanel,2,1);
 		
+		return borderPanel;
+	}
+	
+	private JPanel createTopPulse() {
+		JPanel borderPanel = JComponentFactory.createJFirePanel(this,"pulse");
+		
+		JPanel splitPanel = new JPanel();
+		splitPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		borderPanel.add(splitPanel);
+		
+		JPanel pulsePanel = new JPanel();
+		pulsePanel.setLayout(new SpringLayout());
+		splitPanel.add(pulsePanel);
+		
+		pulsePanel.add(new JCommandLabel(CommandName.pulse_mode));
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_mode));
+		pulsePanel.add(new JCommandLabel(CommandName.pulse_dir));
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));
+		pulsePanel.add(new JCommandLabel(CommandName.pulse_trig));
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_trig));
+		pulsePanel.add(new JCommandLabel(CommandName.pulse_bank));
+		pulsePanel.add(new JCommandComboBox(CommandName.pulse_bank));
+		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,4);
+				
 		return borderPanel;
 	}
 

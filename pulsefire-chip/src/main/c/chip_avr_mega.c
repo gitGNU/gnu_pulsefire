@@ -416,7 +416,7 @@ void Chip_reg_set(uint8_t reg,uint16_t value) {
 	case CHIP_REG_CIP2_COM_C:	TCCR4A = (TCCR4A & (0xFF-12))  + ((value & 3) << 2);	break;
 #endif
 #ifdef SF_ENABLE_SPI
-	case CHIP_REG_SPI_CLOCK:	SPCR = (SPCR & (0xFF-3))   + (value & 3);;		break;
+	case CHIP_REG_SPI_CLOCK:	SPCR = (SPCR & (0xFF-3))   + (value & 3);				break;
 #endif
 	default:
 		break;
@@ -609,7 +609,7 @@ ISR(ADC_vect) {
 
 ISR(TIMER5_COMPA_vect) {
 #ifdef SF_ENABLE_PWM
-	PWM_do_work();
+	PWM_work_int();
 #endif
 }
 
@@ -621,18 +621,11 @@ ISR(USART0_RX_vect) {
 }
 
 ISR(TIMER2_COMPA_vect) {
-#ifdef SF_ENABLE_CIT
-#endif
 }
 
 ISR(TIMER2_COMPB_vect) {
-#ifdef SF_ENABLE_CIT
-#endif
 }
 
 ISR(TIMER2_OVF_vect) {
-#ifdef SF_ENABLE_CIT
-#endif
 }
-
 

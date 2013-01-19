@@ -33,7 +33,7 @@
 void PWM_calc_data(void);
 void PWM_pulsefire(void);
 void PWM_send_output(uint16_t data);
-void PWM_do_work(void);
+void PWM_work_int(void);
 #endif
 
 // end include

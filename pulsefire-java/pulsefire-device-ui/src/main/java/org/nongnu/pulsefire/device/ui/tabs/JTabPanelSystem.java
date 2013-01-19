@@ -57,7 +57,7 @@ import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
-import org.nongnu.pulsefire.device.ui.time.PulseFireDataPuller;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 import org.nongnu.pulsefire.wire.CommandVariableType;

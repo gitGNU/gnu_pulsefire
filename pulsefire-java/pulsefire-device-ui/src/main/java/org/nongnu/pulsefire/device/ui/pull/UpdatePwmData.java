@@ -21,61 +21,63 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device;
+package org.nongnu.pulsefire.device.ui.pull;
 
-import java.util.List;
-
+import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.DeviceDataListener;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
- * DeviceWireManager does the connecting to device.
+ * UpdatePwmData updates pwm/freq data after pwm config change.
  * 
  * @author Willem Cazander
- * @see DeviceWireManager
  */
-public interface DeviceWireManager {
+public class UpdatePwmData implements Runnable,DeviceConnectListener,DeviceDataListener {
 
-	// main 
-	List<String> getDevicePorts();
-	boolean connect(String port) throws Exception;
-	void disconnect(boolean error);
-	DeviceData getDeviceData();
+	static public final int INIT_SPEED = 500;
+	private volatile boolean run = false;
+	private volatile boolean update = false;
 	
-	// api
-	DeviceCommandRequest requestCommand(Command command);
-	void addDeviceDataListener(DeviceDataListener dataListener);
-	void removeDeviceDataListener(DeviceDataListener dataListener);
-	void addDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener);
-	void removeDeviceCommandListener(CommandName cn,DeviceCommandListener commandListener);
-	void addDeviceConnectListener(DeviceConnectListener connectListener);
-	void removeDeviceConnectListener(DeviceConnectListener connectListener);
+	public UpdatePwmData() {
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
+	}
 	
-	// meta info
-	boolean isConnected();
-	int getDeviceVersion();
-	int getConnectProgress();
-	String getConnectPhase();
-	
-	// stats
-	/**
-	 * @return the totalErrors
-	 */
-	int getTotalErrors();
+	@Override
+	public void run() {
+		if (run && update) {
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_pwm));
+			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
+			update = false;
+		}
+	}
 
-	/**
-	 * @return the totalCmdTx
-	 */
-	long getTotalCmdTx();
+	@Override
+	public void deviceConnect() {
+		run = true;
+	}
 
-	/**
-	 * @return the totalCmdRx
-	 */
-	long getTotalCmdRx();
-	
-	// TODO CLEAN TO INTERFACE
-	void fireSerialConnect(boolean connected);
-	void fireDataSend(String data);
-	void fireDataReceived(String data);
-	void fireCommandReceived(Command command);
+	@Override
+	public void deviceDisconnect() {
+		run = false;
+	}
+
+	@Override
+	public void deviceDataSend(String data) {
+	}
+
+	@Override
+	public void deviceDataReceived(String data) {
+		for (CommandName cn:CommandName.values()) {
+			if (cn.getBits() > 0) {
+				if ((cn.getBits() & 2) > 0) { // TODO add var bits enum
+					if (data.contains(cn.name())) {
+						update = true;
+					}
+				}
+			}
+		}
+	}
 }

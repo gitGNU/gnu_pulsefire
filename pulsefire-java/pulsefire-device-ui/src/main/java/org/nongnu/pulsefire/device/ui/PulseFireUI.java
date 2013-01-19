@@ -56,9 +56,11 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.DeviceWireManagerController;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData;
+import org.nongnu.pulsefire.device.ui.pull.UpdatePwmData;
 import org.nongnu.pulsefire.device.ui.time.EventTimeManager;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
-import org.nongnu.pulsefire.device.ui.time.PulseFireDataPuller;
 import org.nongnu.pulsefire.wire.serial.SerialDeviceWireManager;
 
 
@@ -312,6 +314,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			}
 			
 			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),PulseFireDataPuller.INIT_SPEED));
+			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("updatePwmData",new UpdatePwmData(),UpdatePwmData.INIT_SPEED));
 			//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
 			long stopTime = System.currentTimeMillis();
 			logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");

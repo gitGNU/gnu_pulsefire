@@ -32,6 +32,8 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
+
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 import org.nongnu.pulsefire.wire.CommandNameVersionFactory;
@@ -53,6 +55,9 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	protected int connectProgress = 0;
 	protected String connectPhase = null;
 	protected DeviceData deviceData = null;
+	protected int totalErrors = 0;
+	protected long totalCmdTx = 0;
+	protected long totalCmdRx = 0;
 	
 	public AbstractDeviceWireManager() {
 		sendCommandQueue = new LinkedBlockingQueue<DeviceCommandRequest>();
@@ -66,8 +71,11 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	@Override
 	public void disconnect(boolean error) {
 		deviceData.clearParameters();
-		connectProgress = 0;
 		sendCommandQueue.clear();
+		connectProgress = 0;
+		totalErrors = 0;
+		totalCmdTx = 0;
+		totalCmdRx = 0;
 		if (isConnected()) {
 			fireSerialConnect(false);
 			deviceVersion = 0;
@@ -113,21 +121,28 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		connectPhase = "push promt";connectProgress = 12;
 		requestCommand(new Command(CommandName.req_tx_promt,"0")).waitForResponseChecked();
 		
-		connectPhase = "help max";connectProgress = 15;
-		requestCommand(new Command(CommandName.help,		"max")).waitForResponseChecked();
-		connectPhase = "help map";connectProgress = 20;
-		requestCommand(new Command(CommandName.help,		"map")).waitForResponseChecked();
-		connectPhase = "help idx";connectProgress = 25;
-		requestCommand(new Command(CommandName.help,		"idx")).waitForResponseChecked();
-		connectPhase = "help idg";connectProgress = 27;
-		requestCommand(new Command(CommandName.help,		"idg")).waitForResponseChecked();
+		if (deviceVersion>=11) {
+			connectPhase = "info vars";connectProgress = 20;
+			requestCommand(new Command(CommandName.info_vars)).waitForResponseChecked();
+		} else {
+			connectPhase = "help max";connectProgress = 15;
+			requestCommand(new Command(CommandName.help,		"max")).waitForResponseChecked();
+			connectPhase = "help map";connectProgress = 20;
+			requestCommand(new Command(CommandName.help,		"map")).waitForResponseChecked();
+			connectPhase = "help idx";connectProgress = 25;
+			requestCommand(new Command(CommandName.help,		"idx")).waitForResponseChecked();
+			connectPhase = "help idg";connectProgress = 27;
+			requestCommand(new Command(CommandName.help,		"idg")).waitForResponseChecked();
+		}
 		
 		connectPhase = "info_conf";connectProgress = 30;
-		requestCommand(new Command(CommandName.info_conf,	"all")).waitForResponseChecked();
+		requestCommand(new Command(CommandName.info_conf,"all")).waitForResponseChecked();
 		connectPhase = "info_data";connectProgress = 70;
 		requestCommand(new Command(CommandName.info_data)).waitForResponseChecked();
 		connectPhase = "info_prog";connectProgress = 85;
-		//requestCommand(new Command(CommandName.info_prog)).waitForResponseChecked();
+		if (deviceVersion < 11) {
+			requestCommand(new Command(CommandName.info_prog)).waitForResponseChecked();
+		}
 		
 		// Turn conf push changes on as last.
 		requestCommand(new Command(CommandName.req_tx_push,	"1")).waitForResponseChecked();
@@ -171,6 +186,7 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 			sendCommandQueue.clear();
 		}
 		sendCommandQueue.add(rc);
+		totalCmdTx++;
 		return rc;
 	}
 	
@@ -227,20 +243,55 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 			dataListeners.get(i).deviceDataSend(data);
 		}
 	}
-	public void fireDataReceived(String data) {
-		for (int i=0;i<dataListeners.size();i++) {
-			dataListeners.get(i).deviceDataReceived(data);
-		}
+	public void fireDataReceived(final String data) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				for (int i=0;i<dataListeners.size();i++) {
+					dataListeners.get(i).deviceDataReceived(data);
+				}
+			}
+		});
 	}
 	
-	public void fireCommandReceived(Command command) {
-		List<DeviceCommandListener> list = commandListeners.get(command.getCommandName());
-		if (list==null) {
-			return;
-		}
-		for (int i=0;i<list.size();i++) {
-			list.get(i).commandReceived(command);
-		}
+	public void fireCommandReceived(final Command command) {
+		totalCmdRx++;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				List<DeviceCommandListener> list = commandListeners.get(command.getCommandName());
+				if (list==null) {
+					return;
+				}
+				for (int i=0;i<list.size();i++) {
+					list.get(i).commandReceived(command);
+				}
+			}
+		});
 	}
 
+	public void incTotalError() {
+		totalErrors++;
+	}
+	
+	/**
+	 * @return the totalErrors
+	 */
+	public int getTotalErrors() {
+		return totalErrors;
+	}
+
+	/**
+	 * @return the totalCmdTx
+	 */
+	public long getTotalCmdTx() {
+		return totalCmdTx;
+	}
+
+	/**
+	 * @return the totalCmdRx
+	 */
+	public long getTotalCmdRx() {
+		return totalCmdRx;
+	}
 }

@@ -56,6 +56,9 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 	private JConnectDialog connectDialog = null;
 	private JLabel serialTxCounter = null;
 	private JLabel serialRxCounter = null;
+	private JLabel errorCounter = null;
+	private JLabel cmdTxCounter = null;
+	private JLabel cmdRxCounter = null;
 	private long txBytes = 0;
 	private long rxBytes = 0;
 	
@@ -91,25 +94,36 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		JPanel serialInfoPanel = new JPanel();
 		serialInfoPanel.setLayout(new SpringLayout());
 		borderPanel.add(serialInfoPanel);
-		
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"version"));
 		versionLabel = new JLabel("");
 		serialInfoPanel.add(versionLabel);
-		
 		serialTxCounter = new JLabel();
-		serialTxCounter.setPreferredSize(new Dimension(200,15));
+		serialTxCounter.setPreferredSize(new Dimension(120,15));
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialTxCounter"));
 		serialInfoPanel.add(serialTxCounter);
-		
 		serialRxCounter = new JLabel();
-		serialRxCounter.setPreferredSize(new Dimension(200,15)); // Removes screen update jitter on the right side of the label
+		serialRxCounter.setPreferredSize(new Dimension(120,15)); // Removes screen update jitter on the right side of the label
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialRxCounter"));
 		serialInfoPanel.add(serialRxCounter);
 		SpringLayoutGrid.makeCompactGrid(serialInfoPanel,3,2);
 		
+		JPanel countInfoPanel = new JPanel();
+		countInfoPanel.setLayout(new SpringLayout());
+		borderPanel.add(countInfoPanel);
+		errorCounter = new JLabel();
+		countInfoPanel.add(JComponentFactory.createJLabel(this,"errorCounter"));
+		countInfoPanel.add(errorCounter);
+		cmdTxCounter = new JLabel();
+		countInfoPanel.add(JComponentFactory.createJLabel(this,"cmdTxCounter"));
+		countInfoPanel.add(cmdTxCounter);
+		cmdRxCounter = new JLabel();
+		countInfoPanel.add(JComponentFactory.createJLabel(this,"cmdRxCounter"));
+		countInfoPanel.add(cmdRxCounter);
+		SpringLayoutGrid.makeCompactGrid(countInfoPanel,3,2);
+		
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
-		updateSerialCounter();
+		updateCounters();
 	}
 
 	public void autoConnect() {
@@ -169,22 +183,22 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		versionLabel.setText("");
 		txBytes = 0;
 		rxBytes = 0;
-		updateSerialCounter();
+		updateCounters();
 	}
 
 	@Override
 	public void deviceDataSend(String data) {
 		txBytes+=data.length();
-		updateSerialCounter();
+		updateCounters();
 	}
 
 	@Override
 	public void deviceDataReceived(String data) {
 		rxBytes+=data.length();
-		updateSerialCounter();
+		updateCounters();
 	}
 	
-	private void updateSerialCounter() {
+	private void updateCounters() {
 		String txSize = "B";
 		String rxSize = "B";
 		String txDotSize = "";
@@ -233,5 +247,11 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		serialTxCounter.repaint();
 		serialRxCounter.setText(rx+rxDotSize+rxSize);
 		serialRxCounter.repaint();
+		errorCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalErrors());
+		errorCounter.repaint();
+		cmdRxCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalCmdRx());
+		cmdRxCounter.repaint();
+		cmdTxCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalCmdTx());
+		cmdTxCounter.repaint();
 	}
 }

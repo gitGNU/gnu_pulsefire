@@ -21,12 +21,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui.time;
+package org.nongnu.pulsefire.device.ui.pull;
 
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -54,7 +55,11 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener,Pulse
 				runOnce = false; // request one time extra info_conf so if some cmds where jammed we get them here.
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf,"all")); // do before pull data to fix missing meta data.
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_chip)); // Get chip meta extra for some win32 connect issues.
-				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.help,"map")); // get help map for safty
+				if (PulseFireUI.getInstance().getDeviceManager().getDeviceVersion() < 11) {
+					PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.help,"map")); // get help map for safty
+				} else {
+					PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_vars));
+				}
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf,"all")); // Do extra info_conf to get all mega vars loaded correctly.
 				settingUpdated(PulseFireUISettingKeys.PULL_SPEED,PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.PULL_SPEED));
 			}

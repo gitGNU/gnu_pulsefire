@@ -105,7 +105,11 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		filterPanel.add(new JLabel("Filter"));
 		JComboBox filterBox = new JComboBox(WireChipFlags.values());
+		filterBox.addItem("DIC");
+		filterBox.addItem("DOC");
+		filterBox.addItem("DEV");
 		filterBox.addItem("PULSE");
+		filterBox.addItem("PPM");
 		filterBox.addItem("CHIP");
 		filterBox.addItem("FREQ");
 		filterBox.addItem("SYS");

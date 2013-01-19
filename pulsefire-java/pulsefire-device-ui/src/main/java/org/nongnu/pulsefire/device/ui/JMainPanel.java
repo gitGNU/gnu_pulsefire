@@ -24,6 +24,7 @@
 package org.nongnu.pulsefire.device.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -151,8 +152,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabbedPane.setFont(UIManager.getFont("TabbedPane.font")); // workaround
 		tabbedPane.setBorder(BorderFactory.createEmptyBorder());
 		for (JFireTabPanel panel:tabPanels) {
-			JScrollPane scrollPane = createJScrollPane(panel);
-			tabbedPane.addTab(panel.getTabName(),panel.getTabIcon(),scrollPane,panel.getTabTooltip());
+			Component pane = createJScrollPane(panel);
+			tabbedPane.addTab(panel.getTabName(),panel.getTabIcon(),pane,panel.getTabTooltip());
 		}
 		center.add(tabbedPane);
 		return center;
@@ -172,8 +173,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (scopePanel==null) {
 					scopePanel = new JTabPanelScope();
-					JScrollPane scrollPane = createJScrollPane(scopePanel);
-					tabbedPane.addTab(scopePanel.getTabName(),scopePanel.getTabIcon(),scrollPane,scopePanel.getTabTooltip());
+					Component pane = createJScrollPane(scopePanel);
+					tabbedPane.addTab(scopePanel.getTabName(),scopePanel.getTabIcon(),pane,scopePanel.getTabTooltip());
 				}
 			} else {
 				if (scopePanel!=null) {
@@ -186,8 +187,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (uiLogPanel==null) {
 					uiLogPanel = new JTabPanelUILog();
-					JScrollPane scrollPane = createJScrollPane(uiLogPanel);
-					tabbedPane.addTab(uiLogPanel.getTabName(),uiLogPanel.getTabIcon(),scrollPane,uiLogPanel.getTabTooltip());
+					Component pane = createJScrollPane(uiLogPanel);
+					tabbedPane.addTab(uiLogPanel.getTabName(),uiLogPanel.getTabIcon(),pane,uiLogPanel.getTabTooltip());
 				}
 			} else {
 				if (uiLogPanel!=null) {
@@ -209,7 +210,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		}
 	}
 	
-	private JScrollPane createJScrollPane(JFireTabPanel innerPanel) {
+	private Component createJScrollPane(JFireTabPanel innerPanel) {
 		JScrollPane scrollPane = new JScrollPane(innerPanel.getJPanel());
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -217,6 +218,19 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		innerPanel.setParentScrollPane(scrollPane);
+		if (innerPanel.getJPanelSide()!=null) {
+			return createContentSplit(scrollPane,innerPanel.getJPanelSide());
+		}
 		return scrollPane;
+	}
+	
+	private Component createContentSplit(Component sp0,Component sp1) {
+		JSplitPane bottomLogSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
+		bottomLogSplitPane.setOneTouchExpandable(true);
+		bottomLogSplitPane.setResizeWeight(0.8);
+		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
+		sp0.setMinimumSize(new Dimension(300, 100));
+		sp1.setMinimumSize(new Dimension(200, 100));
+		return bottomLogSplitPane;
 	}
 }

@@ -9,20 +9,14 @@ ERRATA:
 (restart application)
 
 CHIP:
+- fix serial bug on info_conf listing or in pf-device..
 - Add menu support for map variables.
-- When using 16 pwm outputs last output step had extratime.
 - add hex id serial mode instead of acsii value of variable.
-- Added HHO MMW code to auto lpm
 - Added more commands/tests to MAL
 - Added nested if support in mal
-- A step cycle of over 100%, so we have phasing, the LEDs will overlap each other?
 - Port to arm7
 - Port to arm9 aka BeagleBoard-Bone / PandaBoard
-- Fix mega simple GLCD support
-- hardware osc function
 - i2c and MCP4725 I2C DAC support
-- intA/B conf options
-- new io mode mapping to remove some spi build flags.
 
 CHIP PF_VARS:
 	- (DONE) inverse nolimit flag in

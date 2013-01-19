@@ -36,10 +36,10 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.device.ui.PulseFireTimeData;
-import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeData;
-import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeDataKey;
-import org.nongnu.pulsefire.device.ui.PulseFireTimeData.TimeDataListener;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeData;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeDataKey;
+import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeDataListener;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -177,6 +177,12 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		} else {
 			for (int i=0;i<commandName.getMaxIndexA();i++) {
 				TimeDataKey key = PulseFireUI.getInstance().getTimeData().getKeyFromName(commandName);
+				if (key==null) {
+					break;
+				}
+				if (i>=key.dataColorIdx.length) {
+					break;
+				}
 				if (key.dataColorIdx[i]==null) {
 					key.dataColorIdx[i]=randomColor(i);
 				}

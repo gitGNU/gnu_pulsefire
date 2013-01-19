@@ -64,6 +64,10 @@ abstract public class AbstractFireTabPanel extends JPanel implements JFireTabPan
 		return this;
 	}
 	
+	public JPanel getJPanelSide() {
+		return null;
+	}
+	
 	public JScrollPane getParentScrollPane() {
 		return parentScrollPane;
 	}

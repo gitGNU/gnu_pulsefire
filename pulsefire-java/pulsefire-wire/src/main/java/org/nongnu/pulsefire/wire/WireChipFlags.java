@@ -31,7 +31,6 @@ package org.nongnu.pulsefire.wire;
 public enum WireChipFlags {
 
 	PWM,
-	CIT,
 	CIP,
 	LCD,
 	LPM,
@@ -51,6 +50,7 @@ public enum WireChipFlags {
 	
 	
 	/* rmed in v1.1 */
+	//CIT,
 	//PPM,
 	//DIC,
 	//DOC,

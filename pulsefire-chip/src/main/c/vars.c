@@ -9,7 +9,8 @@ pf_conf_struct EEMEM pf_conf_eeprom;
 
 CHIP_PROGMEM_ARRAY const pmCmdList[PMCMDLIST_SIZE] CHIP_PROGMEM = {
 		pmCmdHelp,pmCmdSave,
-		pmCmdInfoConf,pmCmdInfoData,pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoPWM,pmCmdInfoChip,
+		pmCmdInfoVars,pmCmdInfoConf,pmCmdInfoData,
+		pmCmdInfoFreq,pmCmdInfoPPM,pmCmdInfoPWM,pmCmdInfoChip,
 		pmCmdResetConfig,pmCmdResetData,pmCmdResetChip,pmCmdReqTrigger,pmCmdReqDoc,
 		pmProgTXPush,pmProgTXEcho,pmProgTXPromt,pmConfMALCode
 };
@@ -275,6 +276,9 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.int_1freq_cnt,        (CHIP_PTR_TYPE)&pmDataInt1FreqCnt,     0xFFFF,              PFVB_DATA+PFVB_NOMAP,           ZERO},
 	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.int_time_cnt,         (CHIP_PTR_TYPE)&pmDataIntTimeCnt,      ZERO,                PFVB_DATA+PFVB_NOMAP,           ZERO},
 
+	{PFVT_32BIT, (CHIP_PTR_TYPE)&pf_data.dic_time_cnt,         (CHIP_PTR_TYPE)&pmDataDicTimeCnt,      ZERO,                PFVB_DATA+PFVB_NOMAP,           ZERO},
+	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_data.dic_value,            (CHIP_PTR_TYPE)&pmDataDicValue,        0xFFFF,              PFVB_DATA+PFVB_NOMAP,           ZERO},
+
 	{PFVT_8BIT+(DOC_PORT_NUM_MAX<<8),
 			(CHIP_PTR_TYPE)&pf_data.doc_port,         (CHIP_PTR_TYPE)&pmDataDocPort,         ONE,                 PFVB_DATA,                      ZERO},
 
@@ -344,8 +348,6 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_state,           (CHIP_PTR_TYPE)&pmDataPWMState,        0xFF,                PFVB_DATA+PFVB_NOMAP,           ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_data.pwm_loop_cnt,        (CHIP_PTR_TYPE)&pmDataPWMLoopCnt,      0xFF,                PFVB_DATA+PFVB_NOMAP,           ZERO},
-	{PFVT_8BIT+(OUTPUT_MAX<<8),
-			(CHIP_PTR_TYPE)&pf_data.ppm_idx,          (CHIP_PTR_TYPE)&pmDataPPMIdx,          0xFF,                PFVB_DATA+PFVB_NOMAP,           ZERO},
 #endif
 
 #ifdef SF_ENABLE_MAL
@@ -437,14 +439,6 @@ boolean Vars_isNomap(byte idx) {
 	return false;
 }
 
-boolean Vars_isBitSize32(byte idx) {
-	uint16_t type = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE])) & 0x0F;
-	if (type == PFVT_32BIT) {
-		return true;
-	}
-	return false;
-}
-
 #ifdef SF_ENABLE_LCD
 boolean Vars_isMenuSkip(byte idx) {
 	uint16_t bits = Chip_pgm_readWord(&(PF_VARS[idx][PFVF_BITS])) & PFVB_NOMENU;
@@ -474,6 +468,10 @@ boolean Vars_isTypeData(byte idx) {
 
 char* Vars_getName(uint8_t idx) {
 	return UNPSTRA(&PF_VARS[idx][PFVF_NAME]);
+}
+
+uint8_t Vars_getBitType(byte idx) {
+	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_TYPE])) & 0x0F;
 }
 
 uint8_t Vars_getIndexAMax(uint8_t idx) {

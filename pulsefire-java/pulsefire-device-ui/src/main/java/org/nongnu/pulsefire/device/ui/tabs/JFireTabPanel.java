@@ -39,6 +39,7 @@ public interface JFireTabPanel {
 	public Icon getTabIcon();
 	
 	public JPanel getJPanel();
+	public JPanel getJPanelSide();
 	public JScrollPane getParentScrollPane();
 	public void setParentScrollPane(JScrollPane parentScrollPane);
 	

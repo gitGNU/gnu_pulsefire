@@ -95,9 +95,18 @@ public class CommandWire {
 		
 		result.setType(commandType);
 		String[] columns = line.split(Command.SEPERATOR);
+		
+		
 		if (result.getCommandName()==CommandName.chip_flags | result.getCommandName()==CommandName.chip_build) {
 			columns[0] = line; // small extra checks for these cmds.
 		}
+		// tmp here
+		if (result.getCommandName()==CommandName.info_pwm_data) {
+			String d = columns[1];
+			columns[1]= columns[2];
+			columns[2]= d;
+		}
+		
 		if (columns.length>7) {
 			result.setArgu7(columns[7]);
 		}

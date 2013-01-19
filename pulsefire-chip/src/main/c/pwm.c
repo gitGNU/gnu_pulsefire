@@ -40,7 +40,6 @@ void PWM_pulsefire(void) {
 	}
 	pf_data.pwm_state            = PWM_STATE_RUN; // Trigger pulse train on external interrupt pin if pulse_trigger
 	pf_data.pulse_step           = ZERO;                     // goto step zero
-	//pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
 	pf_data.pulse_fire_cnt++;
 	pf_data.pulse_fire_freq_cnt++;
 	Chip_reg_set(CHIP_REG_PWM_OCR_A,ONE);
@@ -232,7 +231,11 @@ void PWM_pulse_mode_ppm(void) {
 	uint8_t pulse_dir = pf_conf.pulse_dir;
 	// Shift all channel data out every step.
 	uint8_t index = pf_data.pwm_data_max;
-	for (uint8_t i=ZERO;i < pf_conf.pulse_steps;i++) {
+	uint8_t start = pf_conf.ppm_data_offset;
+	if (start >= pf_conf.ppm_data_length) {
+		start = ZERO;
+	}
+	for (uint8_t i=start;i < pf_conf.ppm_data_length;i++) {
 		uint16_t pwm_data = ZERO;
 		uint16_t pwm_on = ZERO;
 		uint16_t pwm_off = ZERO;
@@ -243,7 +246,7 @@ void PWM_pulse_mode_ppm(void) {
 			pwm_on = pf_conf.pwm_on_cnt_b[i];
 			pwm_off = pf_conf.pwm_off_cnt_b[i];
 		}
-		for (uint8_t p=pf_conf.ppm_data_offset;p < pf_conf.ppm_data_length;p++) {
+		for (uint8_t p=ZERO;p < OUTPUT_MAX;p++) {
 			uint16_t ppm_data = ZERO;
 			if (pf_conf.pulse_bank==ZERO) {
 				ppm_data = pf_conf.ppm_data_a[p];
@@ -348,7 +351,7 @@ void PWM_calc_data(void) {
 }
 
 // Do all work per timer step cnt
-void PWM_do_work(void) {
+void PWM_work_int(void) {
 	uint8_t pwm_state = pf_data.pwm_state;
 	if (pwm_state == PWM_STATE_STEP_DUTY) {
 		return; // waiting for step duty
@@ -375,6 +378,11 @@ void PWM_do_work(void) {
 	uint8_t pulse_step = pf_data.pulse_step;
 	uint16_t data_out = pf_data.pwm_data[pulse_step][PWM_DATA_OUT];
 	uint16_t data_cnt = pf_data.pwm_data[pulse_step][PWM_DATA_CNT];
+
+	// Check for output enable
+	if (pf_conf.pulse_enable == ZERO) {
+		data_out = PWM_filter_data(PULSE_DATA_OFF);
+	}
 
 	// Set output and set registers.
 	Chip_out_pwm(data_out);

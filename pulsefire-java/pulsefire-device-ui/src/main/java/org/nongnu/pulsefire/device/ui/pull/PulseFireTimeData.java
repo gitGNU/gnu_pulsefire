@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.nongnu.pulsefire.device.ui;
+package org.nongnu.pulsefire.device.ui.pull;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -107,7 +108,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	public class TimeData {
 		public long receivedTime = 0;
 		public int dataPoint = 0;
-		public int dataPointIdx[] = new int[32];
+		public int dataPointIdx[] = new int[64];
 	}
 
 	@Override

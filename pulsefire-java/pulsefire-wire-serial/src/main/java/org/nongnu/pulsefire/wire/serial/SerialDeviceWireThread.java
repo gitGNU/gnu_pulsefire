@@ -127,9 +127,11 @@ public class SerialDeviceWireThread extends Thread {
 		}	
 		deviceManager.requestCommand(new Command(CommandName.req_tx_echo,"0"));
 		deviceManager.requestCommand(new Command(CommandName.req_tx_promt,"0"));
-		deviceManager.requestCommand(new Command(CommandName.info_conf,	"all"));
+		deviceManager.requestCommand(new Command(CommandName.info_conf));
 		deviceManager.requestCommand(new Command(CommandName.info_data));
-		deviceManager.requestCommand(new Command(CommandName.info_prog));
+		if (deviceManager.getDeviceVersion() < 11) {
+			deviceManager.requestCommand(new Command(CommandName.info_prog));
+		}
 		deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
 		return;
 	}
@@ -233,6 +235,9 @@ public class SerialDeviceWireThread extends Thread {
 		} else if (scannedInput.startsWith("idg.")) {
 			scannedInput = scannedInput.substring(4);
 			t = 4;
+		} else if (scannedInput.startsWith("@")) {
+			scannedInput = scannedInput.substring(1);
+			t = 5;
 		}
 		Command cmd = null;
 		try {
@@ -243,8 +248,10 @@ public class SerialDeviceWireThread extends Thread {
 				sendCommand = null;
 			}
 		} catch (CommandWireException cwe) {
+			deviceManager.incTotalError();
 			logger.log(Level.WARNING,cwe.getMessage());
 		} catch (Exception parseException) {
+			deviceManager.incTotalError();
 			logger.log(Level.WARNING,parseException.getMessage(),parseException);
 		}
 		if (cmd==null) {
@@ -263,22 +270,26 @@ public class SerialDeviceWireThread extends Thread {
 				if (cmd.getCommandName().equals(CommandName.reset_conf)) {
 					deviceManager.requestCommand(new Command(CommandName.info_conf,	"all"));
 					deviceManager.requestCommand(new Command(CommandName.info_data));
-					deviceManager.requestCommand(new Command(CommandName.info_prog));
+					if (deviceManager.getDeviceVersion() < 11) {
+						deviceManager.requestCommand(new Command(CommandName.info_prog));
+					}
 				}
 				if (cmd.getCommandName().equals(CommandName.reset_chip)) {
 					Thread.sleep(2000); // wait for boot of chip
 					deviceManager.requestCommand(new Command(CommandName.req_tx_echo,"0"));
 					deviceManager.requestCommand(new Command(CommandName.req_tx_promt,"0"));
 					deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
-					deviceManager.requestCommand(new Command(CommandName.info_conf,	"all"));
+					deviceManager.requestCommand(new Command(CommandName.info_conf,"all"));
 					deviceManager.requestCommand(new Command(CommandName.info_data));
-					deviceManager.requestCommand(new Command(CommandName.info_prog));
+					if (deviceManager.getDeviceVersion() < 11) {
+						deviceManager.requestCommand(new Command(CommandName.info_prog));
+					}
 				}
 			}
 		} catch (Exception updateException) {
-			logger.log(Level.WARNING,updateException.getMessage(),updateException);
+			deviceManager.incTotalError();
+			logger.log(Level.WARNING,updateException.getMessage()+" while parsing: '"+scannedInput+"'",updateException);
 		}
-		
 	}
 	
 	private void updateDeviceData(Command cmd,int t) {
@@ -286,10 +297,37 @@ public class SerialDeviceWireThread extends Thread {
 			deviceManager.getDeviceData().setDeviceParameter(cmd);
 			return;
 		}
-		String res = cmd.getArgu0();
-		if (t==0 && cmd.getCommandName().isIndexedA() && cmd.getCommandName().isIndexedB()==false) {
-			res = cmd.getArgu1();
+		if (t==5) {
+			// new in 1.1 full vars table copy with info_vars;
+			int deviceVersion = deviceManager.getDeviceVersion();
+			CommandName cmdName = cmd.getCommandName();
+			int id = new Integer(cmd.getArgu0());
+			//int bitType = new Integer(cmd.getArgu1());
+			int idxA = new Integer(cmd.getArgu2());
+			int idxB = new Integer(cmd.getArgu3());
+			int maxValue = new Integer(cmd.getArgu4());
+			int bits = new Integer(cmd.getArgu5());
+			//int defaultValue = new Integer(cmd.getArgu6());
+			
+			CommandNameVersionFactory.configCommandId(deviceVersion, cmdName, id);
+			CommandNameVersionFactory.configCommandBits(deviceVersion, cmdName, bits);
+			CommandNameVersionFactory.configCommandMax(deviceVersion, cmdName, maxValue);
+			if ((bits & 8)==0) { // no map
+				CommandNameVersionFactory.configCommandMapIndex(deviceVersion, cmdName, id);
+			}
+			if ((bits & 32)>0) { // is trig
+				CommandNameVersionFactory.configCommandMaxIndexTrigger(deviceVersion, cmdName, true);
+			}
+			if (idxA>0) {
+				CommandNameVersionFactory.configCommandMaxIndexA(deviceVersion, cmdName, idxA);
+			}
+			if (idxB>0) {
+				CommandNameVersionFactory.configCommandMaxIndexB(deviceVersion, cmdName, idxB);
+			}
+			return;
 		}
+		
+		String res = cmd.getArgu0();
 		if (res==null) {
 			return;
 		}
