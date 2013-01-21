@@ -23,11 +23,12 @@
 
 package org.nongnu.pulsefire.device.ui.components;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -48,20 +49,26 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JFirePwmInfo extends JPanel implements DeviceCommandListener,DeviceConnectListener {
 	
 	private static final long serialVersionUID = -2922342927574919902L;
-	final int PAD = 0;
 	private CommandName commandName = null;
 	private DeviceData deviceData = null;
-	private Color gridColor = null;
+	private BasicStroke dashedStroke = null;
+	private String[] displayText = null;
 	
 	public JFirePwmInfo() {
 		this.commandName=CommandName.info_pwm_data;
 		this.deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
-		this.gridColor = UIManager.getColor("nimbusGreen").darker();
-		setPreferredSize(new Dimension(440,220));
-		setMinimumSize(new Dimension(80,40));
+		this.dashedStroke = new BasicStroke(1f, 0, 0, 10f, new float[] {5f,4f,1f,4f}, 0f);
 		setBorder(BorderFactory.createEmptyBorder());
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(commandName, this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		displayText = new String[] {
+				"#________#_#_#_#",
+				"_#______________",
+				"__#__________#__",
+				"___#____________",
+				"____#____###__##",
+				"_____#____###__#",
+		};
 	}
 
 	public CommandName getCommandName() {
@@ -70,18 +77,28 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 	
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		Color lineColor = UIManager.getColor("nimbusFocus");
+		Color lineDashedColor = UIManager.getColor("gridColor");
+		Color pulseColor = UIManager.getColor("text");
+		Color textStepColor = UIManager.getColor("text");
+		Color textTimeColor = UIManager.getColor("nimbusRed");
+		
 		Graphics2D g2 = (Graphics2D)g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		int w = getWidth();
 		int h = getHeight();
 		
-		
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setPaint(gridColor);
-		g2.drawRect(0, 0, w-1, h-1);
+		//g2.setColor(lineColor);
+		//g2.drawRect(0, 0, w-1, h-1);
 		
 		Command pulseStepsCommand = deviceData.getDeviceParameter(CommandName.pulse_steps);
 		Command pwmStepsCommand = deviceData.getDeviceParameter(CommandName.info_pwm_steps);
 		if (pwmStepsCommand==null) {
+			g2.setPaint(pulseColor);
+			for (int i=0;i<displayText.length;i++) {
+				g2.drawString(displayText[i], 10, (h/2)-30+(i*12));
+			}
 			return;
 		}
 		int pulseSteps = new Integer(pulseStepsCommand.getArgu0());
@@ -99,12 +116,9 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 		
 		int yLines = pulseSteps;
 		int xLines = steps;
-		int yLine = (h-10)/yLines;
-		//int xLine = w/xLines;
+		int yOffset = 15;
+		int yLine = (h-5-yOffset)/yLines;
 		
-		
-		//g2.setPaint(Color.RED);
-		g2.setPaint(gridColor);
 		int xPrefix = 0;
 		for (int x=0;x<xLines;x++) {
 			Command stepData = deviceData.getDeviceParameterIndexed(CommandName.info_pwm_data,x);
@@ -116,30 +130,34 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 			int xDest = xPrefix;
 			xPrefix+=xStep;
 			
-			
-			if (w>400) {
-				//g2.drawLine((int)((w/xLines)*x), 0, (int)((w/xLines)*x), h);
+			g2.setColor(textStepColor);
+			if (x>9 && xStep>15) {
+				g2.drawString(""+x, xDest+1, 12);
+			} else if (x<=9 && xStep>10) {
 				g2.drawString(""+x, xDest+1, 12);
 			}
-			if (w>800 && h>500) {
+			if (xStep>40) {
+				g2.setColor(textTimeColor);
 				g2.drawString(""+time, xDest+1, 24);
-				//g2.drawString(""+xStep, xDest+1, 75);
 			}
+			if (x>0 && xStep>1 && w>500) {
+				g2.setColor(lineDashedColor);
+				Stroke line = g2.getStroke();
+				g2.setStroke(dashedStroke);
+				g2.drawLine(xDest,0, xDest,h);
+				g2.setStroke(line);
+			}
+			//g2.drawString(""+xStep, xDest+1, 75);
 		}
 		
-		g2.setPaint(gridColor);
-		for (int y=0;y<=yLines;y++) {
-			g2.drawLine(0,yLine*y, w,yLine*y);
+		g2.setPaint(lineColor);
+		for (int y=1;y<=yLines;y++) {
+			g2.drawLine(0,yOffset+yLine*y, w,yOffset+yLine*y);
 		}
 		
-		//g2.drawString("Steps:", (w/2)-50, 25);
-		//g2.drawString(""+steps, (w/2), 25);
-		//g2.drawString("Outs:", (w/2)-50, 35);
-		//g2.drawString(""+pulseSteps, (w/2), 35);
-		
-		g2.setPaint(Color.RED);
+		g2.setPaint(pulseColor);
 		for (int y=0;y<yLines;y++) {
-			g2.drawString(""+y, 3, yLine*y+yLine);
+			g2.drawString(""+y, 3, yOffset+yLine*y+yLine);
 			Boolean levelOrg = null;
 			xPrefix = 0;
 			for (int x=0;x<xLines;x++) {
@@ -154,7 +172,7 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 				xPrefix+=xStep;
 				Boolean level = (data & (1 << y)) == 0;
 				
-				int startY = yLine*y+yLine;
+				int startY = yOffset+yLine*y+yLine;
 				int startX = xDest; //xLine*x;
 				int stopX  = xPrefix; //xLine*x+xLine;
 				int stopY  = startY;

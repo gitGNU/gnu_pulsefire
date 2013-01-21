@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.TooManyListenersException;
 import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandRequest;
@@ -74,13 +75,13 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 	}
 
 	@Override
-	public boolean connect(String port) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, InterruptedException {
+	public boolean connect(String port) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, InterruptedException, TooManyListenersException {
 
 		if (isConnected()) {
 			disconnect(false);
 		}
 		long startTime = System.currentTimeMillis();
-		sendCommandQueue.clear();
+		//sendCommandQueue.clear();
 		connectPhase = "Opening port";connectProgress = 1;
 		// This does the System rescanning, so HOT usb remove and plugin-in can be supported.
 		Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
@@ -93,14 +94,13 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 		try {
 			// Get the commport and config it.
 			CommPortIdentifier cpi = CommPortIdentifier.getPortIdentifier(port);
-			SerialPort serialPort = (SerialPort) cpi.open("PulseFire", 2000);
+			SerialPort serialPort = (SerialPort) cpi.open("PulseFire", 2000); // timeout of 2seconds
 			serialPort.setSerialPortParams(115200,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 			serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 			
 			// Create and start backend thread for serial communication.
 			connectPhase = "Start IO thread";connectProgress = 2;
 			serialThread = new SerialDeviceWireThread(this,serialPort);
-			serialThread.setName("PulseFire-IO");
 			serialThread.start();
 			
 			// Wait on thread creation and starting
@@ -110,8 +110,8 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			
 			// Let arduino boot max 10 secs for promt. (note sometimes we do not get prompt)
 			connectPhase = "Arduino booting";connectProgress = 5;
-			for (int i=0;i<10;i++) {
-				Thread.sleep(1000);
+			for (int i=0;i<100;i++) {
+				Thread.sleep(100);
 				if (serialThread==null) {
 					return false;
 				}
@@ -120,18 +120,19 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 				}
 			}
 			
-			// Get info_chip as fist in max 2 seconds reponse time
+			// Get info_chip as fist in max 5 seconds reponse time
 			connectPhase = "Check info_chip";connectProgress = 7;
 			DeviceCommandRequest infoChip = requestCommand(new Command(CommandName.info_chip));
-			for (int i=0;i<20;i++) {
+			for (int i=0;i<50;i++) {
 				Thread.sleep(100);
 				if (serialThread==null) {
 					return false;
 				}
 				if (infoChip.getResponse()!=null) {
+					logger.finer("Got first info_chip response.");
 					break;
 				}
-				if (i==11 && infoChip.getResponse()==null) {
+				if (i==40 && infoChip.getResponse()==null) {
 					infoChip = requestCommand(new Command(CommandName.info_chip)); // request again
 				}
 			}
@@ -157,8 +158,6 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 		if (error==false) {
 			// close nicely so serial buffers do not get flooded.
 			requestCommand(new Command(CommandName.req_tx_push,	"0")).waitForResponse(); // disable auto push
-			//requestCommand(new Command(CommandName.req_tx_promt,"1")).waitForResponse(); // turn promt on
-			//requestCommand(new Command(CommandName.req_tx_echo,"1")).waitForResponse();  // turn echo on
 		}
 		
 		// can be null with multiple clicks fired..

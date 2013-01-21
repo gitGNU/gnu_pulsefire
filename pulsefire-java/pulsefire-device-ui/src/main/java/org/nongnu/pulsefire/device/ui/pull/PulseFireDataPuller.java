@@ -68,8 +68,8 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener,Pulse
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
 			if (PulseFireUI.getInstance().getDeviceManager().getDeviceVersion() < 11) {
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog)); // moved to data in 1.1
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq)); // moved to UpdatePwmData
 			}
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
 		}
 	}
 

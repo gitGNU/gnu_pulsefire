@@ -353,6 +353,10 @@ public class PulseFireUI extends SingleFrameApplication {
 				UIManager.put(key,colorValue);
 			}
 			
+			if (UIManager.get("gridColor")==null) {
+				UIManager.put("gridColor",UIManager.getColor("nimbusGreen").darker());
+			}
+			
 			// Invert focus painters
 			List<Object> keys = new ArrayList<Object>(UIManager.getLookAndFeelDefaults().keySet());
 			for (Object keyObj:keys) {
@@ -453,6 +457,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			logger.info("Shutdown requested.");
 			long startTime = System.currentTimeMillis();
 			
+			getSettingsManager().setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT,((JMainPanel)getMainView().getComponent()).contentSplitPane.getDividerLocation());
 			getSettingsManager().setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM,((JMainPanel)getMainView().getComponent()).bottomSplitPane.getDividerLocation());
 			getSettingsManager().setSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG,((JMainPanel)getMainView().getComponent()).bottomLogSplitPane.getDividerLocation());
 			getSettingsManager().saveSettings();

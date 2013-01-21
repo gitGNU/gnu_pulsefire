@@ -188,8 +188,8 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 #endif
 
 #ifdef SF_ENABLE_AVR_MEGA
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mega_port_a,          (CHIP_PTR_TYPE)&pmConfMegaPortA,      PORTA_OFF,           PFVB_NOMAP+PFVB_NOMENU,         PORTA_DOC8},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mega_port_c,          (CHIP_PTR_TYPE)&pmConfMegaPortC,      PORTC_OFF,           PFVB_NOMAP+PFVB_NOMENU,         PORTC_DOC16},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mega_port_a,          (CHIP_PTR_TYPE)&pmConfMegaPortA,      PORTA_DOC8,          PFVB_NOMAP+PFVB_NOMENU,         PORTA_OFF},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mega_port_c,          (CHIP_PTR_TYPE)&pmConfMegaPortC,      PORTC_DOC16,         PFVB_NOMAP+PFVB_NOMENU,         PORTC_OFF},
 #endif
 
 #ifdef SF_ENABLE_LCD
@@ -197,7 +197,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lcd_defp,            (CHIP_PTR_TYPE)&pmConfLCDDefp,         4,                   PFVB_NOMAP,                     ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.lcd_mode,            (CHIP_PTR_TYPE)&pmConfLCDMode,         3,                   PFVB_NOMAP,                     ZERO},
 	{PFVT_8BIT+(LCD_PLP_MAX<<8),
-			(CHIP_PTR_TYPE)&pf_conf.lcd_plp,          (CHIP_PTR_TYPE)&pmConfLCDPlp,          0xFF,                PFVB_NOMAP+PFVB_NOMENU,         ZERO},
+			(CHIP_PTR_TYPE)&pf_conf.lcd_plp,                  (CHIP_PTR_TYPE)&pmConfLCDPlp,          0xFF,                PFVB_NOMAP+PFVB_NOMENU,         0xFF},
 #endif
 #ifdef SF_ENABLE_MAL
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.mal_ops,             (CHIP_PTR_TYPE)&pmConfMALOps,          0xFF,                PFVB_NONE,                      0xFF},
@@ -609,7 +609,7 @@ uint16_t Vars_setValueReset(uint8_t idx,uint8_t idxA,uint16_t value) {
 			if (b>ZERO) {
 				valueSet = ZERO;
 			}
-			Vars_setValueImpl(idx,idxA,b,valueSet,false,false,false);
+			Vars_setValueImpl(idx,idxA,b,valueSet,false,true,false); // TODO: fix disabled printing of idxB reset values.
 		}
 		return ZERO;
 	} else {
@@ -900,9 +900,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 				PWM_send_output(PULSE_DATA_OFF);
 			}
 			if ( pf_conf.pulse_hold_mode >= PULSE_HOLD_MODE_ZERO ) {
-				pf_data.pulse_step           = ZERO;                     // goto step zero
-				//pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
-				//pf_data.pulse_bank_cnt       = pf_conf.pulse_bank;       // load pulse bank after pulse
+				pf_data.pulse_step = ZERO; // goto step zero
 			}
 			for (uint8_t i=0;i<FIRE_MAP_MAX;i++) {
 				uint16_t v = pf_conf.pulse_hold_map[i][QMAP_VAR];
@@ -929,9 +927,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 		pf_data.pulse_hold_fire      = ZERO;
 		pf_data.pulse_resume_fire    = ZERO;
 		pf_data.pwm_state            = PWM_STATE_FIRE_RESET;
-		pf_data.pulse_step           = ZERO;                     // goto step zero
-		//pf_data.pulse_trig_delay_cnt = pf_conf.pulse_trig_delay; // reload trig timer
-		//pf_data.pulse_bank_cnt       = pf_conf.pulse_bank;       // load pulse bank after pulse
+		pf_data.pulse_step           = ZERO; // goto step zero
 		PWM_send_output(PULSE_DATA_OFF);
 		for (uint8_t i=0;i<FIRE_MAP_MAX;i++) {
 			uint16_t v = pf_conf.pulse_reset_map[i][QMAP_VAR];
@@ -1005,14 +1001,9 @@ void Vars_resetConfig(void) {
 	pf_conf.sys_version          = PULSE_FIRE_VERSION;
 	pf_conf.sys_struct_size      = sizeof(pf_conf_struct);
 
-#ifdef SF_ENABLE_LCD
-	for (uint8_t i=ZERO;i < LCD_PLP_MAX;i++) {
-		pf_conf.lcd_plp[i] = 0xFF;
-	}
-#endif
 #ifdef SF_ENABLE_PWM
 	for (uint8_t i=ZERO;i < OUTPUT_MAX;i++) {
-		pf_conf.ppm_data_a[i]      = i + DEFAULT_PPM_DATA; // example demo data
+		pf_conf.ppm_data_a[i]      = (i << 8) + i + DEFAULT_PPM_DATA; // example demo data
 		pf_conf.ppm_data_b[i]      = OUTPUT_MAX-i + DEFAULT_PPM_DATA;
 	}
 #endif

@@ -29,6 +29,9 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.TooManyListenersException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +43,8 @@ import org.nongnu.pulsefire.wire.CommandWire;
 import org.nongnu.pulsefire.wire.CommandWireException;
 
 import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 
 /**
  * SerialDeviceWireThread is the backend communication thread of the serial device manager.
@@ -47,55 +52,89 @@ import gnu.io.SerialPort;
  * @author Willem Cazander
  * @see SerialDeviceWireManager
  */
-public class SerialDeviceWireThread extends Thread {
+public class SerialDeviceWireThread implements SerialPortEventListener {
 
 	private Logger logger = null;
 	private SerialDeviceWireManager deviceManager = null;
-	private SerialPort serialPort = null;
-	private Reader reader = null;
-	private Writer writer = null;
+	private volatile SerialPort serialPort = null;
+	private volatile Reader reader = null;
+	private volatile Writer writer = null;
 	private volatile boolean running = false;
 	private volatile boolean seenPromt = false;
 	private StringBuffer readBuffer = null;
 	private DeviceCommandRequest sendCommand = null;
+	private LinkedBlockingQueue<String> processCmdQueue = null;
 	static private final String PULSE_FIRE_PROMT = "root@pulsefire:";
 	static private final String PULSE_FIRE_ERROR = "# Err:";
 	
-	public SerialDeviceWireThread(SerialDeviceWireManager deviceManager,SerialPort serialPort) throws IOException {
+	public SerialDeviceWireThread(SerialDeviceWireManager deviceManager,SerialPort serialPort) throws IOException, TooManyListenersException {
 		if(deviceManager==null) {
-			throw new NullPointerException("do not set null deviceManager !!");
+			throw new NullPointerException("Can't work with null deviceManager.");
 		}
 		if(serialPort==null) {
-			throw new NullPointerException("do not set null serialPort !!");
+			throw new NullPointerException("Can't work with null serialPort.");
 		}
 		this.logger = Logger.getLogger(SerialDeviceWireThread.class.getName());
 		this.deviceManager= deviceManager;
 		this.serialPort=serialPort;
+		processCmdQueue = new LinkedBlockingQueue<String>();
 		readBuffer = new StringBuffer();
-		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII")); 
+		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII"));
 		writer = new OutputStreamWriter(serialPort.getOutputStream(),Charset.forName("US-ASCII"));
+		serialPort.addEventListener(this);
+		serialPort.notifyOnDataAvailable(true);
 		logger.info("Connected to port: "+serialPort.getName());
 	}
 	
-	public void run() {
-		try {
-			running = true;
-			while (running) {
-				pollInputReader();
-				if (sendCommand!=null) {
-					softReconnectDevice(true);
-					Thread.sleep(5);
-					continue; // wait on response
+	public void start() {
+		Thread out = new Thread(new ProcessOutput());
+		out.setName("PulseFire-Out");
+		out.start();
+		
+		Thread in = new Thread(new ProcessInput());
+		in.setName("PulseFire-In");
+		in.start();
+	}
+	
+	class ProcessOutput implements Runnable {
+		public void run() {
+			try {
+				running = true;
+				while (running) {
+					Thread.sleep(50);
+					if (sendCommand==null) {
+						pollCommandRequest();
+					} else {
+						softReconnectDevice(true);
+						Thread.sleep(100);
+					}
 				}
-				pollCommandRequest();
+			} catch (Exception runException) {
+				logger.log(Level.WARNING,runException.getMessage(),runException);
+			} finally {
+				logger.info("Closing port: "+serialPort.getName());
+				try { reader.close();reader=null; } catch (IOException e) {}
+				try { writer.close();writer=null; } catch (IOException e) {}
+				serialPort.removeEventListener();
+				serialPort.close();
+				serialPort=null;
 			}
-		} catch (Exception runException) {
-			logger.log(Level.WARNING,runException.getMessage(),runException);
-		} finally {
-			logger.info("Closing port: "+serialPort.getName());
-			try { reader.close(); } catch (IOException e) {}
-			try { writer.close(); } catch (IOException e) {}
-			serialPort.close();
+		}
+	}
+	
+	class ProcessInput implements Runnable {
+		public void run() {
+			try {
+				Thread.sleep(500);
+				while (running) {
+					String data = processCmdQueue.poll(500, TimeUnit.MILLISECONDS);
+					if (data!=null) {
+						processInput(data);
+					}
+				}
+			} catch (Exception runException) {
+				logger.log(Level.WARNING,runException.getMessage(),runException);
+			}
 		}
 	}
 	
@@ -106,6 +145,9 @@ public class SerialDeviceWireThread extends Thread {
 		if (deviceManager.isConnected()==false) {
 			return; // don't check before we are connected.
 		}
+		if (sendCommand==null) {
+			return; // nothing to check
+		}
 		long currTime = System.currentTimeMillis();
 		if (testSendCommand && currTime<sendCommand.getRequestTime()+(15*1000)) {
 			return;
@@ -115,7 +157,6 @@ public class SerialDeviceWireThread extends Thread {
 		} else {
 			logger.info("In system reboot requested trying soft reconnect.");
 		}
-		//newLineEchos = 0;
 		if (sendCommand!=null) {
 			sendCommand=null;
 		}
@@ -137,10 +178,8 @@ public class SerialDeviceWireThread extends Thread {
 	}
 	
 	private void pollCommandRequest() throws InterruptedException, IOException {
-		
-		DeviceCommandRequest send = deviceManager.pollCommandRequest();
+		DeviceCommandRequest send = deviceManager.pollWaitCommandRequest();
 		if (send==null) {
-			Thread.sleep(10);
 			return; // nothing to send
 		}
 		DeviceCommandRequest peek = deviceManager.peekCommandRequest();
@@ -172,27 +211,42 @@ public class SerialDeviceWireThread extends Thread {
 		}
 	}
 	
-	private void pollInputReader() throws IOException {
-		int c = 0;
-		boolean lineEnd = false;
-		while (reader.ready()) {
-			c = reader.read();
-			if (c == Command.LINE_END) {
-				lineEnd = true;
-				break;
+	@Override
+	public void serialEvent(SerialPortEvent event) {
+		if (event.getEventType() != SerialPortEvent.DATA_AVAILABLE) {
+			return;
+		}
+		if (reader==null) {
+			return;
+		}
+		try {
+			int c = 0;
+			while (reader.ready()) {
+				c = reader.read();
+				if (c == Command.LINE_END) {
+					String scannedInput = readBuffer.toString().trim();
+					readBuffer = new StringBuffer();
+					logger.finest("Raw data read: "+scannedInput);
+					processCmdQueue.add(scannedInput);
+					continue;
+				}
+				readBuffer.append((char) c);
+				if (seenPromt==false && readBuffer.toString().startsWith(PULSE_FIRE_PROMT)) {
+					logger.finer("Seen promt continue login");
+					seenPromt = true; // Remove promt from line and flag it.
+				}
 			}
-			readBuffer.append((char) c);
+		} catch (IOException e) {
+			logger.log(Level.WARNING,"Error in serial event: "+e.getMessage(),e);
+			deviceManager.incTotalError();
 		}
-		if (lineEnd==false) {
-			return; // read line until line end is come by.
-		}
-		String scannedInput = readBuffer.toString().trim();
-		readBuffer = new StringBuffer();
-		logger.finest("Raw data read: "+scannedInput);
-		
+	}
+	
+	private void processInput(String scannedInput) throws IOException {
 		if (scannedInput.isEmpty()) {
 			return; // skip empty lines from fire data.
 		}
+		
 		deviceManager.fireDataReceived(scannedInput);
 		
 		if (scannedInput.startsWith(PULSE_FIRE_ERROR)) {
@@ -209,7 +263,7 @@ public class SerialDeviceWireThread extends Thread {
 			//if (seenPromt && deviceManager.getDeviceData().getDeviceParameter(CommandName.req_tx_promt)!=null) {
 			//	softReconnectDevice(false);
 			//}
-			seenPromt = true; // Remove promt from line and flag it.
+			// fix for input like promt: info_chip
 			scannedInput=scannedInput.substring(scannedInput.indexOf(':')+1,scannedInput.length()).trim();
 		}
 		
@@ -356,6 +410,12 @@ public class SerialDeviceWireThread extends Thread {
 	
 	public void shutdown(){
 		running = false;
+		for (int i=0;i<10;i++) {
+			try { Thread.sleep(100); } catch (InterruptedException e) {}
+			if (serialPort==null) {
+				break;
+			}
+		}
 	}
 	
 	public boolean isRunning() {

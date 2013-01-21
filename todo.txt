@@ -9,7 +9,6 @@ ERRATA:
 (restart application)
 
 CHIP:
-- fix serial bug on info_conf listing or in pf-device..
 - Add menu support for map variables.
 - add hex id serial mode instead of acsii value of variable.
 - Added more commands/tests to MAL

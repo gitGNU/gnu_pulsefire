@@ -47,7 +47,7 @@ typedef uint8_t byte;
 #define ONE                         1    // one
 #define false                       0    // false
 #define true                        1    // true
-#define PWM_DATA_MAX               64    // PWM output steps buffer.
+#define PWM_DATA_MAX     (16*4)+(3*10)+1 // PWM output steps buffer.
 #define PMCMDLIST_SIZE             18    // Array size of other commands.
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.

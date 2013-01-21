@@ -23,16 +23,13 @@
 
 package org.nongnu.pulsefire.device;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -47,7 +44,7 @@ import org.nongnu.pulsefire.wire.CommandNameVersionFactory;
 abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 
 	protected Logger logger = null;
-	protected Queue<DeviceCommandRequest> sendCommandQueue = null;
+	private LinkedBlockingQueue<DeviceCommandRequest> sendCommandQueue = null;
 	protected Map<CommandName,List<DeviceCommandListener>> commandListeners = null;
 	protected List<DeviceDataListener> dataListeners = null;
 	protected List<DeviceConnectListener> connectListeners = null;
@@ -190,6 +187,9 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 		return rc;
 	}
 	
+	public DeviceCommandRequest pollWaitCommandRequest() throws InterruptedException {
+		return sendCommandQueue.poll(500,TimeUnit.MILLISECONDS);
+	}
 	public DeviceCommandRequest pollCommandRequest() {
 		return sendCommandQueue.poll();
 	}
@@ -243,31 +243,21 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 			dataListeners.get(i).deviceDataSend(data);
 		}
 	}
-	public void fireDataReceived(final String data) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				for (int i=0;i<dataListeners.size();i++) {
-					dataListeners.get(i).deviceDataReceived(data);
-				}
-			}
-		});
+	public void fireDataReceived(String data) {
+		for (int i=0;i<dataListeners.size();i++) {
+			dataListeners.get(i).deviceDataReceived(data);
+		}
 	}
 	
-	public void fireCommandReceived(final Command command) {
+	public void fireCommandReceived(Command command) {
 		totalCmdRx++;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				List<DeviceCommandListener> list = commandListeners.get(command.getCommandName());
-				if (list==null) {
-					return;
-				}
-				for (int i=0;i<list.size();i++) {
-					list.get(i).commandReceived(command);
-				}
-			}
-		});
+		List<DeviceCommandListener> list = commandListeners.get(command.getCommandName());
+		if (list==null) {
+			return;
+		}
+		for (int i=0;i<list.size();i++) {
+			list.get(i).commandReceived(command);
+		}
 	}
 
 	public void incTotalError() {

@@ -54,12 +54,10 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 	final int PAD = 0;
 	private CommandName commandName = null;
 	private PulseFireTimeData timeDataStore = null;
-	private Color gridColor = null;
 	
 	public JFireGraph(CommandName commandName) {
 		this.commandName=commandName;
 		this.timeDataStore=PulseFireUI.getInstance().getTimeData();
-		this.gridColor = UIManager.getColor("nimbusGreen").darker();
 		setPreferredSize(new Dimension(440,220));
 		setMinimumSize(new Dimension(80,40));
 		setBorder(BorderFactory.createEmptyBorder());
@@ -98,8 +96,9 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setPaint(gridColor);
 		
+		Color gridColor = UIManager.getColor("gridColor");
+		g2.setPaint(gridColor);
 		double maxValue = getSize().height;
 		double maxRValue = 0.0;
 		double minRValue = 100000;

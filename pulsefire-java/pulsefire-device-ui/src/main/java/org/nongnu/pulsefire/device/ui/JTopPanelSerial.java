@@ -98,11 +98,11 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		versionLabel = new JLabel("");
 		serialInfoPanel.add(versionLabel);
 		serialTxCounter = new JLabel();
-		serialTxCounter.setPreferredSize(new Dimension(120,15));
+		serialTxCounter.setPreferredSize(new Dimension(80,15));
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialTxCounter"));
 		serialInfoPanel.add(serialTxCounter);
 		serialRxCounter = new JLabel();
-		serialRxCounter.setPreferredSize(new Dimension(120,15)); // Removes screen update jitter on the right side of the label
+		serialRxCounter.setPreferredSize(new Dimension(80,15)); // Removes screen update jitter on the right side of the label
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"serialRxCounter"));
 		serialInfoPanel.add(serialRxCounter);
 		SpringLayoutGrid.makeCompactGrid(serialInfoPanel,3,2);

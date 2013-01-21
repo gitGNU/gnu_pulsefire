@@ -81,7 +81,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		innerPanel.add(consoleScrollPane,BorderLayout.CENTER);
 		
 		// Config console input
-		consoleInput = new JTextField(30);
+		consoleInput = new JTextField(25);
 		consoleInput.setMargin(new Insets(5, 5, 5, 5));
 		consoleInput.addActionListener(this);
 		consoleInput.setEnabled(false);

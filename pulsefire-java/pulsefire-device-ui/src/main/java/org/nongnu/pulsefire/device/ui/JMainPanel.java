@@ -68,7 +68,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private static final long serialVersionUID = -9173866662540287337L;
 	public List<JFireTabPanel> tabPanels = null;
 	public JTabbedPane tabbedPane = null;
-	//public JSplitPane contentSplitPane = null;
+	public JSplitPane contentSplitPane = null;
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
 	public AbstractFireTabPanel uiLogPanel = null;
@@ -128,8 +128,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		bottomSplitPane.setOneTouchExpandable(true);
 		bottomSplitPane.setResizeWeight(0.7);
 		bottomSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM));
-		sp0.setMinimumSize(new Dimension(100, 350));
-		sp1.setMinimumSize(new Dimension(200, 150));
+		sp0.setMinimumSize(new Dimension(100, 225));
+		sp1.setMinimumSize(new Dimension(200, 125));
 		return bottomSplitPane;
 	}
 	
@@ -140,8 +140,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		bottomLogSplitPane.setOneTouchExpandable(true);
 		bottomLogSplitPane.setResizeWeight(0.4);
 		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_BOTTOM_LOG));
-		sp0.setMinimumSize(new Dimension(200, 100));
-		sp1.setMinimumSize(new Dimension(200, 100));
+		sp0.setMinimumSize(new Dimension(400, 150));
+		sp1.setMinimumSize(new Dimension(300, 150));
 		return bottomLogSplitPane;
 	}
 	
@@ -225,12 +225,12 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	}
 	
 	private Component createContentSplit(Component sp0,Component sp1) {
-		JSplitPane bottomLogSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
-		bottomLogSplitPane.setOneTouchExpandable(true);
-		bottomLogSplitPane.setResizeWeight(0.8);
-		bottomLogSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
-		sp0.setMinimumSize(new Dimension(300, 100));
-		sp1.setMinimumSize(new Dimension(200, 100));
-		return bottomLogSplitPane;
+		contentSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
+		contentSplitPane.setOneTouchExpandable(true);
+		contentSplitPane.setResizeWeight(0.8);
+		contentSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
+		sp0.setMinimumSize(new Dimension(150, 200));
+		sp1.setMinimumSize(new Dimension(150, 200));
+		return contentSplitPane;
 	}
 }

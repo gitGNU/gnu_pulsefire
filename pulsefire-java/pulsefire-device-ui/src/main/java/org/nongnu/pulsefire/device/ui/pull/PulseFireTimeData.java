@@ -108,7 +108,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	public class TimeData {
 		public long receivedTime = 0;
 		public int dataPoint = 0;
-		public int dataPointIdx[] = new int[64];
+		public int dataPointIdx[] = new int[128]; // todo make lower, is high because info_pwm steps data
 	}
 
 	@Override
