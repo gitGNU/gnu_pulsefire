@@ -96,10 +96,8 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		
 		confPanel.add(new JCommandLabel(CommandName.reset_conf));
 		confPanel.add(new JCommandButton(CommandName.reset_conf));
-
 		confPanel.add(new JCommandLabel(CommandName.reset_data));
 		confPanel.add(new JCommandButton(CommandName.reset_data));
-
 		confPanel.add(new JCommandLabel(CommandName.reset_chip));
 		confPanel.add(new JCommandButton(CommandName.reset_chip));
 		

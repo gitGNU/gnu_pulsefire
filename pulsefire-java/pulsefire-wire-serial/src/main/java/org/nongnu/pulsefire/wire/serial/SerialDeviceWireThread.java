@@ -62,7 +62,8 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 	private volatile boolean running = false;
 	private volatile boolean seenPromt = false;
 	private StringBuffer readBuffer = null;
-	private DeviceCommandRequest sendCommand = null;
+	private volatile DeviceCommandRequest sendCommand = null;
+	private volatile Object sendCommandLock = null;
 	private LinkedBlockingQueue<String> processCmdQueue = null;
 	static private final String PULSE_FIRE_PROMT = "root@pulsefire:";
 	static private final String PULSE_FIRE_ERROR = "# Err:";
@@ -77,6 +78,7 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 		this.logger = Logger.getLogger(SerialDeviceWireThread.class.getName());
 		this.deviceManager= deviceManager;
 		this.serialPort=serialPort;
+		sendCommandLock = new Object();
 		processCmdQueue = new LinkedBlockingQueue<String>();
 		readBuffer = new StringBuffer();
 		reader = new InputStreamReader(serialPort.getInputStream(),Charset.forName("US-ASCII"));
@@ -145,21 +147,22 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 		if (deviceManager.isConnected()==false) {
 			return; // don't check before we are connected.
 		}
-		if (sendCommand==null) {
-			return; // nothing to check
+		synchronized (sendCommandLock) {
+			if (sendCommand==null) {
+				return; // nothing to check
+			}
+			long currTime = System.currentTimeMillis();
+			if (testSendCommand && currTime<sendCommand.getRequestTime()+(15*1000)) {
+				return;
+			}
+			if (testSendCommand) {
+				logger.info("In system reboot detected trying soft reconnect. timeout of: "+sendCommand.getRequest().getLineRaw());
+			} else {
+				logger.info("In system reboot requested trying soft reconnect.");
+			}
+			sendCommand = null;
 		}
-		long currTime = System.currentTimeMillis();
-		if (testSendCommand && currTime<sendCommand.getRequestTime()+(15*1000)) {
-			return;
-		}
-		if (testSendCommand) {
-			logger.info("In system reboot detected trying soft reconnect. timeout of: "+sendCommand.getRequest().getLineRaw());
-		} else {
-			logger.info("In system reboot requested trying soft reconnect.");
-		}
-		if (sendCommand!=null) {
-			sendCommand=null;
-		}
+
 		// clear send buffer
 		DeviceCommandRequest poll = deviceManager.pollCommandRequest();
 		while (poll!=null) {
@@ -199,7 +202,9 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 			writer.write(writeOut);
 			writer.write('\n');
 			writer.flush();
-			sendCommand = send;
+			synchronized (sendCommandLock) {
+				sendCommand = send;
+			}
 			deviceManager.fireDataSend(writeOut);
 		} catch (IOException sendException) {
 			if (sendException.getMessage().contains("writeArray")==false) {
@@ -208,6 +213,9 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 				logger.log(Level.WARNING,sendException.getMessage());
 			}
 			deviceManager.disconnect(true);
+		} catch (Exception e) {
+			logger.log(Level.WARNING,e.getMessage(),e); // no disconnect on prog error
+			deviceManager.incTotalError();
 		}
 	}
 	
@@ -250,9 +258,11 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 		deviceManager.fireDataReceived(scannedInput);
 		
 		if (scannedInput.startsWith(PULSE_FIRE_ERROR)) {
-			if (sendCommand!=null) {
-				sendCommand.setResponse(sendCommand.getRequest()); // release response code.
-				sendCommand = null;
+			synchronized (sendCommandLock) {
+				if (sendCommand!=null) {
+					sendCommand.setResponse(sendCommand.getRequest()); // release response code.
+					sendCommand = null;
+				}
 			}
 		}
 		if (scannedInput.startsWith("#")) {
@@ -297,9 +307,11 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 		try {
 			cmd = CommandWire.decodeCommand(scannedInput);
 			logger.finer("Got cmd: "+cmd.getCommandName()+" with argu0: "+cmd.getArgu0());
-			if (sendCommand!=null && sendCommand.getRequest().getCommandName().equals(cmd.getCommandName())) {
-				sendCommand.setResponse(cmd);
-				sendCommand = null;
+			synchronized (sendCommandLock) {
+				if (sendCommand!=null && sendCommand.getRequest().getCommandName().equals(cmd.getCommandName())) {
+					sendCommand.setResponse(cmd);
+					sendCommand = null;
+				}
 			}
 		} catch (CommandWireException cwe) {
 			deviceManager.incTotalError();

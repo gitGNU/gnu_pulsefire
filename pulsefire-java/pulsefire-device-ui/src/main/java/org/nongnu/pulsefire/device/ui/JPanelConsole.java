@@ -92,7 +92,9 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		consoleClear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				consoleLog.setText("");
+				synchronized (consoleLog) {
+					consoleLog.setText("");
+				}
 			}
 		});
 		consoleActionPanel.add(consoleClear,BorderLayout.LINE_END);
@@ -116,31 +118,32 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	}
 	
 	private void updateText(String data,String prefix) {
-		
-		consoleLog.append(timeFormat.format(new Date()));
-		consoleLog.append(" ");
-		consoleLog.append(prefix);
-		consoleLog.append(" ");
-		consoleLog.append(data);
-		consoleLog.append("\n");
-		
-		if (consoleLog.getLineCount() > consoleLogLinesMax) {
-			String t = consoleLog.getText();
-			int l = 0;
-			int rm = consoleLogLinesMax/2;
-			for (int i=0;i<rm;i++) {
-				int ll = t.indexOf('\n',l+1);
-				if (ll==-1) {
-					break;
+		synchronized (consoleLog) {
+			consoleLog.append(timeFormat.format(new Date()));
+			consoleLog.append(" ");
+			consoleLog.append(prefix);
+			consoleLog.append(" ");
+			consoleLog.append(data);
+			consoleLog.append("\n");
+			
+			if (consoleLog.getLineCount() > consoleLogLinesMax) {
+				String t = consoleLog.getText();
+				int l = 0;
+				int rm = consoleLogLinesMax/2;
+				for (int i=0;i<rm;i++) {
+					int ll = t.indexOf('\n',l+1);
+					if (ll==-1) {
+						break;
+					}
+					l = ll;
 				}
-				l = ll;
+				String tt = t.substring(l,t.length());
+				consoleLog.setText(tt);
 			}
-			String tt = t.substring(l,t.length());
-			consoleLog.setText(tt);
+			
+			consoleLog.repaint();
+			consoleLog.setCaretPosition(consoleLog.getDocument().getLength()); // auto scroll to end
 		}
-		
-		consoleLog.repaint();
-		consoleLog.setCaretPosition(consoleLog.getText().length()); // auto scroll to end
 	}
 
 	@Override
@@ -172,6 +175,8 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	
 	public void settingUpdated(PulseFireUISettingKeys key,String value) {
 		consoleLogLinesMax = new Integer(value);
-		consoleLog.setText("");
+		synchronized (consoleLog) {
+			consoleLog.setText("");
+		}
 	}
 }

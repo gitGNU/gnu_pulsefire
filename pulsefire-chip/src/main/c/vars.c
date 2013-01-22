@@ -61,7 +61,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 		6,
 	#endif
 	                                                                                                                      PFVB_NONE+PFVB_CPWM,            DEFAULT_PULSE_STEPS},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_trig,          (CHIP_PTR_TYPE)&pmConfPulseTrig,       PULSE_TRIG_EXT_FIRE, PFVB_NONE,                      PULSE_TRIG_LOOP},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_trig,          (CHIP_PTR_TYPE)&pmConfPulseTrig,       PULSE_TRIG_PULSE_FIRE,PFVB_NONE,                     PULSE_TRIG_LOOP},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_bank,          (CHIP_PTR_TYPE)&pmConfPulseBank,       PULSE_BANK_MAX,        PFVB_NONE+PFVB_CPWM,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_dir,           (CHIP_PTR_TYPE)&pmConfPulseDir,        PULSE_DIR_LRLR,      PFVB_NONE+PFVB_CPWM,            ZERO},
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_pre_delay,     (CHIP_PTR_TYPE)&pmConfPulsePreDelay,   0xFFFF,              PFVB_NONE+PFVB_CPWM,            ZERO},
@@ -77,7 +77,7 @@ const CHIP_PTR_TYPE PF_VARS[PF_VARS_PF_SIZE+PF_VARS_AVR_SIZE+PF_VARS_AVR_MEGA_SI
 	{PFVT_16BIT, (CHIP_PTR_TYPE)&pf_conf.pulse_inv_b,         (CHIP_PTR_TYPE)&pmConfPulseInvB,       0xFFFF,              PFVB_NONE+PFVB_CPWM,            ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_fire_mode,     (CHIP_PTR_TYPE)&pmConfPulseFireMode,   PULSE_FIRE_MODE_RESET,    PFVB_NONE,                 ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_hold_mode,     (CHIP_PTR_TYPE)&pmConfPulseHoldMode,   PULSE_HOLD_MODE_ZERO_CLR, PFVB_NONE,                 ZERO},
-	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_hold_auto,     (CHIP_PTR_TYPE)&pmConfPulseHoldAuto,   OUTPUT_MAX,          PFVB_NONE,                      ZERO},
+	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_hold_auto,     (CHIP_PTR_TYPE)&pmConfPulseHoldAuto,   PWM_DATA_MAX,        PFVB_NONE,                      ZERO},
 	{PFVT_8BIT,  (CHIP_PTR_TYPE)&pf_conf.pulse_hold_autoclr,  (CHIP_PTR_TYPE)&pmConfPulseHoldAutoClr,ONE,                 PFVB_NONE,                      ZERO},
 
 	{PFVT_16BIT+(QMAP_SIZE<<13)+(FIRE_MAP_MAX<<8),
@@ -1045,11 +1045,10 @@ void Vars_resetData(void) {
 #endif
 
 #ifdef SF_ENABLE_PWM
-	// Reset cutom pwm data
-	if (pf_conf.pulse_trig      == PULSE_TRIG_LOOP) {
-		pf_data.pwm_state          = PWM_STATE_RUN;
+	if (pf_conf.pulse_trig == PULSE_TRIG_LOOP) {
+		pf_data.pwm_state = PWM_STATE_RUN;
 	} else {
-		pf_data.pwm_state          = PWM_STATE_IDLE;
+		pf_data.pwm_state = PWM_STATE_IDLE; // Reset pwm to idle when in trigger mode.
 	}
 #endif
 }

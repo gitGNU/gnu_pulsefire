@@ -205,7 +205,7 @@ public class JTabPanelSettings extends AbstractFireTabPanel {
 		
 		
 		panel.add(JComponentFactory.createJLabel("Pull Speed"));
-		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.PULL_SPEED,new String[] {"2000","3000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
+		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.PULL_SPEED,new String[] {"1000","2000","3000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
 		
 		SpringLayoutGrid.makeCompactGrid(panel,7,2);
 		return panel;

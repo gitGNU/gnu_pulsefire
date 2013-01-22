@@ -97,10 +97,8 @@ public class CommandNameVersionFactory {
 			};
 		CommandName.pulse_trig.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_trig.listValues = new String[] {
-				"INT_LOOP",
-				"INT_FIRE",
-				"EXT_PIN",
-				"EXT_FIRE"
+				"LOOP_FIRE",
+				"PULSE_FIRE"
 			};
 		CommandName.pulse_dir.pulseModeDependency = new WirePulseMode[] {
 				WirePulseMode.TRAIN,
@@ -354,6 +352,12 @@ public class CommandNameVersionFactory {
 		// Config like current
 		configCurrentVersion();
 		
+		CommandName.pulse_trig.listValues = new String[] {
+				"INT_LOOP",
+				"INT_FIRE",
+				"EXT_PIN",
+				"EXT_FIRE"
+			};
 		CommandName.pwm_loop_delta.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_dir.listValues = new String[] {
 				"LR",
@@ -362,69 +366,69 @@ public class CommandNameVersionFactory {
 			};
 		
 		CommandName.avr_pin2_map.listValues = new String[] {
-				"PIN2_OFF",
-				"PIN2_TRIG_IN",
-				"PIN2_DIC2_IN",
-				"PIN2_DIC8_IN",
-				"PIN2_DOC2_OUT",
-				"PIN2_DOC8_OUT",
-				"PIN2_FREQ_IN",
-				"PIN2_FIRE_IN",
-				"PIN2_HOLD_FIRE_IN"
+				"OFF",
+				"TRIG_IN",
+				"DIC2_IN",
+				"DIC8_IN",
+				"DOC2_OUT",
+				"DOC8_OUT",
+				"FREQ_IN",
+				"FIRE_IN",
+				"HOLD_FIRE_IN"
 			};
 		CommandName.avr_pin3_map.listValues = new String[] {
-				"PIN3_OFF",
-				"PIN3_MENU0_IN",
-				"PIN3_DIC3_IN",
-				"PIN3_DIC9_IN",
-				"PIN3_DOC3_OUT",
-				"PIN3_DOC9_OUT",
-				"PIN3_FREQ_IN",
-				"PIN3_FIRE_IN",
-				"PIN3_HOLD_FIRE_IN",
-				"PIN3_CIT0B_OUT"
+				"OFF",
+				"MENU0_IN",
+				"DIC3_IN",
+				"DIC9_IN",
+				"DOC3_OUT",
+				"DOC9_OUT",
+				"FREQ_IN",
+				"FIRE_IN",
+				"HOLD_FIRE_IN",
+				"CIT0B_OUT"
 			};
 		CommandName.avr_pin18_map.listValues = new String[] {
-				"PIN18_OFF",
-				"PIN18_TRIG_IN",
-				"PIN18_DIC4_IN",
-				"PIN18_DIC6_IN",
-				"PIN18_DOC4_OUT",
-				"PIN18_DOC6_OUT",
-				"PIN18_FREQ_IN",
-				"PIN18_FIRE_IN",
-				"PIN18_HOLD_FIRE_IN" 
+				"OFF",
+				"TRIG_IN",
+				"DIC4_IN",
+				"DIC6_IN",
+				"DOC4_OUT",
+				"DOC6_OUT",
+				"FREQ_IN",
+				"FIRE_IN",
+				"HOLD_FIRE_IN" 
 			};
 		CommandName.avr_pin19_map.listValues = new String[] {
-				"PIN19_OFF",
-				"PIN19_TRIG_IN",
-				"PIN19_DIC5_IN",
-				"PIN19_DIC7_IN",
-				"PIN19_DOC5_OUT",
-				"PIN19_DOC7_OUT",
-				"PIN19_FREQ_IN",
-				"PIN19_FIRE_IN",
-				"PIN19_HOLD_FIRE_IN"
+				"OFF",
+				"TRIG_IN",
+				"DIC5_IN",
+				"DIC7_IN",
+				"DOC5_OUT",
+				"DOC7_OUT",
+				"FREQ_IN",
+				"FIRE_IN",
+				"HOLD_FIRE_IN"
 			};
 		CommandName.avr_pin47_map.listValues = new String[] {
-				"PIN47_OFF",
-				"PIN47_RELAY_OUT"
+				"OFF",
+				"RELAY_OUT"
 			};
 		CommandName.avr_pin48_map.listValues = new String[] {
-				"PIN48_OFF",
-				"PIN48_MENU0_IN",
-				"PIN48_DIC4_IN",
-				"PIN48_DIC6_IN",
-				"PIN48_DOC4_OUT",
-				"PIN48_DOC6_OUT"
+				"OFF",
+				"MENU0_IN",
+				"DIC4_IN",
+				"DIC6_IN",
+				"DOC4_OUT",
+				"DOC6_OUT"
 			};
 		CommandName.avr_pin49_map.listValues = new String[] {
-				"PIN49_OFF",
-				"PIN49_MENU1_IN",
-				"PIN49_DIC5_IN",
-				"PIN49_DIC7_IN",
-				"PIN49_DOC5_OUT",
-				"PIN49_DOC7_OUT"
+				"OFF",
+				"MENU1_IN",
+				"DIC5_IN",
+				"DIC7_IN",
+				"DOC5_OUT",
+				"DOC7_OUT"
 			};
 		
 		return true;
@@ -446,15 +450,15 @@ public class CommandNameVersionFactory {
 				"EXT_PIN"
 			};
 		CommandName.avr_pin3_map.listValues = new String[] {
-				"PIN3_OFF",
-				"PIN3_MENU0_IN",
-				"PIN3_DIC3_IN",
-				"PIN3_DIC9_IN",
-				"PIN3_DOC3_OUT",
-				"PIN3_DOC9_OUT",
-				"PIN3_FREQ_IN",
-				"PIN3_FIRE_IN",
-				"PIN3_HOLD_FIRE_IN"
+				"OFF",
+				"MENU0_IN",
+				"DIC3_IN",
+				"DIC9_IN",
+				"DOC3_OUT",
+				"DOC9_OUT",
+				"FREQ_IN",
+				"FIRE_IN",
+				"HOLD_FIRE_IN"
 			};
 		CommandName.pwm_req_freq.disabled=true;
 		CommandName.pwm_req_idx.disabled=true;

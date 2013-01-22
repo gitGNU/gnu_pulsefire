@@ -34,6 +34,7 @@ Version 1.1.0:
 - Added dic_mux for mux chip mode select.
 - Added info_vars to output all variable meta data in one go.
 - Removed all(5) help arguments, now it only lists the help.
+- Removed 2 pulse_trig's now its LOOP or PULSE_FIRE.
 
 
 Version 1.0.4:
