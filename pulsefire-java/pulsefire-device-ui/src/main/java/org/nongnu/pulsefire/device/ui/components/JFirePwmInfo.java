@@ -102,6 +102,9 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 			return;
 		}
 		int pulseSteps = new Integer(pulseStepsCommand.getArgu0());
+		if (pulseSteps==0) {
+			return; // nothing to draw. /0
+		}
 		int steps = new Integer(pwmStepsCommand.getArgu0());
 		int pulseHeight = h/pulseSteps/2;
 		int totalTime = 0;

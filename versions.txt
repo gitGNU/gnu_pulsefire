@@ -20,8 +20,8 @@ Version 1.1.0:
 - Dropped LPM from chip code and moved to application.
 - Dropped experimental GLCD support to free pins.
 - Replaced mega pin mapping with mega_port_a and mega_port_c.
-- Small update for dark-red and black-white color thema.
-- Added new yellow-purple color thema.
+- GUI: Small update for dark-red and black-white color thema.
+- GUI: Added new yellow-purple color thema.
 - Added two new pulse_dir modes; LRRL-2 and LRLR
 - Removed two pulse_modes PPM_ALL and PPM_INTERL.
 - Renamed pulse_trig_delay to pulse_pre_delay.
@@ -31,11 +31,13 @@ Version 1.1.0:
 - Replaced dev_freq.* to int_0freq/etc.
 - Dropped CIT (8bit-timer) support.
 - Changed avr_pin2/3 to input only.
+- GUI: Added visuals for info_pwm data.
 - Added dic_mux for mux chip mode select.
 - Added info_vars to output all variable meta data in one go.
 - Removed all(5) help arguments, now it only lists the help.
 - Removed 2 pulse_trig's now its LOOP or PULSE_FIRE.
-
+- GUI: Added serial cmd/error counters and improved serial code.
+- GUI: Added 1 second pull data speed.
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 

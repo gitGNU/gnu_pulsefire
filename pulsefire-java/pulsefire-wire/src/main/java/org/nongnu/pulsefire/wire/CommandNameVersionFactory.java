@@ -108,9 +108,13 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_dir.listValues = new String[] {
 				"LR",
 				"RL",
-				"LRRL-2",
-				"LRRL",
-				"LRLR"
+				"LR-RL-2",
+				"LR-RL",
+				"LR-pre-RL",
+				"LR-post-RL",
+				"LR-LR",
+				"LR-pre-LR",
+				"LR-post-LR"
 			};
 		CommandName.pulse_bank.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_bank.listValues = new String[] {
@@ -128,7 +132,7 @@ public class CommandNameVersionFactory {
 		CommandName.pulse_post_mul.listValues = CommandName.pulse_pre_mul.listValues;
 		CommandName.pulse_post_hold.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_post_hold.listValues = new String[] {
-				"OFF","LAST"
+				"OFF","ON","LAST1","LAST2"
 			};
 		CommandName.pulse_mask_a.pulseModeDependency = WirePulseMode.valuesOn();
 		CommandName.pulse_mask_b.pulseModeDependency = WirePulseMode.valuesOn();
@@ -338,6 +342,36 @@ public class CommandNameVersionFactory {
 	//	CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
 	//	CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
 		
+		
+		// Deleted command v1.1
+		CommandName.pulse_inv.disabled=true;
+		CommandName.pulse_trig_delay.disabled=true;
+		CommandName.pulse_trig_delay_cnt.disabled=true;
+		CommandName.pulse_post_delay_cnt.disabled=true;
+		CommandName.pwm_loop_max.disabled=true;
+		CommandName.ppm_idx.disabled=true;
+		CommandName.dev_freq.disabled=true;
+		CommandName.dev_freq_cnt.disabled=true;
+		CommandName.avr_pin18_map.disabled=true;
+		CommandName.avr_pin19_map.disabled=true;
+		CommandName.avr_pin47_map.disabled=true;
+		CommandName.avr_pin48_map.disabled=true;
+		CommandName.avr_pin49_map.disabled=true;
+		
+		// Deleted commands v1.0
+		CommandName.freq_pwm_data.disabled=true;
+		CommandName.pulse_data.disabled=true;
+		CommandName.pulse_dir_cnt.disabled=true;
+		CommandName.pulse_bank_cnt.disabled=true;
+		
+		// Deleted commands v0.9
+		CommandName.req_pwm_freq.disabled=true;
+		CommandName.swc_trig.disabled=true;
+		CommandName.swc_mode.disabled=true;
+		CommandName.swc_mode_org.disabled=true;
+		CommandName.stv_warn_mode.disabled=true;
+		CommandName.stv_error_mode.disabled=true;
+		
 		CommandName.req_pwm_freq.disabled=true;
 		CommandName.swc_trig.disabled=true;
 		CommandName.swc_mode.disabled=true;
@@ -431,6 +465,20 @@ public class CommandNameVersionFactory {
 				"DOC7_OUT"
 			};
 		
+		// Deleted command v1.1
+		CommandName.pulse_inv.disabled=false;
+		CommandName.pulse_trig_delay.disabled=false;
+		CommandName.pulse_trig_delay_cnt.disabled=false;
+		CommandName.pulse_post_delay_cnt.disabled=false;
+		CommandName.pwm_loop_max.disabled=false;
+		CommandName.ppm_idx.disabled=false;
+		CommandName.dev_freq.disabled=false;
+		CommandName.dev_freq_cnt.disabled=false;
+		CommandName.avr_pin18_map.disabled=false;
+		CommandName.avr_pin19_map.disabled=false;
+		CommandName.avr_pin47_map.disabled=false;
+		CommandName.avr_pin48_map.disabled=false;
+		CommandName.avr_pin49_map.disabled=false;
 		return true;
 	}
 	

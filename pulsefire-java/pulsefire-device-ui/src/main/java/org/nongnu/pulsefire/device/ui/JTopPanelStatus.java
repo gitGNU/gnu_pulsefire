@@ -29,8 +29,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.wire.Command;
@@ -41,7 +43,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
+public class JTopPanelStatus extends JPanel implements DeviceCommandListener,DeviceConnectListener {
 
 	private static final long serialVersionUID = 94571180445561814L;
 	
@@ -83,6 +85,7 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 		deviceManager.addDeviceCommandListener(CommandName.adc_value, this);
 		deviceManager.addDeviceCommandListener(CommandName.dic_value, this);
 		deviceManager.addDeviceCommandListener(CommandName.doc_port, this);
+		deviceManager.addDeviceConnectListener(this);
 	}
 
 	@Override
@@ -168,6 +171,20 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener {
 			buf.append(" (15-0)");
 			docLabel.setText(buf.toString());
 		}
-		
+	}
+
+	@Override
+	public void deviceConnect() {
+		// Fix for missing redraw event which happens sometimes on first application boot and connect;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SwingUtilities.updateComponentTreeUI(JTopPanelStatus.this);
+			}
+		});
+	}
+
+	@Override
+	public void deviceDisconnect() {
 	}
 }

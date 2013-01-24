@@ -101,7 +101,8 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		confPanel.add(new JCommandLabel(CommandName.reset_chip));
 		confPanel.add(new JCommandButton(CommandName.reset_chip));
 		
-		JButton loadButton = new JButton("Load");
+		JButton loadButton = new JButton();
+		loadButton.setName(getClass().getName()+".loadFile");
 		JComponentEnableStateListener.attach(loadButton,null);
 		loadButton.addActionListener(new ActionListener() {
 			@Override
@@ -133,7 +134,8 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		confPanel.add(JComponentFactory.createJLabel("Load File"));
 		confPanel.add(loadButton);
 		
-		JButton saveButton = new JButton("Save");
+		JButton saveButton = new JButton();
+		saveButton.setName(getClass().getName()+".saveFile");
 		JComponentEnableStateListener.attach(saveButton,null);
 		saveButton.addActionListener(new ActionListener() {
 			@Override

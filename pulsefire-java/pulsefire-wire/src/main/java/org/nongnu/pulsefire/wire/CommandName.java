@@ -455,6 +455,16 @@ public enum CommandName {
 		return null;
 	}
 	
+	static public List<CommandName> valuesEnabled() {
+		List<CommandName> result = new ArrayList<CommandName>(50);
+		for (CommandName cn:values()) {
+			if (!cn.isDisabled()) {
+				result.add(cn);
+			}
+		}
+		return result;
+	}
+	
 	static public List<CommandName> valuesMapIndex() {
 		List<CommandName> result = new ArrayList<CommandName>(50);
 		for (CommandName cn:values()) {
@@ -484,7 +494,7 @@ public enum CommandName {
 					cn = CommandName.valueOf(s);
 				} catch (Exception e) {
 				}
-				if (cn!=null) {
+				if (cn!=null && !cn.isDisabled()) {
 					result.add(cn);
 				}
 			}
