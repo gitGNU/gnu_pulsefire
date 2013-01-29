@@ -37,7 +37,17 @@ Version 1.1.0:
 - Removed all(5) help arguments, now it only lists the help.
 - Removed 2 pulse_trig's now its LOOP or PULSE_FIRE.
 - GUI: Added serial cmd/error counters and improved serial code.
-- GUI: Added 1 second pull data speed.
+- GUI: Added 500ms and 1 second pull data speed.
+- Redone info_freq from pwm step data.
+- Renamed: mal_mticks to mal_wait and made 8b.
+- Redone main pulsefire time loop and removed *_time_cnt.
+- Added lcd_hcd for speed of hardware command delay.
+- Added 'info_data np' argument to remove auto push data from pulling.
+- Replaced SWC with generic stepper VSC on max 20hz.
+- Changed PTC speed from 10hz to 20hz with ptc_Xmul=0.
+- Added req_tx_hex for faster cmd rate, so over 1000 cmd/sec is done.
+- Added sys_uptime and sys_speed indicators.
+
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 
