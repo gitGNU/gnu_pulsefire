@@ -48,7 +48,7 @@ typedef uint8_t byte;
 #define false                       0    // false
 #define true                        1    // true
 #define PWM_DATA_MAX     (16*4)+(3*10)+1 // PWM output steps buffer.
-#define PMCMDLIST_SIZE             18    // Array size of other commands.
+#define PMCMDLIST_SIZE             19    // Array size of other commands.
 #define UNPSTR_BUFF_SIZE           64    // max string lenght to copy from flash.
 #define WDT_MAIN_TIMEOUT         WDTO_4S // if main loop takes more than 4 sec then reset device.
 #define SPI_CLOCK_MAX               3    // 4 spi clock modes
@@ -118,14 +118,21 @@ typedef struct {
 	volatile uint8_t       lcd_size;        // Lcd size type
 	volatile uint8_t       lcd_defp;        // Default lcd page view
 	volatile uint8_t       lcd_mode;        // 0=off,1=page,2=2but,3=4but
+	volatile uint8_t       lcd_hcd;         // Lcd hardware command delay.
 	volatile uint8_t       lcd_plp[LCD_PLP_MAX]; // Plp values
 #endif
 
-#ifdef SF_ENABLE_SWC
-	volatile uint8_t       swc_delay;       // Startup delay before softstartup.
-	volatile uint16_t      swc_secs;        // Total secords of warmup softstart period.
-	volatile uint16_t      swc_duty;        // Sort of start duty from which the steps are made smaller
-	volatile uint16_t      swc_map[SWC_MAP_MAX][QMAP_SIZE];  // warmup variable mapping
+#ifdef SF_ENABLE_VSC0
+	volatile uint8_t       vsc_0mode;       // Run mode, off,once-up,once-down,loop-up,loop-down,loop-up-down
+	volatile uint16_t      vsc_0time;       // Time step
+	volatile uint8_t       vsc_0step;       // Step size
+	volatile uint16_t      vsc_0map[VSC_MAP_MAX][QMAP_SIZE];  // variable stepper mapping
+#endif
+#ifdef SF_ENABLE_VSC1
+	volatile uint8_t       vsc_1mode;
+	volatile uint16_t      vsc_1time;
+	volatile uint8_t       vsc_1step;
+	volatile uint16_t      vsc_1map[VSC_MAP_MAX][QMAP_SIZE];
 #endif
 
 #ifdef SF_ENABLE_PWM
@@ -178,10 +185,12 @@ typedef struct {
 	volatile uint16_t      lpm_relay_map[LPM_RELAY_MAP_MAX][QMAP_SIZE];// Output mapping for relay status
 #endif
 
-#ifdef SF_ENABLE_PTC
+#ifdef SF_ENABLE_PTC0
 	volatile uint8_t       ptc_0run;                              // ptc time0 running, 0=off,1=run1,2=2,3=3,etc,255=run_on
 	volatile uint8_t       ptc_0mul;                              // Time multiplier for time map0
 	volatile uint16_t      ptc_0map[PTC_TIME_MAP_MAX][QMAP_SIZE]; // Time event map0
+#endif
+#ifdef SF_ENABLE_PTC1
 	volatile uint8_t       ptc_1run;                              // ptc time1 running
 	volatile uint8_t       ptc_1mul;                              // Time multiplier for time map1
 	volatile uint16_t      ptc_1map[PTC_TIME_MAP_MAX][QMAP_SIZE]; // Time event map1
@@ -215,7 +224,7 @@ typedef struct {
 	volatile uint8_t       mal_code[MAL_CODE_SIZE];  // Program space for micro assembly language code
 	volatile uint8_t       mal_ops;                  // Operations per step in main loop
 	volatile uint8_t       mal_ops_fire;             // Max ops when fired
-	volatile uint16_t      mal_mticks;               // Main loop time tick wait
+	volatile uint8_t       mal_wait;                 // Main loop wait time divider
 #endif
 
 	volatile uint16_t      int_map[INT_MAP_MAX][QMAP_SIZE];
@@ -261,36 +270,44 @@ typedef struct {
 typedef struct {
 	volatile uint8_t       rm_this_align_fill_bug; // TODO: fixme else 32b counter upper byte comes in cip_2c_com
 
-	volatile uint32_t      sys_main_loop_cnt;      // Counter of main loop
-	volatile uint32_t      sys_input_time_cnt;
+	volatile uint32_t      sys_loop0_cnt;      // Counter of main loop,(not in vars) todo: move to below with other not vars
+	volatile uint8_t       sys_time_ticks;     // Timer ticks
+	volatile uint32_t      sys_time_csec;      // Centri seconds = 1/10 of second ticks.
+	volatile uint32_t      sys_uptime;         // One second ticks
+	volatile uint32_t      sys_speed ;         // Speed in hz of main loop
+
 #ifdef SF_ENABLE_ADC
-	volatile uint32_t      adc_time_cnt;
-	volatile uint16_t      adc_value[ADC_MAP_MAX];
-	volatile uint8_t       adc_state;
-	volatile uint8_t       adc_state_idx;
-	volatile uint16_t      adc_state_value;
+	volatile uint16_t      adc_value[ADC_MAP_MAX]; // Analog input value per input
+	volatile uint8_t       adc_state;              // State of adc
+	volatile uint8_t       adc_state_idx;          // input idx for requested adc value
+	volatile uint16_t      adc_state_value;        // input value of requested adc
 #endif
 
 	volatile uint16_t      int_0freq;              // int0 freq
 	volatile uint16_t      int_0freq_cnt;          // int0 freq counter
 	volatile uint16_t      int_1freq;              // int1 freq
 	volatile uint16_t      int_1freq_cnt;          // int1 freq counter
-	volatile uint32_t      int_time_cnt;           // Freq time counter
 
-	volatile uint32_t      dic_time_cnt;
-	volatile uint16_t      dic_value;
+	volatile uint16_t      dic_value;              // Digital input value
+	volatile uint8_t       doc_port[DOC_PORT_NUM_MAX]; // Digital output value
 
-	volatile uint8_t       doc_port[DOC_PORT_NUM_MAX];
-
-#ifdef SF_ENABLE_SWC
-	volatile uint16_t      swc_secs_cnt;
-	volatile uint16_t      swc_duty_cnt;
+#ifdef SF_ENABLE_VSC0
+	volatile uint16_t      vsc_0time_cnt;           // Time tick counter
+	volatile uint8_t       vsc_0state[VSC_MAP_MAX]; // Run state per mapping
+#endif
+#ifdef SF_ENABLE_VSC1
+	volatile uint16_t      vsc_1time_cnt;
+	volatile uint8_t       vsc_1state[VSC_MAP_MAX];
 #endif
 #ifdef SF_ENABLE_LCD
 	volatile uint8_t       lcd_input;         // The lcd input pins input mappable variable
 	volatile uint8_t       lcd_page;          // The current lcd page being draw
 	volatile uint8_t       lcd_redraw;        // Notify lcd code to clear and redraw page.
-	volatile uint32_t      lcd_time_cnt;      // Timer until next redraw
+	volatile uint8_t       lcd_menu_state;
+	volatile uint16_t      lcd_menu_mul;
+	volatile uint8_t       lcd_menu_idx;
+	volatile uint8_t       lcd_menu_value_idx;
+	volatile uint32_t      lcd_menu_time_cnt;
 #endif
 
 #ifdef SF_ENABLE_LPM
@@ -302,20 +319,21 @@ typedef struct {
 	volatile uint16_t      lpm_level;         // The level of messurement
 #endif
 
-#ifdef SF_ENABLE_PTC
-	volatile uint32_t      ptc_sys_cnt;
+#ifdef SF_ENABLE_PTC0
 	volatile uint16_t      ptc_0cnt;
 	volatile uint8_t       ptc_0run_cnt;
 	volatile uint8_t       ptc_0map_idx;
 	volatile uint16_t      ptc_0mul_cnt;
 	volatile uint8_t       ptc_0step;
-
+#endif
+#ifdef SF_ENABLE_PTC1
 	volatile uint16_t      ptc_1cnt;
 	volatile uint8_t       ptc_1run_cnt;
 	volatile uint8_t       ptc_1map_idx;
 	volatile uint16_t      ptc_1mul_cnt;
 	volatile uint8_t       ptc_1step;
 #endif
+
 #ifdef SF_ENABLE_PTT
 	volatile uint8_t       ptt_idx[PTT_TRIG_VAR_SIZE];
 	volatile uint16_t      ptt_cnt[PTT_TRIG_VAR_SIZE];
@@ -343,11 +361,26 @@ typedef struct {
 #endif
 
 #ifdef SF_ENABLE_MAL
+	volatile uint8_t       mal_pc;               // Mal program counter
+	volatile uint8_t       mal_state;            // program state
+	volatile uint16_t      mal_var[MAL_VAR_MAX]; // mal internal variables
+	volatile uint8_t       mal_wait_cnt;         // mal wait cnt
 	volatile uint16_t      mal_fire[MAL_FIRE_MAX]; // MAL fire triggers.
 #endif
 
+#ifdef SF_ENABLE_STV
+	volatile uint8_t       stv_state;
+	volatile uint8_t       stv_wait_cnt;
+	volatile uint8_t       stv_map_idx;
+#endif
 
-	// == 5 Special variables because these 4 are not in the VARS list !!! ==
+	volatile uint8_t       req_tx_push;    // Push conf changes to Serial
+	volatile uint8_t       req_tx_echo;    // Local echo of received characters
+	volatile uint8_t       req_tx_promt;   // Print promt after cmd is ready.
+	volatile uint8_t       req_tx_hex;     // Print all var names in idx hex.
+
+	// == Special variables because these are not in the VARS list  ==
+
 	char                   unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
 	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
 	volatile uint8_t       cmd_buff_idx;                  // Command index
@@ -355,43 +388,20 @@ typedef struct {
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
 	volatile uint16_t      pwm_data[PWM_DATA_MAX][2];
 	volatile uint8_t       pwm_data_max;
+	char                   lcd_buff[20];
 
 	volatile uint8_t       spi_int_req;  // note spi_ not in vars !
 	volatile uint8_t       spi_int_pin;
 	volatile uint8_t       spi_int_data8;
 	volatile uint8_t       spi_int_data16;
 
-	volatile uint8_t       sys_time_ticks; // Timer0 ticks
-	volatile uint32_t      sys_time_ssec;  // 1/10 of seconds ticks.
+	volatile uint16_t      sys_loop1_cnt;      // 20hz loop counter not in ar
+	volatile uint8_t       sys_loop1_cnt_idx;  // 20hz loop index
 
-	volatile uint8_t       req_tx_push;    // Push conf changes to Serial
-	volatile uint8_t       req_tx_echo;    // Local echo of received characters
-	volatile uint8_t       req_tx_promt;   // Print promt after cmd is ready.
-	//volatile uint8_t     req_tx_hex;     // Print all var names in idx hex.
+	volatile uint8_t       mal_pc_fire;        // Temp store pc when run from trigger (NOTE; not in PF_VARS)
 
-#ifdef SF_ENABLE_LCD
-	char lcd_buff[20];
-	volatile uint8_t       lcd_menu_state;
-	volatile uint16_t      lcd_menu_mul;
-	volatile uint8_t       lcd_menu_idx;
-	volatile uint8_t       lcd_menu_value_idx;
-	volatile uint32_t      lcd_menu_time_cnt;
-#endif
-
-#ifdef SF_ENABLE_MAL
-	volatile uint8_t       mal_pc;               // Mal program counter
-	volatile uint8_t       mal_pc_fire;          // Temp store pc when run from trigger (NOTE; not in PF_VARS)
-	volatile uint8_t       mal_state;            // program state
-	volatile uint16_t      mal_var[MAL_VAR_MAX]; // mal internal variables
-	volatile uint32_t      mal_time_cnt;         // mal time cnt // todo in data var not in prog ?
-#endif
-
-#ifdef SF_ENABLE_STV
-	volatile uint8_t       stv_state;
-	volatile uint32_t      stv_time_cnt;
-	volatile uint8_t       stv_wait_cnt; // todo missing in vars
-	volatile uint8_t       stv_map_idx;
-#endif
+	volatile uint8_t       idx_adc_value; // cache vars id until Vars_getIndexFromName can be done in macro
+	volatile uint8_t       idx_dic_value;
 
 } pf_data_struct;
 
@@ -401,7 +411,7 @@ extern pf_conf_struct       pf_conf;
 
 // Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     36
+#define PF_VARS_PF_SIZE     35
 #ifdef SF_ENABLE_SPI
 	#define PF_VARS_SPI_SIZE  2
 #else
@@ -428,14 +438,19 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_LPM_SIZE  0
 #endif
 #ifdef SF_ENABLE_ADC
-	#define PF_VARS_ADC_SIZE  8
+	#define PF_VARS_ADC_SIZE  7
 #else
 	#define PF_VARS_ADC_SIZE  0
 #endif
-#ifdef SF_ENABLE_PTC
-	#define PF_VARS_PTC_SIZE  17
+#ifdef SF_ENABLE_PTC0
+	#define PF_VARS_PTC0_SIZE  8
 #else
-	#define PF_VARS_PTC_SIZE  0
+	#define PF_VARS_PTC0_SIZE  0
+#endif
+#ifdef SF_ENABLE_PTC1
+	#define PF_VARS_PTC1_SIZE  8
+#else
+	#define PF_VARS_PTC1_SIZE  0
 #endif
 #ifdef SF_ENABLE_PTT
 	#define PF_VARS_PTT_SIZE  8
@@ -457,10 +472,15 @@ extern pf_conf_struct       pf_conf;
 #else
 	#define PF_VARS_MAL_SIZE  0
 #endif
-#ifdef SF_ENABLE_SWC
-	#define PF_VARS_SWC_SIZE  6
+#ifdef SF_ENABLE_VSC0
+	#define PF_VARS_VSC0_SIZE  4+2
 #else
-	#define PF_VARS_SWC_SIZE  0
+	#define PF_VARS_VSC0_SIZE  0
+#endif
+#ifdef SF_ENABLE_VSC1
+	#define PF_VARS_VSC1_SIZE  4+2
+#else
+	#define PF_VARS_VSC1_SIZE  0
 #endif
 #ifdef SF_ENABLE_AVR
 	#define PF_VARS_AVR_SIZE  4
@@ -485,6 +505,7 @@ boolean Vars_isIndexB(byte idx);
 boolean Vars_isNomap(byte idx);
 boolean Vars_isMenuSkip(byte idx);
 boolean Vars_isNoReset(byte idx);
+boolean Vars_isPush(byte idx);
 boolean Vars_isTypeData(byte idx);
 char*   Vars_getName(uint8_t idx);
 uint8_t Vars_getBitType(byte idx);

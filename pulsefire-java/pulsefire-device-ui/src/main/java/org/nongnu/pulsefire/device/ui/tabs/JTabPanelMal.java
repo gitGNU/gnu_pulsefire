@@ -101,7 +101,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		
 		result.add(new JCommandDial(CommandName.mal_ops_fire));
 		result.add(new JCommandDial(CommandName.mal_ops));
-		result.add(new JCommandDial(CommandName.mal_mticks));
+		result.add(new JCommandDial(CommandName.mal_wait));
 		
 		return result;
 	}

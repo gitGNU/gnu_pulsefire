@@ -200,6 +200,16 @@ public class CommandNameVersionFactory {
 		CommandName.int_1trig.listValues = CommandName.int_0trig.listValues ;
 		CommandName.int_1freq_mul.listValues = CommandName.int_0freq_mul.listValues ;
 		
+		CommandName.vsc_0mode.listValues = new String[] {
+				"OFF",
+				"ONCE_UP",
+				"ONCE_DOWN",
+				"LOOP_UP",
+				"LOOP_DOWN",
+				"LOOP_UPDOWN"
+			};
+		CommandName.vsc_1mode.listValues = CommandName.vsc_0mode.listValues;
+		
 		CommandName.cip_0clock.listValues = new String[] {
 				"STOP",
 				"ON_1",
@@ -276,6 +286,13 @@ public class CommandNameVersionFactory {
 				"MENU_2BUTTON",
 				"MENU_4BUTTON"
 			};
+		CommandName.lcd_hcd.listValues = new String[] {
+				"1 MS",
+				"2 MS",
+				"3 MS",
+				"4 MS",
+				"5 MS"
+			};
 		
 		CommandName.spi_clock.listValues = new String[] {
 				"/2",
@@ -336,8 +353,10 @@ public class CommandNameVersionFactory {
 			};
 		
 		CommandName.info_pwm_data.maxIndexA=64; // todo: redesign.
-		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true
-		CommandName.freq_pwm_data.maxIndexB=3;
+		CommandName.info_freq_data.maxIndexA=16;
+		CommandName.info_freq_data.maxIndexB=2;
+		CommandName.freq_pwm_data.maxIndexA=16; // mm not always true, is del in 1.1 ?
+		CommandName.freq_pwm_data.maxIndexB=2;
 	//	CommandName.req_ptt_fire.maxIndexA=3;
 	//	CommandName.req_pulse_fire.pulseModeDependency = WirePulseMode.valuesOn();
 	//	CommandName.req_pulse_hold_fire.pulseModeDependency = WirePulseMode.valuesOn();
@@ -357,6 +376,15 @@ public class CommandNameVersionFactory {
 		CommandName.avr_pin47_map.disabled=true;
 		CommandName.avr_pin48_map.disabled=true;
 		CommandName.avr_pin49_map.disabled=true;
+		CommandName.stv_time_cnt.disabled=true;
+		CommandName.mal_mticks.disabled=true;
+		CommandName.mal_time_cnt.disabled=true;
+		CommandName.adc_time_cnt.disabled=true;
+		CommandName.lcd_time_cnt.disabled=true;
+		CommandName.sys_time_ssec.disabled=true;
+		CommandName.stv_mode_org.disabled=true;
+		CommandName.sys_main_loop_cnt.disabled=true;
+		CommandName.sys_input_time_cnt.disabled=true;
 		
 		// Deleted commands v1.0
 		CommandName.freq_pwm_data.disabled=true;

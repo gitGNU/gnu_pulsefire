@@ -28,11 +28,14 @@ void Chip_loop(void) {
 void Chip_reset(void) {
 }
 
+void Chip_setup_serial(void) {
+}
+
 void Chip_setup(void) {
 }
 
-uint32_t millis(void) {
-	return ZERO;
+uint32_t Chip_centi_secs(void) {
+	return pf_data.sys_time_csec;
 }
 
 void Chip_delay(uint16_t delay) {

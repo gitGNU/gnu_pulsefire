@@ -89,52 +89,6 @@ void PWM_send_output(uint16_t data) {
 	Chip_out_pwm(PWM_filter_data(data));
 }
 
-#ifdef SF_ENABLE_SWC
-boolean PWM_soft_warmup(void) {
-	uint32_t sys_up_secs = millis()/1000;
-	if (sys_up_secs == ZERO) {
-		sys_up_secs = ONE; // very fast cpu here.
-	}
-	if (pf_conf.swc_delay > ZERO && pf_conf.swc_delay > sys_up_secs) {
-		return true;
-	}
-	pf_data.swc_secs_cnt = sys_up_secs - pf_conf.swc_delay; // correct for pre delay
-	if (pf_data.swc_secs_cnt == ZERO) {
-		pf_data.swc_secs_cnt = ONE;
-	}
-	if (pf_data.swc_secs_cnt > pf_conf.swc_secs) {
-		pf_data.swc_secs_cnt  = ZERO;
-		// TODO: move after new time loop code in main
-		for (uint8_t i=ZERO;i < SWC_MAP_MAX;i++) {
-			uint16_t v = pf_conf.swc_map[i][QMAP_VAR];
-			if (v==QMAP_VAR_NONE) {
-				continue;
-			}
-			uint16_t value = pf_conf.swc_map[i][QMAP_VALUE_B];
-			if (value==0xFFFF) {
-				continue;
-			}
-			uint16_t vIdx = pf_conf.swc_map[i][QMAP_VAR_IDX];
-			Vars_setValueInt(v,vIdx,ZERO,value);
-		}
-		return false; // we are done with startup.
-	}
-	uint16_t startup_duty = pf_conf.swc_duty * (pf_conf.swc_secs - pf_data.swc_secs_cnt)/2;
-	if (pf_data.pulse_step == ZERO) {
-		pf_data.swc_duty_cnt = ZERO; // this is not yet corrent for all modes
-	}
-	if (pf_data.pulse_step == ONE) {
-		pf_data.swc_duty_cnt++;
-		if (pf_data.swc_duty_cnt < startup_duty) {
-			PWM_send_output(PULSE_DATA_OFF);
-			return true; // wait
-		}
-	}
-	return false; // run steps
-}
-#endif
-
-
 void PWM_pulse_mode_off(void) {
 	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_OUT]=PWM_filter_data(PULSE_DATA_OFF);
 	pf_data.pwm_data[pf_data.pwm_data_max][PWM_DATA_CNT]=0xFFFF;
@@ -442,25 +396,6 @@ void PWM_work_int(void) {
 	}
 	pf_data.pulse_step = pulse_step;
 }
-
-
-// Timer interrupt for step on time
-#ifdef SF_ENABLE_RM
-void PWM_do_work_aa(void) {
-/*
-	// Check for soft startup
-#ifdef SF_ENABLE_SWC
-	if (pf_data.swc_secs_cnt > ZERO) {
-		if (PWM_soft_warmup()) {
-			return; // wait in startup mode
-		}
-	}
-#endif
-*/
-}
-#endif
-
-
 #endif
 
 

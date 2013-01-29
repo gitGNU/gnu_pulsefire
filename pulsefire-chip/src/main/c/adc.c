@@ -22,63 +22,10 @@
  */
 
 
-#include "input.h"
-
-// read out digital values.
-void Input_loopDic(void) {
-	uint32_t current_time = millis();
-	if (current_time < pf_data.dic_time_cnt) {
-		return;
-	}
-	pf_data.dic_time_cnt = current_time + DIC_INPUT_TIME;
-
-	uint16_t dic_data = Chip_in_dic();
-	for (uint8_t i=ZERO;i < DIC_MAP_MAX ;i++) {
-		if ( ((pf_conf.dic_enable >> i) & ONE) == ZERO ) {
-			continue; // Enable bit per input
-		}
-		uint8_t result    = (dic_data >> i) & ONE;
-		if ( ((pf_conf.dic_inv >> i) & ONE) > ZERO ) {
-			if (result > ZERO) {
-				result = ZERO;	// invert input
-			} else {
-				result = ONE;
-			}
-		}
-		uint8_t resultOld = (pf_data.dic_value >> i) & ONE;
-		if (result == resultOld) {
-			continue; // no change
-		}
-#ifdef SF_ENABLE_DEBUG
-		Serial_printCharP(PSTR("Read dic: "));Serial_printDec((int)i);
-		Serial_printCharP(PSTR(" value: "));Serial_printDec((int)result);
-		Serial_printCharP(PSTR(" old: "));Serial_printDec((int)resultOld);
-		Serial_println();
-#endif
-		uint32_t dic_value_new = pf_data.dic_value;
-		if (result == ZERO) {
-			dic_value_new -= (ONE << i); // clear bit in data
-		} else {
-			dic_value_new += (ONE << i); // set bit in data
-		}
-		uint8_t dicVarIdx = Vars_getIndexFromName(UNPSTR(pmDataDicValue)); // set via index to print to serial.
-		Vars_setValue(dicVarIdx,ZERO,ZERO,dic_value_new);
-
-		if (pf_conf.dic_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
-			continue; // no mapping
-		}
-		if (result == ZERO) {
-			Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_A]);
-		} else {
-			if ( ((pf_conf.dic_sync >> i) & ONE) == ZERO ) { // only trigger to zero.
-				Vars_setValue(pf_conf.dic_map[i][QMAP_VAR],pf_conf.dic_map[i][QMAP_VAR_IDX],ZERO,pf_conf.dic_map[i][QMAP_VALUE_B]);
-			}
-		}
-	}
-}
+#include "adc.h"
 
 #ifdef SF_ENABLE_ADC
-void Input_adc_int(uint16_t result) {
+void Adc_do_int(uint16_t result) {
 	pf_data.adc_state = ADC_STATE_DONE;
 	pf_data.adc_state_value = result;
 }
@@ -86,13 +33,7 @@ void Input_adc_int(uint16_t result) {
 
 // read out analog values.
 #ifdef SF_ENABLE_ADC
-void Input_loopAdc(void) {
-	uint32_t current_time = millis();
-	if (current_time < pf_data.adc_time_cnt) {
-		//return;
-	}
-	pf_data.adc_time_cnt = current_time + ADC_INPUT_TIME;
-
+void Adc_loop(void) {
 	if (pf_data.adc_state==ADC_STATE_RUN) {
 		return; // wait more
 	}
@@ -140,9 +81,7 @@ void Input_loopAdc(void) {
 			if (c > 0 && c < pf_conf.adc_jitter)        { continue; }
 			if (c < 0 && c > (ZERO-pf_conf.adc_jitter)) { continue; }
 		}
-
-		uint8_t adcVarIdx = Vars_getIndexFromName(UNPSTR(pmDataAdcValue));
-		Vars_setValue(adcVarIdx,i,ZERO,valueAdc);
+		Vars_setValue(pf_data.idx_adc_value,i,ZERO,valueAdc);
 
 		if (pf_conf.adc_map[i][QMAP_VAR] == QMAP_VAR_NONE) {
 			continue; // no mapping

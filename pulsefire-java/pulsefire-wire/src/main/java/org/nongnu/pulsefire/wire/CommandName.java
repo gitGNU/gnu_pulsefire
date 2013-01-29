@@ -53,11 +53,12 @@ public enum CommandName {
 	req_tx_push				(CommandVariableType.CMD),
 	req_tx_echo				(CommandVariableType.CMD),
 	req_tx_promt			(CommandVariableType.CMD),
+	req_tx_hex				(CommandVariableType.CMD),
 
 	mal_code				(CommandVariableType.CMD,WireChipFlags.MAL),
 	mal_ops					(CommandVariableType.CMD,WireChipFlags.MAL),
 	mal_ops_fire			(CommandVariableType.CMD,WireChipFlags.MAL),
-	mal_mticks				(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_wait				(CommandVariableType.CMD,WireChipFlags.MAL),
 	
 	sys_id					(CommandVariableType.CONF),
 	sys_pass				(CommandVariableType.CONF),
@@ -114,12 +115,12 @@ public enum CommandName {
 	lpm_size				(CommandVariableType.CONF,WireChipFlags.LPM),
 	lpm_relay_map			(CommandVariableType.CONF,WireChipFlags.LPM),
 	
-	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_0mul				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_0map				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_1mul				(CommandVariableType.CONF,WireChipFlags.PTC),
-	ptc_1map				(CommandVariableType.CONF,WireChipFlags.PTC),
+	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC0),
+	ptc_0mul				(CommandVariableType.CONF,WireChipFlags.PTC0),
+	ptc_0map				(CommandVariableType.CONF,WireChipFlags.PTC0),
+	ptc_1run				(CommandVariableType.CONF,WireChipFlags.PTC1),
+	ptc_1mul				(CommandVariableType.CONF,WireChipFlags.PTC1),
+	ptc_1map				(CommandVariableType.CONF,WireChipFlags.PTC1),
 	
 	ptt_0map				(CommandVariableType.CONF,WireChipFlags.PTT),
 	ptt_1map				(CommandVariableType.CONF,WireChipFlags.PTT),
@@ -169,12 +170,18 @@ public enum CommandName {
 	lcd_size				(CommandVariableType.CONF,WireChipFlags.LCD),
 	lcd_defp				(CommandVariableType.CONF,WireChipFlags.LCD),
 	lcd_mode				(CommandVariableType.CONF,WireChipFlags.LCD),
+	lcd_hcd					(CommandVariableType.CONF,WireChipFlags.LCD),
 	lcd_plp					(CommandVariableType.CONF,WireChipFlags.LCD),
 	
-	swc_delay				(CommandVariableType.CONF,WireChipFlags.SWC),
-	swc_secs				(CommandVariableType.CONF,WireChipFlags.SWC),
-	swc_duty				(CommandVariableType.CONF,WireChipFlags.SWC),
-	swc_map					(CommandVariableType.CONF,WireChipFlags.SWC),
+	vsc_0mode				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_0time				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_0step				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_0map				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	
+	vsc_1mode				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_1time				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_1step				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_1map				(CommandVariableType.CONF,WireChipFlags.VSC0),
 	
 	cip_0clock				(CommandVariableType.CONF,WireChipFlags.CIP),
 	cip_0mode				(CommandVariableType.CONF,WireChipFlags.CIP),
@@ -207,16 +214,16 @@ public enum CommandName {
 	
 	/* All non conf types are only used to receiving info so they have no dep info. */
 	
-	sys_main_loop_cnt		(CommandVariableType.DATA),
-	sys_input_time_cnt		(CommandVariableType.DATA),
+	sys_time_ticks			(CommandVariableType.DATA),
+	sys_time_csec			(CommandVariableType.DATA),
+	sys_uptime				(CommandVariableType.DATA),
+	sys_speed				(CommandVariableType.DATA),
 	
-	adc_time_cnt			(CommandVariableType.DATA),	
 	adc_value				(CommandVariableType.DATA),
 	adc_state				(CommandVariableType.DATA),
 	adc_state_idx			(CommandVariableType.DATA),
 	adc_state_value			(CommandVariableType.DATA),
 	
-	int_time_cnt			(CommandVariableType.DATA),
 	int_0freq				(CommandVariableType.DATA),
 	int_0freq_cnt			(CommandVariableType.DATA),
 	int_1freq				(CommandVariableType.DATA),
@@ -225,12 +232,13 @@ public enum CommandName {
 	dic_time_cnt			(CommandVariableType.DATA),
 	dic_value				(CommandVariableType.DATA),
 	doc_port				(CommandVariableType.DATA),
-	
-	swc_secs_cnt			(CommandVariableType.DATA),
-	swc_duty_cnt			(CommandVariableType.DATA),
+
+	vsc_0time_cnt			(CommandVariableType.DATA),
+	vsc_0state				(CommandVariableType.DATA),
+	vsc_1time_cnt			(CommandVariableType.DATA),
+	vsc_1state				(CommandVariableType.DATA),
 	
 	lcd_input				(CommandVariableType.DATA),
-	lcd_time_cnt			(CommandVariableType.DATA),
 	lcd_page				(CommandVariableType.DATA),
 	lcd_redraw				(CommandVariableType.DATA),
 	
@@ -275,7 +283,7 @@ public enum CommandName {
 	pwm_loop_cnt			(CommandVariableType.DATA),
 	
 	mal_fire				(CommandVariableType.DATA),
-	mal_time_cnt			(CommandVariableType.DATA),
+	mal_wait_cnt			(CommandVariableType.DATA),
 	
 	chip_version			(CommandVariableType.CHIP),
 	chip_conf_max			(CommandVariableType.CHIP),
@@ -291,9 +299,6 @@ public enum CommandName {
 	info_freq_data			(CommandVariableType.DATA),
 	info_pwm_data			(CommandVariableType.DATA),
 	info_pwm_steps			(CommandVariableType.DATA),
-
-	sys_time_ticks			(CommandVariableType.PROG), /// new v1.0
-	sys_time_ssec			(CommandVariableType.PROG),
 	
 	lcd_menu_state			(CommandVariableType.PROG),
 	lcd_menu_mul			(CommandVariableType.PROG),
@@ -306,8 +311,7 @@ public enum CommandName {
 	mal_var					(CommandVariableType.PROG),
 	
 	stv_state				(CommandVariableType.PROG),
-	stv_time_cnt			(CommandVariableType.PROG),
-	stv_mode_org			(CommandVariableType.PROG),
+	stv_wait_cnt			(CommandVariableType.PROG),
 	stv_map_idx				(CommandVariableType.PROG),
 	
 	// Deleted command v1.1
@@ -324,6 +328,21 @@ public enum CommandName {
 	avr_pin47_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	avr_pin48_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
 	avr_pin49_map			(CommandVariableType.CONF,WireChipFlags.AVR_MEGA),
+	stv_time_cnt			(CommandVariableType.PROG),
+	mal_mticks				(CommandVariableType.CMD,WireChipFlags.MAL),
+	mal_time_cnt			(CommandVariableType.DATA),
+	adc_time_cnt			(CommandVariableType.DATA),	
+	lcd_time_cnt			(CommandVariableType.DATA),
+	sys_time_ssec			(CommandVariableType.PROG),
+	stv_mode_org			(CommandVariableType.PROG),
+	swc_delay				(CommandVariableType.CONF),
+	swc_secs				(CommandVariableType.CONF),
+	swc_duty				(CommandVariableType.CONF),
+	swc_map					(CommandVariableType.CONF),
+	swc_secs_cnt			(CommandVariableType.DATA),
+	swc_duty_cnt			(CommandVariableType.DATA),
+	sys_main_loop_cnt		(CommandVariableType.DATA),
+	sys_input_time_cnt		(CommandVariableType.DATA),
 	
 	// Deleted commands v1.0
 	freq_pwm_data			(CommandVariableType.FREQ), // renamed
@@ -444,6 +463,15 @@ public enum CommandName {
 	
 	public int getBits() {
 		return bits;
+	}
+
+	static public CommandName valueOfId(int idx) {
+		for (CommandName cn:values()) {
+			if (cn.getId()==idx) {
+				return cn;
+			}
+		}
+		return null;
 	}
 	
 	static public CommandName valueOfMapIndex(int mapIdx) {

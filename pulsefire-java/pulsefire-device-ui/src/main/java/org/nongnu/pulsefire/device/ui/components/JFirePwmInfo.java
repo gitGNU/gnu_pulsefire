@@ -49,17 +49,16 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JFirePwmInfo extends JPanel implements DeviceCommandListener,DeviceConnectListener {
 	
 	private static final long serialVersionUID = -2922342927574919902L;
-	private CommandName commandName = null;
 	private DeviceData deviceData = null;
 	private BasicStroke dashedStroke = null;
 	private String[] displayText = null;
 	
 	public JFirePwmInfo() {
-		this.commandName=CommandName.info_pwm_data;
 		this.deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
 		this.dashedStroke = new BasicStroke(1f, 0, 0, 10f, new float[] {5f,4f,1f,4f}, 0f);
 		setBorder(BorderFactory.createEmptyBorder());
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(commandName, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_pwm_data, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_freq_data, this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		displayText = new String[] {
 				"#________#_#_#_#",
@@ -69,10 +68,6 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 				"____#____###__##",
 				"_____#____###__#",
 		};
-	}
-
-	public CommandName getCommandName() {
-		return commandName;
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -116,7 +111,9 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 			int time = Integer.parseInt(stepData.getArgu2());
 			totalTime+= time;
 		}
-		
+		if (totalTime==0) {
+			return; // no time
+		}
 		int yLines = pulseSteps;
 		int xLines = steps;
 		int yOffset = 15;
@@ -129,7 +126,11 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 				continue;
 			}
 			int time = Integer.parseInt(stepData.getArgu2());
-			int xStep = time/(totalTime/w);
+			int timeStep = totalTime/w;
+			if (timeStep==0) {
+				continue; // step to small ?
+			}
+			int xStep = time/timeStep;
 			int xDest = xPrefix;
 			xPrefix+=xStep;
 			
@@ -160,7 +161,12 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 		
 		g2.setPaint(pulseColor);
 		for (int y=0;y<yLines;y++) {
-			g2.drawString(""+y, 3, yOffset+yLine*y+yLine);
+			g2.drawString("Out: "+y, 3, yOffset+yLine*y+yLine);
+			Command freqData = deviceData.getDeviceParameterIndexed(CommandName.info_freq_data,y);
+			if (freqData!=null && w>400 && yLine>40) {
+				g2.drawString("F: "+freqData.getArgu2(), 3, yOffset+yLine*y+yLine - 20);
+				g2.drawString("D: "+freqData.getArgu1(), 3, yOffset+yLine*y+yLine - 10);
+			}
 			Boolean levelOrg = null;
 			xPrefix = 0;
 			for (int x=0;x<xLines;x++) {

@@ -4,12 +4,12 @@
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
  * that the following conditions are met:
- *
+ * 
  * * Redistributions of source code must retain the above copyright notice, this list of conditions and the
  *   following disclaimer.
  * * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
  *   the following disclaimer in the documentation and/or other materials provided with the distribution.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -20,19 +20,24 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+ 
  // Include singleton
-#ifndef _STV_H
-#define _STV_H
+#ifndef _VSC_H
+#define _VSC_H
 
 #include "vars.h"
 
-#ifdef SF_ENABLE_STV
-void Stv_loop(void);
-uint8_t Stv_is_variable_mapped(uint8_t idx,uint8_t idxA,uint8_t isMaxMap);
-void Stv_vars_max(uint16_t value,uint8_t stvIdxMax);
-void Stv_vars_min(uint16_t value,uint8_t stvIdxMin);
+#if defined(SF_ENABLE_VSC0) || defined(SF_ENABLE_VSC1)
+void Vsc_setup(void);
 #endif
+
+#if defined(SF_ENABLE_VSC0)
+void Vsc_loop0(void);
+#endif
+#if defined(SF_ENABLE_VSC1)
+void Vsc_loop1(void);
+#endif
+
 
 // end include
 #endif

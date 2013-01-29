@@ -39,6 +39,21 @@ uint8_t convert_clock(uint8_t clockScaleMode) {
 	return clockScale;
 }
 
+uint8_t calc_pwm_duty(uint8_t idx) {
+	uint32_t pwm_cnt_total = ZERO;
+	uint32_t pwm_cnt_on_total = ZERO;
+	for (uint8_t i=ZERO;i <= pf_data.pwm_data_max-ONE;i++) {
+		uint16_t pwm_data = pf_data.pwm_data[i][PWM_DATA_OUT];
+		uint16_t pwm_cnt  = pf_data.pwm_data[i][PWM_DATA_CNT];
+		pwm_cnt_total+=pwm_cnt;
+		if (((pwm_data >> idx) & ONE) > ZERO) {
+			pwm_cnt_on_total+=pwm_cnt;
+		}
+	}
+	return pwm_cnt_on_total / (pwm_cnt_total / 100);
+}
+
+/*
 uint32_t calc_pwm_speed(uint8_t idx) {
 	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
 	uint8_t clockScale = convert_clock(clockScaleMode);
@@ -51,13 +66,36 @@ uint32_t calc_pwm_speed(uint8_t idx) {
 uint32_t calc_pwm_loop(uint8_t idx) {
 	return calc_pwm_speed(idx) / pf_conf.pwm_loop;
 }
+*/
+
 uint32_t calc_pwm_freq(uint8_t idx) {
+	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
+	uint8_t clockScale = convert_clock(clockScaleMode);
+	uint32_t pwm_cnt_total = ZERO;
+	uint16_t steps_on = ZERO;
+	uint16_t steps_total = pf_data.pwm_data_max-ONE;
+	if (steps_total==ZERO) {
+			return ZERO;
+		}
+	for (uint8_t i=ZERO;i <= pf_data.pwm_data_max-ONE;i++) {
+		uint16_t pwm_data = pf_data.pwm_data[i][PWM_DATA_OUT];
+		uint16_t pwm_cnt  = pf_data.pwm_data[i][PWM_DATA_CNT];
+		if (((pwm_data >> idx) & ONE) > ZERO) {
+			steps_on++;
+		}
+		pwm_cnt_total+=pwm_cnt;
+	}
+	uint8_t loop = pf_conf.pwm_loop + ONE; // 0 = /1, 1=/2, 3=/3
+	uint32_t freqTrain = (F_CPU / clockScale / loop / pwm_cnt_total) * steps_on;
+	return freqTrain;
+	/*
 	uint8_t outs = pf_conf.pulse_steps;
 	if (pf_conf.pulse_mode == PULSE_MODE_FLASH) {
 		outs = ONE;
 	}
 	uint32_t cycleHz = calc_pwm_loop(idx) / outs;
 	return (cycleHz * 2); // goto hz.
+	*/
 }
 
 #define CLK_SCALE_SIZE (sizeof CLK_SCALE / sizeof CLK_SCALE[0])

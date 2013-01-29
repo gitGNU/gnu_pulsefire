@@ -22,19 +22,17 @@
  */
  
  // Include singleton
-#ifndef _INPUT_H
-#define _INPUT_H
+#ifndef _ADC_H
+#define _ADC_H
 
 #include "vars.h"
 #include "chip.h"
 #include "ptc.h"
 #include "utils.h"
 
-void Input_loopDic(void);
-
 #ifdef SF_ENABLE_ADC
-void Input_loopAdc(void);
-void Input_adc_int(uint16_t result);
+void Adc_loop(void);
+void Adc_do_int(uint16_t result);
 #endif
 
 // end include

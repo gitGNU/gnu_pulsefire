@@ -89,7 +89,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		if (blue<33) {
 			blue+=random.nextInt(199);
 		}
-		return new Color(red, green, blue);
+		return new Color(red & 255, green & 255, blue & 255);
 	}
 	
 	protected void paintComponent(Graphics g) {

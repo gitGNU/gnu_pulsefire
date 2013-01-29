@@ -70,6 +70,15 @@ public class CommandWire {
 			idx = commandName.substring(index); // append idx as argu0
 			commandName = commandName.substring(0,index);
 		}
+		if (commandName.length() > 2) {
+			char atChar = commandName.charAt(2);
+			if ('@'==atChar) {
+				String hexString = commandName.substring(0,2);
+				int varIdx = Integer.parseInt(hexString, 16);
+				CommandName cmd = CommandName.valueOfId(varIdx);
+				commandName = cmd.name();
+			}
+		}
 		Command result = null;
 		for (CommandName cmd:CommandName.values()) {
 			if (cmd.isAliased()) {
@@ -106,6 +115,11 @@ public class CommandWire {
 			columns[1]= columns[2];
 			columns[2]= d;
 		}
+		if (result.getCommandName()==CommandName.info_freq_data) {
+			String d = columns[1];
+			columns[1]= columns[2];
+			columns[2]= d;
+		} 
 		
 		if (columns.length>7) {
 			result.setArgu7(columns[7]);

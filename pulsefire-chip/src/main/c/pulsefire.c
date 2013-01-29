@@ -34,12 +34,15 @@
 #include "vars.h"
 #include "serial.h"
 #include "sys.h"
+#include "vsc.h"
 #include "ptc.h"
+#include "ptt.h"
 #include "stv.h"
 #include "lpm.h"
 #include "lcd.h"
 #include "mal.h"
-#include "input.h"
+#include "adc.h"
+#include "dic.h"
 #include "freq.h"
 #include "utils.h"
 #include "chip.h"
@@ -48,9 +51,11 @@
 int main(void) {
 
 	// Setup
-	Vars_setup();
-	Chip_setup();
+	Chip_setup_serial(); // Setup serial first so we can debug.
 	Serial_setup();
+	Vars_setup(); // uses serial in debug mode
+	Chip_setup(); // uses vars
+
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(PSTR("setup oke."));
 	Serial_println();
@@ -61,38 +66,83 @@ int main(void) {
 	Serial_println();
 #endif
 #ifdef SF_ENABLE_LCD
-	lcd_setup(); //needs int in spi mode
+	Lcd_setup(); //needs sei() in spi mode
 #endif
 #ifdef SF_ENABLE_LPM
 	LPM_setup();
 #endif
+#if defined(SF_ENABLE_VSC0) || defined(SF_ENABLE_VSC1)
+	Vsc_setup();
+#endif
 #ifdef SF_ENABLE_PWM
 	PWM_send_output(PULSE_DATA_OFF); // send off state to output
 #endif
+
 	for(;;) {
-		Chip_loop();
+		// High speed loop
+		pf_data.sys_loop0_cnt++;
 		Vars_loop();
 		Serial_loop();
-		Input_loopDic();
-		Sys_loop();
-#ifdef SF_ENABLE_LCD
-		lcd_loop();
-#endif
 #ifdef SF_ENABLE_ADC
-		Input_loopAdc();
+		Adc_loop();
 #endif
-#ifdef SF_ENABLE_LPM
-		LPM_loop();
+
+		uint16_t current_time = (uint16_t)Chip_centi_secs();
+		if (current_time < pf_data.sys_loop1_cnt) {
+			continue;
+		}
+		pf_data.sys_loop1_cnt = current_time + 5;
+		uint16_t idx = pf_data.sys_loop1_cnt_idx;
+		uint8_t idxOne = idx & ONE;
+		pf_data.sys_loop1_cnt_idx++;
+		if (idx > 20) {
+			pf_data.sys_loop1_cnt_idx = ZERO;
+		}
+		// Main 20 hz loop
+		Chip_out_doc();
+		Dic_loop();
+#ifdef SF_ENABLE_VSC0
+		Vsc_loop0();
 #endif
-#ifdef SF_ENABLE_STV
-		STV_loop();
+#ifdef SF_ENABLE_VSC1
+		Vsc_loop1();
 #endif
-#ifdef SF_ENABLE_PTC
-		PTC_loop();
+#ifdef SF_ENABLE_PTC0
+		Ptc_loop0();
 #endif
+#ifdef SF_ENABLE_PTC1
+		Ptc_loop1();
+#endif
+
+		// 10 hz loop
+		if (idxOne == ZERO) {
 #ifdef SF_ENABLE_MAL
-		Mal_loop();
+			Mal_loop();
 #endif
+		}
+		if (idxOne == ONE) {
+#ifdef SF_ENABLE_PTT
+			Ptt_loop();
+#endif
+		}
+
+		// 5 Hz loop
+		if ((idx & (ONE+ONE+ONE)) == ZERO) {
+#ifdef SF_ENABLE_LCD
+			Lcd_loop();
+#endif
+		}
+
+		// 1Hz loop
+#ifdef SF_ENABLE_STV
+		if (idx==2) {
+			Stv_loop();
+		}
+#endif
+		if (idx==12) {
+			Chip_loop();
+			Sys_loop();
+		}
 	}
 }
 

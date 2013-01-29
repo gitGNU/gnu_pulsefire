@@ -27,7 +27,12 @@
 
 #include "vars.h"
 
-void PTC_loop(void);
+#ifdef SF_ENABLE_PTC0
+void Ptc_loop0(void);
+#endif
+#ifdef SF_ENABLE_PTC1
+void Ptc_loop1(void);
+#endif
 
 // end include
 #endif

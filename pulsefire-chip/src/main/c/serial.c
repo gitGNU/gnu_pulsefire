@@ -77,11 +77,59 @@ void Serial_println_get_P2(const char* argu0,const char* argu1) {
 	Serial_println();
 }
 
+void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value) {
+	boolean indexedA = Vars_isIndexA(idx);
+	uint8_t idxMaxA  = Vars_getIndexAMax(idx);
+	uint8_t req_tx_hex  = pf_data.req_tx_hex;
+	if (indexedA) {
+		if (idxA == QMAP_VAR_IDX_ALL) {
+			for (uint8_t i=ZERO;i<idxMaxA;i++) {
+				if (req_tx_hex == ZERO) {
+					Serial_printChar(Vars_getName(idx));
+				} else {
+					Serial_printHex(idx);
+					Serial_print('@');
+				}
+				if(i<10) {Serial_print('0');} Serial_printDec((int)i);
+				Serial_printCharP(pmSetSpaced);
+				Serial_printDec(value);
+				Serial_println();
+			}
+		} else {
+			if (req_tx_hex == ZERO) {
+				Serial_printChar(Vars_getName(idx));
+			} else {
+				Serial_printHex(idx);
+				Serial_print('@');
+			}
+			if(idxA<10) {Serial_print('0');} Serial_printDec((int)idxA);
+			Serial_printCharP(pmSetSpaced);
+			Serial_printDec(value);
+			Serial_println();
+		}
+	} else {
+		if (req_tx_hex == ZERO) {
+			Serial_printChar(Vars_getName(idx));
+		} else {
+			Serial_printHex(idx);
+			Serial_print('@');
+		}
+		Serial_printCharP(pmSetSpaced);
+		Serial_printDec(value);
+		Serial_println();
+	}
+}
+
 void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) {
 	if (setIndexA>=Vars_getIndexAMax(i)) {
 		setIndexA = ZERO; // safty check for indexes
 	}
-	Serial_printChar(Vars_getName(i));
+	if (pf_data.req_tx_hex == ZERO) {
+		Serial_printChar(Vars_getName(i));
+	} else {
+		Serial_printHex(i);
+		Serial_print('@');
+	}
 	if(setIndexA<10) {Serial_print('0');}
 	Serial_printDec((int)setIndexA);
 	Serial_printCharP(pmGetSpaced);
@@ -106,7 +154,12 @@ void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) {
 void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 	boolean indexedA = Vars_isIndexA(i);
 	if (indexedA==false) {
-		Serial_printChar(Vars_getName(i));
+		if (pf_data.req_tx_hex == ZERO) {
+			Serial_printChar(Vars_getName(i));
+		} else {
+			Serial_printHex(i);
+			Serial_print('@');
+		}
 		if (isSet) {
 			Serial_printCharP(pmSetSpaced);
 		} else {
@@ -151,11 +204,10 @@ void cmd_print_info_freq(void) {
 		if(i<10) {Serial_print('0');}
 		Serial_printDec((int)i);
 		Serial_printCharP(pmGetSpaced);
-		Serial_printDec(calc_pwm_freq(i));
+		u32toa(calc_pwm_freq(i),pf_data.unpstr_buff);
+		Serial_printChar(pf_data.unpstr_buff);
 		Serial_print(' ');
-		Serial_printDec(calc_pwm_loop(i));
-		Serial_print(' ');
-		Serial_printDec(calc_pwm_speed(i));
+		Serial_printDec(calc_pwm_duty(i));
 		Serial_print(' ');
 		Serial_println();
 	}
@@ -204,14 +256,20 @@ void cmd_print_info_chip(void) {
 #ifdef SF_ENABLE_STV
 	Serial_printCharP(pmChipFlagSTV);
 #endif
-#ifdef SF_ENABLE_PTC
-	Serial_printCharP(pmChipFlagPTC);
+#ifdef SF_ENABLE_PTC0
+	Serial_printCharP(pmChipFlagPTC0);
+#endif
+#ifdef SF_ENABLE_PTC1
+	Serial_printCharP(pmChipFlagPTC1);
 #endif
 #ifdef SF_ENABLE_PTT
 	Serial_printCharP(pmChipFlagPTT);
 #endif
-#ifdef SF_ENABLE_SWC
-	Serial_printCharP(pmChipFlagSWC);
+#ifdef SF_ENABLE_VSC0
+	Serial_printCharP(pmChipFlagVSC0);
+#endif
+#ifdef SF_ENABLE_VSC1
+	Serial_printCharP(pmChipFlagVSC1);
 #endif
 #ifdef SF_ENABLE_VFC
 	Serial_printCharP(pmChipFlagVFC);
@@ -237,6 +295,10 @@ void cmd_execute(char* cmd, char** args) {
 		uint8_t i=ZERO;
 		for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
 			// Remove unsupported cmds when flag is disabled.
+#ifndef SF_ENABLE_PWM
+			if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPPM) { continue; }
+			if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmCmdInfoPWM) { continue; }
+#endif
 #ifndef SF_ENABLE_MAL
 			if ( Chip_pgm_readWord((const CHIP_PTR_TYPE*)&pmCmdList[i]) == (CHIP_PTR_TYPE)&pmConfMALCode) { continue; }
 #endif
@@ -292,6 +354,9 @@ void cmd_execute(char* cmd, char** args) {
 		for (i=ZERO;i < PF_VARS_SIZE;i++) {
 			if (Vars_isTypeData(i) == false) {
 				continue;
+			}
+			if (args[0] != NULL && Vars_isPush(i)) {
+				continue; // if argument then filter auto push data out.
 			}
 			cmd_print_var(i,false,false);
 		}
@@ -397,7 +462,7 @@ void cmd_execute(char* cmd, char** args) {
 		} else {
 			idx = Vars_getIndexFromName(args[ZERO]);
 		}
-		if (Vars_isTrigger(idx)==false) {
+		if (idx > PF_VARS_SIZE || Vars_isTrigger(idx)==false) {
 			Serial_printCharP(pmCmdReqTrigger);
 			Serial_printCharP(pmGetSpaced);
 			Serial_printDec(ZERO);
@@ -477,6 +542,19 @@ void cmd_execute(char* cmd, char** args) {
 			}
 		}
 		Serial_printDec((int)pf_data.req_tx_promt);
+		Serial_println();
+	} else if (strcmp(cmd,UNPSTR(pmProgTXHex)) == ZERO) {
+		Serial_printCharP(pmProgTXHex);
+		if (args[0] == NULL) {
+			Serial_printCharP(pmGetSpaced);
+		} else {
+			Serial_printCharP(pmSetSpaced);
+			uint16_t promt = atou16(args[0]);
+			if (promt == ZERO) {  pf_data.req_tx_hex = ZERO;
+			} else {              pf_data.req_tx_hex = ONE;
+			}
+		}
+		Serial_printDec((int)pf_data.req_tx_hex);
 		Serial_println();
 
 #ifdef SF_ENABLE_MAL

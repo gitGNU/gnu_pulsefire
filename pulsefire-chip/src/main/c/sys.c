@@ -29,7 +29,7 @@ void Sys_time_int(void) {
 	pf_data.sys_time_ticks++;
 	if (pf_data.sys_time_ticks >= (F_CPU/8/256/100)) { // 78 fits in 8bit on avr8
 		pf_data.sys_time_ticks=ZERO;
-		pf_data.sys_time_ssec++;
+		pf_data.sys_time_csec++;
 	}
 }
 
@@ -79,12 +79,12 @@ void Sys_do_int(uint8_t pin_int) {
 }
 
 void Sys_loop(void) {
+	// Update uptime
+	pf_data.sys_uptime++;
 
-	uint32_t current_time = millis();
-	if (current_time < pf_data.int_time_cnt) {
-		return;
-	}
-	pf_data.int_time_cnt = current_time + 1000; // check every second
+	// Update main loop speed
+	pf_data.sys_speed = pf_data.sys_loop0_cnt;
+	pf_data.sys_loop0_cnt = ZERO;
 
 #ifdef SF_ENABLE_PWM
 	// also update pulse_fire_freq here when is different

@@ -53,9 +53,10 @@
 #include "pwm.h"
 #include "sys.h"
 #include "vars.h"
-#include "input.h"
+#include "adc.h"
 #include "serial.h"
 
+void Chip_setup_serial(void);
 void Chip_setup(void);
 void Chip_loop(void);
 void Chip_reset(void);
@@ -64,7 +65,7 @@ void Chip_delayU(uint16_t delay);
 void Chip_sei(void);
 uint32_t Chip_free_ram(void);
 const char* Chip_cpu_type(void);
-uint32_t millis(void);
+uint32_t Chip_centi_secs(void);
 
 uint8_t digitalRead(volatile uint8_t *port,uint8_t pin);
 void digitalWrite(volatile uint8_t *port,uint8_t pin,uint8_t value);

@@ -30,11 +30,13 @@
 #//define SF_ENABLE_PWM               // enable pwm code       (+...)
 #//define SF_ENABLE_CIP               // enable cip code       (+...) (DEP: MEGA)
 #//define SF_ENABLE_ADC               // enable adc code       (+...)
-#//define SF_ENABLE_PTC               // enable ptc timers     (+...)
+#//define SF_ENABLE_PTC0              // enable ptc timer0     (+...)
+#//define SF_ENABLE_PTC1              // enable ptc timer1     (+...)
 #//define SF_ENABLE_PTT               // enable ptt timers     (+...)
 #//define SF_ENABLE_STV               // enable stv code       (+...)
 #//define SF_ENABLE_VFC               // enable vfc code       (+...)
-#//define SF_ENABLE_SWC               // enable soft warmup    (+...)
+#//define SF_ENABLE_VSC0              // enable var stepper0   (+...)
+#//define SF_ENABLE_VSC1              // enable var stepper1   (+...)
 #//define SF_ENABLE_MAL               // enable mal code       (+...)
 #//define SF_ENABLE_SPI               // enable spi code       (+...)
 #//define SF_ENABLE_LCD               // enable lcd output     (+...)
@@ -43,12 +45,8 @@
 // Customizable data
 #define LCD_INIT_MSG_TIME         555    // Welcome message timeout
 #define LCD_TEST_DOT_TIME          25    // 25ms per col test dot delay
-#define LCD_REFRESH_TIME          200    // Refresh after 200ms of last refresh
 #define LCD_MENU_TIMEOUT         4000    // Exit menu after 4000ms 
-#define SYS_INPUT_TIME              5    // no not check more often then every 5ms
 #define SYS_INPUT_DELAY           300    // Delay after user input
-#define ADC_INPUT_TIME            100    // read max 10x per second
-#define DIC_INPUT_TIME            150    // read after 150ms time
 #define CHIP_INFO_NAME "MyFreePulseBox"  // Max 16 chars for Manufacture name box-type.
 #define CHIP_INFO_NAME_ID "71296105195"  // Max 16 chars for Manufacture name box-type ID.
 
@@ -74,7 +72,7 @@
 	#define FIRE_MAP_MAX              3  // Event on pulse logic
 	#define ADC_MAP_MAX              16  // Analog input
 	#define DIC_MAP_MAX              16  // Digital inputs
-	#define SWC_MAP_MAX               4  // Softwarmup actions
+	#define VSC_MAP_MAX               6  // Variable stepper
 	#define PTC_TIME_MAP_MAX         24  // Programatic Time slots
 	#define PTT_TRIG_MAP_MAX         16  // Programatic Trigger Time slots
 	#define STV_MAX_MAP_MAX          24  // Mapping of safety trashhold min values
@@ -93,7 +91,7 @@
 	#define FIRE_MAP_MAX              1
 	#define ADC_MAP_MAX               6
 	#define DIC_MAP_MAX               8
-	#define SWC_MAP_MAX               2
+	#define VSC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
 	#define STV_MAX_MAP_MAX           8
@@ -112,7 +110,7 @@
 	#define FIRE_MAP_MAX              1
 	#define ADC_MAP_MAX               6
 	#define DIC_MAP_MAX               8
-	#define SWC_MAP_MAX               1
+	#define VSC_MAP_MAX               1
 	#define PTC_TIME_MAP_MAX          3
 	#define PTT_TRIG_MAP_MAX          2
 	#define STV_MAX_MAP_MAX           2
@@ -131,7 +129,7 @@
 	#define FIRE_MAP_MAX              1
 	#define ADC_MAP_MAX               6
 	#define DIC_MAP_MAX               8
-	#define SWC_MAP_MAX               2
+	#define VSC_MAP_MAX               2
 	#define PTC_TIME_MAP_MAX          8
 	#define PTT_TRIG_MAP_MAX          4
 	#define STV_MAX_MAP_MAX           8
@@ -164,9 +162,9 @@
 	#undef  DIC_MAP_MAX
 	#define DIC_MAP_MAX _DIC_MAP_MAX
 #endif
-#ifdef _SWC_MAP_MAX
-	#undef  SWC_MAP_MAX
-	#define SWC_MAP_MAX _SWC_MAP_MAX
+#ifdef _VSC_MAP_MAX
+	#undef  VSC_MAP_MAX
+	#define VSC_MAP_MAX _VSC_MAP_MAX
 #endif
 #ifdef _PTC_TIME_MAP_MAX
 	#undef  PTC_TIME_MAP_MAX

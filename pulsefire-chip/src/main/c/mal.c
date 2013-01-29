@@ -352,14 +352,14 @@ void Mal_fire(uint8_t trigIdx) {
 }
 
 void Mal_loop(void) {
-	if (pf_conf.mal_mticks==ZERO) {
+	if (pf_conf.mal_wait==ZERO) {
 		return;	 // run main loop is off.
 	}
-	uint32_t current_time = millis();
-	if (current_time < pf_data.mal_time_cnt) {
+	if (pf_data.mal_wait_cnt < pf_conf.mal_wait) {
+		pf_data.mal_wait_cnt++;
 		return;
 	}
-	pf_data.mal_time_cnt = current_time + pf_conf.mal_mticks;
+	pf_data.mal_wait_cnt = ZERO;
 
 	if (pf_data.mal_pc == ZERO) {
 		uint8_t trigIdx = Vars_getIndexAMax(Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_data.mal_fire));

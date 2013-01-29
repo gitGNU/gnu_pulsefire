@@ -34,21 +34,21 @@
 #define LCD_CMD_CLEAR       0x01
 #define LCD_CMD_CURSOR      0x80
 
-void lcd_write(uint8_t c,uint8_t cmd);
-void lcd_home(void);
-void lcd_clear(void);
-void lcd_cursor(uint8_t col, uint8_t row);
-void lcd_printDot(void);
-void lcd_printSpace(void);
-void lcd_printChar(char* dstring);
-void lcd_printCharP(const char* argu);
-void lcd_printByte(uint8_t value);
-void lcd_printByteNum(uint8_t value,uint8_t numSize);
-void lcd_print(uint16_t value);
-void lcd_printNum(uint16_t value,uint8_t numSize);
-void lcd_setup(void);
-void lcd_init(void);
-void lcd_loop(void);
+void Lcd_write(uint8_t c,uint8_t cmd);
+void Lcd_home(void);
+void Lcd_clear(void);
+void Lcd_cursor(uint8_t col, uint8_t row);
+void Lcd_printDot(void);
+void Lcd_printSpace(void);
+void Lcd_printChar(char* dstring);
+void Lcd_printCharP(const char* argu);
+void Lcd_printByte(uint8_t value);
+void Lcd_printByteNum(uint8_t value,uint8_t numSize);
+void Lcd_print(uint16_t value);
+void Lcd_printNum(uint16_t value,uint8_t numSize);
+void Lcd_setup(void);
+void Lcd_init(void);
+void Lcd_loop(void);
 
 // end include
 #endif

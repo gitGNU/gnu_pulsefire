@@ -38,7 +38,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class PulseFireDataPuller implements Runnable,DeviceConnectListener,PulseFireUISettingListener {
 
-	static public final int INIT_SPEED = 10000;
+	static public final int INIT_SPEED = 8000;
 	private volatile boolean run = false;
 	private volatile boolean runOnce = true;
 	private volatile boolean runPause = false;
@@ -60,12 +60,15 @@ public class PulseFireDataPuller implements Runnable,DeviceConnectListener,Pulse
 				} else {
 					PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_vars));
 				}
-				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_conf,"all")); // Do extra info_conf to get all mega vars loaded correctly.
 				settingUpdated(PulseFireUISettingKeys.PULL_SPEED,PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.PULL_SPEED));
 			}
 			
-			// Pull all data, later add support to pull only 'pull' data.
-			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data));
+			// Pull all chip data as all chip config is already auto push. 
+			if (PulseFireUI.getInstance().getDeviceManager().getDeviceVersion() < 11) {
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data)); // Get all data
+			} else {
+				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_data,"np")); // Remove auto push data for smaller list
+			}
 			if (PulseFireUI.getInstance().getDeviceManager().getDeviceVersion() < 11) {
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_prog)); // moved to data in 1.1
 				PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq)); // moved to UpdatePwmData

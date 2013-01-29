@@ -146,7 +146,6 @@ void wdt_init(void) {
 
 void Chip_loop(void) {
 	wdt_reset();
-	pf_data.sys_main_loop_cnt++;
 }
 
 void Chip_reset(void) {
@@ -154,10 +153,7 @@ void Chip_reset(void) {
 	Chip_delay(30);
 }
 
-void Chip_setup(void) {
-
-	// === Pin 0 and 1
-
+void Chip_setup_serial(void) {
 	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
 	uint16_t ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
 	if (ubrr > 4095) {
@@ -173,6 +169,12 @@ void Chip_setup(void) {
 	// Enable pull-up on D0/RX, to supress line noise
 	DDRD &= ~_BV(PIND0);
 	PORTD |= _BV(PIND0);
+}
+
+void Chip_setup(void) {
+
+	// === Pin 0 and 1
+	// Are done in Chip_setup_serial
 
 	// === Pin 2 - 5
 
@@ -248,7 +250,7 @@ void Chip_setup(void) {
 	// enable adc
 	DDRC = 0x00;
 	PORTC = 0x00;
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) /*| (1 << ADPS1)*/ | (1 << ADPS0); // enable and div32
 	ADCSRA |= (1<<ADIE); // enable interupts after conversion
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D); // disable digital input on adc pins
 #ifdef SF_ENABLE_LCD
@@ -272,8 +274,8 @@ void Chip_setup(void) {
 	wdt_enable(WDT_MAIN_TIMEOUT); // enable watchdog timer, so if main loop to slow then reboot
 }
 
-uint32_t millis(void) {
-	return pf_data.sys_time_ssec*10;
+uint32_t Chip_centi_secs(void) {
+	return pf_data.sys_time_csec;
 }
 
 
@@ -399,6 +401,7 @@ void lcd_write_s2p(uint8_t value) {
 #endif
 
 void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
+#ifdef SF_ENABLE_LCD
 	uint8_t hn = data >> 4;
 	uint8_t ln = data & 0x0F;
 
@@ -451,8 +454,9 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 	if (cmd==LCD_SEND_DATA) {
 		Chip_delayU(30);
 	} else {
-		Chip_delay(5); // wait for busy flag
+		Chip_delay(pf_conf.lcd_hcd+ONE); // Lcd Hardware Command Delay (for busy flag)
 	}
+#endif
 }
 
 void Chip_out_doc(void) {
@@ -596,7 +600,7 @@ ISR(TIMER0_OVF_vect) {
 
 ISR(ADC_vect) {
 #ifdef SF_ENABLE_ADC
-	Input_adc_int(ADCW);
+	Adc_do_int(ADCW);
 #endif
 }
 

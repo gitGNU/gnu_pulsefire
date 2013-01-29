@@ -79,5 +79,9 @@ public class UpdatePwmData implements Runnable,DeviceConnectListener,DeviceDataL
 				}
 			}
 		}
+		// 2 extra for freq speed
+		if (data.startsWith(CommandName.pwm_clock.name()+"=") || data.startsWith(CommandName.pwm_loop.name()+"=")) {
+			update = true;
+		}
 	}
 }

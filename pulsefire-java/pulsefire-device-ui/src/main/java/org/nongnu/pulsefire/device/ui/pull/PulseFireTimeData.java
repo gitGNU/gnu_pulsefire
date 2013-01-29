@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.ui.JMainPanel;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
@@ -139,6 +140,11 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	class DataCommandAutoAdd implements Runnable {
 		@Override
 		public void run() {
+			// todo: move to interface timer
+			if (PulseFireUI.getInstance().getMainView()!=null && PulseFireUI.getInstance().getMainView().getComponent()!=null) {
+				((JMainPanel)PulseFireUI.getInstance().getMainView().getComponent()).topPanelSerial.updateSpeedCounters();
+			}
+			
 			for (TimeDataKey key:timeDataQueueMap.values()) {
 				long now = System.currentTimeMillis();
 				if (key.timeDataLast!=null && (now-key.timeDataLast.receivedTime)>1000) {

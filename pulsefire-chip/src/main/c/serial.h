@@ -30,6 +30,7 @@
 #include "freq.h"
 #include "chip.h"
 
+void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value);
 void Serial_printChar(char* argu);
 void Serial_printCharP(const char* argu);
 void Serial_printHex(uint8_t argu);

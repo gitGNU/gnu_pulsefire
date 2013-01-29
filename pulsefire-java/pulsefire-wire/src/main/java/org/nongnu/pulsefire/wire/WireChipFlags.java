@@ -37,10 +37,12 @@ public enum WireChipFlags {
 	ADC,
 	SPI,
 	STV,
-	PTC,
+	PTC0,
+	PTC1,
 	PTT,
 	VFC,
-	SWC,
+	VSC0,
+	VSC1,
 	MAL,
 	
 	/* CPU FLAGS */
@@ -48,8 +50,8 @@ public enum WireChipFlags {
 	AVR_MEGA,
 	ARM_7M;
 	
-	
 	/* rmed in v1.1 */
+	//SWC
 	//CIT,
 	//PPM,
 	//DIC,

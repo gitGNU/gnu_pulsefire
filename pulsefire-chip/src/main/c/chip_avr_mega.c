@@ -150,7 +150,6 @@ void wdt_init(void) {
 
 void Chip_loop(void) {
 	wdt_reset();
-	pf_data.sys_main_loop_cnt++;
 }
 
 void Chip_reset(void) {
@@ -158,10 +157,7 @@ void Chip_reset(void) {
 	Chip_delay(30);
 }
 
-void Chip_setup(void) {
-
-	// === Pin 0 and 1
-
+void Chip_setup_serial(void) {
 	UCSR0A = (1<<U2X0); // use double so error rate is only 2.1%.
 	uint16_t ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
 	if (ubrr > 4095) {
@@ -177,6 +173,12 @@ void Chip_setup(void) {
 	// Enable pull-up on D0/RX, to supress line noise
 	DDRE &= ~_BV(PINE0);
 	PORTE |= _BV(PINE0);
+}
+
+void Chip_setup(void) {
+
+	// === Pin 0 and 1
+	// Done in Chip_setup_serial
 
 	// === Pin 2 - 13 Init (All) timers
 
@@ -288,7 +290,10 @@ void Chip_setup(void) {
 	PORTF = 0x00;
 	DDRK = 0x00;
 	PORTK = 0x00;
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // 16 MHz/128 = 125 KHz = 50-200 KHz range
+	// div128 = 16000000/128/13/16 = 600 requests per sec = 111
+	// div32  = 16000000/32/13/16  = 2403 requests per sec = 101
+	// with div32: one channel ~505 hz, with 16 drops to 980 hz total.
+	ADCSRA |= (1 << ADEN) | (1 << ADPS2) /* | (1 << ADPS1)*/ | (1 << ADPS0);
 	ADCSRA |= (1<<ADIE); // enable interupts after conversion
 
 	DIDR0 |= (1 << ADC4D) | (1 << ADC5D) | (1 << ADC6D) | (1 << ADC7D); // disable digital input on adc pins
@@ -301,8 +306,8 @@ void Chip_setup(void) {
 	wdt_enable(WDT_MAIN_TIMEOUT); // enable watchdog timer, so if main loop to slow then reboot
 }
 
-uint32_t millis(void) {
-	return pf_data.sys_time_ssec*10;
+uint32_t Chip_centi_secs(void) {
+	return pf_data.sys_time_csec;
 }
 
 void Chip_delay(uint16_t delay) {
@@ -490,7 +495,7 @@ void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux) {
 	if ((cmd & 0x0F)==LCD_SEND_DATA) {
 		Chip_delayU(30);
 	} else {
-		Chip_delay(5); // wait for busy flag
+		Chip_delay(pf_conf.lcd_hcd+ONE); // Lcd Hardware Command Delay (for busy flag)
 	}
 #endif
 }
@@ -603,7 +608,7 @@ ISR(TIMER0_OVF_vect) {
 
 ISR(ADC_vect) {
 #ifdef SF_ENABLE_ADC
-	Input_adc_int(ADCW);
+	Adc_do_int(ADCW);
 #endif
 }
 

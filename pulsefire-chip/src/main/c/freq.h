@@ -31,9 +31,8 @@
 
 #ifdef SF_ENABLE_PWM
 uint8_t convert_clock(uint8_t clockScaleMode);
-uint32_t calc_pwm_speed(uint8_t idx);
-uint32_t calc_pwm_loop(uint8_t idx);
 uint32_t calc_pwm_freq(uint8_t idx);
+uint8_t calc_pwm_duty(uint8_t idx);
 void Freq_requestTrainFreq(void);
 #endif
 

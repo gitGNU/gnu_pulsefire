@@ -23,10 +23,8 @@
 
 #include "ptc.h"
 
-
-
-#ifdef SF_ENABLE_PTC
-void ptc_time0_run(void) {
+#ifdef SF_ENABLE_PTC0
+void Ptc_loop0(void) {
 	if (pf_conf.ptc_0run == PTC_RUN_OFF) {
 		return; // switch off
 	}
@@ -78,8 +76,8 @@ void ptc_time0_run(void) {
 }
 #endif
 
-#ifdef SF_ENABLE_PTC
-void ptc_time1_run(void) {
+#ifdef SF_ENABLE_PTC1
+void Ptc_loop1(void) {
 	if (pf_conf.ptc_1run == PTC_RUN_OFF) {
 		return; // switch off
 	}
@@ -129,92 +127,5 @@ void ptc_time1_run(void) {
 	}
 }
 #endif
-
-
-#ifdef SF_ENABLE_PTT
-void ptt_check_triggers(void) {
-	for (uint8_t t=ZERO;t<PTT_TRIG_VAR_SIZE;t++) {
-		if (pf_data.ptt_fire[t] == ZERO) {
-			continue;
-		}
-		boolean stepStop = false;
-		while (stepStop==false) {
-			if (pf_data.ptt_idx[t] > PTT_TRIG_MAP_MAX) {
-				pf_data.ptt_idx[t] = ZERO; // force start at zero
-			}
-			boolean wait = false;
-			pf_data.ptt_cnt[t]++;
-			uint8_t trigIdx   = pf_data.ptt_idx[t];
-			uint16_t varId    = QMAP_VAR_NONE;
-			uint16_t waitTime = ZERO;
-			uint16_t varIdx   = ZERO;
-			uint16_t varValue = ZERO;
-			if (t==0) {
-				varId    = pf_conf.ptt_0map[trigIdx][QMAP_VAR];
-				waitTime = pf_conf.ptt_0map[trigIdx][QMAP_VALUE_B];
-				varIdx   = pf_conf.ptt_0map[trigIdx][QMAP_VAR_IDX];
-				varValue = pf_conf.ptt_0map[trigIdx][QMAP_VALUE_A];
-			} else if (t==1) {
-				varId    = pf_conf.ptt_1map[trigIdx][QMAP_VAR];
-				waitTime = pf_conf.ptt_1map[trigIdx][QMAP_VALUE_B];
-				varIdx   = pf_conf.ptt_1map[trigIdx][QMAP_VAR_IDX];
-				varValue = pf_conf.ptt_1map[trigIdx][QMAP_VALUE_A];
-			} else if (t==2) {
-				varId    = pf_conf.ptt_2map[trigIdx][QMAP_VAR];
-				waitTime = pf_conf.ptt_2map[trigIdx][QMAP_VALUE_B];
-				varIdx   = pf_conf.ptt_2map[trigIdx][QMAP_VAR_IDX];
-				varValue = pf_conf.ptt_2map[trigIdx][QMAP_VALUE_A];
-			} else if (t==3) {
-				varId    = pf_conf.ptt_3map[trigIdx][QMAP_VAR];
-				waitTime = pf_conf.ptt_3map[trigIdx][QMAP_VALUE_B];
-				varIdx   = pf_conf.ptt_3map[trigIdx][QMAP_VAR_IDX];
-				varValue = pf_conf.ptt_3map[trigIdx][QMAP_VALUE_A];
-			}
-			if (varId != QMAP_VAR_NONE) {
-				if (pf_data.ptt_step[t] == ZERO) {
-					pf_data.ptt_step[t] = ONE;
-					Vars_setValue(varId,varIdx,ZERO,varValue);
-				}
-				if (waitTime != ZERO && pf_data.ptt_cnt[t] < waitTime) {
-					wait = true; // waiting
-					stepStop = true;
-				}
-			} else {
-				pf_data.ptt_idx[t]  = 0xFF; // set trigger off
-				pf_data.ptt_fire[t] = ZERO; // reset fire trigger
-				pf_data.ptt_step[t] = ZERO; // reset step event 
-				stepStop = true;
-			}
-			if (wait==false) {
-				pf_data.ptt_cnt[t] = ZERO;
-				pf_data.ptt_idx[t]++;
-				pf_data.ptt_step[t] = ZERO; // reset step event 
-				if (pf_data.ptt_idx[t] > PTT_TRIG_MAP_MAX) {
-					pf_data.ptt_idx[t]  = 0xFF; // set trigger off
-					pf_data.ptt_fire[t] = ZERO; // reset fire trigger
-					stepStop = true;
-				}
-			}
-		}
-	}
-}
-#endif
-
-#ifdef SF_ENABLE_PTC
-void PTC_loop(void) {
-	uint32_t current_time = millis();
-	if (current_time < pf_data.ptc_sys_cnt) {
-		return;
-	}
-	pf_data.ptc_sys_cnt = current_time + 50; // run 10 times per seconds
-
-#ifdef SF_ENABLE_PTT
-	ptt_check_triggers();
-#endif
-	ptc_time0_run();
-	ptc_time1_run();
-}
-#endif
-
 
 

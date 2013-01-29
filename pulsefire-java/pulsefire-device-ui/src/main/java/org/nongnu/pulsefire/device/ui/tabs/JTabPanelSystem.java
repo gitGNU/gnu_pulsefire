@@ -40,7 +40,6 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -54,7 +53,6 @@ import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
-import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
@@ -81,8 +79,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		wrap.add(createSystemConfig());
 		wrap.add(createSystemIO());
 		wrap.add(createSystemLcd());
-		wrap.add(createSystemWarmup());		
-		SpringLayoutGrid.makeCompactGrid(wrap,1,4);
+		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
 		add(wrap);
 	}
 	
@@ -300,19 +297,22 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		lcdPanel.add(new JCommandLabel(CommandName.lcd_mode));
 		lcdPanel.add(new JCommandComboBox(CommandName.lcd_mode));
 		
+		lcdPanel.add(new JCommandLabel(CommandName.lcd_hcd));
+		lcdPanel.add(new JCommandComboBox(CommandName.lcd_hcd));
+		
 		lcdPanel.add(new JCommandLabel(CommandName.lcd_plp));
 		JPanel plpPanel = new JPanel();
-		//plpPanel.setLayout(new GridLayout(4,0));
 		lcdPanel.add(plpPanel);
 		
 		JFireQMapTable t = new JFireQMapTable(CommandName.lcd_plp);
 		plpPanel.add(t);
 		
-		SpringLayoutGrid.makeCompactGrid(lcdPanel,4,2);
+		SpringLayoutGrid.makeCompactGrid(lcdPanel,5,2);
 		wrapPanel.add(lcdPanel);
 		return wrapPanel;
 	}
 	
+	/*
 	private JPanel createSystemWarmup() {
 		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"warmup");
 		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
@@ -329,7 +329,8 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		wrapPanel.add(warmPanel);
 		
 		return wrapPanel;
-	}	
+	}
+	*/	
 
 	@Override
 	public Class<?> getTabClassName() {
