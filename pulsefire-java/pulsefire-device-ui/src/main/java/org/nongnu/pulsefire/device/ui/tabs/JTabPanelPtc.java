@@ -110,16 +110,21 @@ public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandL
 	@Override
 	public void commandReceived(Command command) {
 		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
+		Command ptc0Cnt = deviceData.getDeviceParameter(CommandName.ptc_0cnt);
+		Command ptc1Cnt = deviceData.getDeviceParameter(CommandName.ptc_1cnt);
+		if (ptc1Cnt==null || ptc1Cnt==null) {
+			return;
+		}
 		StringBuilder buf = new StringBuilder(100);
 		buf.append(CommandName.ptc_0cnt.name());
 		buf.append(": ");
-		buf.append(deviceData.getDeviceParameter(CommandName.ptc_0cnt).getArgu0());
+		buf.append(ptc0Cnt.getArgu0());
 		statusLabelTimer0.setText(buf.toString());
 		
 		buf = new StringBuilder(100);
 		buf.append(CommandName.ptc_1cnt.name());
 		buf.append(": ");
-		buf.append(deviceData.getDeviceParameter(CommandName.ptc_1cnt).getArgu0());
+		buf.append(ptc1Cnt.getArgu0());
 		statusLabelTimer1.setText(buf.toString());
 	}
 }

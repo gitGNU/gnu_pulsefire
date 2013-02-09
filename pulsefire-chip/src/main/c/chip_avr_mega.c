@@ -167,7 +167,7 @@ void Chip_setup_serial(void) {
 	UBRR0H = ubrr>>8;  // set baud rate
 	UBRR0L = ubrr;
 
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0);  // enable Rx & Tx
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0)/*|(1<UDRIE0)*/;  // enable Rx & Tx
 	UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);          // 8n1
 
 	// Enable pull-up on D0/RX, to supress line noise
@@ -618,19 +618,11 @@ ISR(TIMER5_COMPA_vect) {
 #endif
 }
 
-ISR(TIMER5_COMPB_vect) {
-}
-
 ISR(USART0_RX_vect) {
 	Serial_rx_int(UDR0);
 }
 
-ISR(TIMER2_COMPA_vect) {
-}
-
-ISR(TIMER2_COMPB_vect) {
-}
-
-ISR(TIMER2_OVF_vect) {
+ISR(BADISR_vect) {
+	pf_data.sys_bad_isr++;
 }
 

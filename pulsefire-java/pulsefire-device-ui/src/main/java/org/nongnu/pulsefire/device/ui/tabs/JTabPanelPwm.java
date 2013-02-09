@@ -348,7 +348,7 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		checkChannels(steps);
 	}
 	
-	private void checkChannels(int steps) {
+	private void checkChannels(long steps) {
 		Boolean limit = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.LIMIT_CHANNELS);
 		if (limit==false) {
 			steps = CommandName.pulse_steps.getMaxValue();

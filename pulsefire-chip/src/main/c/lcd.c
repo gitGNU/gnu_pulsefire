@@ -337,22 +337,7 @@ void Lcd_draw_menu(void) {
 			pf_data.lcd_menu_idx   = ZERO;
 		}
 		if (input1 == ZERO) {
-
 			// todo add lcd paging.
-
-#ifdef SF_ENABLE_LPM
-			if (pf_conf.lpm_size > ZERO) {
-				if (pf_data.lpm_state != LPM_IDLE) {
-					pf_data.lpm_state = LPM_STOP;
-				}
-				if (pf_data.lpm_state == LPM_IDLE) {
-					pf_data.lpm_state = LPM_INIT;
-				}
-				Lcd_clear();
-				Chip_delay(SYS_INPUT_DELAY);
-				return;
-			}
-#endif
 			return; // we only check for button if it is selected as source
 		}
 	}
@@ -572,12 +557,6 @@ void Lcd_loop(void) {
 		pf_data.lcd_redraw = ZERO;
 		return; // we are off in menu mode.
 	}
-#ifdef SF_ENABLE_LPM
-	if (pf_data.lpm_state != LPM_IDLE) {
-		pf_data.lcd_redraw = ZERO;
-		return; // we are off in lpm
-	}
-#endif
 
 #ifdef SF_ENABLE_STV
 	if (pf_data.stv_state != STV_STATE_OKE ) {

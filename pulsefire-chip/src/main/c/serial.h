@@ -30,6 +30,7 @@
 #include "freq.h"
 #include "chip.h"
 
+void cmd_print_info_value_long(const char* dstring,uint32_t value); // tmp here
 void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value);
 void Serial_printChar(char* argu);
 void Serial_printCharP(const char* argu);

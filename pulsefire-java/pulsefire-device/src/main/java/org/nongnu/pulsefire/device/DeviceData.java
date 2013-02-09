@@ -65,11 +65,17 @@ public class DeviceData {
 			Map<Integer,Command> cmds = getTypeMapIndexed(commandName);
 			Integer key = null;
 			if (commandName.isIndexedB()) {
-				key = new Integer(command.getArgu0());
+				if (command.getArgu0()!=null) {
+					key = new Integer(command.getArgu0());
+				}
 			} else {
-				key = new Integer(command.getArgu1());
+				if (command.getArgu1()!=null) {
+					key = new Integer(command.getArgu1());
+				}
 			}
-			cmds.put(key, command);
+			if (key!=null) {
+				cmds.put(key, command);
+			}
 			return;
 		}
 		Map<CommandName,Command> typeMap = getTypeMap(commandName);

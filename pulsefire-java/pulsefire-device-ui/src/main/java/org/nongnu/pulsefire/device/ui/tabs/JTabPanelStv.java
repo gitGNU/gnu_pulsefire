@@ -30,8 +30,8 @@ import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
+import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -62,7 +62,7 @@ public class JTabPanelStv extends AbstractFireTabPanel {
 		JPanel panel = JComponentFactory.createJFirePanel(this,"warningConfig");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JCommandLabel(CommandName.stv_warn_secs));
-		panel.add(new JCommandDial(CommandName.stv_warn_secs));
+		panel.add(new JCommandSpinner(CommandName.stv_warn_secs));
 		return panel;
 	}
 	
@@ -70,7 +70,7 @@ public class JTabPanelStv extends AbstractFireTabPanel {
 		JPanel panel = JComponentFactory.createJFirePanel(this,"errorConfig");
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		panel.add(new JCommandLabel(CommandName.stv_error_secs));
-		panel.add(new JCommandDial(CommandName.stv_error_secs));
+		panel.add(new JCommandSpinner(CommandName.stv_error_secs));
 		return panel;
 	}
 	

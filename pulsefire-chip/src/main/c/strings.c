@@ -43,10 +43,6 @@ const char pmLcdSTVWarning[]           CHIP_PROGMEM = "WARNING";
 const char pmLcdSTVError[]             CHIP_PROGMEM = "ERROR";
 const char pmLcdSTVMin[]               CHIP_PROGMEM = " MIN ";
 const char pmLcdSTVMax[]               CHIP_PROGMEM = " MAX ";
-const char pmLPMWait[]                 CHIP_PROGMEM = "Waiting";
-const char pmLPMStart[]                CHIP_PROGMEM = "Starting";
-const char pmLPMCancel[]               CHIP_PROGMEM = "Canceled";
-const char pmLPMDone[]                 CHIP_PROGMEM = "lpm_done"; // exception; used as serial event cmd.
 const char pmCmdUnknown[]              CHIP_PROGMEM = "# Err: command unknown";
 const char pmCmdHelpStart[]            CHIP_PROGMEM = "# The commands are;\r\n";
 const char pmCmdHelp[]                 CHIP_PROGMEM = "help";
@@ -61,7 +57,7 @@ const char pmCmdInfoFreqData[]         CHIP_PROGMEM = "info_freq_data";
 const char pmCmdInfoPPM[]              CHIP_PROGMEM = "info_ppm";
 const char pmCmdInfoPWM[]              CHIP_PROGMEM = "info_pwm";
 const char pmCmdInfoPWMData[]          CHIP_PROGMEM = "info_pwm_data";
-const char pmCmdInfoPWMSteps[]         CHIP_PROGMEM = "info_pwm_steps";
+const char pmCmdInfoPWMSize[]          CHIP_PROGMEM = "info_pwm_size";
 const char pmCmdInfoChip[]             CHIP_PROGMEM = "info_chip";
 const char pmCmdInfoVars[]             CHIP_PROGMEM = "info_vars";
 const char pmCmdInfoVarsMap[]          CHIP_PROGMEM = "map";
@@ -70,6 +66,8 @@ const char pmCmdReqTrigger[]           CHIP_PROGMEM = "req_trigger";
 const char pmCmdReqDoc[]               CHIP_PROGMEM = "req_doc";
 const char pmConfSysId[]               CHIP_PROGMEM = "sys_id";
 const char pmConfSysPass[]             CHIP_PROGMEM = "sys_pass";
+const char pmConfSysVvmMap[]           CHIP_PROGMEM = "sys_vvm_map";
+const char pmConfSysVvlMap[]           CHIP_PROGMEM = "sys_vvl_map";
 const char pmConfSpiClock[]            CHIP_PROGMEM = "spi_clock";
 const char pmConfSpiChips[]            CHIP_PROGMEM = "spi_chips";
 const char pmConfLCDSize[]             CHIP_PROGMEM = "lcd_size";
@@ -98,14 +96,19 @@ const char pmConfAVRPin4Map[]          CHIP_PROGMEM = "avr_pin4_map";
 const char pmConfAVRPin5Map[]          CHIP_PROGMEM = "avr_pin5_map";
 const char pmConfMegaPortA[]           CHIP_PROGMEM = "mega_port_a";
 const char pmConfMegaPortC[]           CHIP_PROGMEM = "mega_port_c";
+#ifdef SF_ENABLE_VSC0
 const char pmConfVsc0Mode[]            CHIP_PROGMEM = "vsc_0mode";
 const char pmConfVsc0Time[]            CHIP_PROGMEM = "vsc_0time";
 const char pmConfVsc0Step[]            CHIP_PROGMEM = "vsc_0step";
 const char pmConfVsc0Map[]             CHIP_PROGMEM = "vsc_0map";
+#endif
+#ifdef SF_ENABLE_VSC1
 const char pmConfVsc1Mode[]            CHIP_PROGMEM = "vsc_1mode";
 const char pmConfVsc1Time[]            CHIP_PROGMEM = "vsc_1time";
 const char pmConfVsc1Step[]            CHIP_PROGMEM = "vsc_1step";
 const char pmConfVsc1Map[]             CHIP_PROGMEM = "vsc_1map";
+#endif
+#ifdef SF_ENABLE_PWM
 const char pmConfPulseEnable[]         CHIP_PROGMEM = "pulse_enable";
 const char pmConfPulseMode[]           CHIP_PROGMEM = "pulse_mode";
 const char pmConfPulseSteps[]          CHIP_PROGMEM = "pulse_steps";
@@ -145,35 +148,30 @@ const char pmConfPPMDataOffset[]       CHIP_PROGMEM = "ppm_data_offset";
 const char pmConfPPMDataLength[]       CHIP_PROGMEM = "ppm_data_len";
 const char pmConfPPMDataA[]            CHIP_PROGMEM = "ppm_data_a";
 const char pmConfPPMDataB[]            CHIP_PROGMEM = "ppm_data_b";
-const char pmConfLPMStart[]            CHIP_PROGMEM = "lpm_start";
-const char pmConfLPMStop[]             CHIP_PROGMEM = "lpm_stop";
-const char pmConfLPMSize[]             CHIP_PROGMEM = "lpm_size";
-const char pmConfLPMRelayMap[]         CHIP_PROGMEM = "lpm_relay_map";
+#endif
 const char pmConfMALCode[]             CHIP_PROGMEM = "mal_code";
+#ifdef SF_ENABLE_MAL
 const char pmConfMALOps[]              CHIP_PROGMEM = "mal_ops";
 const char pmConfMALOpsFire[]          CHIP_PROGMEM = "mal_ops_fire";
 const char pmConfMALWait[]             CHIP_PROGMEM = "mal_wait";
+#endif
+#ifdef SF_ENABLE_PTC0
 const char pmConfPTC0Run[]             CHIP_PROGMEM = "ptc_0run";
 const char pmConfPTC0Mul[]             CHIP_PROGMEM = "ptc_0mul";
 const char pmConfPTC0Map[]             CHIP_PROGMEM = "ptc_0map";
+#endif
+#ifdef SF_ENABLE_PTC1
 const char pmConfPTC1Run[]             CHIP_PROGMEM = "ptc_1run";
 const char pmConfPTC1Mul[]             CHIP_PROGMEM = "ptc_1mul";
 const char pmConfPTC1Map[]             CHIP_PROGMEM = "ptc_1map";
+#endif
+#ifdef SF_ENABLE_PTT
 const char pmConfPTT0Map[]             CHIP_PROGMEM = "ptt_0map";
 const char pmConfPTT1Map[]             CHIP_PROGMEM = "ptt_1map";
 const char pmConfPTT2Map[]             CHIP_PROGMEM = "ptt_2map";
 const char pmConfPTT3Map[]             CHIP_PROGMEM = "ptt_3map";
-const char pmConfDevVoltDot[]          CHIP_PROGMEM = "dev_volt_dot";
-const char pmConfDevAmpDot[]           CHIP_PROGMEM = "dev_amp_dot";
-const char pmConfDevTempDot[]          CHIP_PROGMEM = "dev_temp_dot";
-const char pmConfSTVWarnSecs[]         CHIP_PROGMEM = "stv_warn_secs";
-const char pmConfSTVWarnMap[]          CHIP_PROGMEM = "stv_warn_map";
-const char pmConfSTVErrorSecs[]        CHIP_PROGMEM = "stv_error_secs";
-const char pmConfSTVErrorMap[]         CHIP_PROGMEM = "stv_error_map";
-const char pmConfSTVMaxMap[]           CHIP_PROGMEM = "stv_max_map";
-const char pmConfSTVMinMap[]           CHIP_PROGMEM = "stv_min_map";
-const char pmConfVFCInputMap[]         CHIP_PROGMEM = "vfc_input_map";
-const char pmConfVFCOutputMap[]        CHIP_PROGMEM = "vfc_output_map";
+#endif
+#ifdef SF_ENABLE_CIP
 const char pmConfCip0Clock[]           CHIP_PROGMEM = "cip_0clock";
 const char pmConfCip0Mode[]            CHIP_PROGMEM = "cip_0mode";
 const char pmConfCip0aOcr[]            CHIP_PROGMEM = "cip_0a_ocr";
@@ -198,10 +196,20 @@ const char pmConfCip2bOcr[]            CHIP_PROGMEM = "cip_2b_ocr";
 const char pmConfCip2bCom[]            CHIP_PROGMEM = "cip_2b_com";
 const char pmConfCip2cOcr[]            CHIP_PROGMEM = "cip_2c_ocr";
 const char pmConfCip2cCom[]            CHIP_PROGMEM = "cip_2c_com";
+#endif
+const char pmConfSTVWarnSecs[]         CHIP_PROGMEM = "stv_warn_secs";
+const char pmConfSTVWarnMap[]          CHIP_PROGMEM = "stv_warn_map";
+const char pmConfSTVErrorSecs[]        CHIP_PROGMEM = "stv_error_secs";
+const char pmConfSTVErrorMap[]         CHIP_PROGMEM = "stv_error_map";
+const char pmConfSTVMaxMap[]           CHIP_PROGMEM = "stv_max_map";
+const char pmConfSTVMinMap[]           CHIP_PROGMEM = "stv_min_map";
+const char pmConfVFCInputMap[]         CHIP_PROGMEM = "vfc_input_map";
+const char pmConfVFCOutputMap[]        CHIP_PROGMEM = "vfc_output_map";
 const char pmDataSysTimeTicks[]        CHIP_PROGMEM = "sys_time_ticks";
 const char pmDataSysTimeCsec[]         CHIP_PROGMEM = "sys_time_csec";
 const char pmDataSysUpTime[]           CHIP_PROGMEM = "sys_uptime";
 const char pmDataSysSpeed[]            CHIP_PROGMEM = "sys_speed";
+const char pmDataSysBadIsr[]           CHIP_PROGMEM = "sys_bad_isr";
 const char pmDataLcdInput[]            CHIP_PROGMEM = "lcd_input";
 const char pmDataLcdPage[]             CHIP_PROGMEM = "lcd_page";
 const char pmDataLcdRedraw[]           CHIP_PROGMEM = "lcd_redraw";
@@ -220,12 +228,6 @@ const char pmDataVsc0State[]           CHIP_PROGMEM = "vsc_0state";
 const char pmDataVsc1TimeCnt[]         CHIP_PROGMEM = "vsc_1time_cnt";
 const char pmDataVsc1State[]           CHIP_PROGMEM = "vsc_1state";
 const char pmDataSysInputTimeCnt[]     CHIP_PROGMEM = "sys_input_time_cnt";
-const char pmDataLPMState[]            CHIP_PROGMEM = "lpm_state";
-const char pmDataLPMFire[]             CHIP_PROGMEM = "lpm_fire";
-const char pmDataLPMStartTime[]        CHIP_PROGMEM = "lpm_start_time";
-const char pmDataLPMTotalTime[]        CHIP_PROGMEM = "lpm_total_time";
-const char pmDataLPMResult[]           CHIP_PROGMEM = "lpm_result";
-const char pmDataLPMLevel[]            CHIP_PROGMEM = "lpm_level";
 const char pmDataPTC0Cnt[]             CHIP_PROGMEM = "ptc_0cnt";
 const char pmDataPTC0RunCnt[]          CHIP_PROGMEM = "ptc_0run_cnt";
 const char pmDataPTC0MapIdx[]          CHIP_PROGMEM = "ptc_0map_idx";

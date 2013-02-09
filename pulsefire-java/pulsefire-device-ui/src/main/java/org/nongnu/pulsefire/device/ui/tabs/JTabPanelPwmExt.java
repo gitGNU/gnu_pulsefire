@@ -112,7 +112,7 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		return firePanel;
 	}
 	
-	private JPanel createPulseEvents () {
+	private JPanel createPulseEvents() {
 		JPanel firePanel = JComponentFactory.createJFirePanel("Pulse Fire Events");
 		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		

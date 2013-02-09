@@ -41,6 +41,23 @@
 typedef uint8_t boolean;
 typedef uint8_t byte;
 
+
+// Long to byte mapping.
+// .u32 = 0x12345678;
+// .u16[0] = 0x5678;
+// .u16[1] = 0x1234;
+// .u8[0] = 0x78;
+// .u8[1] = 0x56;
+// .u8[2] = 0x34;
+// .u8[3] = 0x12;
+/*
+union longmap {
+	unsigned long int       u32;        // 32-bit mapping
+	unsigned int         u16[2];        // 16-bit mapping
+	unsigned char         u8[4];        // 8-bit mapping
+	};
+typedef union longmap Longmap; */
+
 // Defines Programing constants
 #define PULSE_FIRE_VERSION         11    // PulseFire version
 #define ZERO                        0    // zero
@@ -85,13 +102,15 @@ typedef struct {
 	volatile uint16_t      sys_struct_size;        // Store this stuct size so reset_conf if changed.
 	volatile uint32_t      sys_id;                 // Store PulseFire id
 	volatile uint32_t      sys_pass;               // Store PulseFire login pass.
+	volatile uint16_t      sys_vvm_map[SYS_VVX_MAP_MAX][QMAP_SIZE]; // Vars value meta map, A=dot divider, B=lock var
+	volatile uint16_t      sys_vvl_map[SYS_VVX_MAP_MAX][QMAP_SIZE]; // Vars value Limit map,A=MIN,B=MAX, TODO: after qmap++ use single ?
 
 #ifdef SF_ENABLE_SPI
 	volatile uint8_t       spi_clock;              // Hardware spi clock speed
 	volatile uint8_t       spi_chips;              // bitwise spi chip selects
 #endif 
 #ifdef SF_ENABLE_ADC
-	volatile uint16_t      adc_jitter;                      // Minmal adc value change until variable update
+	volatile uint8_t       adc_jitter;                      // Minmal adc value change until variable update
 	volatile uint16_t      adc_enable;                      // Per input enable bit field.
 	volatile uint16_t      adc_map[ADC_MAP_MAX][QMAP_SIZE]; // Map analog inputs to variable
 #endif
@@ -178,13 +197,6 @@ typedef struct {
 	volatile uint16_t      ppm_data_b[OUTPUT_MAX];
 #endif
 
-#ifdef SF_ENABLE_LPM
-	volatile uint16_t      lpm_start;              // Start value of messurement
-	volatile uint16_t      lpm_stop;               // Stop value of messurement
-	volatile uint16_t      lpm_size;               // Size of messurement
-	volatile uint16_t      lpm_relay_map[LPM_RELAY_MAP_MAX][QMAP_SIZE];// Output mapping for relay status
-#endif
-
 #ifdef SF_ENABLE_PTC0
 	volatile uint8_t       ptc_0run;                              // ptc time0 running, 0=off,1=run1,2=2,3=3,etc,255=run_on
 	volatile uint8_t       ptc_0mul;                              // Time multiplier for time map0
@@ -201,10 +213,6 @@ typedef struct {
 	volatile uint16_t      ptt_2map[PTT_TRIG_MAP_MAX][QMAP_SIZE]; // Trigger event map2
 	volatile uint16_t      ptt_3map[PTT_TRIG_MAP_MAX][QMAP_SIZE]; // Trigger event map3
 #endif
-
-	volatile uint8_t       dev_volt_dot;           // Dot value for dev_volt; 0 = 0, 1 = /10, 2 = /100, 3 = /1000, 4= /10000
-	volatile uint8_t       dev_amp_dot;            // Dot value for dev_amp
-	volatile uint8_t       dev_temp_dot;           // Dot value for dev_temp
 
 #ifdef SF_ENABLE_STV
 	volatile uint8_t       stv_warn_secs;          // The minimal time to be in warning mode(255=always)
@@ -268,13 +276,11 @@ typedef struct {
 
 // PulseFire internal data
 typedef struct {
-	volatile uint8_t       rm_this_align_fill_bug; // TODO: fixme else 32b counter upper byte comes in cip_2c_com
-
-	volatile uint32_t      sys_loop0_cnt;      // Counter of main loop,(not in vars) todo: move to below with other not vars
 	volatile uint8_t       sys_time_ticks;     // Timer ticks
 	volatile uint32_t      sys_time_csec;      // Centri seconds = 1/10 of second ticks.
 	volatile uint32_t      sys_uptime;         // One second ticks
-	volatile uint32_t      sys_speed ;         // Speed in hz of main loop
+	volatile uint32_t      sys_speed;          // Speed in hz of main loop
+	volatile uint8_t       sys_bad_isr;        // Counter if bad interrupt happens
 
 #ifdef SF_ENABLE_ADC
 	volatile uint16_t      adc_value[ADC_MAP_MAX]; // Analog input value per input
@@ -308,15 +314,6 @@ typedef struct {
 	volatile uint8_t       lcd_menu_idx;
 	volatile uint8_t       lcd_menu_value_idx;
 	volatile uint32_t      lcd_menu_time_cnt;
-#endif
-
-#ifdef SF_ENABLE_LPM
-	volatile uint8_t       lpm_state;         // The state machine value
-	volatile uint8_t       lpm_fire;          // Start lpm messurement
-	volatile uint32_t      lpm_start_time;    // The start time of the LPM messurement
-	volatile uint32_t      lpm_total_time;    // The total time of LPM messurement
-	volatile uint16_t      lpm_result;        // The LPM result in /10.
-	volatile uint16_t      lpm_level;         // The level of messurement
 #endif
 
 #ifdef SF_ENABLE_PTC0
@@ -382,12 +379,16 @@ typedef struct {
 	// == Special variables because these are not in the VARS list  ==
 
 	char                   unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
+
 	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
 	volatile uint8_t       cmd_buff_idx;                  // Command index
+	volatile char          cmd_buff1[CMD_BUFF_SIZE];
+	volatile uint8_t       cmd_buff1_idx;
 	volatile uint8_t       cmd_process;                   // Processing command
+
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
 	volatile uint16_t      pwm_data[PWM_DATA_MAX][2];
-	volatile uint8_t       pwm_data_max;
+	volatile uint8_t       pwm_data_size;
 	char                   lcd_buff[20];
 
 	volatile uint8_t       spi_int_req;  // note spi_ not in vars !
@@ -395,7 +396,8 @@ typedef struct {
 	volatile uint8_t       spi_int_data8;
 	volatile uint8_t       spi_int_data16;
 
-	volatile uint16_t      sys_loop1_cnt;      // 20hz loop counter not in ar
+	volatile uint32_t      sys_loop0_cnt;      // Counter of main loop, not in vars
+	volatile uint16_t      sys_loop1_cnt;      // 20hz loop counter not in vars
 	volatile uint8_t       sys_loop1_cnt_idx;  // 20hz loop index
 
 	volatile uint8_t       mal_pc_fire;        // Temp store pc when run from trigger (NOTE; not in PF_VARS)
@@ -406,12 +408,12 @@ typedef struct {
 } pf_data_struct;
 
 // All pulsefire variables are stored in one of these structs;
-extern pf_data_struct       pf_data;
-extern pf_conf_struct       pf_conf;
+extern pf_data_struct pf_data;
+extern pf_conf_struct pf_conf;
 
 // Dynamicly calculate PF_VARS size based on SF_ENABLE_* flags.
 #define PF_VARS_SIZE Vars_getSize()
-#define PF_VARS_PF_SIZE     35
+#define PF_VARS_PF_SIZE       35
 #ifdef SF_ENABLE_SPI
 	#define PF_VARS_SPI_SIZE  2
 #else
@@ -432,25 +434,20 @@ extern pf_conf_struct       pf_conf;
 #else
 	#define PF_VARS_LCD_SIZE  0
 #endif
-#ifdef SF_ENABLE_LPM
-	#define PF_VARS_LPM_SIZE  10
-#else
-	#define PF_VARS_LPM_SIZE  0
-#endif
 #ifdef SF_ENABLE_ADC
 	#define PF_VARS_ADC_SIZE  7
 #else
 	#define PF_VARS_ADC_SIZE  0
 #endif
 #ifdef SF_ENABLE_PTC0
-	#define PF_VARS_PTC0_SIZE  8
+	#define PF_VARS_PTC0_SIZE 8
 #else
-	#define PF_VARS_PTC0_SIZE  0
+	#define PF_VARS_PTC0_SIZE 0
 #endif
 #ifdef SF_ENABLE_PTC1
-	#define PF_VARS_PTC1_SIZE  8
+	#define PF_VARS_PTC1_SIZE 8
 #else
-	#define PF_VARS_PTC1_SIZE  0
+	#define PF_VARS_PTC1_SIZE 0
 #endif
 #ifdef SF_ENABLE_PTT
 	#define PF_VARS_PTT_SIZE  8
@@ -473,14 +470,14 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_MAL_SIZE  0
 #endif
 #ifdef SF_ENABLE_VSC0
-	#define PF_VARS_VSC0_SIZE  4+2
+	#define PF_VARS_VSC0_SIZE 4+2
 #else
-	#define PF_VARS_VSC0_SIZE  0
+	#define PF_VARS_VSC0_SIZE 0
 #endif
 #ifdef SF_ENABLE_VSC1
-	#define PF_VARS_VSC1_SIZE  4+2
+	#define PF_VARS_VSC1_SIZE 4+2
 #else
-	#define PF_VARS_VSC1_SIZE  0
+	#define PF_VARS_VSC1_SIZE 0
 #endif
 #ifdef SF_ENABLE_AVR
 	#define PF_VARS_AVR_SIZE  4
@@ -488,9 +485,9 @@ extern pf_conf_struct       pf_conf;
 	#define PF_VARS_AVR_SIZE  0
 #endif
 #ifdef SF_ENABLE_AVR_MEGA
-	#define PF_VARS_AVR_MEGA_SIZE  2
+	#define PF_VARS_AVR_MEGA_SIZE 2
 #else
-	#define PF_VARS_AVR_MEGA_SIZE  0
+	#define PF_VARS_AVR_MEGA_SIZE 0
 #endif
 
 

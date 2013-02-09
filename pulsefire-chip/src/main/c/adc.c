@@ -88,9 +88,11 @@ void Adc_loop(void) {
 		}
 
 		// map to min/max value and assign to variable
-		valueAdc = mapValue(valueAdc,ZERO,ADC_VALUE_MAX,pf_conf.adc_map[i][QMAP_VALUE_A],pf_conf.adc_map[i][QMAP_VALUE_B]);
+		valueAdc = map_value(valueAdc,ZERO,ADC_VALUE_MAX,pf_conf.adc_map[i][QMAP_VALUE_A],pf_conf.adc_map[i][QMAP_VALUE_B]);
 		if (pf_conf.adc_map[i][QMAP_VAR] < PF_VARS_SIZE) {
+			cli();
 			Vars_setValue(pf_conf.adc_map[i][QMAP_VAR],pf_conf.adc_map[i][QMAP_VAR_IDX],ZERO,valueAdc);
+			sei();
 		}
 	}
 }

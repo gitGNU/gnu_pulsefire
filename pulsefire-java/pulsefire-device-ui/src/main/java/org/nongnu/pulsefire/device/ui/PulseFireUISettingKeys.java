@@ -35,21 +35,33 @@ public enum PulseFireUISettingKeys {
 	DEVICE_PORT(""),
 	LIMIT_CHANNELS("true"),
 	CONSOLE_LINES("500"),
+	PULL_SPEED("10000"),
+	
 	TAB_SCOPE_ENABLE("false"),
 	TAB_UILOG_ENABLE("false"),
-	PULL_SPEED("10000"),
+	TAB_LPM_ENABLE("false"),
+	
 	AVRDUDE_CMD(""),
 	AVRDUDE_CONFIG(""),
+	
 	GRAPH_SIZE("0"),
 	GRAPH_COLS("0"),
 	GRAPH_LIST(""),
 	GRAPH_LIST_FRONT("pwm_loop,pwm_req_freq,pulse_steps,adc_value,dic_value,doc_port,dev_volt,dev_temp,pulse_step,sys_main_loop_cnt"),
+	
 	UI_SPLIT_CONTENT("850"),
 	UI_SPLIT_BOTTOM("570"),
 	UI_SPLIT_BOTTOM_LOG("600"),
-	LPM_RESULT_FIELDS("dev_volt,dev_amp,dev_temp,dev_freq"),
+	
 	FLASH_MCU_TYPE("ALL"),
 	FLASH_MCU_SPEED("16Mhz"),
+	
+	LPM_RESULT_FIELDS("dev_volt,dev_amp,dev_temp,dev_freq"),
+	LPM_START("100"),
+	LPM_STOP("1000"),
+	LPM_SIZE("300"),
+	LPM_LEVEL_ADC("0"),
+	LPM_RELAY_DOC("0"),
 	
 	LOG0_ENABLE("false"),
 	LOG0_TIMESTAMP("true"),

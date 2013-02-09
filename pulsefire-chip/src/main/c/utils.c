@@ -141,7 +141,7 @@ uint16_t reverse_bits(uint16_t num,uint16_t num_bits) {
 }
 
 // map value from range to new range
-long mapValue(long x, long in_min, long in_max, long out_min, long out_max) {
+uint16_t map_value(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 

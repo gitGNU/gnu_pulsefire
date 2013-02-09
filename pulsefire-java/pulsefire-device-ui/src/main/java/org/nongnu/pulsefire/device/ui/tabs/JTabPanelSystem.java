@@ -54,6 +54,7 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
+import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
 import org.nongnu.pulsefire.wire.Command;
@@ -74,12 +75,20 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	public JTabPanelSystem() {
 		logger = Logger.getLogger(JTabPanelSystem.class.getName());
 		setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new SpringLayout());
+		topPanel.add(createSystemConfig());
+		topPanel.add(createSystemLcd());
+		topPanel.add(createSystemVar());
+		SpringLayoutGrid.makeCompactGrid(topPanel,1,3);
+		
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
-		wrap.add(createSystemConfig());
-		wrap.add(createSystemIO());
-		wrap.add(createSystemLcd());
-		SpringLayoutGrid.makeCompactGrid(wrap,1,3);
+		wrap.add(topPanel);
+		wrap.add(createSysVarMeta());
+		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,6,6);
+		
+		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(wrap);
 	}
 	
@@ -264,6 +273,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		reader.close();
 	}
 	
+	/*
 	private JPanel createSystemIO() {
 		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"io");
 		JPanel ioPanel = new JPanel();
@@ -282,6 +292,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}
+	*/
 	
 	private JPanel createSystemLcd() {
 		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"lcd");
@@ -330,8 +341,39 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		
 		return wrapPanel;
 	}
-	*/	
+	*/
+	
+	private JPanel createSystemVar() {
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"io");
+		JPanel ioPanel = new JPanel();
+		ioPanel.setLayout(new SpringLayout());
+		
+		ioPanel.add(new JCommandLabel(CommandName.sys_id));
+		ioPanel.add(new JCommandSpinner(CommandName.sys_id));
+		
+		ioPanel.add(new JCommandLabel(CommandName.sys_pass));
+		ioPanel.add(new JCommandSpinner(CommandName.sys_pass));
+		
+		
+		SpringLayoutGrid.makeCompactGrid(ioPanel,2,2);
+		wrapPanel.add(ioPanel);
+		return wrapPanel;
+	}
 
+	private JPanel createSysVarMeta() {
+		JPanel firePanel = JComponentFactory.createJFirePanel("Sys Var Meta");
+		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		
+		JPanel mapPanel = new JPanel();
+		mapPanel.setLayout(new SpringLayout());
+		mapPanel.add(new JFireQMapTable(CommandName.sys_vvm_map,"dot","lock"));
+		mapPanel.add(new JFireQMapTable(CommandName.sys_vvl_map,"min","max"));
+		SpringLayoutGrid.makeCompactGrid(mapPanel,1,2);
+		firePanel.add(mapPanel);
+		
+		return firePanel;
+	}
+	
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();

@@ -50,6 +50,7 @@ public enum CommandName {
 	reset_chip				(CommandVariableType.CMD),
 	
 	req_trigger				(CommandVariableType.CMD),
+	req_doc					(CommandVariableType.CMD),
 	req_tx_push				(CommandVariableType.CMD),
 	req_tx_echo				(CommandVariableType.CMD),
 	req_tx_promt			(CommandVariableType.CMD),
@@ -62,6 +63,8 @@ public enum CommandName {
 	
 	sys_id					(CommandVariableType.CONF),
 	sys_pass				(CommandVariableType.CONF),
+	sys_vvm_map				(CommandVariableType.CONF),
+	sys_vvl_map				(CommandVariableType.CONF),
 	
 	spi_chips				(CommandVariableType.CONF,WireChipFlags.SPI),
 	spi_clock				(CommandVariableType.CONF,WireChipFlags.SPI),
@@ -108,12 +111,6 @@ public enum CommandName {
 	ppm_data_len			(CommandVariableType.CONF,WireChipFlags.PWM),
 	ppm_data_a				(CommandVariableType.CONF,WireChipFlags.PWM),
 	ppm_data_b				(CommandVariableType.CONF,WireChipFlags.PWM),
-	
-	lpm_done				(CommandVariableType.CMD,WireChipFlags.LPM),  // exception this is no cmd.
-	lpm_start				(CommandVariableType.CONF,WireChipFlags.LPM),
-	lpm_stop				(CommandVariableType.CONF,WireChipFlags.LPM),
-	lpm_size				(CommandVariableType.CONF,WireChipFlags.LPM),
-	lpm_relay_map			(CommandVariableType.CONF,WireChipFlags.LPM),
 	
 	ptc_0run				(CommandVariableType.CONF,WireChipFlags.PTC0),
 	ptc_0mul				(CommandVariableType.CONF,WireChipFlags.PTC0),
@@ -178,10 +175,10 @@ public enum CommandName {
 	vsc_0step				(CommandVariableType.CONF,WireChipFlags.VSC0),
 	vsc_0map				(CommandVariableType.CONF,WireChipFlags.VSC0),
 	
-	vsc_1mode				(CommandVariableType.CONF,WireChipFlags.VSC0),
-	vsc_1time				(CommandVariableType.CONF,WireChipFlags.VSC0),
-	vsc_1step				(CommandVariableType.CONF,WireChipFlags.VSC0),
-	vsc_1map				(CommandVariableType.CONF,WireChipFlags.VSC0),
+	vsc_1mode				(CommandVariableType.CONF,WireChipFlags.VSC1),
+	vsc_1time				(CommandVariableType.CONF,WireChipFlags.VSC1),
+	vsc_1step				(CommandVariableType.CONF,WireChipFlags.VSC1),
+	vsc_1map				(CommandVariableType.CONF,WireChipFlags.VSC1),
 	
 	cip_0clock				(CommandVariableType.CONF,WireChipFlags.CIP),
 	cip_0mode				(CommandVariableType.CONF,WireChipFlags.CIP),
@@ -218,6 +215,7 @@ public enum CommandName {
 	sys_time_csec			(CommandVariableType.DATA),
 	sys_uptime				(CommandVariableType.DATA),
 	sys_speed				(CommandVariableType.DATA),
+	sys_bad_isr				(CommandVariableType.DATA),
 	
 	adc_value				(CommandVariableType.DATA),
 	adc_state				(CommandVariableType.DATA),
@@ -241,13 +239,6 @@ public enum CommandName {
 	lcd_input				(CommandVariableType.DATA),
 	lcd_page				(CommandVariableType.DATA),
 	lcd_redraw				(CommandVariableType.DATA),
-	
-	lpm_state				(CommandVariableType.DATA),
-	lpm_fire				(CommandVariableType.DATA),
-	lpm_start_time			(CommandVariableType.DATA),
-	lpm_total_time			(CommandVariableType.DATA),
-	lpm_result				(CommandVariableType.DATA),
-	lpm_level				(CommandVariableType.DATA),
 	
 	ptc_sys_cnt				(CommandVariableType.DATA),
 	ptc_0cnt				(CommandVariableType.DATA),
@@ -298,7 +289,7 @@ public enum CommandName {
 	
 	info_freq_data			(CommandVariableType.DATA),
 	info_pwm_data			(CommandVariableType.DATA),
-	info_pwm_steps			(CommandVariableType.DATA),
+	info_pwm_size			(CommandVariableType.DATA),
 	
 	lcd_menu_state			(CommandVariableType.PROG),
 	lcd_menu_mul			(CommandVariableType.PROG),
@@ -343,6 +334,17 @@ public enum CommandName {
 	swc_duty_cnt			(CommandVariableType.DATA),
 	sys_main_loop_cnt		(CommandVariableType.DATA),
 	sys_input_time_cnt		(CommandVariableType.DATA),
+	lpm_done				(CommandVariableType.CMD,WireChipFlags.LPM),
+	lpm_start				(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_stop				(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_size				(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_relay_map			(CommandVariableType.CONF,WireChipFlags.LPM),
+	lpm_state				(CommandVariableType.DATA),
+	lpm_fire				(CommandVariableType.DATA),
+	lpm_start_time			(CommandVariableType.DATA),
+	lpm_total_time			(CommandVariableType.DATA),
+	lpm_result				(CommandVariableType.DATA),
+	lpm_level				(CommandVariableType.DATA),
 	
 	// Deleted commands v1.0
 	freq_pwm_data			(CommandVariableType.FREQ), // renamed
@@ -363,11 +365,12 @@ public enum CommandName {
 	private CommandVariableType type = null;
 	protected WireChipFlags chipFlagDependency = null;
 	protected int id = -1;
-	protected int maxValue = 65535;
+	protected long maxValue = 65535;
 	protected int maxIndexA = -1;
 	protected int maxIndexB = -1;
 	protected int mapIndex = -1;
-	protected int bits = -1;
+	protected int bits = 0;
+	protected int bitType = 0;
 	protected boolean mapIndexTrigger = false;
 	protected boolean disabled = false;
 	protected String[] listValues = null;
@@ -417,7 +420,7 @@ public enum CommandName {
 		return chipFlagDependency;
 	}
 	
-	public int getMaxValue() {
+	public long getMaxValue() {
 		return maxValue;
 	}
 
@@ -463,6 +466,10 @@ public enum CommandName {
 	
 	public int getBits() {
 		return bits;
+	}
+	
+	public int getBitType() {
+		return bitType;
 	}
 
 	static public CommandName valueOfId(int idx) {
@@ -541,4 +548,22 @@ public enum CommandName {
 		}
 		return buf.toString();
 	}
+	
+	static public String byte2hex(byte b) {
+		StringBuffer buf = new StringBuffer();
+		byte high = (byte) ( (b & 0xf0) >> 4);
+		byte low =  (byte)   (b & 0x0f);
+		buf.append(CommandName.nibble2hex(high));
+		buf.append(CommandName.nibble2hex(low));
+		return buf.toString();
+	}
+	
+	static public char nibble2hex(byte b) {
+		byte nibble = (byte) (b & 0x0f);
+		if (nibble < 10) {
+			return (char) ('0' + nibble);
+		}
+		return (char) ('A' + nibble - 10);
+	}
+
 }

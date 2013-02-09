@@ -161,6 +161,7 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 				logger.info("In system reboot requested trying soft reconnect.");
 			}
 			sendCommand = null;
+			deviceManager.incTotalError();
 		}
 
 		// clear send buffer
@@ -368,7 +369,7 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 			int deviceVersion = deviceManager.getDeviceVersion();
 			CommandName cmdName = cmd.getCommandName();
 			int id = new Integer(cmd.getArgu0());
-			//int bitType = new Integer(cmd.getArgu1());
+			int bitType = new Integer(cmd.getArgu1());
 			int idxA = new Integer(cmd.getArgu2());
 			int idxB = new Integer(cmd.getArgu3());
 			int maxValue = new Integer(cmd.getArgu4());
@@ -376,6 +377,7 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 			//int defaultValue = new Integer(cmd.getArgu6());
 			
 			CommandNameVersionFactory.configCommandId(deviceVersion, cmdName, id);
+			CommandNameVersionFactory.configCommandBitType(deviceVersion, cmdName, bitType);
 			CommandNameVersionFactory.configCommandBits(deviceVersion, cmdName, bits);
 			CommandNameVersionFactory.configCommandMax(deviceVersion, cmdName, maxValue);
 			if ((bits & 8)==0) { // no map

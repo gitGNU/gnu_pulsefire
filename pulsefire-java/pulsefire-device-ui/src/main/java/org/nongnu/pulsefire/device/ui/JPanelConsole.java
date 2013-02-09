@@ -28,6 +28,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,6 +59,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	private JTextField consoleInput = null;
 	private int consoleLogLinesMax = 255;
 	private DateFormat timeFormat = null;
+	private String lastCmd = null;
 	
 	public JPanelConsole() {
 		// Use simple time based format for console logging
@@ -94,6 +97,22 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 			public void actionPerformed(ActionEvent e) {
 				synchronized (consoleLog) {
 					consoleLog.setText("");
+				}
+			}
+		});
+		consoleInput.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode()==KeyEvent.VK_UP) {
+					consoleInput.setText(lastCmd);
 				}
 			}
 		});
@@ -157,6 +176,7 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		} catch (Exception e) {
 			updateText(e.getMessage(),"## Err:");
 		}
+		lastCmd = consoleInput.getText();
 		consoleInput.setText("");
 	}
 

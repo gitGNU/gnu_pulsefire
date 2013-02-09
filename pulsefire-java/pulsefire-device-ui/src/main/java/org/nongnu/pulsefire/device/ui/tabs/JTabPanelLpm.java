@@ -70,10 +70,7 @@ import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.components.JIntegerTextField;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
@@ -93,6 +90,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	private LpmTuneResultTableModel tuneResultModel = null;
 	private JProgressBar progressBar = null;
 	private JLabel lpmStepLabel = null;
+	private JLabel lpmStateLabel = null;
 	private JButton stepEditButton = null;
 	private JButton stepAddButton = null;
 	private JButton stepDelButton = null;
@@ -106,12 +104,29 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	private JButton resultClearButton = null;
 	private JButton resultExportButton = null;
 	private List<CommandName> stepFields = null;
-	private boolean updateProgress = false;
 	private boolean runSingle = false;
 	private boolean runLoop = false;
 	private boolean runTune = false;
 	private int tuneStep = 0;
 	private List<LpmCommandStep> tuneCommandSteps = null;
+	private LpmState lpm_state = LpmState.LPM_IDLE; 
+	private long lpm_start_time = 0;
+	private long lpm_total_time = 0;
+	private long lpm_result = 0;
+	private int lpm_level = 0;
+	
+	enum LpmState {
+		LPM_INIT,
+		LPM_IDLE,
+		LPM_START,
+		LPM_START_WAIT,
+		LPM_STOP,
+		LPM_RUN,
+		LPM_DONE,
+		LPM_DONE_WAIT,
+		LPM_RECOVER,
+		LPM_RECOVER_WAIT
+	}
 	
 	public JTabPanelLpm() {
 		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
@@ -138,9 +153,8 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
-		
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_done, this);
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.lpm_level, this);
+
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.adc_value, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
 	}
 	
@@ -151,21 +165,25 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				
 		inputPanel.add(JComponentFactory.createJLabel("Start"));
-		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_start)));
+		inputPanel.add(JComponentFactory.createJPanelJWrap(JComponentFactory.createSettingsJFireDial(PulseFireUISettingKeys.LPM_START, 0, 1024)));
+		
 		
 		inputPanel.add(JComponentFactory.createJLabel("Stop"));
-		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_stop)));
+		inputPanel.add(JComponentFactory.createJPanelJWrap(JComponentFactory.createSettingsJFireDial(PulseFireUISettingKeys.LPM_STOP, 0, 1024)));
 
 		inputPanel.add(JComponentFactory.createJLabel("Size"));
-		inputPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.lpm_size)));
+		inputPanel.add(JComponentFactory.createJPanelJWrap(JComponentFactory.createSettingsJFireDial(PulseFireUISettingKeys.LPM_SIZE, 0, 1024)));
 		
-		inputPanel.add(JComponentFactory.createJLabel("Relay"));
-		JPanel relayMapPanel = new JPanel();
-		relayMapPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-		relayMapPanel.add(new JFireQMapTable(CommandName.lpm_relay_map,"Open","Close"));
+		inputPanel.add(JComponentFactory.createJLabel("Connections"));
+		JPanel connPanel = new JPanel();
+		connPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		connPanel.add(JComponentFactory.createJLabel("Level adc port"));
+		connPanel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.LPM_LEVEL_ADC,new String[] {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"}));
+		connPanel.add(JComponentFactory.createJLabel("Relay doc port"));
+		connPanel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.LPM_RELAY_DOC,new String[] {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"}));
 
 		configPanel.add(inputPanel,BorderLayout.CENTER);
-		configPanel.add(relayMapPanel,BorderLayout.SOUTH);
+		configPanel.add(connPanel,BorderLayout.SOUTH);
 		
 		return configPanel;
 	}
@@ -180,7 +198,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		JPanel butTunePanel = new JPanel();
 		butTunePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		lpmAutoStartButton = new JCommandButton(CommandName.req_trigger,CommandName.lpm_fire,null);
+		lpmAutoStartButton = new JButton("Single");
 		lpmAutoLoopButton = new JButton("Loop");
 		lpmAutoCancelButton = new JButton("Cancel");
 		lpmTuneStartButton = new JButton("Start");
@@ -201,11 +219,12 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		lpmTuneStopButton.addActionListener(this);
 		lpmTuneNextButton.addActionListener(this);
 		
-		lpmTuneStartButton.setEnabled(false);
+		lpmAutoStartButton.setEnabled(false);
 		lpmAutoLoopButton.setEnabled(false);
+		lpmAutoCancelButton.setEnabled(false);
+		lpmTuneStartButton.setEnabled(false);
 		lpmTuneStopButton.setEnabled(false);
 		lpmTuneNextButton.setEnabled(false);
-		lpmAutoCancelButton.setEnabled(false);
 		
 		JPanel barPanel = new JPanel();
 		barPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -214,6 +233,8 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		barPanel.add(JComponentFactory.createJLabel("Steps"));
 		lpmStepLabel = new JLabel("0/0");
 		barPanel.add(lpmStepLabel);
+		lpmStateLabel = new JLabel("IDLE");
+		barPanel.add(lpmStateLabel);
 		
 		topPanel.add(JComponentFactory.createJLabel("Auto Lpm"));
 		topPanel.add(butSinglePanel);
@@ -815,18 +836,18 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	@Override
 	public void deviceConnect() {
 		super.deviceConnect(); // update ui tree
+		lpmAutoStartButton.setEnabled(true);
 		lpmAutoLoopButton.setEnabled(true);
 	}
 	@Override
 	public void deviceDisconnect() {
-		super.deviceConnect();
+		super.deviceDisconnect();
+		lpmAutoStartButton.setEnabled(false);
 		lpmAutoLoopButton.setEnabled(false);
-	}
-	
-	private void requestLpm() {
-		Command cmd = new Command(CommandName.req_trigger);
-		cmd.setArgu0(CommandName.lpm_fire.name());
-		PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
+		lpmAutoCancelButton.setEnabled(false);
+		lpmTuneStartButton.setEnabled(false);
+		lpmTuneStopButton.setEnabled(false);
+		lpmTuneNextButton.setEnabled(false);
 	}
 	
 	@Override
@@ -856,19 +877,17 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			stepEditButton.setEnabled(false);
 			stepAddButton.setEnabled(false);
 			stepDelButton.setEnabled(false);
-			updateProgress = true;
 			runSingle = true;
-		} else if (lpmAutoLoopButton.equals(e.getSource())) {
 			requestLpm();
-			updateProgress = true;
+		} else if (lpmAutoLoopButton.equals(e.getSource())) {
 			runLoop = true;
 			lpmAutoCancelButton.setEnabled(true);
 			lpmAutoLoopButton.setEnabled(false);
 			lpmAutoStartButton.setEnabled(false);
 			lpmTuneStartButton.setEnabled(false);
+			requestLpm();
 		} else if (lpmAutoCancelButton.equals(e.getSource())) {
 			requestLpm();
-			updateProgress = true;
 			runLoop = false;
 			lpmAutoLoopButton.setEnabled(true);
 			lpmAutoStartButton.setEnabled(true);
@@ -893,7 +912,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			lpmTuneNextButton.setEnabled(false);
 			runTune = false;
 		} else if (lpmTuneNextButton.equals(e.getSource())) {
-			updateProgress = false;
 			progressBar.setValue(0);
 			requestCommandStep();
 		} else if (resultFieldsButton.equals(e.getSource())) {
@@ -1007,13 +1025,123 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		lpmStepLabel.setText(tuneStep+"/"+stepsTotal);
 	}
 	
+	private void requestLpm() {
+		requestLpmSetRelay(true);
+		lpm_state = LpmState.LPM_INIT;
+	}
+	
+	private void requestLpmSetRelay(boolean value) {
+		Command cmd = new Command(CommandName.req_doc);
+		cmd.setArgu0(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RELAY_DOC));
+		if (value) {
+			cmd.setArgu1("0");
+		} else {
+			cmd.setArgu1("1");
+		}
+		PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
+	}
+	
+	private void checkLpmState() {
+		int lpm_start = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_START);
+		int lpm_stop = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_STOP);
+		int lpm_size = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_SIZE);
+		switch (lpm_state) {
+			case LPM_INIT:
+				if ( lpm_level < lpm_start) {
+					lpm_state = LpmState.LPM_RECOVER;
+				} else {
+					lpm_state = LpmState.LPM_START;
+				}
+				break;
+			case LPM_IDLE:
+				return;
+			case LPM_START:
+				requestLpmSetRelay(false); // close the output tube
+				lpm_state = LpmState.LPM_START_WAIT;
+				break;
+			case LPM_START_WAIT:
+				if (lpm_level < lpm_start) {
+					lpm_start_time = System.currentTimeMillis();
+					lpm_state = LpmState.LPM_RUN;
+				}
+				break;
+			case LPM_STOP:
+				lpm_state = LpmState.LPM_RECOVER;
+				break;
+			case LPM_RUN: {
+				lpm_total_time = (System.currentTimeMillis()-lpm_start_time)/10;
+				int stepSize = (lpm_start-lpm_stop)/10; // 10 steps
+				int stepDone = (lpm_start-lpm_level) / stepSize;
+				if (stepDone < 0) {
+					stepDone = 0;
+				}
+				if (stepDone > 13) {
+					stepDone = 13;
+				}
+				// calulate lpm in 100x size.
+				// 600 = 1 minute in seconds
+				// lpm_totalTime/10 = time in seconds
+				// lpm_size is in ML!
+				lpm_result = (600/(lpm_total_time/100))*lpm_size/100;
+
+				if (lpm_level < lpm_stop) {
+					lpm_state = LpmState.LPM_DONE;
+				}
+				if (lpm_result == 0) {
+					lpm_state = LpmState.LPM_DONE; // timeout of calculations
+				}
+				//Chip_delay(10);
+				break;
+			}
+			case LPM_DONE:
+				requestLpmSetRelay(true); // open output tube
+				lpm_state = LpmState.LPM_DONE_WAIT;
+				//lpm_fire = ONE;
+				break;
+			case LPM_DONE_WAIT:
+				// wait for user input
+				break;
+			case LPM_RECOVER:
+				requestLpmSetRelay(true); // open output tube
+				lpm_state = LpmState.LPM_RECOVER_WAIT;
+				break;
+			case LPM_RECOVER_WAIT:
+				if (lpm_level < lpm_start) {
+					break;
+				}
+				lpm_state = LpmState.LPM_IDLE;
+				break;
+		}
+	}
+	
 	@Override
 	public void commandReceived(Command command) {
-		if (CommandName.lpm_done.equals(command.getCommandName())) {
-			
-			if ("done".equals(command.getArgu0())) {
-				return;
+		if (CommandName.adc_value.equals(command.getCommandName())==false) {
+			return;
+		}
+		
+		String adcPort = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_LEVEL_ADC);
+		if (adcPort.equals(command.getArgu0())==false) {
+			return; // other port
+		}
+		lpm_level = new Integer(command.getArgu1());
+		
+		checkLpmState();
+		lpmStateLabel.setText(lpm_state.name());
+		
+		if (lpm_state == LpmState.LPM_RUN || lpm_state == LpmState.LPM_INIT || lpm_state == LpmState.LPM_START || lpm_state == LpmState.LPM_START_WAIT) {
+			int lpm_start = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_START);
+			int lpm_stop = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_STOP);
+			int stepSize = (lpm_start-lpm_stop) / 100;
+			int stepProgress = (lpm_start-lpm_level) / stepSize;
+			if (stepProgress<0 | stepProgress>100) {
+				stepProgress=0;
 			}
+			progressBar.setValue(stepProgress);
+		}
+		
+		
+		if (lpm_state == LpmState.LPM_DONE) {
 			
 			//  result format: req_lpm_fire==19.53 2.67
 			LpmTuneResult result = new LpmTuneResult();
@@ -1040,7 +1168,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			tuneResultModel.dataAdd(result);
 			
 			progressBar.setValue(0);
-			updateProgress = false;
 			
 			if (runSingle) {
 				runSingle = false;
@@ -1060,21 +1187,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				tuneStep++;
 				requestCommandStep();
 				return;
-			}
-			
-		} else if (CommandName.lpm_level.equals(command.getCommandName()) && updateProgress && (runSingle|runLoop|runTune)) { 
-			Command lpmStartCmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_start);
-			Command lpmStopCmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.lpm_stop);
-			if (lpmStartCmd!=null && lpmStopCmd!=null) {
-				int lpmLevel = new Integer(command.getArgu0());
-				int lpmStart = new Integer(lpmStartCmd.getArgu0());
-				int lpmStop = new Integer(lpmStopCmd.getArgu0());
-				int stepSize = (lpmStart-lpmStop) / 100;
-				int stepProgress = (lpmStart-lpmLevel) / stepSize;
-				if (stepProgress<0 | stepProgress>100) {
-					stepProgress=0;
-				}
-				progressBar.setValue(stepProgress);
 			}
 		}
 	}
@@ -1168,7 +1280,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				}
 				if (runTune | runLoop) {
 					requestLpm();
-					updateProgress = true;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

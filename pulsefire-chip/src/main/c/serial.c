@@ -55,7 +55,7 @@ void Serial_printChar(char* dstring) {
 	}
 }
 void Serial_println(void) {
-  Serial_print('\n');
+	Serial_print('\n');
 }
 
 // short cuts to make code a bit smaller
@@ -280,7 +280,7 @@ void cmd_print_info_chip(void) {
 #ifdef SF_ENABLE_DEBUG
 	Serial_printCharP(pmChipFlagDEBUG);
 #endif
-	Serial_printCharP(Chip_cpu_type()); // also print cpu type as flag.(=last because of no space after stringc cpu type)
+	Serial_printCharP(Chip_cpu_type()); // also print cpu type as flag.(=last because of no space after string cpu type)
 	Serial_println();
 	Serial_println_done_P(pmCmdInfoChip);
 }
@@ -406,11 +406,11 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_println_done_P(pmCmdInfoPPM);
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPWM)) == ZERO) {
-		Serial_printCharP(pmCmdInfoPWMSteps);
+		Serial_printCharP(pmCmdInfoPWMSize);
 		Serial_printCharP(pmGetSpaced);
-		Serial_printDec(pf_data.pwm_data_max);
+		Serial_printDec(pf_data.pwm_data_size);
 		Serial_println();
-		for (i=ZERO;i < pf_data.pwm_data_max;i++) {
+		for (i=ZERO;i < pf_data.pwm_data_size;i++) {
 			uint16_t data_out = pf_data.pwm_data[i][PWM_DATA_OUT];
 			uint16_t data_cnt = pf_data.pwm_data[i][PWM_DATA_CNT];
 			Serial_printCharP(pmCmdInfoPWMData);
@@ -738,10 +738,19 @@ void Serial_loop(void) {
 
 void Serial_setup(void) {
 	pf_data.cmd_process  = ONE; // rm me
+	pf_data.cmd_buff_idx = ZERO;
+	//pf_data.send_buff_idx = ZERO;
 
 	// delay is needed else we get junk on terminal.
 	Chip_delay(100);
-	Serial_println();
-	Serial_printCharP(pmPromt);
+	Serial_println();Serial_printCharP(pmPromt);
+	/*
+	Chip_delay(1000);
+	Serial_println();Serial_printCharP(pmPromt);
+	Chip_delay(1000);
+	Serial_println();Serial_printCharP(pmPromt);
+	Chip_delay(1000);
+	Serial_println();Serial_printCharP(pmPromt);
+	*/
 }
 

@@ -22,11 +22,10 @@ CFLAGS += -I./..
 CFLAGS += -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -Os
-#CFLAGS += -mcall-prologues // AVR cc flag
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
-#CFLAGS += -fpack-struct // warning on arm
-#CFLAGS += -fshort-enums // gives packed warning on arm
+CFLAGS += -ffunction-sections
+CFLAGS += -fpack-struct # warning on arm
 CFLAGS += -fno-unit-at-a-time
 CFLAGS += -fno-inline-small-functions
 CFLAGS += -fno-split-wide-types
@@ -34,15 +33,17 @@ CFLAGS += -fno-tree-scev-cprop
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wfloat-equal
-CFLAGS += -ffunction-sections
 CFLAGS += -Wunreachable-code
 CFLAGS += -Wsign-compare
 
-# Minimalistic printf version
-PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
+# Wrap flags to compiler
+AVRFLAGS = $(CFLAGS)
+ARMFLAGS = $(CFLAGS)
 
-# Minimalistic scanf version
-SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
+# Add compiler flags
+AVRFLAGS += -mtiny-stack      # use 8 bit stack pointer
+AVRFLAGS += -mcall-prologues  # make smaller code for stack frame saving.
+AVRFLAGS += -fshort-enums     # gives packed warning on arm
 
 #---------------- Linker Options ----------------
 # -Wl,...: tell GCC to pass this to linker.
@@ -50,7 +51,6 @@ SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
 # --cref: add cross reference to map file
 # -lm use special avr math lib
 LDFLAGS = -Wl,-Map=$(TPATH)/$(TARGET)/$(PF).map,--cref
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB)
 
 #---------------- Programming Options (avrdude) ----------------
 #
@@ -58,7 +58,6 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB)
 # to get a full listing.
 #
 ISP_PORT = /dev/ttyACM0
-#or /dev/ttyACM0
 
 #ISP_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #ISP_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
@@ -101,7 +100,7 @@ ARM_CC = ~/bin/arm-gcc/bin/arm-none-eabi-gcc
 ARM_OBJCOPY = ~/bin/arm-gcc/bin/arm-none-eabi-objcopy
 
 # Define all src files.
-SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./adc.c ./dic.c ./sys.c ./lcd.c ./lpm.c ./mal.c ./pwm.c ./ptc.c ./ptt.c ./stv.c ./vsc.c ./serial.c ./utils.c 
+SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./adc.c ./dic.c ./sys.c ./lcd.c ./mal.c ./pwm.c ./ptc.c ./ptt.c ./stv.c ./vsc.c ./serial.c ./utils.c 
 
 all: \
 atmega328p-1601 \
@@ -114,8 +113,6 @@ atmega328p-2002 \
 atmega328p-2003 \
 atmega328p-2004 \
 atmega328p-2091 \
-atmega168p-1601 \
-atmega168p-1602 \
 atmega168p-1691 \
 atmega1280-1601 \
 atmega1280-1602 \
@@ -150,7 +147,7 @@ atmega328p-1601: TARGET = atmega328p-1601
 atmega328p-1601: $(TPATH)/atmega328p-1601/pulsefire.hex
 $(TPATH)/atmega328p-1601/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-1601-isp: atmega328p-1601
@@ -176,7 +173,7 @@ atmega328p-1602: TARGET = atmega328p-1602
 atmega328p-1602: $(TPATH)/atmega328p-1602/pulsefire.hex
 $(TPATH)/atmega328p-1602/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-1602-isp: atmega328p-1602
@@ -202,7 +199,7 @@ atmega328p-1603: TARGET = atmega328p-1603
 atmega328p-1603: $(TPATH)/atmega328p-1603/pulsefire.hex
 $(TPATH)/atmega328p-1603/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-1603-isp: atmega328p-1603
@@ -229,7 +226,7 @@ atmega328p-1604: TARGET = atmega328p-1604
 atmega328p-1604: $(TPATH)/atmega328p-1604/pulsefire.hex
 $(TPATH)/atmega328p-1604/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-1604-isp: atmega328p-1604
@@ -249,7 +246,7 @@ atmega328p-1691: TARGET = atmega328p-1691
 atmega328p-1691: $(TPATH)/atmega328p-1691/pulsefire.hex
 $(TPATH)/atmega328p-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-1691-isp: atmega328p-1691
@@ -274,7 +271,7 @@ atmega328p-2001: TARGET = atmega328p-2001
 atmega328p-2001: $(TPATH)/atmega328p-2001/pulsefire.hex
 $(TPATH)/atmega328p-2001/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-2001-isp: atmega328p-2001
@@ -300,7 +297,7 @@ atmega328p-2002: TARGET = atmega328p-2002
 atmega328p-2002: $(TPATH)/atmega328p-2002/pulsefire.hex
 $(TPATH)/atmega328p-2002/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-2002-isp: atmega328p-2002
@@ -326,7 +323,7 @@ atmega328p-2003: TARGET = atmega328p-2003
 atmega328p-2003: $(TPATH)/atmega328p-2003/pulsefire.hex
 $(TPATH)/atmega328p-2003/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-2003-isp: atmega328p-2003
@@ -353,7 +350,7 @@ atmega328p-2004: TARGET = atmega328p-2004
 atmega328p-2004: $(TPATH)/atmega328p-2004/pulsefire.hex
 $(TPATH)/atmega328p-2004/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-2004-isp: atmega328p-2004
@@ -373,7 +370,7 @@ atmega328p-2091: TARGET = atmega328p-2091
 atmega328p-2091: $(TPATH)/atmega328p-2091/pulsefire.hex
 $(TPATH)/atmega328p-2091/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega328p-2091-isp: atmega328p-2091
@@ -389,55 +386,6 @@ atmega328p-2091-isp: avr-flash
 #====================================
 #
 
-atmega168p-1601: MCU = atmega168p
-atmega168p-1601: F_CPU = 16000000
-atmega168p-1601: CFLAGS += -mmcu=$(MCU)
-atmega168p-1601: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-1601: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-1601: PFLAGS += -DSF_ENABLE_PTC0
-atmega168p-1601: PFLAGS += -DSF_ENABLE_PTT
-atmega168p-1601: PFLAGS += -DSF_ENABLE_STV
-atmega168p-1601: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-1601: PFLAGS += -DSF_ENABLE_VSC0
-atmega168p-1601: TARGET = atmega168p-1601
-atmega168p-1601: $(TPATH)/atmega168p-1601/pulsefire.hex
-$(TPATH)/atmega168p-1601/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-1601-isp: atmega168p-1601
-atmega168p-1601-isp: TARGET = atmega168p-1601
-atmega168p-1601-isp: ISP_MCU = m168p
-atmega168p-1601-isp: ISP_PROG = arduino
-atmega168p-1601-isp: avr-flash
-
-
-atmega168p-1602: MCU = atmega168p
-atmega168p-1602: F_CPU = 16000000
-atmega168p-1602: CFLAGS += -mmcu=$(MCU)
-atmega168p-1602: PFLAGS += -DSF_ENABLE_PWM
-atmega168p-1602: PFLAGS += -DSF_ENABLE_ADC
-atmega168p-1602: PFLAGS += -DSF_ENABLE_PTC0
-atmega168p-1602: PFLAGS += -DSF_ENABLE_PTT
-atmega168p-1602: PFLAGS += -DSF_ENABLE_STV
-atmega168p-1602: PFLAGS += -DSF_ENABLE_VFC
-atmega168p-1602: PFLAGS += -DSF_ENABLE_VSC0
-atmega168p-1602: PFLAGS += -DSF_ENABLE_SPI
-atmega168p-1602: TARGET = atmega168p-1602
-atmega168p-1602: $(TPATH)/atmega168p-1602/pulsefire.hex
-$(TPATH)/atmega168p-1602/pulsefire.hex:
-	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
-	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
-
-atmega168p-1602-isp: atmega168p-1602
-atmega168p-1602-isp: TARGET = atmega168p-1602
-atmega168p-1602-isp: ISP_MCU = m168p
-atmega168p-1602-isp: ISP_PROG = arduino
-atmega168p-1602-isp: avr-flash
-
-
 atmega168p-1691: MCU = atmega168p
 atmega168p-1691: F_CPU = 16000000
 atmega168p-1691: CFLAGS += -mmcu=$(MCU)
@@ -448,7 +396,7 @@ atmega168p-1691: TARGET = atmega168p-1691
 atmega168p-1691: $(TPATH)/atmega168p-1691/pulsefire.hex
 $(TPATH)/atmega168p-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega168p-1691-isp: atmega168p-1691
@@ -481,7 +429,7 @@ atmega1280-1601: TARGET = atmega1280-1601
 atmega1280-1601: $(TPATH)/atmega1280-1601/pulsefire.hex
 $(TPATH)/atmega1280-1601/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega1280-1601-isp: atmega1280-1601
@@ -509,7 +457,7 @@ atmega1280-1602: TARGET = atmega1280-1602
 atmega1280-1602: $(TPATH)/atmega1280-1602/pulsefire.hex
 $(TPATH)/atmega1280-1602/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega1280-1602-isp: atmega1280-1602
@@ -538,7 +486,7 @@ atmega1280-1603: TARGET = atmega1280-1603
 atmega1280-1603: $(TPATH)/atmega1280-1603/pulsefire.hex
 $(TPATH)/atmega1280-1603/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega1280-1603-isp: atmega1280-1603
@@ -568,7 +516,7 @@ atmega1280-1604: TARGET = atmega1280-1604
 atmega1280-1604: $(TPATH)/atmega1280-1604/pulsefire.hex
 $(TPATH)/atmega1280-1604/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega1280-1604-isp: atmega1280-1604
@@ -589,7 +537,7 @@ atmega1280-1691: TARGET = atmega1280-1691
 atmega1280-1691: $(TPATH)/atmega1280-1691/pulsefire.hex
 $(TPATH)/atmega1280-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega1280-1691-isp: atmega1280-1691
@@ -617,7 +565,7 @@ atmega2560-1601: TARGET = atmega2560-1601
 atmega2560-1601: $(TPATH)/atmega2560-1601/pulsefire.hex
 $(TPATH)/atmega2560-1601/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega2560-1601-isp: atmega2560-1601
@@ -646,7 +594,7 @@ atmega2560-1602: TARGET = atmega2560-1602
 atmega2560-1602: $(TPATH)/atmega2560-1602/pulsefire.hex
 $(TPATH)/atmega2560-1602/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega2560-1602-isp: atmega2560-1602
@@ -675,7 +623,7 @@ atmega2560-1603: TARGET = atmega2560-1603
 atmega2560-1603: $(TPATH)/atmega2560-1603/pulsefire.hex
 $(TPATH)/atmega2560-1603/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega2560-1603-isp: atmega2560-1603
@@ -705,7 +653,7 @@ atmega2560-1604: TARGET = atmega2560-1604
 atmega2560-1604: $(TPATH)/atmega2560-1604/pulsefire.hex
 $(TPATH)/atmega2560-1604/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega2560-1604-isp: atmega2560-1604
@@ -726,7 +674,7 @@ atmega2560-1691: TARGET = atmega2560-1691
 atmega2560-1691: $(TPATH)/atmega2560-1691/pulsefire.hex
 $(TPATH)/atmega2560-1691/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(AVRFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 atmega2560-1691-isp: atmega2560-1691
@@ -753,7 +701,7 @@ arm-lpc1343-7201: TARGET = arm-lpc1343-7201
 arm-lpc1343-7201: $(TPATH)/arm-lpc1343-7201/pulsefire.hex
 $(TPATH)/arm-lpc1343-7201/pulsefire.hex:
 	mkdir -p $(TPATH)/$(TARGET)
-	$(ARM_CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(CFLAGS) $(PFLAGS) $(LDFLAGS)
+	$(ARM_CC) $(SOURCE) -o $(TPATH)/$(TARGET)/$(PF).elf $(ARMFLAGS) $(PFLAGS) $(LDFLAGS)
 	$(ARM_OBJCOPY) -O ihex -R .eeprom $(TPATH)/$(TARGET)/$(PF).elf $(TPATH)/$(TARGET)/$(PF).hex
 
 

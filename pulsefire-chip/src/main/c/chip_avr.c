@@ -614,13 +614,6 @@ ISR(USART_RX_vect) {
 	Serial_rx_int(UDR0);
 }
 
-ISR(TIMER2_COMPA_vect) {
+ISR(BADISR_vect) {
+	pf_data.sys_bad_isr++;
 }
-
-ISR(TIMER2_COMPB_vect) {
-}
-
-ISR(TIMER2_OVF_vect) {
-}
-
-

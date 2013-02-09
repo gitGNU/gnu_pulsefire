@@ -24,71 +24,63 @@
 package org.nongnu.pulsefire.device.ui.components;
 
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
-import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
- * JCommandDial
+ * JCommandSpinner
  * 
  * @author Willem Cazander
  */
-public class JCommandDial extends JPanel implements DialListener,DeviceCommandListener,DeviceConnectListener {
+public class JCommandSpinner extends JPanel implements DeviceCommandListener,DeviceConnectListener, ChangeListener {
 
 	private static final long serialVersionUID = -2345234552345789002L;
-	private JFireDial fireDial = null;
+	private JSpinner spinner = null;
+	private SpinnerNumberModel spinnerModel = null;
 	private DeviceWireManager deviceManager = null;
 	private Command command = null;
 	private int idx = -1;
 	volatile private boolean noEvent = false;
 	
-	public JCommandDial(CommandName commandName) {
+	public JCommandSpinner(CommandName commandName) {
 		this(commandName,-1);
 	}
 	
-	public JCommandDial(CommandName commandName,int idx) {
+	public JCommandSpinner(CommandName commandName,int idx) {
 		super();
 		this.idx=idx;
 		deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		command = new Command(commandName);
-		fireDial = new JFireDial();
-		fireDial.setName("commandname."+commandName.name()+".firedial");
-		fireDial.setMaximum(commandName.getMaxValue());
-		fireDial.addDialListener(this);
+		long stepSize = 1l;
+		long maximum = commandName.getMaxValue();
+		long minimum = 0l;
+		long value = 0l;
+		spinnerModel = new SpinnerNumberModel(new Long(value), new Long(minimum), new Long(maximum), new Long(stepSize));
+		spinner = new JSpinner(spinnerModel);
+		spinner.setName("commandname."+commandName.name()+".spinner");
+		spinner.addChangeListener(this);
 		if (idx!=-1) {
-			JComponentEnableStateListener.attach(fireDial,commandName,idx);
+			JComponentEnableStateListener.attach(spinner,commandName,idx);
 		} else {
-			JComponentEnableStateListener.attach(fireDial,commandName);
+			JComponentEnableStateListener.attach(spinner,commandName);
 		}
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
 		deviceManager.addDeviceConnectListener(this);
-		add(fireDial);
-	}
-	
-	@Override
-	public void dialAdjusted( DialEvent e ) {
-		long v = e.getValue();
-		command.setArgu0(""+v);
-		if (idx!=-1) {
-			command.setArgu1(""+idx);
-		}
-		if (noEvent==false) {
-			deviceManager.requestCommand(command);
-		}
+		add(spinner);
 	}
 	
 	@Override
 	public void commandReceived(Command command) {
-		if (fireDial.isMouseDialing()) {
-			return; // skip until mouse is released
-		}
 		if (command.getArgu0()==null) {
 			return; // no value
 		}
@@ -97,7 +89,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		}
 		
 		Long valueNew = Long.parseLong(command.getArgu0());
-		Long valueOld = fireDial.getValue();
+		Long valueOld = (Long)spinnerModel.getValue();
 		if (valueNew==valueOld) {
 			return; // no change
 		}
@@ -112,7 +104,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		}
 		try {
 			noEvent = true;
-			fireDial.setValue(valueNew);
+			spinnerModel.setValue(valueNew);
 		} finally {
 			noEvent = false;
 		}
@@ -122,16 +114,24 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 	public void deviceConnect() {
 		long maxValue = command.getCommandName().getMaxValue();
 		if (maxValue==0) {
-			maxValue = Integer.MAX_VALUE;
+			maxValue = Long.MAX_VALUE;
 		}
-		fireDial.setMaximum(maxValue);
+		spinnerModel.setMaximum(maxValue);
 	}
 
 	@Override
 	public void deviceDisconnect() {
 	}
-	
-	public JFireDial getFireDial() {
-		return fireDial;
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		Long v = (Long)spinnerModel.getValue();
+		command.setArgu0(""+v);
+		if (idx!=-1) {
+			command.setArgu1(""+idx);
+		}
+		if (noEvent==false) {
+			deviceManager.requestCommand(command);
+		}
 	}
 }

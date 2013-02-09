@@ -124,6 +124,10 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		if (CommandName.mal_fire.isDisabled()) {
 			return;
 		}
+		Command flags = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.chip_flags);
+		if (flags==null || flags.getArgu0().contains("MAL")==false ) {
+			return;
+		}
 		fireIndexBox.removeAllItems();
 		for (int i=0;i<CommandName.mal_fire.getMaxIndexA();i++) {
 			fireIndexBox.addItem(i);
@@ -153,8 +157,8 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 			for (Byte b:programData) {
 				byte high = (byte) ( (b & 0xf0) >> 4);
 				byte low =  (byte)   (b & 0x0f);
-				buf.append(nibble2char(high));
-				buf.append(nibble2char(low));
+				buf.append(CommandName.nibble2hex(high));
+				buf.append(CommandName.nibble2hex(low));
 			}
 			//System.out.println("mm save: "+buf.toString());
 			// todo make dialog progress bar
@@ -198,14 +202,6 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		
 	}
 	
-	private static char nibble2char(byte b) {
-		byte nibble = (byte) (b & 0x0f);
-		if (nibble < 10) {
-			return (char) ('0' + nibble);
-		}
-		return (char) ('A' + nibble - 10);
-	}
-
 	@Override
 	public void commandReceived(Command command) {
 		

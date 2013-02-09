@@ -49,7 +49,7 @@ public class EventTimeThread extends Thread {
 			logger.info("EventTimer started");
 			long events = 0;
 			while (running) {
-				Thread.sleep(100);
+				Thread.sleep(50);
 				List<EventTimeTrigger> executeSteps = eventTimeManager.getEventExecuteSteps();
 				for (int i=0;i<executeSteps.size();i++) {
 					EventTimeTrigger trig = executeSteps.get(i);

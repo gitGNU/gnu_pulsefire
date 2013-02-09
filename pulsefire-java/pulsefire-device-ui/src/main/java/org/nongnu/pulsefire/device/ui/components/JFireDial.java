@@ -55,22 +55,22 @@ public class JFireDial extends JComponent  {
 	private boolean mouseDialing = false;
 	private boolean entered = false;
 	private String text = null;
-	private int value = 0;
-	private int valueOld = 0;
-	private int valueMin = 0;
-	private int valueMax = 0;
+	private long value = 0;
+	private long valueOld = 0;
+	private long valueMin = 0;
+	private long valueMax = 0;
 	private int radiusSize = 0;
 	private int dotIndex = -1;
 	private int spinStartX = 0;
 	private int spinStartY = 0;
-	private int spinStartValue = 0;
+	private long spinStartValue = 0;
 	static private Popup globalPopup = null; 
 	
 	public JFireDial() {
-		this(0,100,0);
+		this(0l,100l,0l);
 	}
 	
-	public JFireDial(int minValue, int maxValue, int value) {
+	public JFireDial(long minValue, long maxValue, long value) {
 		setMinimum(minValue);
 		setMaximum(maxValue);
 		setValue(value);
@@ -131,7 +131,7 @@ public class JFireDial extends JComponent  {
 		PopupFactory factory = PopupFactory.getSharedInstance();
 
 		globalPopup = factory.getPopup( ((JFireDial)e.getSource()).getRootPane(),PopUpPanel,e.getXOnScreen()-10,e.getYOnScreen()-10);
-		JIntegerTextField textField = new JIntegerTextField(getValue(),10);
+		JIntegerTextField textField = new JIntegerTextField((int)getValue(),10);
 		textField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -152,8 +152,8 @@ public class JFireDial extends JComponent  {
 		
 		// Calc new value based on mouse x/y
 		double valueNewTh = Math.atan( ((1.0*e.getY()-radiusSize)/(e.getX()-radiusSize)) );
-		int valueNewOffset=(int)(valueNewTh/(2*Math.PI)*(valueMax-valueMin));
-		int valueNew = 0;
+		long valueNewOffset=(int)(valueNewTh/(2*Math.PI)*(valueMax-valueMin));
+		long valueNew = 0;
 		if (e.getX() < radiusSize) {
 			valueNew = valueNewOffset + (valueMax-valueMin)/2 + valueMin;
 		} else if (e.getY() < radiusSize) {
@@ -164,8 +164,8 @@ public class JFireDial extends JComponent  {
 		
 		// Calc start value based on spin start x/y
 		double valueStartTh = Math.atan( ((1.0*spinStartY-radiusSize)/(spinStartX-radiusSize)) );
-		int valueStartOffset=(int)(valueStartTh/(2*Math.PI)*(valueMax-valueMin));
-		int valueStart = 0;
+		long valueStartOffset=(int)(valueStartTh/(2*Math.PI)*(valueMax-valueMin));
+		long valueStart = 0;
 		if (spinStartX < radiusSize) {
 			valueStart = valueStartOffset + (valueMax-valueMin)/2 + valueMin;
 		} else if (spinStartY < radiusSize) {
@@ -175,8 +175,8 @@ public class JFireDial extends JComponent  {
 		}
 		
 		// Calc and set relative spin value
-		int valueChange = spinStartValue-valueStart;
-		int valueNewRelative = valueNew + valueChange;
+		long valueChange = spinStartValue-valueStart;
+		long valueNewRelative = valueNew + valueChange;
 		if (valueNewRelative < 0) {
 			valueNewRelative = valueMax + valueNewRelative;
 		} else if (valueNewRelative > valueMax) {
@@ -273,7 +273,7 @@ public class JFireDial extends JComponent  {
 		return mouseDialing;
 	}
 	
-	public void setValue( int valueSet ) {
+	public void setValue( long valueSet ) {
 		value = valueSet - valueMin;
 		if (value==valueOld) {
 			return;
@@ -283,19 +283,19 @@ public class JFireDial extends JComponent  {
 		fireDialEvent();
 	}
 	
-	public int getValue() {
+	public long getValue() {
 		return value+valueMin;
 	}
-	public void setMinimum(int minValue) {
+	public void setMinimum(long minValue) {
 		valueMin = minValue;
 	}
-	public int getMinimum() {
+	public long getMinimum() {
 		return valueMin;
 	}
-	public void setMaximum(int maxValue) {
+	public void setMaximum(long maxValue) {
 		valueMax = maxValue;
 	}
-	public int getMaximum() {
+	public long getMaximum() {
 		return valueMax;
 	}
 	
@@ -317,12 +317,12 @@ public class JFireDial extends JComponent  {
 
 	public class DialEvent extends EventObject {
 		private static final long serialVersionUID = -2060054863081294219L;
-		int value;
-		protected DialEvent( JFireDial source, int value ) {
+		private final long value;
+		protected DialEvent( JFireDial source, long value ) {
 			super(source);
 			this.value = value;
 		}
-		public int getValue() {
+		public long getValue() {
 			return value;
 		}
 	}

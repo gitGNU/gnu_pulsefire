@@ -70,18 +70,35 @@ public class UpdatePwmData implements Runnable,DeviceConnectListener,DeviceDataL
 
 	@Override
 	public void deviceDataReceived(String data) {
+		Command flags = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.chip_flags);
+		if (flags==null || flags.getArgu0()==null) {
+			return;
+		}
+		if (flags.getArgu0().contains("PWM")==false) {
+			return;
+		}
 		for (CommandName cn:CommandName.values()) {
 			if (cn.getBits() > 0) {
 				if ((cn.getBits() & 2) > 0) { // TODO add var bits enum
 					if (data.contains(cn.name())) {
 						update = true;
+						return;
+					}
+					if (data.startsWith(CommandName.byte2hex((byte)cn.getId()))) {
+						update = true; // Also check hex version, TODO: move to deviceCmd ALL listener
+						return;
 					}
 				}
 			}
 		}
 		// 2 extra for freq speed
-		if (data.startsWith(CommandName.pwm_clock.name()+"=") || data.startsWith(CommandName.pwm_loop.name()+"=")) {
+		if (data.startsWith(CommandName.pwm_clock.name()+"=") || data.startsWith(CommandName.pwm_loop.name()+"=") || data.startsWith(CommandName.pulse_enable.name()+"=")) {
 			update = true;
+			return;
+		}
+		if (data.startsWith(CommandName.byte2hex((byte)CommandName.pwm_clock.getId())) || data.startsWith(CommandName.byte2hex((byte)CommandName.pwm_loop.getId())) || data.startsWith(CommandName.byte2hex((byte)CommandName.pulse_enable.getId()))) {
+			update = true;
+			return;
 		}
 	}
 }

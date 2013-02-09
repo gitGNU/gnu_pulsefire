@@ -26,23 +26,14 @@
 #include "freq.h"
 
 #ifdef SF_ENABLE_PWM
-uint8_t convert_clock(uint8_t clockScaleMode) {
-	int clockScale = 1;
-	switch (clockScaleMode) {
-		case 1:  clockScale = 1;    break;
-		case 2:  clockScale = 8;    break;
-		case 3:  clockScale = 64;   break;
-		case 4:  clockScale = 256;  break;
-		case 5:  clockScale = 1024; break;
-		default: clockScale = 1;    break;
-	}
-	return clockScale;
-}
+
+#define FREQ_CLK_SCALE_SIZE (sizeof FREQ_CLK_SCALE / sizeof FREQ_CLK_SCALE[0])
+static int FREQ_CLK_SCALE[] = {1,8,64,256,1024 };
 
 uint8_t calc_pwm_duty(uint8_t idx) {
 	uint32_t pwm_cnt_total = ZERO;
 	uint32_t pwm_cnt_on_total = ZERO;
-	for (uint8_t i=ZERO;i <= pf_data.pwm_data_max-ONE;i++) {
+	for (uint8_t i=ZERO;i <= pf_data.pwm_data_size-ONE;i++) {
 		uint16_t pwm_data = pf_data.pwm_data[i][PWM_DATA_OUT];
 		uint16_t pwm_cnt  = pf_data.pwm_data[i][PWM_DATA_CNT];
 		pwm_cnt_total+=pwm_cnt;
@@ -53,54 +44,35 @@ uint8_t calc_pwm_duty(uint8_t idx) {
 	return pwm_cnt_on_total / (pwm_cnt_total / 100);
 }
 
-/*
-uint32_t calc_pwm_speed(uint8_t idx) {
-	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
-	uint8_t clockScale = convert_clock(clockScaleMode);
-	uint32_t pulseOn   = pf_conf.pwm_on_cnt_a[idx];
-	uint32_t pulseOff  = pf_conf.pwm_off_cnt_a[idx]; // convert to 32bit to prevent overflow
-	uint32_t freqCycle = 2*(pulseOn+pulseOff);
-	uint32_t freqTrain = ((F_CPU / clockScale) * FREQ_MUL) / freqCycle;
-	return freqTrain;
-}
-uint32_t calc_pwm_loop(uint8_t idx) {
-	return calc_pwm_speed(idx) / pf_conf.pwm_loop;
-}
-*/
-
 uint32_t calc_pwm_freq(uint8_t idx) {
-	uint8_t clockScaleMode = pf_conf.pwm_clock; //TCCR1B; // todo mask 3 bit
-	uint8_t clockScale = convert_clock(clockScaleMode);
+	uint16_t clock_div = ONE;
+	if (pf_conf.pwm_clock > ZERO && pf_conf.pwm_clock <= FREQ_CLK_SCALE_SIZE) {
+		clock_div = FREQ_CLK_SCALE[pf_conf.pwm_clock-ONE]; // 0 = stop, 1 = 1
+	}
 	uint32_t pwm_cnt_total = ZERO;
-	uint16_t steps_on = ZERO;
-	uint16_t steps_total = pf_data.pwm_data_max-ONE;
-	if (steps_total==ZERO) {
-			return ZERO;
-		}
-	for (uint8_t i=ZERO;i <= pf_data.pwm_data_max-ONE;i++) {
+	uint16_t step_pulses = ZERO;
+	uint16_t step_last = ZERO;
+	for (uint8_t i=ZERO;i < pf_data.pwm_data_size;i++) {
 		uint16_t pwm_data = pf_data.pwm_data[i][PWM_DATA_OUT];
 		uint16_t pwm_cnt  = pf_data.pwm_data[i][PWM_DATA_CNT];
-		if (((pwm_data >> idx) & ONE) > ZERO) {
-			steps_on++;
+		uint16_t step_out = ((pwm_data >> idx) & ONE);
+		if (step_out != step_last) {
+			step_pulses++;
 		}
+		step_last = step_out;
 		pwm_cnt_total+=pwm_cnt;
 	}
-	uint8_t loop = pf_conf.pwm_loop + ONE; // 0 = /1, 1=/2, 3=/3
-	uint32_t freqTrain = (F_CPU / clockScale / loop / pwm_cnt_total) * steps_on;
-	return freqTrain;
-	/*
-	uint8_t outs = pf_conf.pulse_steps;
-	if (pf_conf.pulse_mode == PULSE_MODE_FLASH) {
-		outs = ONE;
+	if (step_pulses==ZERO) {
+		return ZERO;
 	}
-	uint32_t cycleHz = calc_pwm_loop(idx) / outs;
-	return (cycleHz * 2); // goto hz.
-	*/
+	if (step_pulses==ONE) {
+		step_pulses++;
+	}
+
+	uint8_t loop = pf_conf.pwm_loop + ONE; // 0 = /1, 1=/2, 3=/3
+	uint32_t freqTrain = ((F_CPU*100) / clock_div / loop / pwm_cnt_total) * (step_pulses/2);
+	return freqTrain;
 }
-
-#define CLK_SCALE_SIZE (sizeof CLK_SCALE / sizeof CLK_SCALE[0])
-static int CLK_SCALE[] = {1,8,64,256,1024 };
-
 
 void Freq_requestTrainFreq(void) {
 	uint32_t freq = pf_conf.pwm_req_freq;
@@ -116,6 +88,7 @@ void Freq_requestTrainFreq(void) {
 	freq *= 2; // double to hz.
 	//freq *= pf_conf.pulse_steps; // multiply to one output.
 
+	// Get variable ids.
 	uint8_t pwmLoopIdx   = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_loop);
 	uint8_t pwmClockIdx  = Vars_getIndexFromPtr((CHIP_PTR_TYPE*)&pf_conf.pwm_clock);
 	uint8_t pwmOnCntIdx  = ZERO;
@@ -129,18 +102,18 @@ void Freq_requestTrainFreq(void) {
 	}
 
 	// use pwm_loop to divede by 10 and make bigger so _delta works nice.
-	uint16_t pwmLoop = pf_conf.pulse_steps; // * FREQ_MUL
+	uint16_t pwmLoop = ZERO; // pf_conf.pulse_steps; // * FREQ_MUL
 	// freq to low for prescale+tcnt so must use higher train_loop
 	uint32_t preFreq = (F_CPU*10)/1024/freq; // 1024 is max clock diveder
-	if ( preFreq > 0xFF00)       { pwmLoop *= 2;
+	if ( preFreq > 0xFF00)       { pwmLoop = 1;
 		if ( preFreq/2 > 0xFF00)   { pwmLoop *= 2;
 			if ( preFreq/4 > 0xFF00) { pwmLoop *= 2; }
 		}
 	}
 	
 	// Search for best clock divider
-	for (uint8_t i = ZERO; i < CLK_SCALE_SIZE; i++) {
-		uint32_t tcntDivCalc = (F_CPU*10)/CLK_SCALE[i]/freq;
+	for (uint8_t i = ZERO; i < FREQ_CLK_SCALE_SIZE; i++) {
+		uint32_t tcntDivCalc = (F_CPU*10)/FREQ_CLK_SCALE[i]/freq;
 		if (tcntDivCalc < 0xFF00) {
 			Vars_setValue(pwmClockIdx,0,0,i+ONE); // update pwm_clock
 			break;
@@ -148,7 +121,7 @@ void Freq_requestTrainFreq(void) {
 	}
 
 	// Calc on time
-	uint16_t compaValue = (F_CPU*10)/CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
+	uint16_t compaValue = (F_CPU*10)/FREQ_CLK_SCALE[pf_conf.pwm_clock-ONE]/freq;
 
 	// Calc off time from duty
 	uint8_t duty = pf_conf.pwm_req_duty;

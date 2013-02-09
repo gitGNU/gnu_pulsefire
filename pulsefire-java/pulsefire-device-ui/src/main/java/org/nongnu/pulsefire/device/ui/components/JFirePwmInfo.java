@@ -88,7 +88,7 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 		//g2.drawRect(0, 0, w-1, h-1);
 		
 		Command pulseStepsCommand = deviceData.getDeviceParameter(CommandName.pulse_steps);
-		Command pwmStepsCommand = deviceData.getDeviceParameter(CommandName.info_pwm_steps);
+		Command pwmStepsCommand = deviceData.getDeviceParameter(CommandName.info_pwm_size);
 		if (pwmStepsCommand==null) {
 			g2.setPaint(pulseColor);
 			for (int i=0;i<displayText.length;i++) {
@@ -161,11 +161,13 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 		
 		g2.setPaint(pulseColor);
 		for (int y=0;y<yLines;y++) {
-			g2.drawString("Out: "+y, 3, yOffset+yLine*y+yLine);
+			g2.drawString("Out: "+y, 3, yOffset+yLine*y+yLine - 2);
 			Command freqData = deviceData.getDeviceParameterIndexed(CommandName.info_freq_data,y);
 			if (freqData!=null && w>400 && yLine>40) {
-				g2.drawString("F: "+freqData.getArgu2(), 3, yOffset+yLine*y+yLine - 20);
-				g2.drawString("D: "+freqData.getArgu1(), 3, yOffset+yLine*y+yLine - 10);
+				Long f = Long.parseLong(freqData.getArgu2());
+				Double d = f/100d;
+				g2.drawString("F: "+d, 3, yOffset+yLine*y+yLine - 24);
+				g2.drawString("D: "+freqData.getArgu1()+"%", 3, yOffset+yLine*y+yLine - 13);
 			}
 			Boolean levelOrg = null;
 			xPrefix = 0;

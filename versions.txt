@@ -47,6 +47,8 @@ Version 1.1.0:
 - Changed PTC speed from 10hz to 20hz with ptc_Xmul=0.
 - Added req_tx_hex for faster cmd rate, so over 1000 cmd/sec is done.
 - Added sys_uptime and sys_speed indicators.
+- Removed all but one 168p images which where to big.(>15kb)
+- Changed adc_jitter to 8bit value.
 
 
 Version 1.0.4:

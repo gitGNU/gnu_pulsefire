@@ -35,10 +35,16 @@ public class CommandNameVersionFactory {
 	static public void configCommandId(int version,CommandName commandName,int value) {
 		commandName.id=value;
 	}
+	static public void configCommandBitType(int version,CommandName commandName,int value) {
+		commandName.bitType=value;
+	}
 	static public void configCommandBits(int version,CommandName commandName,int value) {
 		commandName.bits=value;
 	}
-	static public void configCommandMax(int version,CommandName commandName,int value) {
+	static public void configCommandMax(int version,CommandName commandName,long value) {
+		if ((commandName.bitType & 3) == 3) {
+			value = Integer.MAX_VALUE*2; // 32bit 
+		}
 		commandName.maxValue=value;
 	}
 	static public void configCommandMapIndex(int version,CommandName commandName,int value) {

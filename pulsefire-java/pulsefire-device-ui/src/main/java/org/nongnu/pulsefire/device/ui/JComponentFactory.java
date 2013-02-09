@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.nongnu.pulsefire.device.ui.components.JFireBorder;
+import org.nongnu.pulsefire.device.ui.components.JFireDial;
 
 /**
  * JComponentFactory
@@ -102,6 +103,20 @@ public class JComponentFactory {
 			}
 		});
 		return textField;
+	}
+	
+	static public JFireDial createSettingsJFireDial(final PulseFireUISettingKeys key,int minValue, int maxValue) {
+		final JFireDial fireDial = new JFireDial(minValue,maxValue,PulseFireUI.getInstance().getSettingsManager().getSettingInteger(key));
+		fireDial.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, ""+fireDial.getValue());
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
+			}
+		});
+		return fireDial;
 	}
 	
 	

@@ -53,8 +53,6 @@
 // Defaut config values (init or after reset_conf)
 #define DEFAULT_SYS_ADC_JITTER      3    // Minimal adc value change to remove jitter
 #define DEFAULT_SYS_WARMUP_DUTY     5    // Default duty wait multiplyer for soft warmup
-#define DEFAULT_LPM_START        1000    // Some value to start messuring
-#define DEFAULT_LPM_STOP          800    // Some value when to stop, which defines size
 #define DEFAULT_PULSE_DATA_INIT     1    // Start with output 0 set to high
 #define DEFAULT_PULSE_STEPS         3    // Default start with 3 outputs because of lowest max outputs in SF_ config.
 #define DEFAULT_PPM_DATA        21845    // 50% pulse rate example data
@@ -66,6 +64,7 @@
 #if (__AVR_ATmega1280__ || __AVR_ATmega2560__)
 	#define SF_ENABLE_AVR_MEGA           // Define avr mega
 	#define CHIP_EEPROM_SIZE       4096  // 4096 bytes eeprom
+	#define SYS_VVX_MAP_MAX           8  // Limit meta var values
 	#define INT_MAP_MAX               4  // Set variables on interrupt.
 	#define MAL_CODE_SIZE           512  // Micro asm program code size
 	#define MAL_FIRE_MAX              6  // Micro fire jump table
@@ -81,10 +80,10 @@
 	#define STV_ERROR_MAP_MAX         6  // Mapping of safety error action
 	#define DEV_VAR_MAX               6  // Generic device variables
 	#define VFC_MAP_MAX              12  // Virtual feedback channels  // NOTE: All these mega max are also ~max for gui support for layout issues.
-	#define LPM_RELAY_MAP_MAX         2  // Output mapping for relay pin
 #elif __AVR_ATmega328P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom
+	#define SYS_VVX_MAP_MAX           2
 	#define INT_MAP_MAX               2
 	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
@@ -100,12 +99,12 @@
 	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               2
 	#define VFC_MAP_MAX               3
-	#define LPM_RELAY_MAP_MAX         1
 #elif __AVR_ATmega168P__
 	#define SF_ENABLE_AVR                // Define AVR
 	#define CHIP_EEPROM_SIZE        512  // 512 bytes eeprom
+	#define SYS_VVX_MAP_MAX           1
 	#define INT_MAP_MAX               1
-	#define MAL_CODE_SIZE            24  // note: if all on then config is >512 so todo: check smaller builds.
+	#define MAL_CODE_SIZE            64  // note: if all on then config is >512 (now pwm is off in 168p else >16kb)
 	#define MAL_FIRE_MAX              1
 	#define FIRE_MAP_MAX              1
 	#define ADC_MAP_MAX               6
@@ -119,10 +118,10 @@
 	#define STV_ERROR_MAP_MAX         1
 	#define DEV_VAR_MAX               1
 	#define VFC_MAP_MAX               1
-    #define LPM_RELAY_MAP_MAX         1
 #elif __ARM_ARCH_7M__
 	#define SF_ENABLE_ARM_7M             // Define ARM
 	#define CHIP_EEPROM_SIZE       1024  // 1024 bytes eeprom (7m has no eeprom?)
+	#define SYS_VVX_MAP_MAX           2
 	#define INT_MAP_MAX               2
 	#define MAL_CODE_SIZE            64
 	#define MAL_FIRE_MAX              2
@@ -138,7 +137,6 @@
 	#define STV_ERROR_MAP_MAX         2
 	#define DEV_VAR_MAX               2
 	#define VFC_MAP_MAX               3
-    #define LPM_RELAY_MAP_MAX         1
 #else
 	#error "Don't know how to run on your MCU_TYPE."
 #endif

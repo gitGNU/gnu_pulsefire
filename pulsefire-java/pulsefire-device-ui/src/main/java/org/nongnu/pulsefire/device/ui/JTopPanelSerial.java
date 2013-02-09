@@ -105,15 +105,15 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		versionLabel = new JLabel("");
 		serialInfoPanel.add(versionLabel);
 		dataTxCounter = new JLabel();
-		dataTxCounter.setPreferredSize(new Dimension(80,15));
+		dataTxCounter.setPreferredSize(new Dimension(90,15));
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"dataTxCounter"));
 		serialInfoPanel.add(dataTxCounter);
 		dataRxCounter = new JLabel();
-		dataRxCounter.setPreferredSize(new Dimension(80,15)); // Removes screen update jitter on the right side of the label
+		dataRxCounter.setPreferredSize(new Dimension(90,15)); // Removes screen update jitter on the right side of the label
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"dataRxCounter"));
 		serialInfoPanel.add(dataRxCounter);
 		dataRxsCounter = new JLabel();
-		dataRxsCounter.setPreferredSize(new Dimension(80,15)); // Removes screen update jitter on the right side of the label
+		dataRxsCounter.setPreferredSize(new Dimension(90,15));
 		serialInfoPanel.add(JComponentFactory.createJLabel(this,"dataRxsCounter"));
 		serialInfoPanel.add(dataRxsCounter);
 		SpringLayoutGrid.makeCompactGrid(serialInfoPanel,4,2);
@@ -194,6 +194,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 	public void deviceDisconnect() {
 		portsComboBox.setEnabled(true);
 		connectButtton.setText("Connect");
+		connectButtton.setEnabled(false);
 		versionLabel.setText("");
 		txBytes = 0;
 		rxBytes = 0;
@@ -201,6 +202,12 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		rxCmdSpeed = 0;
 		updateCounters();
 		updateSpeedCounters();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				connectButtton.setEnabled(true); // small delay ..
+			}
+		});
 	}
 
 	@Override

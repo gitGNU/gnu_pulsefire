@@ -74,6 +74,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	public JSplitPane bottomLogSplitPane = null;
 	public AbstractFireTabPanel uiLogPanel = null;
 	public AbstractFireTabPanel scopePanel = null;
+	public AbstractFireTabPanel lpmPanel = null;
 	public JTopPanelSerial topPanelSerial = null;
 	
 	public JMainPanel() {
@@ -91,7 +92,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabPanels.add(new JTabPanelPtt());
 		tabPanels.add(new JTabPanelVfc());
 		tabPanels.add(new JTabPanelMal());
-		tabPanels.add(new JTabPanelLpm());
 		tabPanels.add(new JTabPanelGraphs());
 		tabPanels.add(new JTabPanelVariables());
 		tabPanels.add(new JTabPanelSettings());
@@ -104,6 +104,10 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			scopePanel = new JTabPanelScope(); 
 			tabPanels.add(scopePanel);
 		}
+		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.TAB_LPM_ENABLE)) {
+			lpmPanel = new JTabPanelLpm(); 
+			tabPanels.add(lpmPanel);
+		}
 		
 		JPanel main = this; //new JPanel(); //new ContentPanel(this);
 		main.setLayout(new BorderLayout());
@@ -112,6 +116,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_UILOG_ENABLE, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_SCOPE_ENABLE, this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_LPM_ENABLE, this);
 	}
 	
 	private JPanel createTop() {
@@ -197,6 +202,20 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 					removeTabPanel(uiLogPanel);
 					uiLogPanel.release(); // remove listeners.
 					uiLogPanel = null;
+				}
+			}
+		} else if (PulseFireUISettingKeys.TAB_LPM_ENABLE==key) {
+			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
+				if (lpmPanel==null) {
+					lpmPanel = new JTabPanelLpm();
+					Component pane = createJScrollPane(lpmPanel);
+					tabbedPane.addTab(lpmPanel.getTabName(),lpmPanel.getTabIcon(),pane,lpmPanel.getTabTooltip());
+				}
+			} else {
+				if (lpmPanel!=null) {
+					removeTabPanel(lpmPanel);
+					lpmPanel.release(); // remove listeners.
+					lpmPanel = null;
 				}
 			}
 		}

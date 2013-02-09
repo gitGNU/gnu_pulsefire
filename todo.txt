@@ -10,7 +10,6 @@ ERRATA:
 
 CHIP:
 - Add menu support for map variables.
-- add hex id serial mode instead of acsii value of variable.
 - Added more commands/tests to MAL
 - Added nested if support in mal
 - Port to arm7
@@ -21,10 +20,9 @@ CHIP PF_VARS:
 	- (DONE) inverse nolimit flag in
 	- (DONE) Fix 32 bit variables set.
 	- (DONE) Move idxA,idxB size in PF_VARS to type size column
-	- add non-push flag
+	- (DONE) add push flag
 	- Find precompiler way to find variable idx to 'replace' Vars_getIndexFromName for push data.
 	- Make almost all code work via Vars_setValue for auto push.
-	- add non-push get info cmd.
 	- (DONE) merge pf_data and pf_prog
 	- Make more easy to use current steps to add one variable are;
 		1) Add var in vars.h struct;					add;		volatile uint8_t	lcd_input;

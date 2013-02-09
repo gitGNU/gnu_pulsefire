@@ -45,10 +45,6 @@ extern const char pmLcdSTVWarning[];
 extern const char pmLcdSTVError[];
 extern const char pmLcdSTVMin[];
 extern const char pmLcdSTVMax[];
-extern const char pmLPMWait[];
-extern const char pmLPMStart[];
-extern const char pmLPMCancel[];
-extern const char pmLPMDone[];
 extern const char pmCmdUnknown[];
 extern const char pmCmdHelpStart[];
 extern const char pmCmdHelp[];
@@ -63,7 +59,7 @@ extern const char pmCmdInfoFreqData[];
 extern const char pmCmdInfoPPM[];
 extern const char pmCmdInfoPWM[];
 extern const char pmCmdInfoPWMData[];
-extern const char pmCmdInfoPWMSteps[];
+extern const char pmCmdInfoPWMSize[];
 extern const char pmCmdInfoChip[];
 extern const char pmCmdInfoVars[];
 extern const char pmCmdInfoVarsMap[];
@@ -72,6 +68,8 @@ extern const char pmCmdReqTrigger[];
 extern const char pmCmdReqDoc[];
 extern const char pmConfSysId[];
 extern const char pmConfSysPass[];
+extern const char pmConfSysVvmMap[];
+extern const char pmConfSysVvlMap[];
 extern const char pmConfSpiClock[];
 extern const char pmConfSpiChips[];
 extern const char pmConfLCDSize[];
@@ -100,14 +98,19 @@ extern const char pmConfAVRPin4Map[];
 extern const char pmConfAVRPin5Map[];
 extern const char pmConfMegaPortA[];
 extern const char pmConfMegaPortC[];
+#ifdef SF_ENABLE_VSC0
 extern const char pmConfVsc0Mode[];
 extern const char pmConfVsc0Time[];
 extern const char pmConfVsc0Step[];
 extern const char pmConfVsc0Map[];
+#endif
+#ifdef SF_ENABLE_VSC1
 extern const char pmConfVsc1Mode[];
 extern const char pmConfVsc1Time[];
 extern const char pmConfVsc1Step[];
 extern const char pmConfVsc1Map[];
+#endif
+#ifdef SF_ENABLE_PWM
 extern const char pmConfPulseEnable[];
 extern const char pmConfPulseMode[];
 extern const char pmConfPulseSteps[];
@@ -147,24 +150,30 @@ extern const char pmConfPPMDataOffset[];
 extern const char pmConfPPMDataLength[];
 extern const char pmConfPPMDataA[];
 extern const char pmConfPPMDataB[];
-extern const char pmConfLPMStart[];
-extern const char pmConfLPMStop[];
-extern const char pmConfLPMSize[];
-extern const char pmConfLPMRelayMap[];
+#endif
 extern const char pmConfMALCode[];
+#ifdef SF_ENABLE_MAL
 extern const char pmConfMALOps[];
 extern const char pmConfMALOpsFire[];
 extern const char pmConfMALWait[];
+#endif
+#ifdef SF_ENABLE_PTC0
 extern const char pmConfPTC0Run[];
 extern const char pmConfPTC0Mul[];
 extern const char pmConfPTC0Map[];
+#endif
+#ifdef SF_ENABLE_PTC1
 extern const char pmConfPTC1Run[];
 extern const char pmConfPTC1Mul[];
 extern const char pmConfPTC1Map[];
+#endif
+#ifdef SF_ENABLE_PTT
 extern const char pmConfPTT0Map[];
 extern const char pmConfPTT1Map[];
 extern const char pmConfPTT2Map[];
 extern const char pmConfPTT3Map[];
+#endif
+#ifdef SF_ENABLE_CIP
 extern const char pmConfCip0Clock[];
 extern const char pmConfCip0Mode[];
 extern const char pmConfCip0aOcr[];
@@ -189,9 +198,7 @@ extern const char pmConfCip2bOcr[];
 extern const char pmConfCip2bCom[];
 extern const char pmConfCip2cOcr[];
 extern const char pmConfCip2cCom[];
-extern const char pmConfDevVoltDot[];
-extern const char pmConfDevAmpDot[];
-extern const char pmConfDevTempDot[];
+#endif
 extern const char pmConfSTVWarnSecs[];
 extern const char pmConfSTVWarnMap[];
 extern const char pmConfSTVErrorSecs[];
@@ -205,6 +212,7 @@ extern const char pmDataSysTimeTicks[];
 extern const char pmDataSysTimeCsec[];
 extern const char pmDataSysUpTime[];
 extern const char pmDataSysSpeed[];
+extern const char pmDataSysBadIsr[];
 extern const char pmDataLcdInput[];
 extern const char pmDataLcdPage[];
 extern const char pmDataLcdRedraw[];
@@ -223,12 +231,6 @@ extern const char pmDataVsc0State[];
 extern const char pmDataVsc1TimeCnt[];
 extern const char pmDataVsc1State[];
 extern const char pmDataSysInputTimeCnt[];
-extern const char pmDataLPMState[];
-extern const char pmDataLPMFire[];
-extern const char pmDataLPMStartTime[];
-extern const char pmDataLPMTotalTime[];
-extern const char pmDataLPMResult[];
-extern const char pmDataLPMLevel[];
 extern const char pmDataPTC0Cnt[];
 extern const char pmDataPTC0RunCnt[];
 extern const char pmDataPTC0MapIdx[];

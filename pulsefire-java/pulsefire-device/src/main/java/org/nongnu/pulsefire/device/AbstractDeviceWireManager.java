@@ -128,20 +128,19 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 			requestCommand(new Command(CommandName.help,		"map")).waitForResponseChecked();
 			connectPhase = "help idx";connectProgress = 25;
 			requestCommand(new Command(CommandName.help,		"idx")).waitForResponseChecked();
-			connectPhase = "help idg";connectProgress = 27;
-			requestCommand(new Command(CommandName.help,		"idg")).waitForResponseChecked();
 		}
 		
 		connectPhase = "info_conf";connectProgress = 30;
 		requestCommand(new Command(CommandName.info_conf,"all")).waitForResponseChecked();
 		connectPhase = "info_data";connectProgress = 70;
 		requestCommand(new Command(CommandName.info_data)).waitForResponseChecked();
-		connectPhase = "info_prog";connectProgress = 85;
 		if (deviceVersion < 11) {
+			connectPhase = "info_prog";connectProgress = 85;
 			requestCommand(new Command(CommandName.info_prog)).waitForResponseChecked();
 		}
 		
 		// Turn conf push changes on as last.
+		connectPhase = "req_tx_push";connectProgress = 90;
 		requestCommand(new Command(CommandName.req_tx_push,	"1")).waitForResponseChecked();
 		
 		connectPhase = "Fire events";connectProgress = 95;
