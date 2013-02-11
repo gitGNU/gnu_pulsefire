@@ -59,7 +59,7 @@ public class DeviceCommandRequest {
 		if (request.getCommandName()==CommandName.help && "done".equals(response.getArgu0())) {
 			return; // multi line help ends with done
 		}
-		if (request.getCommandName().getType()==CommandVariableType.INFO && "done".equals(response.getArgu0())) {
+		if (request.getCommandName().getType()==CommandVariableType.CMD && "done".equals(response.getArgu0())) {
 			return; // multi line info cmds ends with done
 		}
 		if (request.getArgu0().equals(response.getArgu0())==false) {

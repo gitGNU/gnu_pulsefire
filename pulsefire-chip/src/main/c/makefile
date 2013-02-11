@@ -125,6 +125,24 @@ atmega2560-1603 \
 atmega2560-1604 \
 atmega2560-1691 
 
+#
+# ---- Note on check of firmware upload size;
+#
+# atmega2560
+#    has max upload size is 258048
+#
+# atmega1280
+#    has max upload size is 126976
+#
+# atmega168p
+#    has max upload size is 30720
+#    Current image is 27312 (#1604)
+#
+# atmega168p
+#    has max upload size is 14336
+#    Current image is 14210 (#1691)
+#    Test with 328 chip; make clean atmega168p-1691-isp ISP_PORT=/dev/ttyACM1 ISP_MCU=m328p
+#
 
 #
 #====================================

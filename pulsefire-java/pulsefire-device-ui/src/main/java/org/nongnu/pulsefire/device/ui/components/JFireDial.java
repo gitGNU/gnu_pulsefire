@@ -103,6 +103,7 @@ public class JFireDial extends JComponent  {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				mouseDialing = false;
+				fireDialEvent(); // fire one more event, used so min/max limited vars get updated to returned pf value.
 				repaint();
 			}
 			@Override

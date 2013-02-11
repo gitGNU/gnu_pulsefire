@@ -34,9 +34,6 @@ public enum CommandVariableType {
 	INFO,
 	CONF,
 	DATA,
-	PROG,
-	CHIP,
-	FREQ,
-	PPM;
+	CHIP;
 	
 }

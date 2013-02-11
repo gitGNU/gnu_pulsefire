@@ -41,9 +41,14 @@ public class EventTimeTrigger {
 	private Runnable runnable = null;
 	
 	public EventTimeTrigger(String name,Runnable runnable,long timeStep) {
+		this(name,runnable,timeStep,0l);
+	}
+	
+	public EventTimeTrigger(String name,Runnable runnable,long timeStep,long delay) {
 		this.triggerName=name;
 		this.runnable=runnable;
 		this.timeStep=timeStep;
+		this.timeNextRun=System.currentTimeMillis()+delay;
 	}
 	
 	public long getTimeLastTime() {

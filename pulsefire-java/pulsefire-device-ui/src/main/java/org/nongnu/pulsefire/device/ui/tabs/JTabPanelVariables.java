@@ -80,7 +80,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createVars("Conf",CommandVariableType.CONF));
 		wrap.add(createVars("Data",CommandVariableType.DATA));
-		wrap.add(createVars("Prog/Chip/Freq",CommandVariableType.PROG));
+		wrap.add(createVars("Info",CommandVariableType.INFO));
 		SpringLayoutGrid.makeCompactGrid(wrap,1,3,0,6,6,6);
 		
 		topSplit.add(createTopPanelFilter(),BorderLayout.PAGE_START);
@@ -210,11 +210,9 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			Map<String, Command> result = new HashMap<String, Command>(33);
 			Map<CommandName, Command> cmdMap = new HashMap<CommandName, Command>(33);
 			cmdMap.putAll(deviceData.getTypeMap(type)); // clone for concurrency
-			if (type.equals(CommandVariableType.PROG)) {
+			if (type.equals(CommandVariableType.INFO)) {
 				Map<CommandName, Command> chipMap = deviceData.getTypeMap(CommandVariableType.CHIP);
 				cmdMap.putAll(chipMap);
-				Map<CommandName, Command> freqMap = deviceData.getTypeMap(CommandVariableType.FREQ);
-				cmdMap.putAll(freqMap);
 			}
 			for (CommandName name:cmdMap.keySet()) {
 				result.put(name.name(), cmdMap.get(name));
@@ -224,8 +222,8 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 					if (cmd.isIndexedA()==false) {
 						continue;
 					}
-					if (type.equals(CommandVariableType.PROG)) {
-						if ((cmd.getType().equals(type) | cmd.getType().equals(CommandVariableType.CHIP) | cmd.getType().equals(CommandVariableType.FREQ))==false) {
+					if (type.equals(CommandVariableType.INFO)) {
+						if ((cmd.getType().equals(type) | cmd.getType().equals(CommandVariableType.CHIP))==false) {
 							continue;
 						}
 					} else if (cmd.getType().equals(type)==false) {

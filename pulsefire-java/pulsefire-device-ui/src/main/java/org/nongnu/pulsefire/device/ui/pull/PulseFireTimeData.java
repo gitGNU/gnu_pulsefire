@@ -123,7 +123,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 			if (name.isDisabled()) {
 				continue;
 			}
-			if (name.isMappable() | name.getType().equals(CommandVariableType.DATA) | name.getType().equals(CommandVariableType.PROG)) {
+			if (name.isMappable() | name.getType().equals(CommandVariableType.DATA) | name.getType().equals(CommandVariableType.INFO)) {
 				logger.fine("Adding timedata for: "+name);
 				getKeyFromName(name); // creates quee
 				PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(name, new DataCommandListener());

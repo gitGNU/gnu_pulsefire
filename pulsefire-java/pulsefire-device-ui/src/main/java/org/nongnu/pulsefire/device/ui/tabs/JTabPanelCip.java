@@ -28,6 +28,7 @@ import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -43,8 +44,18 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class JTabPanelCip extends AbstractFireTabPanel {
 
-	private static final long serialVersionUID = -1646229038565969537L;
+	private static final long serialVersionUID = -1623290385969537L;
 	
+	@Override
+	public void deviceConnect() {
+		super.deviceConnect();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SwingUtilities.updateComponentTreeUI(JTabPanelCip.this);
+			}
+		});
+	}
 	
 	public JTabPanelCip() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));

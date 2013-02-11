@@ -49,7 +49,10 @@ Version 1.1.0:
 - Added sys_uptime and sys_speed indicators.
 - Removed all but one 168p images which where to big.(>15kb)
 - Changed adc_jitter to 8bit value.
-
+- Removed dev_X_dot meta data for generic mapping.
+- Added sys_vvl/vvm_map, Variable Value Limit(min/max) and Meta(dot/lock)
+- GUI: Added 32b command variable support for sys_id/pass.
+- Renamed info_ppm output to info_ppm_a/b[0-15]
 
 Version 1.0.4:
 - Changed ptc_Xcnt and ptt_cntX to 16bit so mapping works with values above 255. 

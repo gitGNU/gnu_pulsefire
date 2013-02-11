@@ -358,6 +358,8 @@ public class CommandNameVersionFactory {
 				"DOC16"
 			};
 		
+		CommandName.info_ppm_a.maxIndexA=16;
+		CommandName.info_ppm_b.maxIndexA=16;
 		CommandName.info_pwm_data.maxIndexA=64; // todo: redesign.
 		CommandName.info_freq_data.maxIndexA=16;
 		CommandName.info_freq_data.maxIndexB=2;

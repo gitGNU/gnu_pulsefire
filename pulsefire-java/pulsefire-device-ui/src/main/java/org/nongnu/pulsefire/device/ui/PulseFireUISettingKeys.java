@@ -57,8 +57,8 @@ public enum PulseFireUISettingKeys {
 	FLASH_MCU_SPEED("16Mhz"),
 	
 	LPM_RESULT_FIELDS("dev_volt,dev_amp,dev_temp,dev_freq"),
-	LPM_START("100"),
-	LPM_STOP("1000"),
+	LPM_START("1000"),
+	LPM_STOP("100"),
 	LPM_SIZE("300"),
 	LPM_LEVEL_ADC("0"),
 	LPM_RELAY_DOC("0"),

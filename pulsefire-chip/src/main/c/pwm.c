@@ -366,13 +366,12 @@ void PWM_work_int(void) {
 		Chip_out_pwm(PWM_filter_data(PULSE_DATA_OFF));
 		return;
 	}
-	// check on first/zero step todo automatic holding of the step.
+	// check on automatic holding of the step.
 	if (pf_conf.pulse_hold_auto > ZERO && pulse_step == pf_conf.pulse_hold_auto - ONE) {
 		pf_data.pwm_state = PWM_STATE_FIRE_HOLD;
 		if (pf_conf.pulse_hold_autoclr > ZERO) {
 			data_out = PWM_filter_data(PULSE_DATA_OFF);
 		}
-		// goto next step for resume
 	}
 
 	// Set output and set registers.
@@ -383,7 +382,7 @@ void PWM_work_int(void) {
 	// Loop pulse steps
 	if (pulse_step >= pf_data.pwm_data_size-ONE) {
 		pulse_step = ZERO;
-		if (pulse_trig != PULSE_TRIG_LOOP) {
+		if (pulse_trig != PULSE_TRIG_LOOP && pf_data.pwm_state != PWM_STATE_FIRE_HOLD) {
 			pf_data.pwm_state = PWM_STATE_FIRE_END; // timeout after trigger
 		}
 	} else {

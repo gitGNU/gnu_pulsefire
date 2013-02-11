@@ -29,7 +29,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -51,9 +50,27 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JFireGraph extends JPanel implements TimeDataListener {
 	
 	private static final long serialVersionUID = -2926409292528475132L;
-	final int PAD = 0;
 	private CommandName commandName = null;
 	private PulseFireTimeData timeDataStore = null;
+	private Color[] colors = new Color[] {
+			Color.decode("#00FF00"),
+			Color.decode("#CC3300"),
+			Color.decode("#FFCC00"),
+			Color.decode("#FF33FF"),
+			Color.decode("#CCCC00"),
+			Color.decode("#CC33FF"),
+			Color.decode("#9933FF"),
+			Color.decode("#6633FF"),
+			Color.decode("#00CCFF"),
+			Color.decode("#FF0000"),
+			Color.decode("#99CC66"),
+			Color.decode("#990066"),
+			Color.decode("#333366"),
+			Color.decode("#FFCC66"),
+			Color.decode("#00CCCC"),
+			Color.decode("#6600CC"),
+			Color.decode("#993333")
+	};
 	
 	public JFireGraph(CommandName commandName) {
 		this.commandName=commandName;
@@ -66,30 +83,6 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 
 	public CommandName getCommandName() {
 		return commandName;
-	}
-	
-	public Color randomColor(int idx){
-		Random random=new Random();
-		if (idx>16) {
-			idx = idx/2;
-		}
-		idx++; // skip 0
-		random=new Random();
-		int red=random.nextInt(idx*16);
-		if (red<33) {
-			red+=random.nextInt(133);
-		}
-		random=new Random();
-		int green=random.nextInt(idx*16);
-		if (green<33) {
-			green+=random.nextInt(166);
-		}
-		random=new Random();
-		int blue=random.nextInt(idx*16);
-		if (blue<33) {
-			blue+=random.nextInt(199);
-		}
-		return new Color(red & 255, green & 255, blue & 255);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -136,9 +129,9 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		int h = getHeight();
 		double xScale = 1.0;
 		if (timeData.isEmpty()==false) {
-			xScale = (w - 2*PAD)/timeData.size();
+			xScale = w/timeData.size();
 		}
-		double yScale = (h - 2*PAD)/(maxValue+10);  
+		double yScale = h/(maxValue+10);
 		
 		int yLines = 10;
 		int xLines = 20;
@@ -149,11 +142,9 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		for (int x=0;x<=xLines;x++) {
 			g2.drawLine((int)((w/xLines)*x), 0, (int)((w/xLines)*x), h);
 		}
-
-		int x0 = PAD;  
-		int y0 = h-PAD;  
-
-		int x1 = -1;  
+		int x0 = 0;
+		int y0 = h;
+		int x1 = -1;
 		int y1 = -1;
 		int dataPoint = 0;
 		int j = 1;
@@ -161,11 +152,10 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		if (commandName.isIndexedA()==false) {
 			for (int tt=0;tt<timeData.size();tt++) {
 				TimeData t = timeData.get(tt);
-				g2.setPaint(Color.GREEN);
+				g2.setPaint(colors[0]);
 				dataPoint = t.dataPoint;
 				int x = x0 + (int)(xScale * (j+1));  
 				int y = y0 - (int)(yScale * dataPoint);
-				//g2.fillOval(x-2, y-2, 4, 4);
 				if (x1!=-1) {
 					g2.drawLine(x1, y1, x, y);
 				}
@@ -183,7 +173,13 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 					break;
 				}
 				if (key.dataColorIdx[i]==null) {
-					key.dataColorIdx[i]=randomColor(i);
+					Color c = null;
+					if (i > 16) {
+						c = colors[0];
+					} else {
+						c = colors[i];
+					}
+					key.dataColorIdx[i]=c;
 				}
 				g2.setColor(key.dataColorIdx[i]);
 				x1 = -1;  
@@ -193,9 +189,8 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 				for (int ii=0;ii<timeData.size();ii++) {
 					TimeData t = timeData.get(ii);
 					dataPoint = t.dataPointIdx[i];
-					int x = x0 + (int)(xScale * (j+1));  
+					int x = x0 + (int)(xScale * (j+1));
 					int y = y0 - (int)(yScale * dataPoint);
-					//g2.fillOval(x-2, y-2, 4, 4);
 					if (x1!=-1) {
 						g2.drawLine(x1, y1, x, y);
 					}
@@ -249,7 +244,7 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 				if (dotValue.length()<dotIndex) {
 					int zeros = dotIndex-dotValue.length(); 
 					for (int i=0;i<zeros;i++) {
-						dotValue = "0"+dotValue;	
+						dotValue = "0"+dotValue;
 					}
 				}
 				String numberValue = valueStr.substring(0,idx);

@@ -370,7 +370,9 @@ void cmd_execute(char* cmd, char** args) {
 #ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPPM)) == ZERO) {
 		for (i=ZERO;i < OUTPUT_MAX;i++) {
-			Serial_printCharP(pmConfPPMDataA);
+			Serial_printCharP(pmCmdInfoPPM);
+			Serial_print('_');
+			Serial_print('a');
 			if (i <= 9) { Serial_print('0'); }
 			Serial_printDec((int)i);
 			Serial_printCharP(pmGetSpaced);
@@ -387,7 +389,9 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		for (i=ZERO;i < OUTPUT_MAX;i++) {
-			Serial_printCharP(pmConfPPMDataB);
+			Serial_printCharP(pmCmdInfoPPM);
+			Serial_print('_');
+			Serial_print('b');
 			if (i <= 9) { Serial_print('0'); }
 			Serial_printDec((int)i);
 			Serial_printCharP(pmGetSpaced);
@@ -504,8 +508,8 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println_done_P(pmCmdReqDoc);	
 		}
 
-	} else if (strcmp(cmd,UNPSTR(pmProgTXPush)) == ZERO) {
-		Serial_printCharP(pmProgTXPush);
+	} else if (strcmp(cmd,UNPSTR(pmDataTXPush)) == ZERO) {
+		Serial_printCharP(pmDataTXPush);
 		if (args[0] == NULL) {
 			Serial_printCharP(pmGetSpaced);
 		} else {
@@ -517,8 +521,8 @@ void cmd_execute(char* cmd, char** args) {
 		}
 		Serial_printDec((int)pf_data.req_tx_push);
 		Serial_println();
-	} else if (strcmp(cmd,UNPSTR(pmProgTXEcho)) == ZERO) {
-		Serial_printCharP(pmProgTXEcho);
+	} else if (strcmp(cmd,UNPSTR(pmDataTXEcho)) == ZERO) {
+		Serial_printCharP(pmDataTXEcho);
 		if (args[0] == NULL) {
 			Serial_printCharP(pmGetSpaced);
 		} else {
@@ -530,8 +534,8 @@ void cmd_execute(char* cmd, char** args) {
 		}
 		Serial_printDec((int)pf_data.req_tx_echo);
 		Serial_println();
-	} else if (strcmp(cmd,UNPSTR(pmProgTXPromt)) == ZERO) {
-		Serial_printCharP(pmProgTXPromt);
+	} else if (strcmp(cmd,UNPSTR(pmDataTXPromt)) == ZERO) {
+		Serial_printCharP(pmDataTXPromt);
 		if (args[0] == NULL) {
 			Serial_printCharP(pmGetSpaced);
 		} else {
@@ -543,8 +547,8 @@ void cmd_execute(char* cmd, char** args) {
 		}
 		Serial_printDec((int)pf_data.req_tx_promt);
 		Serial_println();
-	} else if (strcmp(cmd,UNPSTR(pmProgTXHex)) == ZERO) {
-		Serial_printCharP(pmProgTXHex);
+	} else if (strcmp(cmd,UNPSTR(pmDataTXHex)) == ZERO) {
+		Serial_printCharP(pmDataTXHex);
 		if (args[0] == NULL) {
 			Serial_printCharP(pmGetSpaced);
 		} else {

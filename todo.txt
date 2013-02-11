@@ -1,14 +1,13 @@
 == TODO ==
 
 ERRATA:
-- pulse_hold_auto in ext/fire trigger mode max output step is not auto holded.
-(auto hold on max-1)
-- Second variable in pulse_fire/reset/hold/resum_map has no function.
+- On heavy serial use chip crashes sometimes.(use slower pull time)
+- GUI works only on current version of firmware. 
 - MAL editor does not auto renumber goto statements.
-- After connecting to lower chip version then gui does not update correctly to newer chip version.
-(restart application)
 
 CHIP:
+- qmap++ with multiple columns.
+- Second variable in pulse_fire/reset/hold/resum_map has no function. (after qmap++)
 - Add menu support for map variables.
 - Added more commands/tests to MAL
 - Added nested if support in mal

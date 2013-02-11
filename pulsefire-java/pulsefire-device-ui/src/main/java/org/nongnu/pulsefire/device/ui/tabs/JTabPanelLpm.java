@@ -72,6 +72,7 @@ import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
 import org.nongnu.pulsefire.device.ui.components.JIntegerTextField;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 import org.nongnu.pulsefire.wire.CommandVariableType;
@@ -104,16 +105,16 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	private JButton resultClearButton = null;
 	private JButton resultExportButton = null;
 	private List<CommandName> stepFields = null;
-	private boolean runSingle = false;
-	private boolean runLoop = false;
-	private boolean runTune = false;
-	private int tuneStep = 0;
+	private volatile boolean runSingle = false;
+	private volatile boolean runLoop = false;
+	private volatile boolean runTune = false;
+	private volatile int tuneStep = 0;
 	private List<LpmCommandStep> tuneCommandSteps = null;
-	private LpmState lpm_state = LpmState.LPM_IDLE; 
-	private long lpm_start_time = 0;
-	private long lpm_total_time = 0;
-	private long lpm_result = 0;
-	private int lpm_level = 0;
+	private volatile LpmState lpm_state = LpmState.LPM_IDLE; 
+	private volatile long lpm_start_time = 0;
+	private volatile long lpm_total_time = 0;
+	private volatile long lpm_result = 0;
+	private volatile int lpm_level = 0;
 	
 	enum LpmState {
 		LPM_INIT,
@@ -123,7 +124,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		LPM_STOP,
 		LPM_RUN,
 		LPM_DONE,
-		LPM_DONE_WAIT,
+		/* LPM_DONE_WAIT, */
 		LPM_RECOVER,
 		LPM_RECOVER_WAIT
 	}
@@ -153,7 +154,8 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
-
+		
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(new EventTimeTrigger("LpmStateCheck", new LpmStateCheck(), 200));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.adc_value, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
 	}
@@ -887,7 +889,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			lpmTuneStartButton.setEnabled(false);
 			requestLpm();
 		} else if (lpmAutoCancelButton.equals(e.getSource())) {
-			requestLpm();
 			runLoop = false;
 			lpmAutoLoopButton.setEnabled(true);
 			lpmAutoStartButton.setEnabled(true);
@@ -1026,7 +1027,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	}
 	
 	private void requestLpm() {
-		requestLpmSetRelay(true);
 		lpm_state = LpmState.LPM_INIT;
 	}
 	
@@ -1041,10 +1041,23 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd);
 	}
 	
+	class LpmStateCheck implements Runnable {
+		@Override
+		public void run() {
+			try {
+				checkLpmState();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+		}
+	}
+	
 	private void checkLpmState() {
 		int lpm_start = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_START);
 		int lpm_stop = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_STOP);
 		int lpm_size = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_SIZE);
+		LpmState lpm_state_old = lpm_state;
 		switch (lpm_state) {
 			case LPM_INIT:
 				if ( lpm_level < lpm_start) {
@@ -1056,7 +1069,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			case LPM_IDLE:
 				return;
 			case LPM_START:
-				requestLpmSetRelay(false); // close the output tube
+				requestLpmSetRelay(true); // close the output tube
 				lpm_state = LpmState.LPM_START_WAIT;
 				break;
 			case LPM_START_WAIT:
@@ -1078,6 +1091,9 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				if (stepDone > 13) {
 					stepDone = 13;
 				}
+				if (lpm_total_time/100 == 0) {
+					break; // rm div by zero
+				}
 				// calulate lpm in 100x size.
 				// 600 = 1 minute in seconds
 				// lpm_totalTime/10 = time in seconds
@@ -1094,15 +1110,17 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				break;
 			}
 			case LPM_DONE:
-				requestLpmSetRelay(true); // open output tube
-				lpm_state = LpmState.LPM_DONE_WAIT;
+				requestLpmSetRelay(false); // open output tube
+				processLpmDone(); // process info
+				lpm_state = LpmState.LPM_RECOVER;
 				//lpm_fire = ONE;
 				break;
-			case LPM_DONE_WAIT:
-				// wait for user input
-				break;
+			//case LPM_DONE_WAIT:
+			//	// was used for wait for user input now goto recove
+			//	lpm_state = LpmState.LPM_RECOVER;
+			//	break;
 			case LPM_RECOVER:
-				requestLpmSetRelay(true); // open output tube
+				requestLpmSetRelay(false); // open output tube
 				lpm_state = LpmState.LPM_RECOVER_WAIT;
 				break;
 			case LPM_RECOVER_WAIT:
@@ -1112,6 +1130,57 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				lpm_state = LpmState.LPM_IDLE;
 				break;
 		}
+		if (lpm_state_old != lpm_state) {
+			lpmStateLabel.setText(lpm_state.name());
+		}
+	}
+	
+	private void processLpmDone() {
+		//  result format: req_lpm_fire==19.53 2.67
+		LpmTuneResult result = new LpmTuneResult();
+		result.setDate(new Date());
+		result.setLpmResult(""+lpm_result);
+		result.setLpmTime(""+lpm_total_time);
+		result.setMmwResult("");
+		for (CommandName cn:stepFields) {
+			result.getStepFields().add(renderStepField(cn));
+		}
+		for (int i=0;i<tuneStepModel.getRowCount();i++) {
+			if (runTune) {
+				LpmCommandStep step = tuneCommandSteps.get(tuneStep);
+				if (step.commands.size() > i) {
+					Command c = step.commands.get(i);
+					result.getStepData().add(c.getArgu0());
+				} else {
+					result.getStepData().add("");
+				}
+			} else {
+				result.getStepData().add("");
+			}
+		}
+		tuneResultModel.dataAdd(result);
+		
+		progressBar.setValue(0);
+		
+		if (runSingle) {
+			runSingle = false;
+			lpmAutoCancelButton.setEnabled(false);
+			lpmAutoLoopButton.setEnabled(true);
+			lpmAutoStartButton.setEnabled(true);
+			if (tuneStepModel.getRowCount()>0) {
+				lpmTuneStartButton.setEnabled(true);
+			}
+			return;
+		}
+		if (runLoop) {
+			PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerFire());
+			return;
+		}
+		if (runTune) {
+			tuneStep++;
+			requestCommandStep();
+			return;
+		}
 	}
 	
 	@Override
@@ -1120,16 +1189,13 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 			return;
 		}
 		
-		String adcPort = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_LEVEL_ADC);
-		if (adcPort.equals(command.getArgu0())==false) {
+		Integer adcPort = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_LEVEL_ADC);
+		if (adcPort.equals(new Integer(command.getArgu1()))==false) {
 			return; // other port
 		}
-		lpm_level = new Integer(command.getArgu1());
+		lpm_level = new Integer(command.getArgu0());
 		
-		checkLpmState();
-		lpmStateLabel.setText(lpm_state.name());
-		
-		if (lpm_state == LpmState.LPM_RUN || lpm_state == LpmState.LPM_INIT || lpm_state == LpmState.LPM_START || lpm_state == LpmState.LPM_START_WAIT) {
+		if (lpm_state == LpmState.LPM_RUN) {
 			int lpm_start = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_START);
 			int lpm_stop = PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.LPM_STOP);
 			int stepSize = (lpm_start-lpm_stop) / 100;
@@ -1138,56 +1204,6 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 				stepProgress=0;
 			}
 			progressBar.setValue(stepProgress);
-		}
-		
-		
-		if (lpm_state == LpmState.LPM_DONE) {
-			
-			//  result format: req_lpm_fire==19.53 2.67
-			LpmTuneResult result = new LpmTuneResult();
-			result.setDate(new Date());
-			result.setLpmResult(command.getArgu0());
-			result.setLpmTime(command.getArgu1());
-			result.setMmwResult("");
-			for (CommandName cn:stepFields) {
-				result.getStepFields().add(renderStepField(cn));
-			}
-			for (int i=0;i<tuneStepModel.getRowCount();i++) {
-				if (runTune) {
-					LpmCommandStep step = tuneCommandSteps.get(tuneStep);
-					if (step.commands.size() > i) {
-						Command c = step.commands.get(i);
-						result.getStepData().add(c.getArgu0());
-					} else {
-						result.getStepData().add("");	
-					}
-				} else {
-					result.getStepData().add("");
-				}
-			}
-			tuneResultModel.dataAdd(result);
-			
-			progressBar.setValue(0);
-			
-			if (runSingle) {
-				runSingle = false;
-				lpmAutoCancelButton.setEnabled(false);
-				lpmAutoLoopButton.setEnabled(true);
-				lpmAutoStartButton.setEnabled(true);
-				if (tuneStepModel.getRowCount()>0) {
-					lpmTuneStartButton.setEnabled(true);
-				}
-				return;
-			}
-			if (runLoop) {
-				PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerFire());
-				return;
-			}
-			if (runTune) {
-				tuneStep++;
-				requestCommandStep();
-				return;
-			}
 		}
 	}
 
@@ -1274,17 +1290,22 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 					for (Command cmd:step.commands) {
 						PulseFireUI.getInstance().getDeviceManager().requestCommand(cmd).waitForResponseChecked();
 					}
-					Thread.sleep(step.recoveryTime*1000);
+					PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerLpm(),step.recoveryTime*1000);
 				} else {
-					Thread.sleep(15000);
-				}
-				if (runTune | runLoop) {
-					requestLpm();
+					PulseFireUI.getInstance().getEventTimeManager().addRunOnce(new TriggerLpm(),15000l);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		
+		}
+	}
+	class TriggerLpm implements Runnable {
+		@Override
+		public void run() {
+			if (runTune | runLoop) {
+				requestLpm();
+			}
 		}
 	}
 	
