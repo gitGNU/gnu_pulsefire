@@ -81,8 +81,8 @@ And then manual upload.
 -- Check for dependency-updates --
 
 cd project-root/;
-mvn versions:display-plugin-updates;
-mvn versions:display-dependency-updates;
+mvn versions:display-plugin-updates|grep ">"|uniq;
+mvn versions:display-dependency-updates|grep ">"|uniq;
 
 -- Eclipse Setup --
 

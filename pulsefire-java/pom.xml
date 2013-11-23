@@ -103,7 +103,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>${testng.version}</version>
-      <classifier>jdk15</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
