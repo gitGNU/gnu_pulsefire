@@ -315,7 +315,11 @@ public class PulseFireUI extends SingleFrameApplication {
 			
 			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),PulseFireDataPuller.INIT_SPEED));
 			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("updatePwmData",new UpdatePwmData(),UpdatePwmData.INIT_SPEED));
+			
 			//new org.nongnu.pulsefire.device.ui.JNimbusColorFrame(getMainFrame()).setVisible(true);
+			//org.nongnu.pulsefire.device.ui.debug.JDebugPanel debugPanel = org.nongnu.pulsefire.device.ui.debug.JDebugPanel.openDebugFrame("PulseFire Debug");
+			//debugPanel.setDebugComponent(mainView.getComponent());
+			
 			long stopTime = System.currentTimeMillis();
 			logger.info("PulseFireUI startup in "+(stopTime-startTime)+" ms total startup in "+(stopTime-startTimeTotal)+" ms.");
 		} catch (Exception e) {

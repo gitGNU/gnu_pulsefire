@@ -45,6 +45,7 @@
 #include "freq.h"
 #include "utils.h"
 #include "chip.h"
+#include "debug.h"
 
 // Main function
 int main(void) {
@@ -63,11 +64,13 @@ int main(void) {
 #ifdef SF_ENABLE_LCD
 	Lcd_setup();         // needs interrupts in spi mode
 #endif
+#ifdef SF_ENABLE_DEBUG_HTX
+	Debug_htx_c('S');
+#endif
 
 	for(;;) {
 		// High speed loop
 		pf_data.sys_loop0_cnt++;
-
 		Vars_loop();
 		Serial_loop();
 #ifdef SF_ENABLE_ADC
@@ -86,6 +89,13 @@ int main(void) {
 		if (idx > 20) {
 			pf_data.sys_loop1_cnt_idx = ZERO;
 		}
+#ifdef SF_ENABLE_DEBUG_HTX
+		Debug_htx_c('M');
+		Debug_htx_c('\n');
+#endif
+#ifdef SF_ENABLE_DEBUG_HTX
+		//Debug_htx_c('T');
+#endif
 
 		// Main 20 hz loop
 		Chip_out_doc();
@@ -104,6 +114,9 @@ int main(void) {
 #endif
 
 		// Duel 10 hz loop
+#ifdef SF_ENABLE_DEBUG_HTX
+		Debug_htx_c('0');
+#endif
 		if (idxOne == ZERO) {
 #ifdef SF_ENABLE_MAL
 			Mal_loop();
@@ -117,6 +130,9 @@ int main(void) {
 
 		// 5 Hz loop
 		if ((idx & (ONE+ONE+ONE)) == ZERO) {
+#ifdef SF_ENABLE_DEBUG_HTX
+		Debug_htx_c('5');
+#endif
 #ifdef SF_ENABLE_LCD
 			Lcd_loop();
 #endif
@@ -129,6 +145,9 @@ int main(void) {
 		}
 #endif
 		if (idx==12) {
+#ifdef SF_ENABLE_DEBUG_HTX
+			Debug_htx_c('1');
+#endif
 			Chip_loop();
 			Sys_loop();
 		}

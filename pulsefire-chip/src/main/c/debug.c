@@ -20,28 +20,40 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
- // Include singleton
-#ifndef _SERIAL_H
-#define _SERIAL_H
 
-#include "vars.h"
-#include "utils.h"
-#include "freq.h"
-#include "chip.h"
 
-void cmd_print_info_value_long(const char* dstring,uint32_t value); // tmp here
-void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value);
-void Serial_printChar(volatile char* argu);
-void Serial_printCharP(const char* argu);
-void Serial_printHex(uint8_t argu);
-void Serial_printDec(int argu);
-void Serial_println(void);
-void Serial_print(char c);
+#include "debug.h"
 
-void Serial_loop(void);
-void Serial_setup(void);
-void Serial_rx_int(uint8_t c);
+#ifdef SF_ENABLE_DEBUG_HTX
+void Debug_htx_c(char c) {
+	Chip_out_debug_htx(c);
+}
 
-// end include
+void Debug_htx_str(char* dstring) {
+	while(*dstring != 0) {
+		Chip_out_debug_htx(*dstring);
+		dstring++;
+	}
+}
+
+void Debug_htx_hex8(uint8_t argu) {
+	uint8_t hn = argu >> 4;
+	uint8_t ln = argu & 0x0F;
+	if (hn<10) {
+		Chip_out_debug_htx('0'+hn);
+	} else {
+		Chip_out_debug_htx('A'+(hn-10));
+	}
+	if (ln<10) {
+		Chip_out_debug_htx('0'+ln);
+	} else {
+		Chip_out_debug_htx('A'+(ln-10));
+	}
+}
+
+void Debug_htx_hex16(uint16_t argu) {
+	Debug_htx_hex8(argu >> 8);
+	Debug_htx_hex8(argu & 0xFF);
+}
+
 #endif

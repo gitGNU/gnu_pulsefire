@@ -20,28 +20,10 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
- // Include singleton
-#ifndef _SERIAL_H
-#define _SERIAL_H
 
-#include "vars.h"
-#include "utils.h"
-#include "freq.h"
-#include "chip.h"
+package org.nongnu.pulsefire.device.ui.debug;
 
-void cmd_print_info_value_long(const char* dstring,uint32_t value); // tmp here
-void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value);
-void Serial_printChar(volatile char* argu);
-void Serial_printCharP(const char* argu);
-void Serial_printHex(uint8_t argu);
-void Serial_printDec(int argu);
-void Serial_println(void);
-void Serial_print(char c);
-
-void Serial_loop(void);
-void Serial_setup(void);
-void Serial_rx_int(uint8_t c);
-
-// end include
-#endif
+public enum SwingTreeNodeType {
+	ROOT,
+	COMPONENT
+}

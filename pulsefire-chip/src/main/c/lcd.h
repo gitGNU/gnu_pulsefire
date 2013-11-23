@@ -40,7 +40,7 @@ void Lcd_clear(void);
 void Lcd_cursor(uint8_t col, uint8_t row);
 void Lcd_printDot(void);
 void Lcd_printSpace(void);
-void Lcd_printChar(char* dstring);
+void Lcd_printChar(volatile char* dstring);
 void Lcd_printCharP(const char* argu);
 void Lcd_printByte(uint8_t value);
 void Lcd_printByteNum(uint8_t value,uint8_t numSize);

@@ -71,7 +71,7 @@ void Lcd_printSpace(void) {
 	Lcd_write(' ',LCD_SEND_DATA);
 }
 
-void Lcd_printChar(char* dstring) {
+void Lcd_printChar(volatile char* dstring) {
 	while(*dstring != ZERO) {
 		if (*dstring == '\n') {
 			Lcd_write(0xC0,LCD_SEND_CMD); // next line
@@ -101,7 +101,7 @@ void Lcd_print(uint16_t value) {
 void Lcd_printNum(uint16_t value,uint8_t numSize) {
 	u16toa(value,pf_data.lcd_buff);
 	uint8_t nn = ZERO;
-	char* ss = pf_data.lcd_buff;
+	volatile char* ss = pf_data.lcd_buff;
 	while (*ss++) { nn++; }
 	Lcd_printChar(pf_data.lcd_buff);
 	if (numSize > ZERO && (nn) < numSize) {

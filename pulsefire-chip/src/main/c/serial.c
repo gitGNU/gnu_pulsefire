@@ -48,7 +48,7 @@ void Serial_printDec(int argu) {
 	Serial_printChar(pf_data.unpstr_buff);
 }
 
-void Serial_printChar(char* dstring) {
+void Serial_printChar(volatile char* dstring) {
 	while(*dstring != 0) {
 		Chip_out_serial(*dstring);
 		dstring++;
@@ -175,11 +175,11 @@ void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 		Serial_println();
 	} else {
 		int limit_index_max = Vars_getIndexAMax(i);
-		if (limit_to_steps && Vars_isNolimit(i)==false) {
 #ifdef SF_ENABLE_PWM
+		if (limit_to_steps && Vars_isNolimit(i)==false) {
 			limit_index_max = pf_conf.pulse_steps; // limit output of indexed variabled up to configed steps, except nolimit Vars_
-#endif
 		}
+#endif
 		uint8_t idxA=ZERO;
 		for (idxA=ZERO;idxA<limit_index_max;idxA++) {
 			cmd_print_var_indexed(i,idxA);
@@ -286,9 +286,21 @@ void cmd_print_info_chip(void) {
 }
 
 // execute cmd with the supplied argument
-void cmd_execute(char* cmd, char** args) {
+void cmd_execute(volatile char* cmd, volatile char** args) {
 	uint8_t i=ZERO;
-	if ( strcmp(cmd,UNPSTR(pmCmdHelp)) == ZERO ) {
+	if (strcmp(cmd,UNPSTR(pmCmdInfoData)) == ZERO) {
+		for (i=ZERO;i < PF_VARS_SIZE;i++) {
+			if (Vars_isTypeData(i) == false) {
+				continue;
+			}
+			if (args[0] != NULL && Vars_isPush(i)) {
+				continue; // if argument then filter auto push data out.
+			}
+			cmd_print_var(i,false,false);
+		}
+		Serial_println_done_P(pmCmdInfoData);
+		return;
+	} else if ( strcmp(cmd,UNPSTR(pmCmdHelp)) == ZERO ) {
 		if (pf_data.req_tx_promt == ONE) {
 			Serial_printCharP(pmCmdHelpStart);
 		}
@@ -313,6 +325,7 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		Serial_println_done_P(pmCmdHelp); // end all multi line output with <cmd>=done for parser
+		return;
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoVars)) == ZERO) {
 		uint8_t filter = ZERO;
@@ -342,6 +355,7 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		Serial_println_done_P(pmCmdInfoVars);
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoConf)) == ZERO) {
 		for (i=ZERO;i < PF_VARS_SIZE;i++) {
 			if (Vars_isTypeData(i) == true) {
@@ -350,22 +364,14 @@ void cmd_execute(char* cmd, char** args) {
 			cmd_print_var(i,args[0] == NULL,false);
 		}
 		Serial_println_done_P(pmCmdInfoConf);
-	} else if (strcmp(cmd,UNPSTR(pmCmdInfoData)) == ZERO) {
-		for (i=ZERO;i < PF_VARS_SIZE;i++) {
-			if (Vars_isTypeData(i) == false) {
-				continue;
-			}
-			if (args[0] != NULL && Vars_isPush(i)) {
-				continue; // if argument then filter auto push data out.
-			}
-			cmd_print_var(i,false,false);
-		}
-		Serial_println_done_P(pmCmdInfoData);
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoChip)) == ZERO) {
 		cmd_print_info_chip();
+		return;
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoFreq)) == ZERO) {
 		cmd_print_info_freq();
+		return;
 
 #ifdef SF_ENABLE_PWM
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPPM)) == ZERO) {
@@ -408,6 +414,7 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		Serial_println_done_P(pmCmdInfoPPM);
+		return;
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPWM)) == ZERO) {
 		Serial_printCharP(pmCmdInfoPWMSize);
@@ -435,23 +442,26 @@ void cmd_execute(char* cmd, char** args) {
 			Serial_println();
 		}
 		Serial_println_done_P(pmCmdInfoPWM);
-
+		return;
 #endif
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdResetConfig)) == ZERO) {
 		Vars_resetConfig();
 		Vars_resetData();
 		Serial_println_done_P(pmCmdResetConfig);
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdResetData)) == ZERO) {
 		Vars_resetData();
 		Serial_println_done_P(pmCmdResetData);
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdResetChip)) == ZERO) {
 		Serial_println_done_P(pmCmdResetChip);
 		Chip_reset();
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdSave)) == ZERO) {
 		Vars_writeConfig();
 		Serial_println_done_P(pmCmdSave);
-
+		return;
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqTrigger)) == ZERO) {
 		if (args[ZERO] == NULL) {
 			Serial_printCharP(pmCmdReqTrigger);
@@ -490,6 +500,7 @@ void cmd_execute(char* cmd, char** args) {
 		Serial_print(' ');
 		Serial_printDec(ONE);
 		Serial_println();
+		return;
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqDoc)) == ZERO) {
 
@@ -685,7 +696,7 @@ void cmd_parse(void) {
 		Serial_println();
 	}
 	uint8_t idx = ZERO;
-	char *cmd, *ptr, *args[CMD_MAX_ARGS];
+	volatile char *cmd, *ptr, *args[CMD_MAX_ARGS];
 	if (strtok((char *)pf_data.cmd_buff,CMD_WHITE_SPACE) == NULL) {
 		Serial_printCharP(pmPromt);
 		return; // no command given so just print new promt.

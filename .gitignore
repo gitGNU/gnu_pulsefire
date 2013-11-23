@@ -23,6 +23,7 @@
 #
 # Ignore some files in the pulsefire project.
 #
+# TODO: inverse format to ignore all and only allow certain formats in certain folders.
 
 # Ignore all maven target directories
 /target
@@ -30,24 +31,29 @@
 */*/target
 */*/*/target
 
-# Ignore leftovers of really failed release build
+# Ignore maven work files
 release.properties
 pom.xml.next
 pom.xml.releaseBackup
 pom.xml.backup
 pom.xml.branch
 pom.xml.tag
-# Ignore version plugin backup
 pom.xml.versionsBackup
 
 # Ignore manual makefile builds
 /pulsefire-chip/src/main/c/build
 
-# Ignore C/java/images binary files
+# Ignore binary files
 *.o
+*.class
+*.old
+*.bak
+*.backup
 *.dat
+*.data
 *.gif
 *.pdf
+*.doc
 
 # Ignore ~ backup files.
 *~
@@ -65,4 +71,7 @@ nbproject
 # Ignore windows files.
 Thumbs.db
 Desktop.ini
+
+# Ignore kde dolphin files
+.directory
 

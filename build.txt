@@ -5,6 +5,7 @@ You need a few software packages;
 - java sdk 1.6 or higher.
 - maven 3 or higher.
 - make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
+- for launch4j build on 64b os get ia32-libs installed.
 
 -- Create package --
 
@@ -30,6 +31,22 @@ or
 make clean atmega328p-007-isp;
 or 
 make clean all;
+
+-- Run hardware debug --
+
+Hardware setup;
+- mega is on ttyACM1
+- uno is on ttyACM0
+- wire uno GND to RESET
+- wire uno TX-1 to mega TX3-14 
+
+Flash mega with htx firmware;
+cd pulsefire-chip/src/main/c/;
+make clean atmega2560-todo-isp ISP_PORT=/dev/ttyACM1;
+
+Start debug console;
+stty -F /dev/ttyACM0 cs8 115200 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
+cat < /dev/ttyACM0
 
 -- Test Flash code manual --
 

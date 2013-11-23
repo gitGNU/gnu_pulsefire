@@ -41,6 +41,7 @@
 #//define SF_ENABLE_SPI               // enable spi code       (+...)
 #//define SF_ENABLE_LCD               // enable lcd output     (+...)
 #//define SF_ENABLE_DEBUG             // enable some debug     (+...)
+#//define SF_ENABLE_DEBUG_HTX         // enable some debug htx (+...)
 
 // Customizable data
 #define LCD_INIT_MSG_TIME         555    // Welcome message timeout

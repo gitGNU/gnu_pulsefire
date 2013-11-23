@@ -47,8 +47,8 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 11    OUT     OSC-1A      <--         <--         <--         CIP 0
 - 12    OUT     OSC-1B      <--         <--         <--         CIP 0
 - 13    OUT     OSC-1C      <--         <--         <--         CIP 0
-- 14    n/a     free
-- 15    n/a     free
+- 14    OUT     HTX-TX      <--         <--         <--         HARDWARE DEBUG TRANSMIT OUTPUT
+- 15    IN      HTX-RX      <--         <--         <--
 - 16    n/a     free
 - 17    n/a     free
 - 18    IN      INT3        <--         <--         <--         INT 1
@@ -173,6 +173,24 @@ void Chip_setup_serial(void) {
 	// Enable pull-up on D0/RX, to supress line noise
 	DDRE &= ~_BV(PINE0);
 	PORTE |= _BV(PINE0);
+
+#ifdef SF_ENABLE_DEBUG_HTX
+	UCSR3A = (1<<U2X0); // use double so error rate is only 2.1%.
+	ubrr = (F_CPU/4/SERIAL_SPEED-ONE)/2;
+	if (ubrr > 4095) {
+		UCSR3A = ZERO;
+		ubrr = (F_CPU/8/SERIAL_SPEED-ONE)/2;
+	}
+	UBRR3H = ubrr>>8;  // set baud rate
+	UBRR3L = ubrr;
+
+	UCSR3B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0)/*|(1<UDRIE0)*/;  // enable Rx & Tx
+	UCSR3C = (1<<UCSZ00) | (1<<UCSZ01);          // 8n1
+
+	// Enable pull-up on D0/RX, to supress line noise
+	DDRJ &= ~_BV(PINJ0);
+	PORTJ |= _BV(PINJ0);
+#endif
 }
 
 void Chip_setup(void) {
@@ -436,7 +454,7 @@ void Chip_out_pwm(uint16_t data) {
 			shiftOut((uint8_t)(data >> 8)); // high byte
 		}
 		if ((pf_conf.spi_chips & SPI_CHIPS_OUT16) > ZERO) {
-			shiftOut((uint8_t)data);        // low byte, is last to that fist chip is zero !
+			shiftOut((uint8_t)data); // low byte, is last to that fist chip is zero !
 		}
 	digitalWrite(IO_MEGA_SPI_OUT_E_PORT,IO_MEGA_SPI_OUT_E_PIN,ONE);
 #endif
@@ -467,14 +485,14 @@ void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
 	if (cmd==LCD_SEND_DATA) {
 		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ONE); // write data
 	} else {
-		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ZERO);  // write command
+		digitalWrite(IO_MEGA_LCD_RS_PORT,IO_MEGA_LCD_RS_PIN,ZERO); // write command
 	}
 	volatile uint8_t *port = IO_MEGA_LCD_DATA_PORT;
 	*port=(*port & 0x0F)|(hn << 4);
 	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ONE);
 	asm volatile ("nop");
 	asm volatile ("nop");
-	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ZERO);  //Now data lines are stable pull E low for transmission
+	digitalWrite(IO_MEGA_LCD_E_PORT,IO_MEGA_LCD_E_PIN,ZERO); //Now data lines are stable pull E low for transmission
 	if (cmd!=LCD_SEND_INIT) {
 		asm volatile ("nop");
 		asm volatile ("nop");
@@ -546,16 +564,23 @@ void Chip_out_doc(void) {
 	}
 }
 
+#ifdef SF_ENABLE_DEBUG_HTX
+void Chip_out_debug_htx(char c) {
+	while ( !(UCSR3A & (1<<UDRE0)));
+	UDR3 = c;
+}
+#endif
+
 void Chip_in_int_pin(uint8_t pin,uint8_t enable) {
 	if (pin==ZERO) {
 		if (enable==ZERO) {
-			EIMSK |=  (ONE << INT2);   // Enable INT2 External Interrupt
+			EIMSK |=  (ONE << INT2); // Enable INT2 External Interrupt
 		} else {
 			EIMSK &= ~(ONE << INT2);
 		}
 	} else {
 		if (enable==ZERO) {
-			EIMSK |=  (ONE << INT3);   // Enable INT3 External Interrupt
+			EIMSK |=  (ONE << INT3); // Enable INT3 External Interrupt
 		} else {
 			EIMSK &= ~(ONE << INT3);
 		}

@@ -28,18 +28,18 @@
 #include "vars.h"
 #include "chip.h"
 
-char* UNPSTR(const char* dstring);
-char* UNPSTRA(const CHIP_PTR_TYPE* argu);
-void reverse_str(char s[]);
-void u16toa(uint16_t n, char s[]);
-void u32toa(uint32_t n, char s[]);
-uint16_t atou16(char* s);
-uint32_t atou32(char* s);
-uint32_t htou32(char* s);
+volatile char* UNPSTR(const char* dstring);
+volatile char* UNPSTRA(const CHIP_PTR_TYPE* argu);
+void reverse_str(volatile char s[]);
+void u16toa(uint16_t n, volatile char s[]);
+void u32toa(uint32_t n, volatile char s[]);
+uint16_t atou16(volatile char* s);
+uint32_t atou32(volatile char* s);
+uint32_t htou32(volatile char* s);
 uint16_t reverse_bits(uint16_t num,uint16_t num_bits);
 uint16_t map_value(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max);
-char* strtok(char *s, const char *delim);
-int strcmp(char *s1,char *s2);
+volatile char* strtok(volatile char *s, const char *delim);
+int strcmp(volatile char *s1,volatile char *s2);
 
 
 // end include

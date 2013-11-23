@@ -100,7 +100,7 @@ ARM_CC = ~/bin/arm-gcc/bin/arm-none-eabi-gcc
 ARM_OBJCOPY = ~/bin/arm-gcc/bin/arm-none-eabi-objcopy
 
 # Define all src files.
-SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./adc.c ./dic.c ./sys.c ./lcd.c ./mal.c ./pwm.c ./ptc.c ./ptt.c ./stv.c ./vsc.c ./serial.c ./utils.c 
+SOURCE=./strings.c ./vars.c ./pulsefire.c ./chip.c ./freq.c ./adc.c ./dic.c ./sys.c ./lcd.c ./mal.c ./pwm.c ./ptc.c ./ptt.c ./stv.c ./vsc.c ./serial.c ./utils.c ./debug.c 
 
 all: \
 atmega328p-1601 \

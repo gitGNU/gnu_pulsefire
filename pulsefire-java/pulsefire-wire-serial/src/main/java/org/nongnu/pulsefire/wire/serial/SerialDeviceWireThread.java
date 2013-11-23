@@ -164,7 +164,11 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 			deviceManager.incTotalError();
 		}
 
+		// TODO: rm me tmp until crash bug fix fixed
+		deviceManager.disconnect(true);
+		
 		// clear send buffer
+		/*
 		DeviceCommandRequest poll = deviceManager.pollCommandRequest();
 		while (poll!=null) {
 			poll.setResponse(poll.getRequest()); // release possible waiting requester 
@@ -178,6 +182,7 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 			deviceManager.requestCommand(new Command(CommandName.info_prog));
 		}
 		deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
+		*/
 		return;
 	}
 	

@@ -36,6 +36,7 @@
 #include "mal.h"
 #include "stv.h"
 #include "pwm.h"
+#include "debug.h"
 
 // Defines Types
 typedef uint8_t boolean;
@@ -378,7 +379,8 @@ typedef struct {
 
 	// == Special variables because these are not in the VARS list  ==
 
-	char                   unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
+	volatile char          unpstr_buff[UNPSTR_BUFF_SIZE]; // buffer to copy progmem data into
+	volatile char          unpstr_buff_rm2[UNPSTR_BUFF_SIZE];
 
 	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
 	volatile uint8_t       cmd_buff_idx;                  // Command index
@@ -389,7 +391,7 @@ typedef struct {
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop
 	volatile uint16_t      pwm_data[PWM_DATA_MAX][2];
 	volatile uint8_t       pwm_data_size;
-	char                   lcd_buff[20];
+	volatile char          lcd_buff[20];
 
 	volatile uint8_t       spi_int_req;  // note spi_ not in vars !
 	volatile uint8_t       spi_int_pin;
@@ -504,12 +506,12 @@ boolean Vars_isMenuSkip(byte idx);
 boolean Vars_isNoReset(byte idx);
 boolean Vars_isPush(byte idx);
 boolean Vars_isTypeData(byte idx);
-char*   Vars_getName(uint8_t idx);
+volatile char*   Vars_getName(uint8_t idx);
 uint8_t Vars_getBitType(byte idx);
 uint8_t Vars_getIndexAMax(uint8_t idx);
 uint8_t Vars_getIndexBMax(uint8_t idx);
 uint16_t Vars_getDefaultValue(uint8_t idx);
-uint16_t Vars_getIndexFromName(char* name);
+uint16_t Vars_getIndexFromName(volatile char* name);
 uint16_t Vars_getIndexFromPtr(uint16_t* ptr);
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB);
 uint32_t Vars_getValue32(uint8_t idx,uint8_t idxA);

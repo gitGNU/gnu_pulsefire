@@ -464,7 +464,7 @@ boolean Vars_isTypeData(byte idx) {
 }
 
 
-char* Vars_getName(uint8_t idx) {
+volatile char* Vars_getName(uint8_t idx) {
 	return UNPSTRA(&PF_VARS[idx][PFVF_NAME]);
 }
 
@@ -488,12 +488,25 @@ uint16_t Vars_getDefaultValue(uint8_t idx) {
 	return Chip_pgm_readWord(&(PF_VARS[idx][PFVF_DEF]));
 }
 
-uint16_t Vars_getIndexFromName(char* name) {
+volatile char* UNPSTR_rm2(const char* dstring) {
+	for (uint8_t i=ZERO;i < UNPSTR_BUFF_SIZE;i++) {
+		pf_data.unpstr_buff_rm2[i]='\0'; // clean buffer
+	}
+	int index = ZERO;
+	while (Chip_pgm_readByte(dstring) != 0x00) {
+		uint8_t c = Chip_pgm_readByte(dstring++);
+		pf_data.unpstr_buff_rm2[index]=c;
+		index++;
+	}
+	return pf_data.unpstr_buff_rm2;
+}
+
+uint16_t Vars_getIndexFromName(volatile char* name) {
 	for (uint8_t i=ZERO;i < PF_VARS_SIZE;i++) {
 #ifdef SF_ENABLE_ARM_7M
 		if (strcmp(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) {
 #else
-		if (strcmp_P(name, (void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME]))) == ZERO) { // TODO: rm _P but not with UNPSTR
+		if (strcmp(name, UNPSTR_rm2((void*)Chip_pgm_readWord(&(PF_VARS[i][PFVF_NAME])))) == ZERO) { // TODO: rm _P but not with UNPSTR
 #endif
 			return i;
 		}
@@ -511,6 +524,10 @@ uint16_t Vars_getIndexFromPtr(uint16_t* ptr) {
 }
 
 uint16_t Vars_getValue(uint8_t idx,uint8_t idxA,uint8_t idxB) {
+#ifdef SF_ENABLE_DEBUG_HTX
+	Debug_htx_c('g');
+	Debug_htx_hex8(idx);
+#endif
 	boolean indexedA   = Vars_isIndexA(idx);
 	boolean indexedB   = Vars_isIndexB(idx);
 	uint8_t idxMaxA    = Vars_getIndexAMax(idx);
@@ -707,6 +724,10 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	if (idx > PF_VARS_SIZE) {
 		return value;
 	}
+#ifdef SF_ENABLE_DEBUG_HTX
+	Debug_htx_c('s');
+	Debug_htx_hex8(idx);
+#endif
 	if (sys_vvm_is_variable_locked(idx,idxA) != QMAP_VAR_IDX_ALL) {
 		return Vars_getValue(idx,idxA,idxB); // locked
 	}
@@ -819,9 +840,9 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 
 	// Send to serial if push is on
 	if (pf_data.req_tx_push == ONE && serial==false) {
-		if (intBuff==false) {
-			Serial_printVar(idx,idxA,value);
-		} else {
+	//	if (intBuff==false) {
+	//		Serial_printVar(idx,idxA,value);
+	//	} else {
 			for (uint8_t i=ZERO;i < VARS_INT_NUM_SIZE;i++) {
 				uint16_t intIdx = pf_data.vars_int_buff[i][0];
 				if ((intIdx == 0xFFFF) | (intIdx == idx)) {
@@ -831,8 +852,10 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 					break;
 				}
 			}
-			return value; // done setting int buff
-		}
+			if (intBuff==true) {
+			  return value; // done setting int buff
+			}
+	//	}
 	}
 
 	// Some fields require extra update code;
@@ -971,7 +994,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 	}
 	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqIdx)  { Freq_requestTrainFreq(); }
 	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqFreq) { Freq_requestTrainFreq(); }
-	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqDuty) {	Freq_requestTrainFreq(); }
+	if ( varName == (CHIP_PTR_TYPE)&pmConfPWMReqDuty) { Freq_requestTrainFreq(); }
 #endif
 #ifdef SF_ENABLE_MAL
 	if ( varName == (CHIP_PTR_TYPE)&pmDataMALFire) { Mal_fire(idxA); }
@@ -1149,6 +1172,10 @@ void Vars_loop(void) {
 		if (idx == 0xFFFF) {
 			continue;
 		}
+#ifdef SF_ENABLE_DEBUG_HTX
+		Debug_htx_c('v');
+		Debug_htx_hex8(idx);
+#endif
 		// copy data
 		uint16_t idxA  = pf_data.vars_int_buff[i][1];
 		uint16_t value = pf_data.vars_int_buff[i][2];
@@ -1157,6 +1184,9 @@ void Vars_loop(void) {
 		pf_data.vars_int_buff[i][0] = 0xFFFF; // onyl non-0xFFFF value is free so this shuold be int save.
 		// print data
 		Serial_printVar(idx,idxA,value);
+#ifdef SF_ENABLE_DEBUG_HTX
+		Debug_htx_c('!');
+#endif
 	}
 }
 

@@ -24,7 +24,7 @@
 #include "utils.h"
 
 // Uncopy from program/flash memory to sram
-char* UNPSTR(const char* dstring) {
+volatile char* UNPSTR(const char* dstring) {
 	for (uint8_t i=ZERO;i < UNPSTR_BUFF_SIZE;i++) {
 		pf_data.unpstr_buff[i]='\0'; // clean buffer
 	}
@@ -38,7 +38,7 @@ char* UNPSTR(const char* dstring) {
 }
 
 // Fill pstr_buff from pointer
-char* UNPSTRA(const CHIP_PTR_TYPE* argu) {
+volatile char* UNPSTRA(const CHIP_PTR_TYPE* argu) {
 	// rm readByte use word which auto size ptr
 	uint8_t msb = Chip_pgm_readByte((const char*)argu+1);
 	uint8_t lsb = Chip_pgm_readByte((const char*)argu);
@@ -47,9 +47,9 @@ char* UNPSTRA(const CHIP_PTR_TYPE* argu) {
 }
 
 // Reverse a string
-void reverse_str(char s[]) {
+void reverse_str(volatile char s[]) {
 	uint8_t nn = ZERO;
-	char* ss = s;
+	volatile char* ss = s;
 	while (*ss++) { nn++; }
 	int c, i, j;
 	for (i = 0, j = nn-1; i < j; i++, j--){
@@ -60,7 +60,7 @@ void reverse_str(char s[]) {
 }
 
 // Print uint16_t to ascii decimal
-void u16toa(uint16_t n, char s[]) { 
+void u16toa(uint16_t n, volatile char s[]) { 
 	uint16_t i=0;
 	do {   // generate digits in reverse order
 		s[i++] = n % 10 + '0'; // get next digit
@@ -69,7 +69,7 @@ void u16toa(uint16_t n, char s[]) {
 	reverse_str(s);
 }
 
-void u32toa(uint32_t n, char s[]) { 
+void u32toa(uint32_t n, volatile char s[]) { 
 	uint32_t i=0;
 	do {
 		s[i++] = n % 10 + '0';
@@ -80,9 +80,9 @@ void u32toa(uint32_t n, char s[]) {
 
 
 // Parser ascii to uint16_t
-uint16_t atou16(char* s) {
+uint16_t atou16(volatile char* s) {
 	uint8_t nn = ZERO;
-	char* ss = s;
+	volatile char* ss = s;
 	while (*ss++) { nn++; }
 	uint16_t num = ZERO;
 	for (uint8_t i=ZERO;i <= nn;i++) {
@@ -95,9 +95,9 @@ uint16_t atou16(char* s) {
 	return num;
 }
 
-uint32_t atou32(char* s) {
+uint32_t atou32(volatile char* s) {
 	uint8_t nn = ZERO;
-	char* ss = s;
+	volatile char* ss = s;
 	while (*ss++) { nn++; }
 	uint32_t num = ZERO;
 	for (uint8_t i=ZERO;i <= nn;i++) {
@@ -111,9 +111,9 @@ uint32_t atou32(char* s) {
 }
 
 
-uint32_t htou32(char* s) {
+uint32_t htou32(volatile char* s) {
 	uint8_t nn = ZERO;
-	char* ss = s;
+	volatile char* ss = s;
 	while (*ss++) { nn++; }
 	uint32_t num = ZERO;
 	for (uint8_t i=ZERO;i <= nn;i++) {
@@ -145,11 +145,11 @@ uint16_t map_value(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_mi
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-char* strtok(char *s, const char *delim) {
+volatile char* strtok(volatile char *s, const char *delim) {
 	const char *spanp;
 	int c, sc;
-	char *tok;
-	static char *last;
+	volatile char *tok;
+	volatile static char *last;
 	if (s == NULL && (s = last) == NULL) {
 		return (NULL);
 	}
@@ -183,7 +183,7 @@ cont:
 	/* NOTREACHED */
 }
 
-int strcmp(char *s1,char *s2) {
+int strcmp(volatile char *s1,volatile char *s2) {
 	while (*s1 && *s2 && *s1 == *s2) {
 		s1++;
 		s2++;
