@@ -442,8 +442,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </plugins>
   </build>
   <profiles>
+	<profile>
+      <id>pf-build</id>
+    </profile> 
     <profile>
-      <id>notest</id>
+      <id>pf-test-none</id>
       <properties>
         <skipTests>true</skipTests>
       </properties>

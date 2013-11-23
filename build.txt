@@ -7,10 +7,10 @@ You need a few software packages;
 - make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
 - for launch4j build on 64b os get ia32-libs installed.
 
--- Create package --
+-- Create build artifacts --
 
 cd project-root/;
-mvn clean package;
+mvn -Ppf-build clean package;
 
 Which results in zip/tar/gz archieves in the different build targets;
 ls pulsefire-build/pulsefire-build-*/target/*
@@ -22,7 +22,7 @@ mvn clean install;
 cd pulsefire-java/pulsefire-device-ui/;
 mvn exec:java -Dexec.mainClass="org.nongnu.pulsefire.device.ui.PulseFireUI"
 
--- Build chip code --
+-- Build manual chip code --
 
 cd project-root/;
 cd pulsefire-chip/src/main/c/;
@@ -65,7 +65,7 @@ mvn versions:set -DnewVersion=2.3.4-SNAPSHOT
 -- Make release build --
 
 cd project-root/;
-mvn clean package;
+mvn -Ppf-build clean package;
 mvn -B -Dusername=<scm_username> clean install release:clean release:prepare release:perform;
 src/build/gnu-up.sh <scm_username> <version>
 
