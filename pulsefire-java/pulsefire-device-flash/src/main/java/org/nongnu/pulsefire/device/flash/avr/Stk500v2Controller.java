@@ -162,7 +162,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		progress = 3;
 		
 		// Check if we are connected
-		FlashMessage msg = doFlashCommand(Stk500v2Command.CMD_SIGN_ON);		
+		FlashMessage msg = doFlashCommand(Stk500v2Command.CMD_SIGN_ON);
 		if (msg.getResponse().size()<4) {
 			throw new FlashException("not synced got less then 4 bytes: "+msg.getResponse().size());
 		}
@@ -175,12 +175,13 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		if (msg.getResponse().get(2) != Stk500v2Command.STATUS_CMD_OK.getToken()) {
 			throw new FlashException("not connected; got: "+msg.getResponse().get(2));
 		}
-		logMessage("Synced communication.");
+		logInitSync();
 		StringBuilder buf = new StringBuilder(10);
 		for (int i=4;i<msg.getResponse().size();i++) {
 			buf.append(Character.toChars(msg.getResponse().get(i)));
 		}
-		logMessage("Programmer: "+buf);
+		progress = 6;
+		logInitProgrammer(buf.toString());
 		
 		FlashMessage versionHw = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_HW_VER.getToken());
 		FlashMessage versionSwMajor = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SW_MAJOR.getToken());
@@ -275,7 +276,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		byte[] dataBytes = flashControllerConfig.getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
-		logMessage("Start flashing.");
+		logFlashStart();
 		float flashTotalPercentage = 90.0f;
 		if (flashControllerConfig.isFlashVerify()) {
 			flashTotalPercentage = 80.0f;
@@ -310,7 +311,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 			flash = sendFlashMessage(flash);
 			// check
 		}
-		logMessage("Flashing is done.");
+		logFlashStop();
 		
 		if (flashControllerConfig.isFlashVerify()) {
 			logMessage("Reading flash for verify.");
@@ -331,18 +332,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 					readBytes.add(data);
 				}
 			}
-			logMessage("Verify flash data...");
-			for (int ii=0;ii<flashControllerConfig.getFlashData().length;ii++) {
-				byte burnData = flashControllerConfig.getFlashData()[ii];
-				if (ii>readBytes.size()) {
-					throw new FlashException("Missing backread bytes to verify");
-				}
-				byte readData = readBytes.get(ii).byteValue();
-				if (burnData!=readData) {
-					throw new FlashException("Mismatch on address: "+Integer.toHexString(ii)+" expected: "+Integer.toHexString(burnData)+" got: "+Integer.toHexString(readData));
-				}
-			}
-			logMessage("Verified "+readBytes.size()+" bytes flash oke.");
+			flashVerify(readBytes,flashControllerConfig.getFlashData());
 		}
 		
 		FlashMessage leaveIsp = new FlashMessage();

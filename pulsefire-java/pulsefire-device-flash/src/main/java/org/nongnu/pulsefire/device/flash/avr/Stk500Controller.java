@@ -170,10 +170,9 @@ public class Stk500Controller extends AbstractStk500Controller {
 		if (msg.getResponse().get(1) != Stk500Command.STK_OK.getToken()) {
 			throw new FlashException("not connected; got: "+msg.getResponse().get(1));
 		}
-		logMessage("Synced communication.");
+		logInitSync();
 		progress = 6;
-		
-		logMessage("Programmer: Arduino");
+		logInitProgrammer("Arduino");
 		
 		FlashMessage versionHw = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x80);
 		FlashMessage versionSwMajor = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x81);
@@ -237,7 +236,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 		byte[] dataBytes = flashControllerConfig.getFlashData();
 		int pageSize = 0x80;
 		int pages = dataBytes.length/pageSize;
-		logMessage("Start flashing.");
+		logFlashStart();
 		float flashTotalPercentage = 90.0f;
 		if (flashControllerConfig.isFlashVerify()) {
 			flashTotalPercentage = 80.0f;
@@ -270,7 +269,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 			flash = sendFlashMessage(flash);
 			// check
 		}
-		logMessage("Flashing is done.");
+		logFlashStop();
 		if (flashControllerConfig.isFlashVerify()) {
 			logMessage("Reading flash for verify.");
 			List<Integer> readBytes = new ArrayList<Integer>(flashControllerConfig.getFlashData().length);
@@ -294,18 +293,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 					readBytes.add(data);
 				}
 			}
-			logMessage("Verify flash data...");
-			for (int ii=0;ii<flashControllerConfig.getFlashData().length;ii++) {
-				byte burnData = flashControllerConfig.getFlashData()[ii];
-				if (ii>readBytes.size()) {
-					throw new FlashException("Missing backread bytes to verify");
-				}
-				byte readData = readBytes.get(ii).byteValue();
-				if (burnData!=readData) {
-					throw new FlashException("Mismatch on address: "+Integer.toHexString(ii)+" expected: "+Integer.toHexString(burnData)+" got: "+Integer.toHexString(readData));
-				}
-			}
-			logMessage("Verified "+readBytes.size()+" bytes flash oke.");
+			flashVerify(readBytes,flashControllerConfig.getFlashData());
 		}
 		progress = 100;
 	}

@@ -35,6 +35,7 @@ abstract public class AbstractFlashProgramController implements FlashProgramCont
 
 	protected List<FlashLogListener> flashLogListeners = null;
 	protected int progress = 0;
+	private long flashStartTime = 0l;
 
 	public AbstractFlashProgramController() {
 		flashLogListeners = new ArrayList<FlashLogListener>(3);
@@ -60,5 +61,38 @@ abstract public class AbstractFlashProgramController implements FlashProgramCont
 			FlashLogListener l = flashLogListeners.get(i);
 			l.flashLogMessage(message);
 		}
+	}
+	
+	protected void logInitSync() {
+		logMessage("Synced communication.");
+	}
+	
+	protected void logInitProgrammer(String programmer) {
+		logMessage("Programmer: "+programmer);
+	}
+	
+	protected void logFlashStart() {
+		logMessage("Start flashing...");
+		flashStartTime = System.currentTimeMillis();
+	}
+	
+	protected void logFlashStop() {
+		long totalTime = System.currentTimeMillis()-flashStartTime;
+		logMessage("Flashing is done in: "+totalTime+" ms.");
+	}
+	
+	protected void flashVerify(List<Integer> readBytes,byte[] flashData) throws FlashException {
+		logMessage("Verify flash data...");
+		for (int ii=0;ii<flashData.length;ii++) {
+			byte burnData = flashData[ii];
+			if (ii>readBytes.size()) {
+				throw new FlashException("Missing backread bytes to verify");
+			}
+			byte readData = readBytes.get(ii).byteValue();
+			if (burnData!=readData) {
+				throw new FlashException("Mismatch on address: "+Integer.toHexString(ii)+" expected: "+Integer.toHexString(burnData)+" got: "+Integer.toHexString(readData));
+			}
+		}
+		logMessage("Verified "+readBytes.size()+" bytes flash oke.");
 	}
 }
