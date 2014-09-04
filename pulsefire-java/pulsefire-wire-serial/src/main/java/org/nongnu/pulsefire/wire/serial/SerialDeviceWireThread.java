@@ -90,11 +90,11 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 	
 	public void start() {
 		Thread out = new Thread(new ProcessOutput());
-		out.setName("PulseFire-Out");
+		out.setName("PulseFire-Serial-Out");
 		out.start();
 		
 		Thread in = new Thread(new ProcessInput());
-		in.setName("PulseFire-In");
+		in.setName("PulseFire-Serial-In");
 		in.start();
 	}
 	

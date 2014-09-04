@@ -90,6 +90,10 @@ public class JConnectDialog extends JDialog implements MouseListener {
 	}
 	
 	class UpdateProgressThread extends Thread {
+		public UpdateProgressThread() {
+			setName("PulseFire-"+UpdateProgressThread.class.getSimpleName());
+		}
+		
 		@Override
 		public void run() {
 			DeviceWireManager sm = PulseFireUI.getInstance().getDeviceManager();
@@ -128,6 +132,7 @@ public class JConnectDialog extends JDialog implements MouseListener {
 		private String port = null;
 		public ConnectThread(String port) {
 			this.port=port;
+			setName("PulseFire-"+ConnectThread.class.getSimpleName());
 		}
 		
 		@Override

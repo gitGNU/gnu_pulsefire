@@ -49,7 +49,6 @@ public class EventTimeManager {
 	
 	public void start() {
 		eventTimeThread = new EventTimeThread(this);
-		eventTimeThread.setName("PulseFire-Timer");
 		eventTimeThread.start();
 	}
 	

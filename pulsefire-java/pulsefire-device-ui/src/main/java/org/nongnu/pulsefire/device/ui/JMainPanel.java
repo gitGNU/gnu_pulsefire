@@ -51,7 +51,6 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPins;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwmExt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelStv;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelScope;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSettings;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSystem;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelUILog;
@@ -100,10 +99,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 			uiLogPanel = new JTabPanelUILog(); 
 			tabPanels.add(uiLogPanel);
 		}
-		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.TAB_SCOPE_ENABLE)) {
-			scopePanel = new JTabPanelScope(); 
-			tabPanels.add(scopePanel);
-		}
 		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.TAB_LPM_ENABLE)) {
 			lpmPanel = new JTabPanelLpm(); 
 			tabPanels.add(lpmPanel);
@@ -115,7 +110,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		main.add(createContentSplit(), BorderLayout.CENTER);
 		
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_UILOG_ENABLE, this);
-		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_SCOPE_ENABLE, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.TAB_LPM_ENABLE, this);
 	}
 	
@@ -173,24 +167,10 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private JPanel createBottomInfo() {
 		return new JPanelConsoleInfo();
 	}
-
+	
 	@Override
 	public void settingUpdated(PulseFireUISettingKeys key, String value) {
-		if (PulseFireUISettingKeys.TAB_SCOPE_ENABLE==key) {
-			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
-				if (scopePanel==null) {
-					scopePanel = new JTabPanelScope();
-					Component pane = createJScrollPane(scopePanel);
-					tabbedPane.addTab(scopePanel.getTabName(),scopePanel.getTabIcon(),pane,scopePanel.getTabTooltip());
-				}
-			} else {
-				if (scopePanel!=null) {
-					removeTabPanel(scopePanel);
-					scopePanel.release();
-					scopePanel = null;
-				}
-			}
-		} else if (PulseFireUISettingKeys.TAB_UILOG_ENABLE==key) {
+		if (PulseFireUISettingKeys.TAB_UILOG_ENABLE==key) {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (uiLogPanel==null) {
 					uiLogPanel = new JTabPanelUILog();

@@ -68,9 +68,9 @@ public class PulseFireDataLogManager {
 		Thread t1 = new Thread(logDataWriter1);
 		Thread t2 = new Thread(logDataWriter2);
 		
-		t0.setName(LogDataWriter.class.getSimpleName()+"-0");
-		t1.setName(LogDataWriter.class.getSimpleName()+"-1");
-		t2.setName(LogDataWriter.class.getSimpleName()+"-2");
+		t0.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-0");
+		t1.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-1");
+		t2.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-2");
 		
 		t0.start();
 		t1.start();

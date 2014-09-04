@@ -203,12 +203,10 @@ public class PulseFireUI extends SingleFrameApplication {
 			public String getVersion() {
 				return "0.0.0-Development";
 			}
-
 			@Override
 			public String getBuildDate() {
 				return new Date().toString();
 			}
-			
 		};
 	}
 	

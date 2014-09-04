@@ -197,19 +197,16 @@ public class JTabPanelSettings extends AbstractFireTabPanel {
 		panel.add(JComponentFactory.createJLabel("Console lines"));
 		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.CONSOLE_LINES,new String[] {"300","500","1000","2000","5000","10000","20000","50000"}));
 		
-		panel.add(JComponentFactory.createJLabel("Tab Audio Scope"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.TAB_SCOPE_ENABLE));
-		
 		panel.add(JComponentFactory.createJLabel("Tab UILog"));
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.TAB_UILOG_ENABLE));
-
+		
 		panel.add(JComponentFactory.createJLabel("Tab LPM"));
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.TAB_LPM_ENABLE));
 		
 		panel.add(JComponentFactory.createJLabel("Pull Speed"));
 		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.PULL_SPEED,new String[] {"100","250","500","1000","2000","3000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
 		
-		SpringLayoutGrid.makeCompactGrid(panel,8,2);
+		SpringLayoutGrid.makeCompactGrid(panel,7,2);
 		return panel;
 	}
 	
@@ -229,14 +226,6 @@ public class JTabPanelSettings extends AbstractFireTabPanel {
 		});
 		panel.add(new JLabel());
 		panel.add(burnButton);
-		
-		/*
-		panel.add(JComponentFactory.createJLabel("Flash Chip"));
-		JButton burnZipButton = new JButton("BurnZip");
-		burnZipButton.setEnabled(false);
-		panel.add(new JLabel());
-		panel.add(burnZipButton);
-		*/
 		
 		panel.add(JComponentFactory.createJLabel("avrdude cmd"));
 		final JTextField avrdudeFile = new JTextField(25);
@@ -287,7 +276,6 @@ public class JTabPanelSettings extends AbstractFireTabPanel {
 		return panel;
 	}
 	
-	
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();
@@ -298,7 +286,7 @@ public class JTabPanelSettings extends AbstractFireTabPanel {
 		burnButton.setEnabled(false);
 		super.deviceConnect();
 	}
-
+	
 	@Override
 	public void deviceDisconnect() {
 		super.deviceDisconnect();

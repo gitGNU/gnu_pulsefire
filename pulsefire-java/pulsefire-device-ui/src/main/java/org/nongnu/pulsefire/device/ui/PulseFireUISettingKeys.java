@@ -37,7 +37,6 @@ public enum PulseFireUISettingKeys {
 	CONSOLE_LINES("500"),
 	PULL_SPEED("10000"),
 	
-	TAB_SCOPE_ENABLE("false"),
 	TAB_UILOG_ENABLE("false"),
 	TAB_LPM_ENABLE("false"),
 	

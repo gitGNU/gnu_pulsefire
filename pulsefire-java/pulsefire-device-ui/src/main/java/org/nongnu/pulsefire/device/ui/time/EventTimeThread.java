@@ -41,6 +41,7 @@ public class EventTimeThread extends Thread {
 	protected EventTimeThread(EventTimeManager eventTimeManager) {
 		this.eventTimeManager=eventTimeManager;
 		logger = Logger.getLogger(EventTimeThread.class.getName());
+		setName("PulseFire-"+EventTimeThread.class.getSimpleName());
 	}
 	
 	public void run() {
