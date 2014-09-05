@@ -25,7 +25,10 @@
 #include "serial.h"
 
 void Serial_print(char c) {
-	Chip_out_serial(c);
+	while (pf_data.serial_tx_lock != ZERO) {}; // wait int is disabled
+
+	pf_data.serial_tx_buff[pf_data.serial_tx_idx_buff]=c;
+	pf_data.serial_tx_idx_buff++;
 }
 
 void Serial_printHex(uint8_t argu) {
@@ -50,12 +53,13 @@ void Serial_printDec(int argu) {
 
 void Serial_printChar(volatile char* dstring) {
 	while(*dstring != 0) {
-		Chip_out_serial(*dstring);
+		Serial_print(*dstring);
 		dstring++;
 	}
 }
 void Serial_println(void) {
 	Serial_print('\n');
+	Chip_out_serial();
 }
 
 // short cuts to make code a bit smaller
@@ -230,7 +234,7 @@ void cmd_print_info_chip(void) {
 	Serial_println();
 
 	cmd_print_info_value_long(pmChipConfSize,        sizeof(pf_conf_struct));
-	cmd_print_info_value_long(pmChipFreeSram,        Chip_free_ram());
+	//cmd_print_info_value_long(pmChipFreeSram,        Chip_free_ram());
 	cmd_print_info_value_long(pmChipCPUFreq,         F_CPU);
 	Serial_println_get_P2(pmChipCPUType,             Chip_cpu_type());
 	Serial_println_get_P2(pmChipName,                pmChipNameStr);
@@ -303,6 +307,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 	} else if ( strcmp(cmd,UNPSTR(pmCmdHelp)) == ZERO ) {
 		if (pf_data.req_tx_promt == ONE) {
 			Serial_printCharP(pmCmdHelpStart);
+			Serial_println();
 		}
 		uint8_t i=ZERO;
 		for (i=ZERO;i < PMCMDLIST_SIZE;i++) {
@@ -699,6 +704,7 @@ void cmd_parse(void) {
 	volatile char *cmd, *ptr, *args[CMD_MAX_ARGS];
 	if (strtok((char *)pf_data.cmd_buff,CMD_WHITE_SPACE) == NULL) {
 		Serial_printCharP(pmPromt);
+		Chip_out_serial();
 		return; // no command given so just print new promt.
 	}
 	cmd = (char *)pf_data.cmd_buff;
@@ -712,6 +718,7 @@ void cmd_parse(void) {
 	cmd_execute(cmd,args);
 	if (pf_data.req_tx_promt == ONE) {
 		Serial_printCharP(pmPromt);
+		Chip_out_serial();
 	}
 }
 
@@ -728,10 +735,12 @@ void Serial_rx_int(uint8_t c) {
 	if (c=='\b') {
 		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// backspace
 		pf_data.cmd_buff_idx--;
-		if (pf_data.req_tx_echo == ONE) {
-			Chip_out_serial(' ');
-			Chip_out_serial(c);
-		}
+		//if (pf_data.req_tx_echo == ONE) {
+			//Serial_print(' ');
+			//Serial_print(c); // TODO: fixme can't echo on int
+			//Chip_out_serial(' ');
+			//Chip_out_serial(c);
+		//}
 	} else if (c=='\n') {
 		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// newline
 		pf_data.cmd_buff_idx = ZERO;
@@ -754,18 +763,14 @@ void Serial_loop(void) {
 void Serial_setup(void) {
 	pf_data.cmd_process  = ONE; // rm me
 	pf_data.cmd_buff_idx = ZERO;
-	//pf_data.send_buff_idx = ZERO;
+	pf_data.serial_tx_idx_buff = ZERO;
+	pf_data.serial_tx_idx_int = ZERO;
+	pf_data.serial_tx_lock = ZERO;
 
 	// delay is needed else we get junk on terminal.
 	Chip_delay(100);
-	Serial_println();Serial_printCharP(pmPromt);
-	/*
-	Chip_delay(1000);
-	Serial_println();Serial_printCharP(pmPromt);
-	Chip_delay(1000);
-	Serial_println();Serial_printCharP(pmPromt);
-	Chip_delay(1000);
-	Serial_println();Serial_printCharP(pmPromt);
-	*/
+	Serial_println();
+	Serial_printCharP(pmPromt);
+	Chip_out_serial();
 }
 

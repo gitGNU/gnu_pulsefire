@@ -28,12 +28,12 @@ volatile char* UNPSTR(const char* dstring) {
 	for (uint8_t i=ZERO;i < UNPSTR_BUFF_SIZE;i++) {
 		pf_data.unpstr_buff[i]='\0'; // clean buffer
 	}
-	int index = ZERO;
-	while (Chip_pgm_readByte(dstring) != 0x00) {
-		uint8_t c = Chip_pgm_readByte(dstring++);
-		pf_data.unpstr_buff[index]=c;
-		index++;
-	}
+	uint8_t i = ZERO;
+	uint8_t c = ZERO;
+	do {
+		c = Chip_pgm_readByte(dstring++);
+		pf_data.unpstr_buff[i++]=c;
+	} while (c != ZERO);
 	return pf_data.unpstr_buff;
 }
 

@@ -51,6 +51,7 @@
 int main(void) {
 
 	Chip_setup_serial(); // Setup serial first so we can debug.
+	Chip_sei();          // Enable interrupts
 	Serial_setup();      // Setup serial lib
 	Vars_setup();        // Setup vars
 	Chip_setup();        // Setup chips using vars
@@ -60,7 +61,7 @@ int main(void) {
 #ifdef SF_ENABLE_PWM
 	PWM_send_output(PULSE_DATA_OFF);
 #endif
-	Chip_sei();          // Enable interrupts
+
 #ifdef SF_ENABLE_LCD
 	Lcd_setup();         // needs interrupts in spi mode
 #endif

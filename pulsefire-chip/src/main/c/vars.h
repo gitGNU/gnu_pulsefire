@@ -384,8 +384,10 @@ typedef struct {
 
 	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
 	volatile uint8_t       cmd_buff_idx;                  // Command index
-	volatile char          cmd_buff1[CMD_BUFF_SIZE];
-	volatile uint8_t       cmd_buff1_idx;
+	volatile char          serial_tx_buff[CMD_BUFF_SIZE+CMD_BUFF_SIZE]; // todo: check overflow
+	volatile uint8_t       serial_tx_idx_buff;
+	volatile uint8_t       serial_tx_idx_int;
+	volatile uint8_t       serial_tx_lock;
 	volatile uint8_t       cmd_process;                   // Processing command
 
 	volatile uint16_t      vars_int_buff[VARS_INT_NUM_SIZE][VARS_INT_SIZE]; // print int vars into normal code loop

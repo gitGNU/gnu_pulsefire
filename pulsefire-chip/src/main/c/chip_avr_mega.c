@@ -193,6 +193,15 @@ void Chip_setup_serial(void) {
 #endif
 }
 
+void Chip_out_serial(void) {
+	while (pf_data.serial_tx_lock != ZERO) {}; // wait int is disabled
+	pf_data.serial_tx_lock = ONE;
+	UCSR0B |=  (ONE<<UDRIE0);
+	UCSR0A |=  (ONE<<TXC0);
+	//while ( !(UCSR0A & (1<<UDRE0)));
+	//UDR0 = data;
+}
+
 void Chip_setup(void) {
 
 	// === Pin 0 and 1
@@ -473,11 +482,6 @@ void Chip_out_pwm(uint16_t data) {
 	}
 }
 
-void Chip_out_serial(uint8_t data) {
-	while ( !(UCSR0A & (1<<UDRE0)));
-	UDR0 = data;
-}
-
 #ifdef SF_ENABLE_LCD
 void Chip_lcd_write_pins(uint8_t data,uint8_t cmd,uint8_t mux) {
 	uint8_t hn = data >> 4;
@@ -645,6 +649,19 @@ ISR(TIMER5_COMPA_vect) {
 
 ISR(USART0_RX_vect) {
 	Serial_rx_int(UDR0);
+}
+
+ISR(USART0_UDRE_vect) {
+	uint8_t idx = pf_data.serial_tx_idx_int;
+	UDR0 = pf_data.serial_tx_buff[idx];
+	idx++;
+	if (idx==pf_data.serial_tx_idx_buff) {
+		idx=ZERO;
+		UCSR0B &= ~(ONE<<UDRIE0); // disable int
+		pf_data.serial_tx_idx_buff = ZERO;
+		pf_data.serial_tx_lock = ZERO; // soft send wait lock release
+	}
+	pf_data.serial_tx_idx_int=idx;
 }
 
 ISR(BADISR_vect) {

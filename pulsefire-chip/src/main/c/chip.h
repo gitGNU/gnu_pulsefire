@@ -79,7 +79,7 @@ CHIP_PTR_TYPE Chip_pgm_readWord(const CHIP_PTR_TYPE* p);
 void          Chip_reg_set(uint8_t reg,uint16_t value);
 
 void Chip_out_pwm(uint16_t data);
-void Chip_out_serial(uint8_t data);
+void Chip_out_serial(void);
 void Chip_out_lcd(uint8_t data,uint8_t cmd,uint8_t mux);
 void Chip_out_doc(void);
 #ifdef SF_ENABLE_DEBUG_HTX

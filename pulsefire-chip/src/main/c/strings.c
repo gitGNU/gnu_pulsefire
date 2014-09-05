@@ -59,7 +59,7 @@ const char pmDataLcdMenuValueIdx[]     CHIP_PROGMEM = "lcd_menu_value_idx";
 const char pmDataLcdMenuTimeCnt[]      CHIP_PROGMEM = "lcd_menu_time_cnt";
 #endif
 const char pmCmdUnknown[]              CHIP_PROGMEM = "# Err: command unknown";
-const char pmCmdHelpStart[]            CHIP_PROGMEM = "# The commands are;\r\n";
+const char pmCmdHelpStart[]            CHIP_PROGMEM = "# The commands are;\r";
 const char pmCmdHelp[]                 CHIP_PROGMEM = "help";
 const char pmCmdSave[]                 CHIP_PROGMEM = "save";
 const char pmCmdResetConfig[]          CHIP_PROGMEM = "reset_conf";
