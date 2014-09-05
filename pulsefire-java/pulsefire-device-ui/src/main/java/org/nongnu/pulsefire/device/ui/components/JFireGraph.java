@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -72,13 +74,26 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 			Color.decode("#993333")
 	};
 	
-	public JFireGraph(CommandName commandName) {
+	public JFireGraph(final CommandName commandName) {
 		this.commandName=commandName;
 		this.timeDataStore=PulseFireUI.getInstance().getTimeData();
 		setPreferredSize(new Dimension(440,220));
 		setMinimumSize(new Dimension(80,40));
 		setBorder(BorderFactory.createEmptyBorder());
-		PulseFireUI.getInstance().getTimeData().addTimeDataListener(commandName, this);
+		addHierarchyListener(new HierarchyListener() {
+			
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+				if (HierarchyEvent.PARENT_CHANGED!=e.getChangeFlags()) {
+					return;
+				}
+				if (JFireGraph.this.getParent()!=null) {
+					PulseFireUI.getInstance().getTimeData().addTimeDataListener(commandName, JFireGraph.this);
+				} else {
+					PulseFireUI.getInstance().getTimeData().removeTimeDataListener(commandName, JFireGraph.this);
+				}
+			}
+		});
 	}
 
 	public CommandName getCommandName() {

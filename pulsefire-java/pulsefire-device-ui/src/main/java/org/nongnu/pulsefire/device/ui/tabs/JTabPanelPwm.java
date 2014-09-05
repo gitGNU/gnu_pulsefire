@@ -68,7 +68,7 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 
 	public JTabPanelPwm() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		//setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
+		setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
 		add(createContent());
 	}
 	
@@ -239,104 +239,6 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		return centerPanel;
 	}
 	
-	/*
-	private JPanel createChannelFirst() {
-		JPanel borderPanel = JComponentFactory.createJFirePanel("ALL");
-		borderPanel.setLayout(new BoxLayout(borderPanel,BoxLayout.PAGE_AXIS));
-		
-		JPanel boxPanel = new JPanel();
-		boxPanel.setLayout(new SpringLayout());
-		JCheckBox boxMaskA = new JCommandCheckBoxAll(CommandName.pulse_mask_a);
-		boxMaskA.putClientProperty("JComponent.sizeVariant", "mini");
-		boxPanel.add(boxMaskA);
-		JLabel maskLabel = new JLabel("Mask");
-		boxPanel.add(maskLabel);
-		JCheckBox boxMaskB = new JCommandCheckBoxAll(CommandName.pulse_mask_b);
-		boxMaskB.putClientProperty("JComponent.sizeVariant", "mini");
-		boxPanel.add(boxMaskB);
-		JCheckBox boxInitA = new JCommandCheckBoxAll(CommandName.pulse_init_a);
-		boxInitA.putClientProperty("JComponent.sizeVariant", "mini");
-		boxPanel.add(boxInitA);
-		JLabel intiLabel = new JLabel("Init");
-		boxPanel.add(intiLabel);
-		JCheckBox boxInitB = new JCommandCheckBoxAll(CommandName.pulse_init_b);
-		boxInitB.putClientProperty("JComponent.sizeVariant", "mini");
-		boxPanel.add(boxInitB);
-		SpringLayoutGrid.makeCompactGrid(boxPanel,2,3,0,0,0,0);
-		borderPanel.add(boxPanel);
-		
-		
-		JPanel dialPanel = new JPanel();
-		dialPanel.setBorder(new JFireBorderChild(borderPanel));
-		dialPanel.setLayout(new SpringLayout());
-		dialPanel.add(new JCommandDial(CommandName.pwm_on_cnt_a));
-		dialPanel.add(new JCommandDial(CommandName.pwm_on_cnt_b));
-		dialPanel.add(new JCommandDial(CommandName.pwm_off_cnt_a));
-		dialPanel.add(new JCommandDial(CommandName.pwm_off_cnt_b));
-		SpringLayoutGrid.makeCompactGrid(dialPanel,2,2,0,0,0,0);
-		borderPanel.add(dialPanel);
-		
-		JPanel flagsPanel = new JPanel();
-		flagsPanel.setLayout(new SpringLayout());
-		JPanel flags = new JPanel();
-		flags.setLayout(new BoxLayout(flags,BoxLayout.PAGE_AXIS));
-		
-		flagsPanel.add(flags);
-		flagsPanel.add(new JCommandDial(CommandName.pwm_tune_cnt));
-		SpringLayoutGrid.makeCompactGrid(flagsPanel,1,2,0,0,0,0);
-		borderPanel.add(flagsPanel);
-		
-		JPanel ppmPanel = new JPanel();
-		ppmPanel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
-		//ppmPanel.setBorder(new JFireBorderChild(out));
-		//ppmPanel.setLayout(new FlowLayout(FlowLayout.CENTER,2,2));
-		ppmPanel.setLayout(new BorderLayout(5,5));
-		JPanel ppmPanelA = new JPanel();
-		ppmPanelA.setLayout(new GridLayout(0,2));
-		for (int p=0;p<16;p++) {
-			JCheckBox box = new JCommandCheckBoxAll(CommandName.ppm_data_a,p);
-			box.putClientProperty("JComponent.sizeVariant", "mini");
-			box.setBorder(BorderFactory.createEmptyBorder());
-			ppmPanelA.add(box);
-		}
-		JPanel ppmPanelT = new JPanel();
-		ppmPanelT.setLayout(new GridLayout(0,1));
-		int num = 0;
-		for (int p=0;p<8;p++) {
-			StringBuilder buf = new StringBuilder(20);
-			int n = num++;
-			if (n<=9) {
-				buf.append('0');
-			}
-			buf.append(n);
-			buf.append('-');
-			n = num++;
-			if (n<=9) {
-				buf.append('0');
-			}
-			buf.append(n);
-			JLabel l = new JLabel(buf.toString());
-			l.setFont(UIManager.getFont("FireDial.font"));
-			l.setForeground(UIManager.getColor("nimbusDisabledText"));
-			ppmPanelT.add(l);
-		}
-		JPanel ppmPanelB = new JPanel();
-		//ppmPanelB.setBorder(new JFireBorderChild((JFireBorder)out.getBorder(),0,0,1));
-		ppmPanelB.setLayout(new GridLayout(0,2));
-		for (int p=0;p<16;p++) {
-			JCheckBox box = new JCommandCheckBoxAll(CommandName.ppm_data_b,p);
-			box.putClientProperty("JComponent.sizeVariant", "mini");
-			ppmPanelB.add(box);
-		}
-		
-		ppmPanel.add(ppmPanelA,BorderLayout.WEST);
-		ppmPanel.add(ppmPanelT,BorderLayout.CENTER);
-		ppmPanel.add(ppmPanelB,BorderLayout.EAST);
-		borderPanel.add(ppmPanel);
-		return borderPanel;
-	}
-	*/
-	
 	@Override
 	public Class<?> getTabClassName() {
 		return this.getClass();
@@ -490,7 +392,7 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 				
 		return borderPanel;
 	}
-
+	
 	@Override
 	public void settingUpdated(PulseFireUISettingKeys key, String value) {
 		Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_steps);

@@ -23,13 +23,12 @@
 
 package org.nongnu.pulsefire.device.ui;
 
-import java.awt.Component;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -37,10 +36,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.components.JFireGraph;
-import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -48,27 +45,38 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,DeviceCommandListener,PulseFireUISettingListener {
+public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = 5027054951800480326L;
-	private JPanel infoPanel = null;
-	private boolean donePaint = false;
+	private final CardLayout cardLayout;
+	private final JPanel graphPanel;
+	private InfoViewType graphZeroState;
 	
 	public JPanelConsoleInfo() {
 		addComponentListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_data, this);
-		setLayout(new FlowLayout(FlowLayout.LEFT));
+		
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
 		setBorder(BorderFactory.createEmptyBorder());
 		
-		infoPanel = createInfoPanel();
-		add(infoPanel);
+		add(createInfoPanel(),InfoViewType.INFO.name());
+		
+		graphPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		add(graphPanel,InfoViewType.GRAPH.name());
+		
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST_FRONT,this);
+	}
+	
+	private enum InfoViewType {
+		INFO,
+		GRAPH
 	}
 	
 	private JPanel createInfoPanel() {
 		JPanel infoPanel = new JPanel();
-		infoPanel.setLayout(new FlowLayout());
+		infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+		infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		JLabel text = new JLabel();
 		text.setText("<html><center><h1>PulseFire</h1><sub>Copyright 2011 Willem Cazander</sub>"+
 					"<br>For more information visit website;<br>http://www.nongnu.org/pulsefire/<br>" +
@@ -85,33 +93,36 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		int gW = w/wMin;
 		int gH = h/hMin;
 		
-		for (Component c:getComponents()) {
-			if (c instanceof JFireGraph) {
-				JFireGraph g = (JFireGraph)c;
-				PulseFireUI.getInstance().getTimeData().removeTimeDataListener(g.getCommandName(), g);
-			}
-		}
-		removeAll();
-		if (PulseFireUI.getInstance().getTimeData().getTimeDataKeys().isEmpty()) {
-			add(infoPanel);
-			final JPanel thisPanel = this;
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					SwingUtilities.updateComponentTreeUI(thisPanel);
-				}
-			});
-			return;
-		}
-		
-		Iterator<CommandName> i = PulseFireUI.getInstance().getTimeData().getTimeDataKeys().iterator();
-		i.next();
 		List<CommandName> d = new ArrayList<CommandName>(10);
 		d = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.GRAPH_LIST_FRONT));
-		if (d.isEmpty()) {
-			d = CommandName.decodeCommandList(PulseFireUISettingKeys.GRAPH_LIST_FRONT.getDefaultValue());
-		}
 		int ii=0;
+		for (int y=0;y<gH;y++) {
+			for (int x=0;x<gW;x++) {
+				if (ii>=d.size()) {
+					break;
+				}
+				ii++;
+			}
+		}
+		
+		// Auto switch back and forward when settings or size goes to zero graphs.
+		if (ii==0) {
+			if (!InfoViewType.INFO.equals(graphZeroState)) {
+				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.INFO.name());
+				graphZeroState = InfoViewType.INFO; // do once
+			}
+		} else {
+			if (!InfoViewType.GRAPH.equals(graphZeroState)) {
+				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.GRAPH.name());
+				graphZeroState = InfoViewType.GRAPH;
+			}
+		}
+		
+		if (graphPanel.getComponentCount()==ii) {
+			return; // nop
+		}
+		graphPanel.removeAll();
+		ii=0;
 		for (int y=0;y<gH;y++) {
 			for (int x=0;x<gW;x++) {
 				if (ii>=d.size()) {
@@ -120,17 +131,11 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 				CommandName name = d.get(ii);
 				JFireGraph g = new JFireGraph(name);
 				g.setPreferredSize(new Dimension(wMin,hMin));
-				add(g);
+				graphPanel.add(g);
 				ii++;
 			}
 		}
-		final JPanel thisPanel = this;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SwingUtilities.updateComponentTreeUI(thisPanel);
-			}
-		});
+		SwingUtilities.updateComponentTreeUI(this); // fixes redraw artifacts after removing most graphs.
 	}
 	
 	@Override
@@ -146,46 +151,23 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
-
+	
 	@Override
 	public void deviceConnect() {
-	}
-
-	@Override
-	public void deviceDisconnect() {
-		for (Component c:getComponents()) {
-			if (c instanceof JFireGraph) {
-				JFireGraph g = (JFireGraph)c;
-				PulseFireUI.getInstance().getTimeData().removeTimeDataListener(g.getCommandName(), g);
-			}
-		}
-		removeAll();
-		add(infoPanel);
-		donePaint = false;
-		final JPanel thisPanel = this;
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				SwingUtilities.updateComponentTreeUI(thisPanel);
+				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.GRAPH.name());
 			}
 		});
 	}
-
+	
 	@Override
-	public void commandReceived(Command command) {
-		if (donePaint) {
-			return;
-		}
-		if (PulseFireUI.getInstance().getTimeData().getTimeDataKeys().isEmpty()) {
-			return;
-		}
-		final JPanel thisPanel = this;
+	public void deviceDisconnect() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				redoPanel();
-				donePaint = true;
-				SwingUtilities.updateComponentTreeUI(thisPanel);
+				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.INFO.name());
 			}
 		});
 	}

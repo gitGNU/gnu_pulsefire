@@ -80,7 +80,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		topPanel.add(createSystemConfig());
 		topPanel.add(createSystemLcd());
 		topPanel.add(createSystemVar());
-		SpringLayoutGrid.makeCompactGrid(topPanel,1,3);
+		SpringLayoutGrid.makeCompactGrid(topPanel,1,3,0,0,6,6);
 		
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
@@ -124,7 +124,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 							PulseFireDataPuller puller = (PulseFireDataPuller)PulseFireUI.getInstance().getEventTimeManager().getEventTimeTriggerByName("refreshData").getRunnable();
 							try {
 								puller.setRunPause(true);
-								logger.info("Reading config from: "+file.getAbsolutePath());
+								logger.info("Reading chip-config from: "+file.getAbsolutePath());
 								readConfig(new FileInputStream(file));
 							} catch (Exception e1) {
 								e1.printStackTrace();
@@ -160,7 +160,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 						@Override
 						public void run() {
 							try {
-								logger.info("Writing config to: "+file.getAbsolutePath());
+								logger.info("Writing chip-config to: "+file.getAbsolutePath());
 								writeConfig(new FileOutputStream(file));
 							} catch (Exception e1) {
 								e1.printStackTrace();

@@ -59,8 +59,8 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	private JPanel graphPanel = null;
 	private JButton graphListButton = null;
 	private JButton graphListInfoButton = null;
-	private JComboBox sizeBox = null;
-	private JComboBox columnBox = null;
+	private JComboBox<String> sizeBox = null;
+	private JComboBox<Integer> columnBox = null;
 	
 	public JTabPanelGraphs() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -89,14 +89,14 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 		resultPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
 		resultPanel.add(new JLabel("Size"));
-		sizeBox = new JComboBox(new String[] {"Large","Medium","Small"});
+		sizeBox = new JComboBox<String>(new String[] {"Large","Medium","Small"});
 		sizeBox.setSelectedIndex(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.GRAPH_SIZE));
 		sizeBox.addActionListener(this);
 		JComponentEnableStateListener.attach(sizeBox,null);
 		resultPanel.add(sizeBox);
 		
 		resultPanel.add(new JLabel("Columns"));
-		columnBox = new JComboBox(new Integer[] {2,3,4,5,6,7,8,9,10,11,12,13});
+		columnBox = new JComboBox<Integer>(new Integer[] {2,3,4,5,6,7,8,9,10,11,12,13});
 		columnBox.setSelectedIndex(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.GRAPH_COLS));
 		columnBox.addActionListener(this);
 		JComponentEnableStateListener.attach(columnBox,null);
@@ -119,7 +119,7 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	public Class<?> getTabClassName() {
 		return this.getClass();
 	}
-
+	
 	@Override
 	public void deviceConnect() {
 		
@@ -141,7 +141,7 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 		makeGraphGrid();
 		super.deviceConnect();
 	}
-
+	
 	private void makeGraphGrid() {
 		for (Component c:graphPanel.getComponents()) {
 			if (c instanceof JLabel) {
@@ -178,15 +178,9 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	@Override
 	public void deviceDisconnect() {
 		super.deviceDisconnect();
-		for (Component c:graphPanel.getComponents()) {
-			if (c instanceof JFireGraph) {
-				JFireGraph g = (JFireGraph)c;
-				PulseFireUI.getInstance().getTimeData().removeTimeDataListener(g.getCommandName(), g);
-			}
-		}
 		graphPanel.removeAll();
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (sizeBox.equals(e.getSource())) {

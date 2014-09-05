@@ -98,7 +98,6 @@ public enum CommandName {
 	pwm_on_cnt_b			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_off_cnt_a			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_off_cnt_b			(CommandVariableType.CONF,WireChipFlags.PWM),
-	pwm_tune_cnt			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_loop				(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_loop_delta			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pwm_clock				(CommandVariableType.CONF,WireChipFlags.PWM),
@@ -307,6 +306,7 @@ public enum CommandName {
 	stv_map_idx				(CommandVariableType.DATA),
 	
 	// Deleted command v1.1
+	pwm_tune_cnt			(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_inv				(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_trig_delay		(CommandVariableType.CONF,WireChipFlags.PWM),
 	pulse_trig_delay_cnt	(CommandVariableType.DATA),

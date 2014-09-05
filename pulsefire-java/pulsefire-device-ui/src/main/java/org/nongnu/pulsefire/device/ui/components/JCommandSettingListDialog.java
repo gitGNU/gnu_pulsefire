@@ -65,7 +65,8 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 	private PulseFireUISettingKeys setting = null;
 	private List<CommandName> selectCommands = null;
 	private List<CommandName> selectedCommands = null;
-	private JButton resetButton = null;
+	private List<CommandName> defaultCommands = null;
+	private JButton defaultButton = null;
 	private JButton saveButton = null;
 	private JButton cancelButton = null;
 	private JList selectList = null;
@@ -82,14 +83,12 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		super(parentFrame, true);
 		this.setting=setting;
 		this.selectCommands=commands;
+		this.defaultCommands=defaultSelected;
 		this.selectListModel = new DefaultListModel();
 		this.selectedListModel = new DefaultListModel();
 		
 		String settingValue = PulseFireUI.getInstance().getSettingsManager().getSettingString(setting);
 		selectedCommands = CommandName.decodeCommandList(settingValue);
-		if (selectedCommands.isEmpty()) {
-			selectedCommands.addAll(defaultSelected);
-		}
 		
 		setTitle(title);
 		setMinimumSize(new Dimension(500,600));
@@ -178,13 +177,14 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		
 		return panel;
 	}
+	
 	private JPanel createPanelBottom() {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder());
 		panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		resetButton = new JButton("Reset");
-		resetButton.addActionListener(this);
-		panel.add(resetButton);
+		defaultButton = new JButton("Default");
+		defaultButton.addActionListener(this);
+		panel.add(defaultButton);
 		saveButton = new JButton("Save");
 		saveButton.addActionListener(this);
 		panel.add(saveButton);
@@ -249,7 +249,9 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		} else if (e.getSource()==cancelButton) {
 			clearAndHide();
 			return;
-		} else if (e.getSource()==resetButton) {
+		} else if (e.getSource()==defaultButton) {
+			selectedCommands.clear();
+			selectedCommands.addAll(defaultCommands);
 			initListModels();
 			return;
 		} else if (e.getSource()==moveLeft) {
@@ -285,7 +287,6 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		}
 	}
 	
-
 	@Override
 	public void keyReleased(KeyEvent keyEvent) {
 		if (keyEvent.getKeyCode()==KeyEvent.VK_ENTER) {
@@ -304,9 +305,11 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 			}
 		}
 	}
+	
 	@Override
 	public void keyPressed(KeyEvent keyEvent) {
 	}
+	
 	@Override
 	public void keyTyped(KeyEvent keyEvent) {
 	}
