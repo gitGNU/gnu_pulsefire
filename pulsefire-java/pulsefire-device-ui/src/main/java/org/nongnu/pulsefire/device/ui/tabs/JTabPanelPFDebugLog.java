@@ -56,7 +56,7 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelUILog extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener {
+public class JTabPanelPFDebugLog extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener {
 
 	private static final long serialVersionUID = 4858978467459212054L;
 	private UILogHandler logHandler = null;
@@ -66,7 +66,7 @@ public class JTabPanelUILog extends AbstractFireTabPanel implements ActionListen
 	private JCheckBox autoScrollBox = null;
 	private int logLinesMax = 255;
 	
-	public JTabPanelUILog() {
+	public JTabPanelPFDebugLog() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());

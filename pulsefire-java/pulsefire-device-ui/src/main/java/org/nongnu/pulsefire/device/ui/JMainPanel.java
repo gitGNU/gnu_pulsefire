@@ -41,19 +41,20 @@ import javax.swing.UIManager;
 import org.nongnu.pulsefire.device.ui.tabs.AbstractFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCip;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFDataLog;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelInput;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelLpm;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFLpm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMal;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtc;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPins;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwmExt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelStv;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSettings;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFSettings;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSystem;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelUILog;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFDebugLog;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVfc;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVariables;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelVsc;
@@ -93,14 +94,15 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		tabPanels.add(new JTabPanelMal());
 		tabPanels.add(new JTabPanelGraphs());
 		tabPanels.add(new JTabPanelVariables());
-		tabPanels.add(new JTabPanelSettings());
+		tabPanels.add(new JTabPanelPFSettings());
+		tabPanels.add(new JTabPanelPFDataLog());
 		
 		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.TAB_UILOG_ENABLE)) {
-			uiLogPanel = new JTabPanelUILog(); 
+			uiLogPanel = new JTabPanelPFDebugLog(); 
 			tabPanels.add(uiLogPanel);
 		}
 		if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.TAB_LPM_ENABLE)) {
-			lpmPanel = new JTabPanelLpm(); 
+			lpmPanel = new JTabPanelPFLpm(); 
 			tabPanels.add(lpmPanel);
 		}
 		
@@ -173,7 +175,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		if (PulseFireUISettingKeys.TAB_UILOG_ENABLE==key) {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (uiLogPanel==null) {
-					uiLogPanel = new JTabPanelUILog();
+					uiLogPanel = new JTabPanelPFDebugLog();
 					Component pane = createJScrollPane(uiLogPanel);
 					tabbedPane.addTab(uiLogPanel.getTabName(),uiLogPanel.getTabIcon(),pane,uiLogPanel.getTabTooltip());
 				}
@@ -187,7 +189,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		} else if (PulseFireUISettingKeys.TAB_LPM_ENABLE==key) {
 			if (PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(key)) {
 				if (lpmPanel==null) {
-					lpmPanel = new JTabPanelLpm();
+					lpmPanel = new JTabPanelPFLpm();
 					Component pane = createJScrollPane(lpmPanel);
 					tabbedPane.addTab(lpmPanel.getTabName(),lpmPanel.getTabIcon(),pane,lpmPanel.getTabTooltip());
 				}

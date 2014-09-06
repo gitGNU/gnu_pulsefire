@@ -52,7 +52,6 @@ public class PulseFireDataLogManager {
 	private String lineSeparator = null;
 	private LogDataWriter logDataWriter0 = null;
 	private LogDataWriter logDataWriter1 = null;
-	private LogDataWriter logDataWriter2 = null;
 	
 	public PulseFireDataLogManager() {
 		logger = Logger.getLogger(PulseFireDataLogManager.class.getName());
@@ -62,19 +61,15 @@ public class PulseFireDataLogManager {
 	public void start() {
 		logDataWriter0 = new LogDataWriter(0);
 		logDataWriter1 = new LogDataWriter(1);
-		logDataWriter2 = new LogDataWriter(2);
 		
 		Thread t0 = new Thread(logDataWriter0);
 		Thread t1 = new Thread(logDataWriter1);
-		Thread t2 = new Thread(logDataWriter2);
 		
 		t0.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-0");
 		t1.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-1");
-		t2.setName("PulseFire-"+LogDataWriter.class.getSimpleName()+"-2");
 		
 		t0.start();
 		t1.start();
-		t2.start();
 	}
 	
 	public void stop() {
@@ -83,9 +78,6 @@ public class PulseFireDataLogManager {
 		}
 		if (logDataWriter1!=null) {
 			logDataWriter1.shutdown();
-		}
-		if (logDataWriter2!=null) {
-			logDataWriter2.shutdown();
 		}
 	}
 	

@@ -74,14 +74,7 @@ public enum PulseFireUISettingKeys {
 	LOG1_FILENAME("pulsefire-adc"),
 	LOG1_PATH(""),
 	LOG1_SPEED("10000"),
-	LOG1_FIELDS("adc_value"),
-	
-	LOG2_ENABLE("false"),
-	LOG2_TIMESTAMP("true"),
-	LOG2_FILENAME("pulsefire-device"),
-	LOG2_PATH(""),
-	LOG2_SPEED("120000"),
-	LOG2_FIELDS("dev_*");
+	LOG1_FIELDS("adc_value");
 	
 	private String defaultValue = null;
 	private PulseFireUISettingKeys(String defaultValue) {

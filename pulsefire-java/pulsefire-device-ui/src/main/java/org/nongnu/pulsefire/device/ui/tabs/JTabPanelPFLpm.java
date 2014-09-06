@@ -82,7 +82,7 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
+public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
 
 	private static final long serialVersionUID = -6711428986888517858L;
 	private JTable tuneStepTable = null;
@@ -129,7 +129,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		LPM_RECOVER_WAIT
 	}
 	
-	public JTabPanelLpm() {
+	public JTabPanelPFLpm() {
 		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
 		tuneCommandSteps = new ArrayList<LpmCommandStep>(4000);
 		

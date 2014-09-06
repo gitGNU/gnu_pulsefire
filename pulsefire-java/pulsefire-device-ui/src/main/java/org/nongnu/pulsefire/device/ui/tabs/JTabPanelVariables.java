@@ -127,22 +127,24 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		});
 		filterPanel.add(filterBox);
 		filterPanel.add(new JLabel("Indexed"));
-		JCheckBox filterIndexedCheckBox = new JCheckBox();
+		final JCheckBox filterIndexedCheckBox = new JCheckBox();
 		filterIndexedCheckBox.setSelected(true);
 		filterIndexedCheckBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				filterIndexed = ((JCheckBox)e.getSource()).isSelected();
+				filterIndexed = filterIndexedCheckBox.isSelected();
 				fireUpdateModels();
 			}
 		});
 		filterPanel.add(filterIndexedCheckBox);
-		filterPanel.add(new JLabel("Data"));
-		final JComboBox<String> filterDataBox = new JComboBox<String>(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX","ID"});
+		filterPanel.add(new JLabel("Variables"));
+		final JComboBox<String> filterDataBox = new JComboBox<String>(new String[] {"VALUES","META_ID","META_IDX","META_MAX"});
 		filterDataBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				filterData = filterDataBox.getSelectedIndex();
+				filterBox.setEnabled(filterData == 0);
+				filterIndexedCheckBox.setEnabled(filterData == 0);
 				fireUpdateModels();
 			}
 		});
@@ -220,7 +222,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			for (CommandName name:cmdMap.keySet()) {
 				result.put(name.name(), cmdMap.get(name));
 			}
-			if (filterIndexed) {
+			if (filterIndexed && filterData == 0) {
 				for (CommandName cmd:CommandName.values()) {
 					if (cmd.isIndexedA()==false) {
 						continue;
@@ -245,6 +247,39 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 						}
 					}
 				}
+			}
+			// Add index meta var
+			if (filterData > 0) {
+				for (CommandName cmd:CommandName.values()) {
+					if (cmd.isIndexedA()==false) {
+						continue;
+					}
+					if (type.equals(CommandVariableType.INFO)) {
+						if ((cmd.getType().equals(type) | cmd.getType().equals(CommandVariableType.CHIP))==false) {
+							continue;
+						}
+					} else if (cmd.getType().equals(type)==false) {
+						continue;
+					}
+					Command cmdIdx = deviceData.getDeviceParameterIndexed(cmd,0);
+					if (cmdIdx!=null) {
+						result.put(cmd.name(),cmdIdx);
+					}
+				}
+			}
+			// rm non-idx
+			if (filterData == 2) {
+				List<String> keys = new ArrayList<String>();
+				keys.addAll(result.keySet());
+				for (String key:keys) {
+					Command cmd = result.get(key);
+					if (!cmd.getCommandName().isIndexedA()) {
+						result.remove(key);
+					}
+				}
+			}
+			if (filterData > 0) {
+				return result;
 			}
 			if (filterType==null) {
 				return result;
@@ -298,15 +333,11 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 						return cmd.getArgu0();
 					}
 				} else if (filterData==1) {
-					return cmd.getCommandName().getMapIndex();
+					return cmd.getCommandName().getId()+(cmd.getCommandName().getMapIndex()==-1?"":"*");
 				} else if (filterData==2) {
-					return cmd.getCommandName().getMaxIndexA();
+					return cmd.getCommandName().getMaxIndexA()+" "+cmd.getCommandName().getMaxIndexB();
 				} else if (filterData==3) {
-					return cmd.getCommandName().getMaxIndexB();
-				} else if (filterData==4) {
 					return cmd.getCommandName().getMaxValue();
-				} else if (filterData==5) {
-					return cmd.getCommandName().getId();
 				} else {
 					return "";
 				}

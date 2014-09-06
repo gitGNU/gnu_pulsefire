@@ -56,7 +56,7 @@ Version 1.1.0:
 - Made avr serial send use buffed lines.
 - GUI: Dropped experimental audio scope code.
 - GUI: Improved gui performance, so uses less cpu.
-
+- GUI: Made application tabs prefixed and moved DataLog to seperate tab.
 
 
 Version 1.0.4:
