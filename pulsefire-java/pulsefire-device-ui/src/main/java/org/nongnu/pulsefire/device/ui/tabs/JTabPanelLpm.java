@@ -155,7 +155,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
 		add(wrap);
 		
-		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(new EventTimeTrigger("LpmStateCheck", new LpmStateCheck(), 200));
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("LpmStateCheck", new LpmStateCheck(), 200));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.adc_value, this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
 	}
@@ -1311,7 +1311,7 @@ public class JTabPanelLpm extends AbstractFireTabPanel implements ActionListener
 	
 	private String renderStepField(CommandName cn) {
 		DeviceData devData = PulseFireUI.getInstance().getDeviceData();
-		StringBuffer buf = new StringBuffer(200);
+		StringBuilder buf = new StringBuilder(200);
 		String FIELD_SPACE = " ";
 		String FIELD_SEPERATOR = ",";
 

@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceDataListener;
 import org.nongnu.pulsefire.device.ui.components.JConnectDialog;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 
 /**
  * JTopPanelSerial
@@ -51,7 +52,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 
 	private static final long serialVersionUID = -6521267550228492042L;
 	private JButton connectButtton = null;
-	private JComboBox portsComboBox = null;
+	private JComboBox<String> portsComboBox = null;
 	private JLabel versionLabel = null;
 	private JConnectDialog connectDialog = null;
 	private JLabel dataTxCounter = null;
@@ -81,7 +82,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		
 		serialPanel.add(JComponentFactory.createJLabel(this, "ports"));
 		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
-		portsComboBox = new JComboBox(portModel);
+		portsComboBox = new JComboBox<String>(portModel);
 		portsComboBox.addPopupMenuListener(portModel);
 		serialPanel.add(portsComboBox);
 		
@@ -137,9 +138,25 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("AutoUpdateSpeedCounters",new AutoUpdateSpeedCounters(),1000));
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("AutoUpdateCounters",new AutoUpdateCounters(),100));
 		updateCounters();
 	}
-
+	
+	class AutoUpdateCounters implements Runnable {
+		@Override
+		public void run() {
+			updateCounters();
+		}
+	}
+	
+	class AutoUpdateSpeedCounters implements Runnable {
+		@Override
+		public void run() {
+			updateSpeedCounters();
+		}
+	}
+	
 	public void autoConnect() {
 		Boolean autoConnect = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.AUTO_CONNECT);
 		String devicePort = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.DEVICE_PORT);
@@ -181,7 +198,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			PulseFireUI.getInstance().getDeviceManager().disconnect(false);
 		}
 	}
-
+	
 	@Override
 	public void deviceConnect() {
 		connectDialog = null;
@@ -189,7 +206,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		connectButtton.setText("Disconnect");
 		versionLabel.setText(""+new Float(PulseFireUI.getInstance().getDeviceManager().getDeviceVersion())/10);
 	}
-
+	
 	@Override
 	public void deviceDisconnect() {
 		portsComboBox.setEnabled(true);
@@ -209,17 +226,15 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			}
 		});
 	}
-
+	
 	@Override
 	public void deviceDataSend(String data) {
 		txBytes+=data.length();
-		updateCounters();
 	}
-
+	
 	@Override
 	public void deviceDataReceived(String data) {
 		rxBytes+=data.length();
-		updateCounters();
 	}
 	
 	public void updateSpeedCounters() {
@@ -238,26 +253,20 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			@Override
 			public void run() {
 				dataRxsCounter.setText(printNiceBytes(rxBytesSpeed));
-				dataRxsCounter.repaint();
 				cmdRxsCounter.setText(""+rxCmdSpeed);
-				cmdRxsCounter.repaint();
+				cmdRxsCounter.getParent().repaint();
 			}
 		});
 	}
 	
 	private void updateCounters() {
 		dataTxCounter.setText(printNiceBytes(txBytes));
-		dataTxCounter.repaint();
 		dataRxCounter.setText(printNiceBytes(rxBytes));
-		dataRxCounter.repaint();
-
-		errorCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalErrors());
-		errorCounter.repaint();
-		cmdTxCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalCmdTx());
-		cmdTxCounter.repaint();
-		cmdRxCounter.setText(""+PulseFireUI.getInstance().getDeviceManager().getTotalCmdRx());
-		cmdRxCounter.repaint();
-
+		
+		errorCounter.setText(Integer.toString(PulseFireUI.getInstance().getDeviceManager().getTotalErrors()));
+		cmdTxCounter.setText(Long.toString(PulseFireUI.getInstance().getDeviceManager().getTotalCmdTx()));
+		cmdRxCounter.setText(Long.toString(PulseFireUI.getInstance().getDeviceManager().getTotalCmdRx()));
+		cmdRxCounter.getParent().repaint();
 	}
 	
 	private String printNiceBytes(long bytes) {
@@ -288,7 +297,7 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			byteDotSize = "."+byteDotSize;
 		}
 		
-		StringBuffer buf = new StringBuffer(10);
+		StringBuilder buf = new StringBuilder(16);
 		buf.append(bytes);
 		buf.append(byteDotSize);
 		buf.append(' ');

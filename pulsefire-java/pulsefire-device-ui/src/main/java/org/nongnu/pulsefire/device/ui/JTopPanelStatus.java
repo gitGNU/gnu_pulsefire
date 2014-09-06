@@ -31,10 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceData;
-import org.nongnu.pulsefire.device.DeviceWireManager;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -43,16 +42,18 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTopPanelStatus extends JPanel implements DeviceCommandListener,DeviceConnectListener {
+public class JTopPanelStatus extends JPanel {
 
 	private static final long serialVersionUID = 94571180445561814L;
-	
-	private JLabel adcLabel = null;
+	private final DeviceData deviceData;
+	private JLabel adc1Label = null;
 	private JLabel adc2Label = null;
 	private JLabel dicLabel = null;
 	private JLabel docLabel = null;
 
 	public JTopPanelStatus() {
+		deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
+		
 		setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		setLayout(new GridLayout(1,0));
 		JPanel borderPanel = JComponentFactory.createJFirePanel("Status");
@@ -63,8 +64,8 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener,Dev
 		borderPanel.add(inputPanel);
 		
 		inputPanel.add(new JLabel("Analog-In:"));
-		adcLabel = new JLabel();
-		inputPanel.add(adcLabel);
+		adc1Label = new JLabel();
+		inputPanel.add(adc1Label);
 
 		inputPanel.add(new JLabel("Analog-In:"));
 		adc2Label = new JLabel();
@@ -78,34 +79,77 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener,Dev
 		docLabel = new JLabel();
 		inputPanel.add(docLabel);
 		
-		
 		SpringLayoutGrid.makeCompactGrid(inputPanel,4,2);
 		
-		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
-		deviceManager.addDeviceCommandListener(CommandName.adc_value, this);
-		deviceManager.addDeviceCommandListener(CommandName.dic_value, this);
-		deviceManager.addDeviceCommandListener(CommandName.doc_port, this);
-		deviceManager.addDeviceConnectListener(this);
-	}
-
-	@Override
-	public void commandReceived(Command command) {
-		
-		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
-		
-		if (command.getCommandName().equals(CommandName.adc_value)) {
-			StringBuilder buf = new StringBuilder(100);
-			int s = CommandName.adc_value.getMaxIndexA();
-			if (s>7) {
-				s = 7;
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("AutoUpdateStatus",new AutoUpdateStatus(),100));
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(new DeviceConnectListener() {
+			@Override
+			public void deviceDisconnect() {
+				adc1Label.setText("");
+				adc2Label.setText("");
+				dicLabel.setText("");
+				docLabel.setText("");
 			}
-			for (int i=s;i>=0;i--) {
-				Command cmd = deviceData.getDeviceParameterIndexed(command, i);
+			@Override
+			public void deviceConnect() {
+				// Fix for missing redraw event which happens sometimes on first application boot and connect;
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						SwingUtilities.updateComponentTreeUI(JTopPanelStatus.this);
+					}
+				});
+			}
+		});
+	}
+	
+	class AutoUpdateStatus implements Runnable {
+		@Override
+		public void run() {
+			updateAdcLabels();
+			updateDicLabel();
+			updateDocLabel();
+		}
+	}
+	
+	private void updateAdcLabels() {
+		StringBuilder buf = new StringBuilder(100);
+		int s = CommandName.adc_value.getMaxIndexA();
+		if (s>7) {
+			s = 7;
+		}
+		for (int i=s;i>=0;i--) {
+			Command cmd = deviceData.getDeviceParameterIndexed(CommandName.adc_value, i);
+			if (cmd==null) {
+				continue;
+			}
+			buf.append('A');
+			buf.append('0');
+			buf.append(i);
+			buf.append(": ");
+			String adcValue = cmd.getArgu0();
+			if (adcValue.length()==3) {
+				buf.append('0');
+			} else if (adcValue.length()==2) {
+				buf.append("00");
+			} else if (adcValue.length()==1) {
+				buf.append("000");
+			}
+			buf.append(adcValue);
+			buf.append("  ");
+		}
+		adc1Label.setText(buf.toString());
+		buf = new StringBuilder(100);
+		if (CommandName.adc_value.getMaxIndexA()>7) {
+			for (int i=CommandName.adc_value.getMaxIndexA();i>=8;i--) {
+				Command cmd = deviceData.getDeviceParameterIndexed(CommandName.adc_value, i);
 				if (cmd==null) {
 					continue;
 				}
 				buf.append('A');
-				buf.append('0');
+				if (i<10) {
+					buf.append('0');
+				}
 				buf.append(i);
 				buf.append(": ");
 				String adcValue = cmd.getArgu0();
@@ -119,72 +163,37 @@ public class JTopPanelStatus extends JPanel implements DeviceCommandListener,Dev
 				buf.append(adcValue);
 				buf.append("  ");
 			}
-			adcLabel.setText(buf.toString());
-			buf = new StringBuilder(100);
-			if (CommandName.adc_value.getMaxIndexA()>7) {
-				for (int i=CommandName.adc_value.getMaxIndexA();i>=8;i--) {
-					Command cmd = deviceData.getDeviceParameterIndexed(command, i);
-					if (cmd==null) {
-						continue;
-					}
-					buf.append('A');
-					if (i<10) {
-						buf.append('0');
-					}
-					buf.append(i);
-					buf.append(": ");
-					String adcValue = cmd.getArgu0();
-					if (adcValue.length()==3) {
-						buf.append('0');
-					} else if (adcValue.length()==2) {
-						buf.append("00");
-					} else if (adcValue.length()==1) {
-						buf.append("000");
-					}
-					buf.append(adcValue);
-					buf.append("  ");
-				}
-			}
-			adc2Label.setText(buf.toString());
 		}
-		if (command.getCommandName().equals(CommandName.dic_value)) {
-			StringBuilder buf = new StringBuilder(100);
-			buf.append("0b");
-			for (int i=15;i>=0;i--) {
-				int value = new Integer(command.getArgu0());
-				int result = (value >> i) & 1;
-				buf.append(result);
-			}
-			buf.append(" (15-0)");
-			dicLabel.setText(buf.toString());
-		}
-		if (command.getCommandName().equals(CommandName.doc_port)) {
-			StringBuilder buf = new StringBuilder(100);
-			buf.append("0b");
-			for (int i=15;i>=0;i--) {
-				Command cmd = deviceData.getDeviceParameterIndexed(command, i);
-				if (cmd==null) {
-					continue;
-				}
-				buf.append(cmd.getArgu0());
-			}
-			buf.append(" (15-0)");
-			docLabel.setText(buf.toString());
-		}
+		adc2Label.setText(buf.toString());
 	}
-
-	@Override
-	public void deviceConnect() {
-		// Fix for missing redraw event which happens sometimes on first application boot and connect;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SwingUtilities.updateComponentTreeUI(JTopPanelStatus.this);
-			}
-		});
+	
+	private void updateDicLabel() {
+		Command cmd = deviceData.getDeviceParameter(CommandName.dic_value);
+		if (cmd==null) {
+			return;
+		}
+		StringBuilder buf = new StringBuilder(100);
+		buf.append("0b");
+		for (int i=15;i>=0;i--) {
+			int value = new Integer(cmd.getArgu0());
+			int result = (value >> i) & 1;
+			buf.append(result);
+		}
+		buf.append(" (15-0)");
+		dicLabel.setText(buf.toString());
 	}
-
-	@Override
-	public void deviceDisconnect() {
+	
+	private void updateDocLabel() {
+		StringBuilder buf = new StringBuilder(100);
+		buf.append("0b");
+		for (int i=15;i>=0;i--) {
+			Command cmd = deviceData.getDeviceParameterIndexed(CommandName.doc_port, i);
+			if (cmd==null) {
+				continue;
+			}
+			buf.append(cmd.getArgu0());
+		}
+		buf.append(" (15-0)");
+		docLabel.setText(buf.toString());
 	}
 }

@@ -51,7 +51,7 @@ public class JDebugTreePanel extends JPanel {
 	private JDebugPanel debugPanel = null;
 	private JTree debugTree = null;
 	private JTextField filterName = null;
-	private JComboBox filterClass = null;
+	private JComboBox<Class<?>> filterClass = null;
 	private List<Class<?>> filterClassList = null;
 	
 	public JDebugTreePanel(JDebugPanel debugPanel) {
@@ -65,7 +65,7 @@ public class JDebugTreePanel extends JPanel {
 	private JPanel createFilterPanel() {
 		
 		filterName = new JTextField(20);
-		filterClass = new JComboBox();
+		filterClass = new JComboBox<Class<?>>();
 		
 		JPanel resultPanel = new JPanel();
 		resultPanel.setBorder(BorderFactory.createTitledBorder("Filters"));

@@ -21,44 +21,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package org.nongnu.pulsefire.device.ui.time;
 
-package org.nongnu.pulsefire.device.ui;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
+import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.ui.PulseFireUI;
 
 /**
- * DevicePortsComboBoxModel
+ * EventTimeTriggerConnected is automatic trigger enablalar bases in connection state.
  * 
  * @author Willem Cazander
  */
-public class DevicePortsComboBoxModel extends DefaultComboBoxModel<String> implements PopupMenuListener {
-
-	private static final long serialVersionUID = 4610540916741783098L;
+public class EventTimeTriggerConnected {
 	
-	public DevicePortsComboBoxModel() {
-		super();
-		addDevicePorts();
-	}
-	
-	private void addDevicePorts() {
-		for (String port:PulseFireUI.getInstance().getDeviceManager().getDevicePorts()) {
-			addElement(port);
-		}
-	}
-	
-	@Override
-	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-		removeAllElements();
-		addDevicePorts();
-	}
-	
-	@Override
-	public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-	}
-	
-	@Override
-	public void popupMenuCanceled(PopupMenuEvent e) {
+	static public EventTimeTrigger autoWire(final EventTimeTrigger trigger) {
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(new DeviceConnectListener() {
+			
+			@Override
+			public void deviceDisconnect() {
+				trigger.setEnabled(false);
+			}
+			
+			@Override
+			public void deviceConnect() {
+				trigger.setEnabled(true);
+			}
+		});
+		return trigger;
 	}
 }

@@ -40,7 +40,7 @@ import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeData;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeDataKey;
-import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeDataListener;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -49,7 +49,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JFireGraph extends JPanel implements TimeDataListener {
+public class JFireGraph extends JPanel {
 	
 	private static final long serialVersionUID = -2926409292528475132L;
 	private CommandName commandName = null;
@@ -88,14 +88,25 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 					return;
 				}
 				if (JFireGraph.this.getParent()!=null) {
-					PulseFireUI.getInstance().getTimeData().addTimeDataListener(commandName, JFireGraph.this);
+					PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(repaintTrigger);
 				} else {
-					PulseFireUI.getInstance().getTimeData().removeTimeDataListener(commandName, JFireGraph.this);
+					PulseFireUI.getInstance().getEventTimeManager().removeEventTimeTrigger(repaintTrigger);
 				}
 			}
 		});
 	}
-
+	
+	private EventTimeTrigger repaintTrigger = new EventTimeTrigger("AutoGraphRepainter",new AutoGraphRepainter(),100);
+	
+	class AutoGraphRepainter implements Runnable {
+		@Override
+		public void run() {
+			if (JFireGraph.this.isShowing()) {
+				repaint();
+			}
+		}
+	}
+	
 	public CommandName getCommandName() {
 		return commandName;
 	}
@@ -274,10 +285,5 @@ public class JFireGraph extends JPanel implements TimeDataListener {
 		g2.drawString(""+minRValue, 50, 50);
 		g2.drawString("Max:", 7, 65);
 		g2.drawString(""+maxRValue, 50, 65);
-	}
-
-	@Override
-	public void updateTimeData() {
-		repaint();
 	}
 }

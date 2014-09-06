@@ -72,6 +72,10 @@ public class EventTimeManager {
 		logger.finer("Adding run once trigger class: "+run.getClass().getSimpleName());
 	}
 	
+	public void addEventTimeTriggerConnected(EventTimeTrigger eventTimeTrigger) {
+		addEventTimeTrigger(EventTimeTriggerConnected.autoWire(eventTimeTrigger));
+	}
+	
 	public void addEventTimeTrigger(EventTimeTrigger eventTimeTrigger) {
 		if (eventTimeTrigger==null) {
 			throw new NullPointerException("Can't add null eventTimeTrigger.");
@@ -105,6 +109,9 @@ public class EventTimeManager {
 		long currentTime = System.currentTimeMillis();
 		for (int i=0;i<eventTimeTriggers.size();i++) {
 			EventTimeTrigger t = eventTimeTriggers.get(i);
+			if (!t.isEnabled()) {
+				continue;
+			}
 			if (t.getTimeNextRun()<currentTime) {
 				result.add(t);
 			}

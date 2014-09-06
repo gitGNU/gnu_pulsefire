@@ -23,7 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.pull;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceDataListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.wire.Command;
@@ -34,40 +33,28 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class UpdatePwmData implements Runnable,DeviceConnectListener,DeviceDataListener {
+public class UpdatePwmData implements Runnable,DeviceDataListener {
 
 	static public final int INIT_SPEED = 500;
-	private volatile boolean run = false;
 	private volatile boolean update = false;
 	
 	public UpdatePwmData() {
-		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceDataListener(this);
 	}
 	
 	@Override
 	public void run() {
-		if (run && update) {
+		if (update) {
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_pwm));
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.info_freq));
 			update = false;
 		}
 	}
-
-	@Override
-	public void deviceConnect() {
-		run = true;
-	}
-
-	@Override
-	public void deviceDisconnect() {
-		run = false;
-	}
-
+	
 	@Override
 	public void deviceDataSend(String data) {
 	}
-
+	
 	@Override
 	public void deviceDataReceived(String data) {
 		Command flags = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.chip_flags);

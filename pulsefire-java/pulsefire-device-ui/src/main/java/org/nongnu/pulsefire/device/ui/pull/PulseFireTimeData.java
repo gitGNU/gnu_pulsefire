@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.ui.JMainPanel;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
@@ -56,7 +55,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 		logger = Logger.getLogger(PulseFireTimeData.class.getName());
 		timeDataQueueMap = Collections.synchronizedMap(new HashMap<CommandName,TimeDataKey>(20));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
-		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTrigger(new EventTimeTrigger("refreshTimeData",new DataCommandAutoAdd(),1000));
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("refreshTimeData",new DataCommandAutoAdd(),1000));
 	}
 	
 	public TimeDataKey getKeyFromName(CommandName name) {
@@ -119,6 +118,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 			return;
 		}
 		onceAdd = true;
+		DataCommandListener dcl = new DataCommandListener();
 		for (CommandName name:CommandName.values()) {
 			if (name.isDisabled()) {
 				continue;
@@ -126,7 +126,7 @@ public class PulseFireTimeData implements DeviceConnectListener {
 			if (name.isMappable() | name.getType().equals(CommandVariableType.DATA) | name.getType().equals(CommandVariableType.INFO)) {
 				logger.fine("Adding timedata for: "+name);
 				getKeyFromName(name); // creates quee
-				PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(name, new DataCommandListener());
+				PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(name, dcl);
 			}
 		}
 	}
@@ -140,11 +140,6 @@ public class PulseFireTimeData implements DeviceConnectListener {
 	class DataCommandAutoAdd implements Runnable {
 		@Override
 		public void run() {
-			// todo: move to interface timer
-			if (PulseFireUI.getInstance().getMainView()!=null && PulseFireUI.getInstance().getMainView().getComponent()!=null) {
-				((JMainPanel)PulseFireUI.getInstance().getMainView().getComponent()).topPanelSerial.updateSpeedCounters();
-			}
-			
 			for (TimeDataKey key:timeDataQueueMap.values()) {
 				long now = System.currentTimeMillis();
 				if (key.timeDataLast!=null && (now-key.timeDataLast.receivedTime)>1000) {

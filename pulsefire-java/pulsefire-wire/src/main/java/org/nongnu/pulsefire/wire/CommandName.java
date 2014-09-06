@@ -559,7 +559,7 @@ public enum CommandName {
 	}
 	
 	static public String byte2hex(byte b) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder(4);
 		byte high = (byte) ( (b & 0xf0) >> 4);
 		byte low =  (byte)   (b & 0x0f);
 		buf.append(CommandName.nibble2hex(high));

@@ -57,7 +57,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 	private JButton saveButton = null;
 	private JButton clearButton = null;
 	private JButton fireButton = null;
-	private JComboBox fireIndexBox = null;
+	private JComboBox<Integer> fireIndexBox = null;
 	private JMalEditor malEditor = null;
 	
 	public JTabPanelMal() {
@@ -95,7 +95,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		fireButton.addActionListener(this);
 		result.add(fireButton);
 		
-		fireIndexBox = new JComboBox();
+		fireIndexBox = new JComboBox<Integer>();
 		fireIndexBox.setEnabled(false);
 		result.add(fireIndexBox);
 		
@@ -153,7 +153,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 			PulseFireUI.getInstance().getDeviceManager().requestCommand(new Command(CommandName.mal_code));
 		} else if (saveButton.equals(e.getSource())) {
 			List<Byte> programData = malEditor.saveData();
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (Byte b:programData) {
 				byte high = (byte) ( (b & 0xf0) >> 4);
 				byte low =  (byte)   (b & 0x0f);

@@ -104,7 +104,10 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		JPanel filterPanel = JComponentFactory.createJFirePanel("Filter");
 		filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		filterPanel.add(new JLabel("Filter"));
-		JComboBox filterBox = new JComboBox(WireChipFlags.values());
+		final JComboBox<String> filterBox = new JComboBox<String>();
+		for (WireChipFlags flag:WireChipFlags.values()) {
+			filterBox.addItem(flag.name());
+		}
 		filterBox.addItem("DIC");
 		filterBox.addItem("DOC");
 		filterBox.addItem("DEV");
@@ -118,7 +121,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		filterBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				filterType = ((JComboBox)e.getSource()).getSelectedItem().toString();
+				filterType = filterBox.getSelectedItem().toString();
 				fireUpdateModels();
 			}
 		});
@@ -135,11 +138,11 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		});
 		filterPanel.add(filterIndexedCheckBox);
 		filterPanel.add(new JLabel("Data"));
-		JComboBox filterDataBox = new JComboBox(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX","ID"});
+		final JComboBox<String> filterDataBox = new JComboBox<String>(new String[] {"DATA","MAP_IDX","IDX_A","IDX_B","MAX","ID"});
 		filterDataBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				filterData = ((JComboBox)e.getSource()).getSelectedIndex();
+				filterData = filterDataBox.getSelectedIndex();
 				fireUpdateModels();
 			}
 		});
@@ -280,7 +283,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			} else {
 				if (filterData==0) {
 					if (cmd.getCommandName().isIndexedA() && cmd.getCommandName().isIndexedB()) {
-						StringBuffer buf = new StringBuffer(50);
+						StringBuilder buf = new StringBuilder(50);
 						if (cmd.getArgu1()!=null) { buf.append(cmd.getArgu1());buf.append(' '); }
 						if (cmd.getArgu2()!=null) { buf.append(cmd.getArgu2());buf.append(' '); }
 						if (cmd.getArgu3()!=null) { buf.append(cmd.getArgu3());buf.append(' '); }

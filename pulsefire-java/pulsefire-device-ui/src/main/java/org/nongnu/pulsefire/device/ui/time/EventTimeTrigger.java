@@ -39,6 +39,7 @@ public class EventTimeTrigger {
 	private long runStartTime = 0;
 	private long runStopTime = 0;
 	private Runnable runnable = null;
+	private volatile boolean enabled = true;
 	
 	public EventTimeTrigger(String name,Runnable runnable,long timeStep) {
 		this(name,runnable,timeStep,0l);
@@ -99,13 +100,16 @@ public class EventTimeTrigger {
 	public void setTimeRuns(long timeRuns) {
 		this.timeRuns = timeRuns;
 	}
-
 	public String getTriggerName() {
 		return triggerName;
 	}
-
 	public void setTriggerName(String triggerName) {
 		this.triggerName = triggerName;
 	}
-	
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

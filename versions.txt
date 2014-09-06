@@ -55,6 +55,7 @@ Version 1.1.0:
 - Renamed info_ppm output to info_ppm_a/b[0-15]
 - Made avr serial send use buffed lines.
 - GUI: Dropped experimental audio scope code.
+- GUI: Improved gui performance, so uses less cpu.
 
 
 

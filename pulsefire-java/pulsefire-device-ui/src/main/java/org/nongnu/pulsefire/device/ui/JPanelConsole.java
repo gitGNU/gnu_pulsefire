@@ -32,7 +32,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -44,6 +46,7 @@ import javax.swing.ScrollPaneConstants;
 
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceDataListener;
+import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandWire;
 
@@ -60,10 +63,12 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 	private int consoleLogLinesMax = 255;
 	private DateFormat timeFormat = null;
 	private String lastCmd = null;
+	private final List<String> incomingData;
 	
 	public JPanelConsole() {
 		// Use simple time based format for console logging
 		timeFormat = new SimpleDateFormat("HH:mm:ss");
+		incomingData = new ArrayList<String>(200);
 		consoleLogLinesMax = new Integer(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.CONSOLE_LINES));
 		// Config panel and inner panel
 		setLayout(new GridLayout(1,1)); // take max size
@@ -124,47 +129,67 @@ public class JPanelConsole extends JPanel implements DeviceDataListener,DeviceCo
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.CONSOLE_LINES,this);
 		
 		updateText("Ready to connect.","##");
-	}
-
-	@Override
-	public void deviceDataReceived(String data) {
-		updateText(data,"");
-	}
-
-	@Override
-	public void deviceDataSend(String data) {
-		updateText(data,">>");
+		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("ProcessDataAppender",new ProcessDataAppender(),70));
 	}
 	
-	private void updateText(String data,String prefix) {
-		synchronized (consoleLog) {
-			consoleLog.append(timeFormat.format(new Date()));
-			consoleLog.append(" ");
-			consoleLog.append(prefix);
-			consoleLog.append(" ");
-			consoleLog.append(data);
-			consoleLog.append("\n");
-			
-			if (consoleLog.getLineCount() > consoleLogLinesMax) {
-				String t = consoleLog.getText();
-				int l = 0;
-				int rm = consoleLogLinesMax/2;
-				for (int i=0;i<rm;i++) {
-					int ll = t.indexOf('\n',l+1);
-					if (ll==-1) {
-						break;
-					}
-					l = ll;
-				}
-				String tt = t.substring(l,t.length());
-				consoleLog.setText(tt);
+	class ProcessDataAppender implements Runnable {
+		@Override
+		public void run() {
+			List<String> data = new ArrayList<String>(100);
+			synchronized (incomingData) {
+				data.addAll(incomingData);
+				incomingData.clear();
 			}
-			
-			consoleLog.repaint();
-			consoleLog.setCaretPosition(consoleLog.getDocument().getLength()); // auto scroll to end
+			appendConsoleLog(data);
 		}
 	}
-
+	
+	@Override
+	public void deviceDataReceived(String data) {
+		synchronized (incomingData) {
+			incomingData.add(timeFormat.format(new Date())+" "+data);
+		}
+	}
+	
+	@Override
+	public void deviceDataSend(String data) {
+		synchronized (incomingData) {
+			incomingData.add(timeFormat.format(new Date())+" >> "+data);
+		}
+	}
+	
+	private void updateText(String text,String prefix) {
+		synchronized (incomingData) {
+			incomingData.add(timeFormat.format(new Date())+" "+prefix+" "+text);
+		}
+	}
+	
+	private void appendConsoleLog(List<String> lines) {
+		
+		for (String line:lines) {
+			consoleLog.append(line);
+			consoleLog.append("\n");
+		}
+		
+		if (consoleLog.getLineCount() > consoleLogLinesMax) {
+			String t = consoleLog.getText();
+			int l = 0;
+			int rm = consoleLogLinesMax/2;
+			for (int i=0;i<rm;i++) {
+				int ll = t.indexOf('\n',l+1);
+				if (ll==-1) {
+					break;
+				}
+				l = ll;
+			}
+			String tt = t.substring(l,t.length());
+			consoleLog.setText(tt);
+		}
+		
+		consoleLog.repaint();
+		consoleLog.setCaretPosition(consoleLog.getDocument().getLength()); // auto scroll to end
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (consoleInput.getText().isEmpty()) {

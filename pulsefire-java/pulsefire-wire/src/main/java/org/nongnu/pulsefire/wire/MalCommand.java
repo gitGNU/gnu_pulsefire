@@ -300,7 +300,7 @@ public class MalCommand implements Cloneable {
 	}
 	
 	public String toString() {
-		StringBuffer buff = new StringBuffer(100);
+		StringBuilder buff = new StringBuilder(100);
 		for (int i=0;i<tabIndent;i++) {
 			buff.append("    ");
 		}
@@ -435,7 +435,7 @@ public class MalCommand implements Cloneable {
 	}
 	
 	public String toStringHexOpcodes() {
-		StringBuffer buff = new StringBuffer(5);
+		StringBuilder buff = new StringBuilder(16);
 		for (Byte opcode:opcodes) {
 			String hex = Integer.toHexString(opcode);
 			if (hex.length()==1) {
