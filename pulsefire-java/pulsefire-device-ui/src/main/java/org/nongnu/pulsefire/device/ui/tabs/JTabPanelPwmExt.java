@@ -35,7 +35,6 @@ import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -44,9 +43,6 @@ import org.nongnu.pulsefire.wire.CommandName;
  * @author Willem Cazander
  */
 public class JTabPanelPwmExt extends AbstractFireTabPanel {
-
-	private static final long serialVersionUID = -1646229038565969537L;
-	
 	
 	public JTabPanelPwmExt() {
 		JPanel topPanel = new JPanel();
@@ -56,16 +52,23 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		topPanel.add(createPulseTriggers());
 		SpringLayoutGrid.makeCompactGrid(topPanel,1,3,0,0,0,0);
 		
+		JPanel wrapE = new JPanel();
+		wrapE.setLayout(new SpringLayout());
+		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "fireMap", CommandName.pulse_fire_map,"fire","zero"));
+		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "holdMap", CommandName.pulse_hold_map,"hold","zero"));
+		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "resumeMap", CommandName.pulse_resume_map,"resume","zero"));
+		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "resetMap", CommandName.pulse_reset_map,"reset","zero"));
+		SpringLayoutGrid.makeCompactGrid(wrapE,2,2,0,0,6,6);
+		
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(topPanel);
-		wrap.add(createPulseEvents());
+		wrap.add(wrapE);
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,6,6);
 		
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(wrap);
+		getJPanel().add(wrap);
 	}
-
+	
 	private JPanel createPulseOutput() {
 		JPanel topPanel = JComponentFactory.createJFirePanel("Output");
 		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
@@ -110,26 +113,5 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		firePanel.add(pulsePanel);
 		firePanel.add(new JCommandDial(CommandName.pulse_hold_auto));
 		return firePanel;
-	}
-	
-	private JPanel createPulseEvents() {
-		JPanel firePanel = JComponentFactory.createJFirePanel("Pulse Fire Events");
-		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-		
-		JPanel mapPanel = new JPanel();
-		mapPanel.setLayout(new SpringLayout());
-		mapPanel.add(new JFireQMapTable(CommandName.pulse_fire_map,"fire","zero"));
-		mapPanel.add(new JFireQMapTable(CommandName.pulse_hold_map,"hold","zero"));
-		mapPanel.add(new JFireQMapTable(CommandName.pulse_resume_map,"resume","zero"));
-		mapPanel.add(new JFireQMapTable(CommandName.pulse_reset_map,"reset","zero"));
-		SpringLayoutGrid.makeCompactGrid(mapPanel,2,2);
-		firePanel.add(mapPanel);
-		
-		return firePanel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

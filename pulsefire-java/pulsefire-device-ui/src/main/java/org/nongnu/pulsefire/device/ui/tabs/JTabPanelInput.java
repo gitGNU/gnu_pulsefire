@@ -35,7 +35,6 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -45,18 +44,15 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class JTabPanelInput extends AbstractFireTabPanel {
 
-	private static final long serialVersionUID = 2716662787208065889L;
-
 	public JTabPanelInput() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createAdcOptionPanel());
 		wrap.add(createDicOptionPanel());
-		wrap.add(createAdcPanel());
-		wrap.add(createDicPanel());
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "adc", CommandName.adc_map,"map-min","map-max"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "dic", CommandName.dic_map,"low","high"));
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
-		add(wrap);
+		getJPanel().add(wrap);
 	}
 	
 	private JPanel createAdcOptionPanel() {
@@ -76,12 +72,6 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 		adcOptionPanel.add(new JLabel("Jitter"));
 		adcOptionPanel.add(new JCommandDial(CommandName.adc_jitter));
 		return adcOptionPanel;
-	}
-	
-	private JPanel createAdcPanel() {
-		JPanel adcPanel = JComponentFactory.createJFirePanel(this,"adc");
-		adcPanel.add(new JFireQMapTable(CommandName.adc_map,"map-min","map-max"));
-		return adcPanel;
 	}
 	
 	private JPanel createDicOptionPanel() {
@@ -122,16 +112,5 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 		adcOptionPanel.add(syncPanel);
 		
 		return adcOptionPanel;
-	}
-	
-	private JPanel createDicPanel() {
-		JPanel dicPanel = JComponentFactory.createJFirePanel(this,"dic");
-		dicPanel.add(new JFireQMapTable(CommandName.dic_map,"low","high"));
-		return dicPanel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

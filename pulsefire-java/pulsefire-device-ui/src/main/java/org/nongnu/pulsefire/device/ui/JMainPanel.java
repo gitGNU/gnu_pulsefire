@@ -206,7 +206,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private void removeTabPanel(JFireTabPanel panel) {
 		for (int i=0;i<tabbedPane.getTabCount();i++) {
 			Object tab = tabbedPane.getComponentAt(i);
-			if (panel.getParentScrollPane()==tab) {
+			if (panel.getJScrollPane()==tab) {
 				tabbedPane.removeTabAt(i);
 				break;
 			}
@@ -214,13 +214,12 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	}
 	
 	private Component createJScrollPane(JFireTabPanel innerPanel) {
-		JScrollPane scrollPane = new JScrollPane(innerPanel.getJPanel());
+		JScrollPane scrollPane = innerPanel.getJScrollPane();
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
-		innerPanel.setParentScrollPane(scrollPane);
 		if (innerPanel.getJPanelSide()!=null) {
 			return createContentSplit(scrollPane,innerPanel.getJPanelSide());
 		}

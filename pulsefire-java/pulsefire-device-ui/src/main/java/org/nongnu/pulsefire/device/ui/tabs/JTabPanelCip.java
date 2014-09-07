@@ -28,7 +28,6 @@ import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -43,29 +42,15 @@ import org.nongnu.pulsefire.wire.CommandName;
  * @author Willem Cazander
  */
 public class JTabPanelCip extends AbstractFireTabPanel {
-
-	private static final long serialVersionUID = -1623290385969537L;
-	
-	@Override
-	public void deviceConnect() {
-		super.deviceConnect();
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SwingUtilities.updateComponentTreeUI(JTabPanelCip.this);
-			}
-		});
-	}
 	
 	public JTabPanelCip() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createCip0());
 		wrap.add(createCip1());
 		wrap.add(createCip2());
 		SpringLayoutGrid.makeCompactGrid(wrap,3,1);
-		add(wrap);
+		getJPanel().add(wrap);
 	}
 	
 	private JPanel createCip0() {
@@ -141,11 +126,5 @@ public class JTabPanelCip extends AbstractFireTabPanel {
 		firePanel.add(new JCommandDial(CommandName.cip_2b_ocr));
 		firePanel.add(new JCommandDial(CommandName.cip_2c_ocr));
 		return firePanel;
-	}
-	
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

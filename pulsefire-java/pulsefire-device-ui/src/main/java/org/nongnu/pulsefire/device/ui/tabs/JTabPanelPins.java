@@ -23,12 +23,10 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
@@ -37,7 +35,6 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -47,12 +44,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class JTabPanelPins extends AbstractFireTabPanel {
 
-	private static final long serialVersionUID = -552322342345005654L;
-
 	public JTabPanelPins() {
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		
 		JPanel wrapL = new JPanel();
 		wrapL.setLayout(new SpringLayout());
 		wrapL.add(createChips());
@@ -63,15 +55,22 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		wrapT.setLayout(new SpringLayout());
 		wrapT.add(wrapL);
 		wrapT.add(createPinsAvr());
-		wrapT.add(createPinsArm());
-		SpringLayoutGrid.makeCompactGrid(wrapT,1,3,0,0,6,6);
+		//wrapT.add(createPinsArm());
+		SpringLayoutGrid.makeCompactGrid(wrapT,1,2,0,0,6,6);
 		
+		JPanel wrapI = new JPanel();
+		wrapI.setLayout(new SpringLayout());
+		wrapI.add(createInt());
+		wrapI.add(JComponentFactory.createJFirePanelQMapTable(this, "intTable", CommandName.int_map,"int0","int1"));
+		SpringLayoutGrid.makeCompactGrid(wrapI,2,1,0,0,6,6);
+		
+		JPanel wrap = new JPanel();
+		wrap.setLayout(new SpringLayout());
 		wrap.add(wrapT);
-		wrap.add(createInt());
-		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,0,0);
+		wrap.add(wrapI);
+		SpringLayoutGrid.makeCompactGrid(wrap,1,2,6,6,6,6);
 		
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(wrap);
+		getJPanel().add(wrap);
 	}
 	
 	private JPanel createChips() {
@@ -153,7 +152,7 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		wrapPanel.add(ioPanel);
 		return wrapPanel;
 	}
-
+	
 	private JPanel createPinsAvrMega() {
 		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"mega");
 		JPanel ioPanel = new JPanel();
@@ -170,13 +169,6 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		return wrapPanel;
 	}
 	
-	private JPanel createPinsArm() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"arm");
-		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
-		wrapPanel.add(JComponentFactory.createJPanelJWrap(new JLabel("  __  todo  __  ")));
-		return wrapPanel;
-	}
-
 	private JPanel createInt() {
 		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"int");
 		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
@@ -199,18 +191,8 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		ioPanel.add(new JCommandComboBox(CommandName.int_1freq_mul));
 		
 		SpringLayoutGrid.makeCompactGrid(ioPanel,2,6);
-		
 		wrapPanel.add(ioPanel);
-		JPanel tablePanel = new JPanel();
-		tablePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		tablePanel.add(new JFireQMapTable(CommandName.int_map,"int0","int1"));
-		wrapPanel.add(tablePanel);
 		
 		return wrapPanel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

@@ -32,12 +32,14 @@ make clean atmega328p-007-isp;
 or 
 make clean all;
 
+note: firmwares manual build do not show in application.
+
 -- Run hardware debug --
 
 Hardware setup;
 - mega is on ttyACM1
 - uno is on ttyACM0
-- wire uno GND to RESET
+- wire uno RESET to GND
 - wire uno TX-1 to mega TX3-14 
 
 Flash mega with htx firmware;
@@ -86,9 +88,8 @@ mvn versions:display-dependency-updates|grep ">"|uniq;
 
 -- Eclipse Setup --
 
-- Download Eclipse Indigo EE (3.7) from; http://eclipse.org/downloads/
-- Add "Eclipse EGit" plugin from indigo update site.
-- Add "m2e - maven for eclipse" plugin from indigo site.
+- Download Eclipse Luna EE (4.4) from; http://eclipse.org/downloads/
+- Install via marketplace "AVR Eclipse Plugin" for basic c/c++ editors support.
 - Clone remote git repro to local.
 - Import project into workspace from git working dir.
 - Import the other modules by Import -> Maven/ Excisting maven projects and the select the git working dir.
@@ -103,7 +104,7 @@ To fix goto the eclipse "Run configurations" and select the PulseFireUI one.
 Goto Arguments tab panel and fill in the program arguments
 "-jni-cp" (without quotes)
 And fill in the VM arguments;
-"-Djava.library.path=. -Xmx100M" (without quotes)
+"-Djava.library.path=." (without quotes)
 Then apply and run and pulsefire should connect to serial correctly. 
 
 

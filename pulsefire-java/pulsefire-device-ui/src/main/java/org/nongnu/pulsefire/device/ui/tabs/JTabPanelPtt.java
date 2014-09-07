@@ -23,8 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -36,7 +34,6 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.Command;
 import org.nongnu.pulsefire.wire.CommandName;
 
@@ -47,36 +44,22 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandListener {
 
-	private static final long serialVersionUID = 2716662787208065889L;
 	private JLabel runLabel = null;
 	private JLabel runStepLabel = null;
-
+	
 	public JTabPanelPtt() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
 		wrap.add(createTriggerStatusPanel());
 		wrap.add(createTriggerTestPanel());
-		
-		JPanel trig0Panel = JComponentFactory.createJFirePanel(this,"ptt0");
-		trig0Panel.add(new JFireQMapTable(CommandName.ptt_0map,"value","time"));
-		wrap.add(trig0Panel);
-		
-		JPanel trig1Panel = JComponentFactory.createJFirePanel(this,"ptt1");
-		trig1Panel.add(new JFireQMapTable(CommandName.ptt_1map,"value","time"));
-		wrap.add(trig1Panel);
-
-		JPanel trig2Panel = JComponentFactory.createJFirePanel(this,"ptt2");
-		trig2Panel.add(new JFireQMapTable(CommandName.ptt_2map,"value","time"));
-		wrap.add(trig2Panel);
-		
-		JPanel trig3Panel = JComponentFactory.createJFirePanel(this,"ptt3");
-		trig3Panel.add(new JFireQMapTable(CommandName.ptt_3map,"value","time"));
-		wrap.add(trig3Panel);
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt0", CommandName.ptt_0map,"value","time"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt1", CommandName.ptt_1map,"value","time"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt2", CommandName.ptt_2map,"value","time"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt3", CommandName.ptt_3map,"value","time"));
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,3,2);
-		add(wrap);
+		getJPanel().add(wrap);
 		
 		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		deviceManager.addDeviceCommandListener(CommandName.info_data, this);
@@ -112,11 +95,6 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 		return header;
 	}
 	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-
 	@Override
 	public void commandReceived(Command command) {
 		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();

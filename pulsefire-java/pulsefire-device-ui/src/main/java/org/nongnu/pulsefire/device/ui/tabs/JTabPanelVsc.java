@@ -33,7 +33,6 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -42,19 +41,16 @@ import org.nongnu.pulsefire.wire.CommandName;
  * @author Willem Cazander
  */
 public class JTabPanelVsc extends AbstractFireTabPanel {
-
-	private static final long serialVersionUID = -163344534565659787L;
 	
 	public JTabPanelVsc() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createVscConfPanel0());
 		wrap.add(createVscConfPanel1());
-		wrap.add(createVscPanel0());
-		wrap.add(createVscPanel1());
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "vsc_0map", CommandName.vsc_0map,"min","max"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "vsc_1map", CommandName.vsc_1map,"min","max"));
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
-		add(wrap);
+		getJPanel().add(wrap);
 	}
 	
 	private JPanel createVscConfPanel0 () {
@@ -79,22 +75,5 @@ public class JTabPanelVsc extends AbstractFireTabPanel {
 		panel.add(new JCommandLabel(	CommandName.vsc_1mode));
 		panel.add(new JCommandComboBox(	CommandName.vsc_1mode));
 		return panel;
-	}
-	
-	private JPanel createVscPanel0 () {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"vsc_0map");
-		panel.add(new JFireQMapTable(CommandName.vsc_0map,"min","max"));
-		return panel;
-	}
-	
-	private JPanel createVscPanel1 () {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"vsc_1map");
-		panel.add(new JFireQMapTable(CommandName.vsc_1map,"min","max"));
-		return panel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

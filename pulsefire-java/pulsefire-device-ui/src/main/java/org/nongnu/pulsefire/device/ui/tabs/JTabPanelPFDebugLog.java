@@ -58,23 +58,21 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
  */
 public class JTabPanelPFDebugLog extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener {
 
-	private static final long serialVersionUID = 4858978467459212054L;
 	private UILogHandler logHandler = null;
 	private JButton clearButton = null;
-	private JComboBox levelBox = null;
+	private JComboBox<Level> levelBox = null;
 	private JTextArea logTextArea = null;
 	private JCheckBox autoScrollBox = null;
 	private int logLinesMax = 255;
 	
 	public JTabPanelPFDebugLog() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createHeader());
 		wrap.add(createEditor());
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
-		add(wrap);
-
+		getJPanel().add(wrap);
+		
 		Logger rootLogger = Logger.getAnonymousLogger();
 		while (rootLogger.getParent()!=null) {
 			rootLogger = rootLogger.getParent();
@@ -105,7 +103,7 @@ public class JTabPanelPFDebugLog extends AbstractFireTabPanel implements ActionL
 		JPanel result = JComponentFactory.createJFirePanel("Options");
 		result.setLayout(new FlowLayout(FlowLayout.LEFT));
 		result.add(new JLabel("Log Level"));
-		levelBox = new JComboBox(new Level[] {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.FINE,Level.FINER,Level.FINEST,Level.ALL});
+		levelBox = new JComboBox<Level>(new Level[] {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.FINE,Level.FINER,Level.FINEST,Level.ALL});
 		levelBox.setSelectedItem(Level.INFO);
 		levelBox.addActionListener(this);
 		result.add(levelBox);
@@ -132,11 +130,6 @@ public class JTabPanelPFDebugLog extends AbstractFireTabPanel implements ActionL
 	}
 	
 	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (clearButton.equals(e.getSource())) {
 			logTextArea.setText("");
@@ -155,8 +148,9 @@ public class JTabPanelPFDebugLog extends AbstractFireTabPanel implements ActionL
 	}
 	
 	class UILogHandler extends Handler {
+		
 		@Override
-		public void close() throws SecurityException {	
+		public void close() throws SecurityException {
 		}
 		@Override
 		public void flush() {

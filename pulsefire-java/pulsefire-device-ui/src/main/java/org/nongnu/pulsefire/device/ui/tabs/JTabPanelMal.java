@@ -37,6 +37,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -50,9 +51,8 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener, DeviceCommandListener {
+public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener, DeviceCommandListener,DeviceConnectListener {
 
-	private static final long serialVersionUID = 4091488961980523054L;
 	private JButton loadButton = null;
 	private JButton saveButton = null;
 	private JButton clearButton = null;
@@ -61,15 +61,15 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 	private JMalEditor malEditor = null;
 	
 	public JTabPanelMal() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createHeader());
 		wrap.add(createEditor());
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1);
-		add(wrap);
+		getJPanel().add(wrap);
 		deviceDisconnect();
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.mal_code, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 	}
 		
 	private JPanel createHeader() {	
@@ -114,13 +114,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 	}
 	
 	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-
-	@Override
 	public void deviceConnect() {
-		super.deviceConnect();
 		if (CommandName.mal_fire.isDisabled()) {
 			return;
 		}
@@ -134,10 +128,9 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		}
 		loadButton.setEnabled(true);
 	}
-
+	
 	@Override
 	public void deviceDisconnect() {
-		super.deviceDisconnect();
 		loadButton.setEnabled(false);
 		saveButton.setEnabled(false);
 		clearButton.setEnabled(false);
@@ -146,7 +139,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		malEditor.setEnabled(false);
 		malEditor.clearData();
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (loadButton.equals(e.getSource())) {
@@ -189,7 +182,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					SwingUtilities.updateComponentTreeUI(getParentScrollPane());
+					SwingUtilities.updateComponentTreeUI(getJScrollPane());
 					SwingUtilities.updateComponentTreeUI(malEditor);
 				}
 			});
@@ -227,7 +220,7 @@ public class JTabPanelMal extends AbstractFireTabPanel implements ActionListener
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				SwingUtilities.updateComponentTreeUI(getParentScrollPane());
+				SwingUtilities.updateComponentTreeUI(getJScrollPane());
 				SwingUtilities.updateComponentTreeUI(malEditor);
 			}
 		});

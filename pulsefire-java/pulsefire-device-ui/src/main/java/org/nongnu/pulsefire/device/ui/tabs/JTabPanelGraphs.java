@@ -38,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
@@ -53,9 +54,8 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener {
+public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListener,PulseFireUISettingListener, DeviceConnectListener {
 
-	private static final long serialVersionUID = -1416072133032318563L;
 	private JPanel graphPanel = null;
 	private JButton graphListButton = null;
 	private JButton graphListInfoButton = null;
@@ -63,16 +63,16 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	private JComboBox<Integer> columnBox = null;
 	
 	public JTabPanelGraphs() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel topSplit = new JPanel();
 		topSplit.setLayout(new BorderLayout(6,6));
 		topSplit.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		
 		topSplit.add(createPanelGraphConfig(),BorderLayout.PAGE_START);
 		topSplit.add(createPanelGraph(),BorderLayout.CENTER);
-		add(topSplit);
+		getJPanel().add(topSplit);
 		
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST,this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 	}
 	
 	private JPanel createPanelGraph() {
@@ -116,11 +116,6 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	}
 	
 	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-	
-	@Override
 	public void deviceConnect() {
 		
 		String graphStr = PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.GRAPH_LIST);
@@ -139,7 +134,6 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 		}
 		resizeGraphs();
 		makeGraphGrid();
-		super.deviceConnect();
 	}
 	
 	private void makeGraphGrid() {
@@ -177,7 +171,6 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 	
 	@Override
 	public void deviceDisconnect() {
-		super.deviceDisconnect();
 		graphPanel.removeAll();
 	}
 	
@@ -213,7 +206,6 @@ public class JTabPanelGraphs extends AbstractFireTabPanel implements ActionListe
 			dialog.setVisible(true);
 		}
 		graphPanel.revalidate();
-		super.deviceConnect();
 	}
 	
 	public void settingUpdated(PulseFireUISettingKeys key,String value) {

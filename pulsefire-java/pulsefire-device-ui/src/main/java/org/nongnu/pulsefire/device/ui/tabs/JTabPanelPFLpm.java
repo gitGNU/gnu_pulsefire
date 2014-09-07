@@ -63,6 +63,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceData;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
@@ -82,9 +83,8 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener {
+public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListener, TableModelListener, DeviceCommandListener, PulseFireUISettingListener, DeviceConnectListener {
 
-	private static final long serialVersionUID = -6711428986888517858L;
 	private JTable tuneStepTable = null;
 	private JTable tuneResultTable = null;
 	private LpmTuneStepTableModel tuneStepModel = null;
@@ -133,7 +133,6 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 		stepFields = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.LPM_RESULT_FIELDS));
 		tuneCommandSteps = new ArrayList<LpmCommandStep>(4000);
 		
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
@@ -153,10 +152,11 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 		wrap.add(rightPanel);
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2,0,0,0,0);
-		add(wrap);
+		getJPanel().add(wrap);
 		
 		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("LpmStateCheck", new LpmStateCheck(), 200));
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.adc_value, this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LPM_RESULT_FIELDS,this);
 	}
 	
@@ -359,11 +359,6 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 		return panel;
 	}
 	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-
 	public class LpmTuneStep {
 		private int order = 1;
 		private CommandName commandName = null;
@@ -834,16 +829,15 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 			return panel;
 		}
 	}
-
+	
 	@Override
 	public void deviceConnect() {
-		super.deviceConnect(); // update ui tree
 		lpmAutoStartButton.setEnabled(true);
 		lpmAutoLoopButton.setEnabled(true);
 	}
+	
 	@Override
 	public void deviceDisconnect() {
-		super.deviceDisconnect();
 		lpmAutoStartButton.setEnabled(false);
 		lpmAutoLoopButton.setEnabled(false);
 		lpmAutoCancelButton.setEnabled(false);

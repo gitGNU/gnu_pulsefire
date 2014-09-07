@@ -41,7 +41,7 @@ import org.nongnu.pulsefire.wire.CommandName;
  * 
  * @author Willem Cazander
  */
-public class JCommandComboBox extends JComboBox implements ActionListener,DeviceCommandListener,DeviceConnectListener  {
+public class JCommandComboBox extends JComboBox<String> implements ActionListener,DeviceCommandListener,DeviceConnectListener  {
 
 	private static final long serialVersionUID = -8483163326183468077L;
 	private DeviceWireManager deviceManager = null;

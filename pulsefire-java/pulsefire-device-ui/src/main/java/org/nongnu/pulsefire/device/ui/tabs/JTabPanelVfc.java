@@ -23,13 +23,11 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -38,28 +36,13 @@ import org.nongnu.pulsefire.wire.CommandName;
  * @author Willem Cazander
  */
 public class JTabPanelVfc extends AbstractFireTabPanel {
-
-	private static final long serialVersionUID = 2716662787208065889L;
-
+	
 	public JTabPanelVfc() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
-		
-		JPanel adcPanel = JComponentFactory.createJFirePanel(this,"input");
-		adcPanel.add(new JFireQMapTable(CommandName.vfc_input_map,"min","max"));
-		wrap.add(adcPanel);
-		
-		JPanel dicPanel = JComponentFactory.createJFirePanel(this,"output");
-		dicPanel.add(new JFireQMapTable(CommandName.vfc_output_map,"map-min","map-max"));
-		wrap.add(dicPanel);
-
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "input", CommandName.vfc_input_map,"min","max"));
+		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "output", CommandName.vfc_output_map,"map-min","map-max"));
 		SpringLayoutGrid.makeCompactGrid(wrap,1,2);
-		add(wrap);
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
+		getJPanel().add(wrap);
 	}
 }

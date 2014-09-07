@@ -37,6 +37,7 @@ public class EventTimeThread extends Thread {
 	private Logger logger = null;
 	private volatile boolean running = false;
 	private EventTimeManager eventTimeManager = null;
+	private volatile long eventCounter;
 	
 	protected EventTimeThread(EventTimeManager eventTimeManager) {
 		this.eventTimeManager=eventTimeManager;
@@ -48,7 +49,7 @@ public class EventTimeThread extends Thread {
 		try {
 			running = true;
 			logger.info("EventTimer started");
-			long events = 0;
+			long totalEvents = 0;
 			while (running) {
 				Thread.sleep(50);
 				List<EventTimeTrigger> executeSteps = eventTimeManager.getEventExecuteSteps();
@@ -65,13 +66,17 @@ public class EventTimeThread extends Thread {
 					} catch (Exception triggerException) {
 						logger.log(Level.WARNING,triggerException.getMessage(),triggerException);
 					} finally {
-						events++;
+						totalEvents++;
+						eventCounter++;
 						trig.setRunStopTime(System.currentTimeMillis());
-						logger.finest("Executed trigger: "+trig.getTriggerName()+" in "+(trig.getRunStopTime()-trig.getRunStartTime())+" ms.");
+						long runTime = trig.getRunStopTime()-trig.getRunStartTime();
+						if (runTime > 300) {
+							logger.finer("Slow trigger: "+trig.getTriggerName()+" in "+runTime+" ms.");
+						}
 					}
 				}
 			}
-			logger.info("EventTimer stopped, total events fired: "+events);
+			logger.info("EventTimer stopped, total events fired: "+totalEvents);
 		} catch (Exception coreException) {
 			logger.log(Level.WARNING,coreException.getMessage(),coreException);
 		}
@@ -83,5 +88,13 @@ public class EventTimeThread extends Thread {
 	
 	public boolean isRunning() {
 		return running;
+	}
+	
+	public long getEventCounter() {
+		return eventCounter;
+	}
+	
+	public void resetEventCounter() {
+		eventCounter = 0;
 	}
 }

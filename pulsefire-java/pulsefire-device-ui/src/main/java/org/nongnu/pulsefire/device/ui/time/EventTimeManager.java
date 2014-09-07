@@ -50,11 +50,21 @@ public class EventTimeManager {
 	public void start() {
 		eventTimeThread = new EventTimeThread(this);
 		eventTimeThread.start();
+		addEventTimeTrigger(new EventTimeTrigger("LogEventSpeed",new LogEventSpeed(),1000));
 	}
 	
 	public void shutdown() {
 		eventTimeThread.shutdown();
 		eventTimeThread = null;
+	}
+	
+	class LogEventSpeed implements Runnable {
+		@Override
+		public void run() {
+			long events = eventTimeThread.getEventCounter();
+			logger.fine("EventTimeThread events per second: "+events);
+			eventTimeThread.resetEventCounter();
+		}
 	}
 	
 	public void addRunOnce(Runnable run) {

@@ -61,18 +61,16 @@ import org.nongnu.pulsefire.wire.CommandName;
  */
 public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandListener,PulseFireUISettingListener {
 
-	private static final long serialVersionUID = 8834117894619851885L;
 	private JPanel centerPanel = null;
 	private List<JPanel> channels = null;
 	private List<JPanel> channelsEmpty = null;
-
+	
 	public JTabPanelPwm() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
-		add(createContent());
+		getJPanel().setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
+		getJPanel().add(createContent());
 	}
 	
-	public JPanel getJPanelSide() {
+	protected JPanel createTabSidePane() {
 		JPanel result = new JPanel();
 		result.setLayout(new GridLayout(1,1,0,0));
 		result.add(new JFirePwmInfo());
@@ -240,11 +238,6 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 	}
 	
 	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-
-	@Override
 	public void commandReceived(Command command) {
 		int steps = new Integer(command.getArgu0());
 		checkChannels(steps);
@@ -286,7 +279,7 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		pulsePanel.setLayout(new SpringLayout());
 		splitPanel.add(pulsePanel);
 		pulsePanel.add(new JCommandLabel(CommandName.pwm_req_idx));
-		final JComboBox freqChannelBox = new JCommandComboBox(CommandName.pwm_req_idx);
+		JComboBox<String> freqChannelBox = new JCommandComboBox(CommandName.pwm_req_idx);
 		pulsePanel.add(freqChannelBox);
 		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,1);
 		return borderPanel;

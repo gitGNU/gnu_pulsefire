@@ -86,11 +86,12 @@ public class JFireQMapTable extends JPanel {
 		this(commandName,Arrays.asList(new String[] {colNameA,colNameB}));
 	}
 	
+	// lcd
 	public JFireQMapTable(CommandName commandName) {
 		this(commandName,new ArrayList<String>(0));
 	}
 	
-	public JFireQMapTable(CommandName commandName,List<String> columns) {
+	private JFireQMapTable(CommandName commandName,List<String> columns) {
 		
 		// Create JTable for qmap.
 		this.columns=columns;

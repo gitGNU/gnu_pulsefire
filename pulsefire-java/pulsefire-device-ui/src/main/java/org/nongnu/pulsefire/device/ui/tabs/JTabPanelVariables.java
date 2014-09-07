@@ -63,8 +63,6 @@ import org.nongnu.pulsefire.wire.WireChipFlags;
  */
 public class JTabPanelVariables extends AbstractFireTabPanel {
 
-	private static final long serialVersionUID = -4134436278702264489L;
-
 	private boolean filterIndexed = true;
 	private String filterType = null;
 	private int filterData = 0;
@@ -72,8 +70,6 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 	
 	public JTabPanelVariables() {
 		models = new ArrayList<DeviceConfigVariableTableModel>(4);
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 		JPanel topSplit = new JPanel();
 		topSplit.setLayout(new BorderLayout());
 		JPanel wrap = new JPanel();
@@ -85,7 +81,8 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		
 		topSplit.add(createTopPanelFilter(),BorderLayout.PAGE_START);
 		topSplit.add(wrap,BorderLayout.CENTER);
-		add(topSplit);
+		getJPanel().add(topSplit);
+		getJPanel().setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
 	}
 	
 	private void fireUpdateModels() {
@@ -95,7 +92,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				SwingUtilities.updateComponentTreeUI(getParentScrollPane());
+				SwingUtilities.updateComponentTreeUI(getJScrollPane());
 			}
 		});
 	}
@@ -155,7 +152,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 	private JPanel createVars(String name, CommandVariableType type) {
 		JPanel confPanel = JComponentFactory.createJFirePanel(name);
 		confPanel.setLayout(new GridLayout(1,1));
-		add(confPanel);
+		
 		DeviceConfigVariableTableModel tableConfModel = new DeviceConfigVariableTableModel(type);
 		JTable tableConf = new JTable(tableConfModel);
 		models.add(tableConfModel);
@@ -176,11 +173,6 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		tableConfPanel.add(tableConf, BorderLayout.CENTER);
 		confPanel.add(tableConfPanel);
 		return confPanel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 	
 	public class DeviceConfigVariableTableModel extends AbstractTableModel implements DeviceConnectListener,DeviceCommandListener {

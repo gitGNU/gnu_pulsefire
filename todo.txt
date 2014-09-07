@@ -11,18 +11,11 @@ CHIP:
 - Add menu support for map variables.
 - Added more commands/tests to MAL
 - Added nested if support in mal
-- Port to arm7
-- Port to arm9 aka BeagleBoard-Bone / PandaBoard
 - i2c and MCP4725 I2C DAC support
 
 CHIP PF_VARS:
-	- (DONE) inverse nolimit flag in
-	- (DONE) Fix 32 bit variables set.
-	- (DONE) Move idxA,idxB size in PF_VARS to type size column
-	- (DONE) add push flag
 	- Find precompiler way to find variable idx to 'replace' Vars_getIndexFromName for push data.
 	- Make almost all code work via Vars_setValue for auto push.
-	- (DONE) merge pf_data and pf_prog
 	- Make more easy to use current steps to add one variable are;
 		1) Add var in vars.h struct;					add;		volatile uint8_t	lcd_input;
 		2) Increase defined size in vars.h;		change; PF_VARS_LCD_SIZE	10
@@ -44,12 +37,15 @@ GUI:
 - Chip resets/etc wait dialogs. 
 - headless support and traybar option.
 - fix full screen mode tooltip editors.
-- fix audio scope channel select to support up to ~16 channels.
 - move all rxtx code out of init + UI thread.
 
-SERVER:
-- oss some crud code
-- build on mongo or pg
+PF-2.0:
+- storage build on mongo or pg
+- server version
+- Convert to c++ with modules
+- Message interface
+- Add ethernet support.
+- Port to arm7/9 aka BeagleBoard-Bone / PandaBoard
 
 BUILD:
 maybe check in ant/maven download of libs;

@@ -23,6 +23,8 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
+import java.awt.FlowLayout;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,58 +38,72 @@ import org.nongnu.pulsefire.device.ui.PulseFireUI;
  * 
  * @author Willem Cazander
  */
-@SuppressWarnings("serial")
-abstract public class AbstractFireTabPanel extends JPanel implements JFireTabPanel,DeviceConnectListener {
+abstract public class AbstractFireTabPanel implements JFireTabPanel {
 
-	private JScrollPane parentScrollPane = null;
+	private final JPanel tabPane;
+	private final JPanel tabSidePane;
+	private final JScrollPane tabScrollPane;
 	
 	public AbstractFireTabPanel() {
-		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		tabPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		tabScrollPane = new JScrollPane(tabPane);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(new DeviceConnectListener() {
+			@Override
+			public void deviceDisconnect() {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			public void deviceConnect() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								SwingUtilities.updateComponentTreeUI(tabScrollPane);
+								SwingUtilities.updateComponentTreeUI(tabPane);
+							}
+						});
+					}
+				});
+			}
+		});
+		tabSidePane = createTabSidePane();
 	}
 	
-	abstract Class<?> getTabClassName();
-
-	public String getTabName() {
+	protected JPanel createTabSidePane() {
+		return null;
+	}
+	
+	public final Class<?> getTabClassName() {
+		return this.getClass();
+	}
+	
+	public final String getTabName() {
 		String nameKey = getTabClassName().getName()+".text";
 		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
 	}
-	public String getTabTooltip() {
+	
+	public final String getTabTooltip() {
 		String nameKey = getTabClassName().getName()+".tooltip";
 		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
 	}
-	public Icon getTabIcon() {
+	
+	public final Icon getTabIcon() {
 		String nameKey = getTabClassName().getName()+".icon";
 		return PulseFireUI.getInstance().getContext().getResourceMap().getIcon(nameKey);
 	}
 	
-	public JPanel getJPanel() {
-		return this;
+	public final JPanel getJPanel() {
+		return tabPane;
 	}
 	
-	public JPanel getJPanelSide() {
-		return null;
+	public final JScrollPane getJScrollPane() {
+		return tabScrollPane;
 	}
 	
-	public JScrollPane getParentScrollPane() {
-		return parentScrollPane;
-	}
-
-	public void setParentScrollPane(JScrollPane parentScrollPane) {
-		this.parentScrollPane = parentScrollPane;
-	}
-
-	@Override
-	public void deviceConnect() {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				SwingUtilities.updateComponentTreeUI(parentScrollPane);
-			}
-		});
-	}
-
-	@Override
-	public void deviceDisconnect() {
+	public final JPanel getJPanelSide() {
+		return tabSidePane;
 	}
 	
 	@Override

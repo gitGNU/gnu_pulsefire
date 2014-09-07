@@ -23,7 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -53,11 +52,8 @@ import org.nongnu.pulsefire.wire.CommandVariableType;
  * @author Willem Cazander
  */
 public class JTabPanelPFDataLog extends AbstractFireTabPanel {
-
-	private static final long serialVersionUID = -1646229038565969537L;
 	
 	public JTabPanelPFDataLog() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
@@ -69,7 +65,7 @@ public class JTabPanelPFDataLog extends AbstractFireTabPanel {
 		wrap.add(leftPanel);
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,1,0,0,0,0);
-		add(wrap);
+		getJPanel().add(wrap);
 	}
 	
 	private JPanel createSettingsLogFile(int loggerId) {
@@ -153,14 +149,9 @@ public class JTabPanelPFDataLog extends AbstractFireTabPanel {
 			}
 		});
 		panel.add(pullButton);
-
+		
 		SpringLayoutGrid.makeCompactGrid(panel,6,3);
 		
 		return panel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
 	}
 }

@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
@@ -51,11 +52,9 @@ import org.nongnu.pulsefire.device.ui.components.JFlashDialog;
  */
 public class JTabPanelPFSettings extends AbstractFireTabPanel {
 
-	private static final long serialVersionUID = -1646229038565969537L;
 	private JButton burnButton = null;
 	
 	public JTabPanelPFSettings() {
-		setLayout(new FlowLayout(FlowLayout.LEFT));
 		JPanel wrap = new JPanel();
 		wrap.setLayout(new SpringLayout());
 		
@@ -70,7 +69,20 @@ public class JTabPanelPFSettings extends AbstractFireTabPanel {
 		wrap.add(rightPanel);
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,1,1,0,0,0,0);
-		add(wrap);
+		getJPanel().add(wrap);
+		
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(new DeviceConnectListener() {
+			
+			@Override
+			public void deviceDisconnect() {
+				burnButton.setEnabled(true);
+			}
+			
+			@Override
+			public void deviceConnect() {
+				burnButton.setEnabled(false);
+			}
+		});
 	}
 	
 	private JPanel createSettingsUI() {
@@ -173,22 +185,5 @@ public class JTabPanelPFSettings extends AbstractFireTabPanel {
 		SpringLayoutGrid.makeCompactGrid(panel,3,3);
 		
 		return panel;
-	}
-	
-	@Override
-	public Class<?> getTabClassName() {
-		return this.getClass();
-	}
-	
-	@Override
-	public void deviceConnect() {
-		burnButton.setEnabled(false);
-		super.deviceConnect();
-	}
-	
-	@Override
-	public void deviceDisconnect() {
-		super.deviceDisconnect();
-		burnButton.setEnabled(true);
 	}
 }
