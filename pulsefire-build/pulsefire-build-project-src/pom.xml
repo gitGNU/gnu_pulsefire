@@ -33,13 +33,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <packaging>pom</packaging>
   <name>pulsefire-build-project-src</name>
   <description>pulsefire-build-project-src</description>
-  <dependencies>
-    <dependency>
-      <groupId>org.nongnu.pulsefire</groupId>
-      <artifactId>pulsefire-device-ui</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
   <profiles>
     <profile>
       <id>pf-build</id>

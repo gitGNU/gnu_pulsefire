@@ -24,7 +24,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>pulsefire-root</artifactId>
+    <artifactId>pulsefire</artifactId>
     <groupId>org.nongnu.pulsefire</groupId>
     <version>1.1.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
@@ -52,4 +52,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <module>pulsefire-build-ui-dist</module>
     <module>pulsefire-build-project-src</module>
   </modules>
+  <dependencies>
+    <dependency>
+      <groupId>org.nongnu.pulsefire.device</groupId>
+      <artifactId>pulsefire-device-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 </project>
