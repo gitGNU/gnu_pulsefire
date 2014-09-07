@@ -29,13 +29,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceWireManager;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JCommandSpinner

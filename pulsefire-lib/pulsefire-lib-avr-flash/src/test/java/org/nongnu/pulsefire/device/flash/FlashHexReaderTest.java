@@ -26,6 +26,8 @@ package org.nongnu.pulsefire.device.flash;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import org.nongnu.pulsefire.lib.avr.flash.FlashHexReader;
+
 import junit.framework.TestCase;
 
 /**

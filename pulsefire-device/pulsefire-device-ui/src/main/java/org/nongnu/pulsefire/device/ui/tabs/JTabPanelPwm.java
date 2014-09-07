@@ -39,7 +39,9 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
@@ -51,8 +53,6 @@ import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireBorderChild;
 import org.nongnu.pulsefire.device.ui.components.JFirePwmInfo;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JTabPanelPWM

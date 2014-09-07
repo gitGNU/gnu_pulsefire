@@ -82,16 +82,16 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.nongnu.pulsefire.device.flash.FlashControllerConfig;
-import org.nongnu.pulsefire.device.flash.FlashHexReader;
-import org.nongnu.pulsefire.device.flash.FlashLogListener;
-import org.nongnu.pulsefire.device.flash.FlashManager;
-import org.nongnu.pulsefire.device.flash.FlashProgramController;
 import org.nongnu.pulsefire.device.ui.DevicePortsComboBoxModel;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.lib.avr.flash.FlashControllerConfig;
+import org.nongnu.pulsefire.lib.avr.flash.FlashHexReader;
+import org.nongnu.pulsefire.lib.avr.flash.FlashLogListener;
+import org.nongnu.pulsefire.lib.avr.flash.FlashManager;
+import org.nongnu.pulsefire.lib.avr.flash.FlashProgramController;
 
 /**
  * JFlashDialog displays all device firmwares and let user flash them.

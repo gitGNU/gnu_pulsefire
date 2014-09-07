@@ -45,7 +45,11 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.filechooser.FileFilter;
 
-import org.nongnu.pulsefire.device.DeviceData;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandVariableType;
+import org.nongnu.pulsefire.device.io.protocol.CommandWire;
+import org.nongnu.pulsefire.device.io.transport.DeviceData;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
@@ -56,10 +60,6 @@ import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.CommandVariableType;
-import org.nongnu.pulsefire.wire.CommandWire;
 
 /**
  * JTabPanelSystem

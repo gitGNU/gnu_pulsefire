@@ -45,16 +45,16 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceData;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandVariableType;
+import org.nongnu.pulsefire.device.io.protocol.WireChipFlags;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceData;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.CommandVariableType;
-import org.nongnu.pulsefire.wire.WireChipFlags;
 
 /**
  * JTabPanelVariables

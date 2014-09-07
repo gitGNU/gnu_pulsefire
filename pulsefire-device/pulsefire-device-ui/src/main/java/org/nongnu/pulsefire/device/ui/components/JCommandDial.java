@@ -26,16 +26,16 @@ package org.nongnu.pulsefire.device.ui.components;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceWireManager;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JCommandDial

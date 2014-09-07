@@ -39,7 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceWireManager;
+import org.nongnu.pulsefire.device.io.transport.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 
 /**

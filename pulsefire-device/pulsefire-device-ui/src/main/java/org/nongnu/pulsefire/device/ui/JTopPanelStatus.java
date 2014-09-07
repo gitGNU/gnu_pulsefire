@@ -31,11 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceData;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceData;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JTopPanelPPM

@@ -49,10 +49,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JCommandSettingListDialog displays dialog with 2 lists to select multiple commands.

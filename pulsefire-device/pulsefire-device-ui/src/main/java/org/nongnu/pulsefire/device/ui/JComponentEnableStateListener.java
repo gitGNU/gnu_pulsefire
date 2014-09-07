@@ -25,11 +25,11 @@ package org.nongnu.pulsefire.device.ui;
 
 import javax.swing.JComponent;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.WirePulseMode;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.WirePulseMode;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 
 /**
  * JComponentEnableStateListener

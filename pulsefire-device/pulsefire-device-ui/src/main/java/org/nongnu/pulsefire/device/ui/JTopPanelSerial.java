@@ -38,8 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceDataListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceDataListener;
 import org.nongnu.pulsefire.device.ui.components.JConnectDialog;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 

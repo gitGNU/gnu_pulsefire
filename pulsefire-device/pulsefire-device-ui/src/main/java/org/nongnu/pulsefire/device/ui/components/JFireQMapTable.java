@@ -63,12 +63,12 @@ import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
-import org.nongnu.pulsefire.device.DeviceData;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceData;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JFireQMapTable is configed JTable for PulseFire QMAP data type.

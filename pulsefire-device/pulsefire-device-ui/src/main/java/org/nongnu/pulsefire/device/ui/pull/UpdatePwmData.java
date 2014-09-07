@@ -23,10 +23,10 @@
 
 package org.nongnu.pulsefire.device.ui.pull;
 
-import org.nongnu.pulsefire.device.DeviceDataListener;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceDataListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * UpdatePwmData updates pwm/freq data after pwm config change.

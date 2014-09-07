@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.junit.Test;
-import org.nongnu.pulsefire.wire.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 
 import junit.framework.TestCase;
 

@@ -53,9 +53,9 @@ cat < /dev/ttyACM0
 -- Test Flash code manual --
 
 cd project-root/;
-java -Djava.library.path=pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-linux-x86_64/src/main/jni/ \
+java -Djava.library.path=TODOpulsefire-lib/pulsefire-rxtx/pulsefire-rxtx-linux-x86_64/src/main/jni/ \
 	-cp "pulsefire-java/pulsefire-device-flash/target/pulsefire-device-flash-1.0.5-SNAPSHOT.jar:pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-lib/target/pulsefire-rxtx-lib-1.0.5-SNAPSHOT.jar" \
-	org.nongnu.pulsefire.device.flash.FlashManager \
+	oorg.nongnu.pulsefire.lib.avr.flash.FlashManager \
 	-P /dev/ttyACM0 -c arduino -f pulsefire-chip/src/main/c/build/atmega328p-007/pulsefire.hex
 
 

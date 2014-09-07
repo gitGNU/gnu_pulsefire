@@ -23,13 +23,13 @@
 
 package org.nongnu.pulsefire.device.ui.pull;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * PulseFireDataPuller pull every X seconds the data of device.

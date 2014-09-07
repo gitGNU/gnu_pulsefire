@@ -36,13 +36,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeData;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData.TimeDataKey;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JFireGraph is realtime simple graph painter.

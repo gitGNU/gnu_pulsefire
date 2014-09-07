@@ -25,8 +25,8 @@ package org.nongnu.pulsefire.device.ui.components;
 
 import javax.swing.JLabel;
 
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JCommandLabel

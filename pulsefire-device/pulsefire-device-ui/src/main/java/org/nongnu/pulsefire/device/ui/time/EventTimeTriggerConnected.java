@@ -23,7 +23,7 @@
 
 package org.nongnu.pulsefire.device.ui.time;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 
 /**

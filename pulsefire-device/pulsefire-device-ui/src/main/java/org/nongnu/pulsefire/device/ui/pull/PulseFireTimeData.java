@@ -33,13 +33,13 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
-import org.nongnu.pulsefire.device.DeviceCommandListener;
-import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.protocol.Command;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandVariableType;
+import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
-import org.nongnu.pulsefire.wire.Command;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.CommandVariableType;
 
 /**
  * PulseFireTimeData

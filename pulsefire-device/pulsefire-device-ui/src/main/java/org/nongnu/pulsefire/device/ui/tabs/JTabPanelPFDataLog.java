@@ -36,6 +36,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandVariableType;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
@@ -43,8 +45,6 @@ import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUISettingManager;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandSettingListDialog;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.CommandVariableType;
 
 /**
  * JTabPanelDataLog

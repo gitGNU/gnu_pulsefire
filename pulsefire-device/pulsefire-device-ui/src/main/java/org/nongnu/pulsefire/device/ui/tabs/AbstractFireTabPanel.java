@@ -34,7 +34,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
@@ -45,7 +46,6 @@ import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
 import org.nongnu.pulsefire.device.ui.components.JFireGraph;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * AbstractTabPanel

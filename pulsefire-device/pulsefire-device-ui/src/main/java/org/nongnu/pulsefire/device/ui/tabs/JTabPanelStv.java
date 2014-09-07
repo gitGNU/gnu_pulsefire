@@ -23,7 +23,7 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import org.nongnu.pulsefire.wire.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 
 /**
  * JTabPanelSTV

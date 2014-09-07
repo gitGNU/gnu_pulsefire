@@ -56,17 +56,17 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.text.BadLocationException;
 
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.CmdType;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.ExtOpIf;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.ExtOpVar;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.ExtType;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.ValueType;
+import org.nongnu.pulsefire.device.io.protocol.MalCommand.VarIndex;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.wire.CommandName;
-import org.nongnu.pulsefire.wire.MalCommand;
-import org.nongnu.pulsefire.wire.MalCommand.CmdType;
-import org.nongnu.pulsefire.wire.MalCommand.ExtType;
-import org.nongnu.pulsefire.wire.MalCommand.ExtOpIf;
-import org.nongnu.pulsefire.wire.MalCommand.ExtOpVar;
-import org.nongnu.pulsefire.wire.MalCommand.ValueType;
-import org.nongnu.pulsefire.wire.MalCommand.VarIndex;
 
 /**
  * JMalEditor is table editor for mal commands

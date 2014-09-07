@@ -28,6 +28,7 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
@@ -35,7 +36,6 @@ import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JTabPanelPwmExt extended pwm controls.
