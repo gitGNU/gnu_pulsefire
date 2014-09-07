@@ -24,14 +24,28 @@
 package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.FlowLayout;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import org.nongnu.pulsefire.device.DeviceConnectListener;
+import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
+import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
+import org.nongnu.pulsefire.device.ui.components.JCommandDial;
+import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
+import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
+import org.nongnu.pulsefire.device.ui.components.JFireGraph;
+import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
+import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * AbstractTabPanel
@@ -81,12 +95,12 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 	
 	public final String getTabName() {
 		String nameKey = getTabClassName().getName()+".text";
-		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
+		return i18n(nameKey);
 	}
 	
 	public final String getTabTooltip() {
 		String nameKey = getTabClassName().getName()+".tooltip";
-		return PulseFireUI.getInstance().getContext().getResourceMap().getString(nameKey);
+		return i18n(nameKey);
 	}
 	
 	public final Icon getTabIcon() {
@@ -108,5 +122,86 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 	
 	@Override
 	public void release() {
+	}
+	
+	private final String i18n(String key) {
+		return PulseFireUI.getInstance().getContext().getResourceMap().getString(key);
+	}
+	
+	private JComponent createCommandComponentLabelGrid(final CommandName cmdName,final JComponent component) {
+		final JCommandLabel result = new JCommandLabel(cmdName);
+		result.addHierarchyListener(new HierarchyListener() {
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+				if (HierarchyEvent.PARENT_CHANGED!=e.getChangeFlags()) {
+					return;
+				}
+				if (result.getParent()!=null) {
+					result.getParent().add(component);
+					result.removeHierarchyListener(this);
+				}
+			}
+		});
+		return result;
+	}
+	
+	protected JComponent createCommandSpinnerLabelGrid(CommandName cmdName) {
+		return createCommandComponentLabelGrid(cmdName,new JCommandSpinner(cmdName));
+	}
+	
+	protected JComponent createCommandComboBoxLabelGrid(CommandName cmdName) {
+		return createCommandComponentLabelGrid(cmdName,new JCommandComboBox(cmdName));
+	}
+	
+	protected JComponent createCommandCheckBoxLabelGrid(CommandName cmdName) {
+		return createCommandComponentLabelGrid(cmdName,new JCommandCheckBox(cmdName));
+	}
+	
+	protected JComponent createCommandDial(CommandName cmdName) {
+		return new JCommandDial(cmdName);
+	}
+	
+	protected JComponent createCommandQMapTable(CommandName cmdName) {
+		JPanel result = JComponentFactory.createJFirePanel(i18n(cmdName.getKeyLabel()));
+		result.add(new JFireQMapTable(cmdName,i18n(cmdName.getKeyQMapValueA()),i18n(cmdName.getKeyQMapValueB())));
+		return result;
+	}
+	
+	protected JComponent createFlowLeftFirePanel(String fireName,JComponent...components) {
+		JPanel result = JComponentFactory.createJFirePanel(this,fireName);
+		result.setLayout(new FlowLayout(FlowLayout.LEFT));
+		for (JComponent comp:components) {
+			result.add(comp);
+		}
+		return result;
+	}
+	
+	protected JComponent createLabeledGrid(int rows,int cols,JComponent...components) {
+		return createCompactGrid(rows,cols * 2,components);
+	}
+	
+	protected JComponent createCompactGrid(final int rows,final int cols,JComponent...components) {
+		final JPanel result = new JPanel();
+		result.setLayout(new SpringLayout());
+		for (JComponent comp:components) {
+			result.add(comp);
+		}
+		result.addHierarchyListener(new HierarchyListener() {
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+				if (HierarchyEvent.PARENT_CHANGED!=e.getChangeFlags()) {
+					return;
+				}
+				if (result.getParent()!=null) {
+					SpringLayoutGrid.makeCompactGrid(result,rows,cols);
+					result.removeHierarchyListener(this);
+				}
+			}
+		});
+		return result;
+	}
+	
+	protected final void build(JComponent rootComponent) {
+		getJPanel().add(rootComponent);
 	}
 }

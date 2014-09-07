@@ -58,17 +58,13 @@ public class JFireDial extends JComponent  {
 	private long value = 0;
 	private long valueOld = 0;
 	private long valueMin = 0;
-	private long valueMax = 0;
+	private long valueMax = 100;
 	private int radiusSize = 0;
 	private int dotIndex = -1;
 	private int spinStartX = 0;
 	private int spinStartY = 0;
 	private long spinStartValue = 0;
 	static private Popup globalPopup = null; 
-	
-	public JFireDial() {
-		this(0l,100l,0l);
-	}
 	
 	public JFireDial(long minValue, long maxValue, long value) {
 		setMinimum(minValue);

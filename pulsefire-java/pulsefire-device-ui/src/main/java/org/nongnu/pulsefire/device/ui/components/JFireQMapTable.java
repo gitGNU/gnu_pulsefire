@@ -170,7 +170,7 @@ public class JFireQMapTable extends JPanel {
 	public class DeviceConfigVariableTableModel extends AbstractTableModel  implements DeviceConnectListener, DeviceCommandListener  {
 		
 		private static final long serialVersionUID = 3636761640345147211L;
-		private String[] columnNames = new String[] {"num","variable","a","b","idx"};
+		private String[] columnNames = new String[] {"number","variable","valueA","valueB","index"};
 		private CommandName variableName = null;
 		volatile private int indexMaxA  = 2;
 		private DeviceData deviceData = null;
@@ -202,7 +202,8 @@ public class JFireQMapTable extends JPanel {
 			if ((col==2 | col==3) && (columns.isEmpty()==false)) {
 				return columns.get(col-2);
 			}
-			return columnNames[col];
+			String key = JFireQMapTable.class.getName()+".column."+columnNames[col];
+			return PulseFireUI.getInstance().getContext().getResourceMap().getString(key);
 		}
 		public int getRowCount() { return indexMaxA; }
 		public int getColumnCount() {

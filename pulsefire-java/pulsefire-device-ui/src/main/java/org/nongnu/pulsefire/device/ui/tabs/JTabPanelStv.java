@@ -23,15 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -42,31 +33,23 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JTabPanelStv extends AbstractFireTabPanel {
 
 	public JTabPanelStv() {
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		wrap.add(createWarnConfPanel());
-		wrap.add(createErrorConfPanel());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "warningActions", CommandName.stv_warn_map,"warning","warning-exit"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "errorActions", CommandName.stv_error_map,"error","error-exit"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "maxValues", CommandName.stv_max_map,"warning","error"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "minValues", CommandName.stv_min_map,"warning","error"));
-		SpringLayoutGrid.makeCompactGrid(wrap,3,2);
-		getJPanel().add(wrap);
-	}
-	
-	private JPanel createWarnConfPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"warningConfig");
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JCommandLabel(CommandName.stv_warn_secs));
-		panel.add(new JCommandSpinner(CommandName.stv_warn_secs));
-		return panel;
-	}
-	
-	private JPanel createErrorConfPanel() {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"errorConfig");
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JCommandLabel(CommandName.stv_error_secs));
-		panel.add(new JCommandSpinner(CommandName.stv_error_secs));
-		return panel;
+		build(
+			createCompactGrid(3, 2,
+				createFlowLeftFirePanel("warningConfig",
+					createLabeledGrid(1, 1,
+						createCommandSpinnerLabelGrid(CommandName.stv_warn_secs)
+					)
+				),
+				createFlowLeftFirePanel("errorConfig",
+					createLabeledGrid(1, 1,
+						createCommandSpinnerLabelGrid(CommandName.stv_error_secs)
+					)
+				),
+				createCommandQMapTable(CommandName.stv_warn_map),
+				createCommandQMapTable(CommandName.stv_error_map),
+				createCommandQMapTable(CommandName.stv_max_map),
+				createCommandQMapTable(CommandName.stv_min_map)
+			)
+		);
 	}
 }

@@ -49,8 +49,8 @@ public class JTabPanelInput extends AbstractFireTabPanel {
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createAdcOptionPanel());
 		wrap.add(createDicOptionPanel());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "adc", CommandName.adc_map,"map-min","map-max"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "dic", CommandName.dic_map,"low","high"));
+		wrap.add(createCommandQMapTable(CommandName.adc_map));
+		wrap.add(createCommandQMapTable(CommandName.dic_map));
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
 		getJPanel().add(wrap);
 	}

@@ -24,12 +24,14 @@
 package org.nongnu.pulsefire.device.ui.components;
 
 import javax.swing.JPanel;
+import javax.swing.SpringLayout;
 
 import org.nongnu.pulsefire.device.DeviceCommandListener;
 import org.nongnu.pulsefire.device.DeviceConnectListener;
 import org.nongnu.pulsefire.device.DeviceWireManager;
 import org.nongnu.pulsefire.device.ui.JComponentEnableStateListener;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
+import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialEvent;
 import org.nongnu.pulsefire.device.ui.components.JFireDial.DialListener;
 import org.nongnu.pulsefire.wire.Command;
@@ -58,9 +60,9 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		this.idx=idx;
 		deviceManager = PulseFireUI.getInstance().getDeviceManager();
 		command = new Command(commandName);
-		fireDial = new JFireDial();
-		fireDial.setName("commandname."+commandName.name()+".firedial");
-		fireDial.setMaximum(commandName.getMaxValue());
+		fireDial = new JFireDial(0,commandName.getMaxValue(),0);
+		fireDial.setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyLabel()));
+		fireDial.setToolTipText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyDescription()));
 		fireDial.addDialListener(this);
 		if (idx!=-1) {
 			JComponentEnableStateListener.attach(fireDial,commandName,idx);
@@ -69,7 +71,12 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		}
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
 		deviceManager.addDeviceConnectListener(this);
+		
+		// fixme
+		//setLayout(new SpringLayout());
+		//add(new JCommandLabel(commandName));
 		add(fireDial);
+		//SpringLayoutGrid.makeCompactGrid(this,2,1,0,0,0,0);
 	}
 	
 	@Override
@@ -117,7 +124,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 			noEvent = false;
 		}
 	}
-
+	
 	@Override
 	public void deviceConnect() {
 		long maxValue = command.getCommandName().getMaxValue();
@@ -126,7 +133,7 @@ public class JCommandDial extends JPanel implements DialListener,DeviceCommandLi
 		}
 		fireDial.setMaximum(maxValue);
 	}
-
+	
 	@Override
 	public void deviceDisconnect() {
 	}

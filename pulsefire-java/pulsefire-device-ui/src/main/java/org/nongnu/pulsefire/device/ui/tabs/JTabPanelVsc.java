@@ -23,16 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import java.awt.FlowLayout;
-
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
-import org.nongnu.pulsefire.device.ui.components.JCommandDial;
-import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -43,37 +33,25 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JTabPanelVsc extends AbstractFireTabPanel {
 	
 	public JTabPanelVsc() {
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		wrap.add(createVscConfPanel0());
-		wrap.add(createVscConfPanel1());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "vsc_0map", CommandName.vsc_0map,"min","max"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "vsc_1map", CommandName.vsc_1map,"min","max"));
-		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
-		getJPanel().add(wrap);
-	}
-	
-	private JPanel createVscConfPanel0 () {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"config0");
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JCommandLabel(	CommandName.vsc_0time));
-		panel.add(new JCommandDial(		CommandName.vsc_0time));
-		panel.add(new JCommandLabel(	CommandName.vsc_0step));
-		panel.add(new JCommandDial(		CommandName.vsc_0step));
-		panel.add(new JCommandLabel(	CommandName.vsc_0mode));
-		panel.add(new JCommandComboBox(	CommandName.vsc_0mode));
-		return panel;
-	}
-	
-	private JPanel createVscConfPanel1 () {
-		JPanel panel = JComponentFactory.createJFirePanel(this,"config1");
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(new JCommandLabel(	CommandName.vsc_1time));
-		panel.add(new JCommandDial(		CommandName.vsc_1time));
-		panel.add(new JCommandLabel(	CommandName.vsc_1step));
-		panel.add(new JCommandDial(		CommandName.vsc_1step));
-		panel.add(new JCommandLabel(	CommandName.vsc_1mode));
-		panel.add(new JCommandComboBox(	CommandName.vsc_1mode));
-		return panel;
+		build(
+			createCompactGrid(2, 2,
+				createFlowLeftFirePanel("config0",
+					createCommandDial(CommandName.vsc_0time),
+					createCommandDial(CommandName.vsc_0step),
+					createLabeledGrid(1, 1,
+						createCommandComboBoxLabelGrid(CommandName.vsc_0mode)
+					)
+				),
+				createFlowLeftFirePanel("config1",
+					createCommandDial(CommandName.vsc_1time),
+					createCommandDial(CommandName.vsc_1step),
+					createLabeledGrid(1, 1,
+						createCommandComboBoxLabelGrid(CommandName.vsc_1mode)
+					)
+				),
+				createCommandQMapTable(CommandName.vsc_0map),
+				createCommandQMapTable(CommandName.vsc_1map)
+			)
+		);
 	}
 }

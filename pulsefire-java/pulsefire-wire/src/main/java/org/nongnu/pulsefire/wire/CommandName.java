@@ -370,7 +370,7 @@ public enum CommandName {
 	stv_error_mode			(CommandVariableType.CHIP);
 	
 	
-	
+	private static final String I18N_PREFIX =  "protocol.pulsefire.v11.command";
 	private CommandVariableType type = null;
 	protected WireChipFlags chipFlagDependency = null;
 	protected int id = -1;
@@ -480,7 +480,27 @@ public enum CommandName {
 	public int getBitType() {
 		return bitType;
 	}
-
+	
+	public String getKeyName() {
+		return CommandName.I18N_PREFIX+"."+name()+".name";
+	}
+	
+	public String getKeyLabel() {
+		return CommandName.I18N_PREFIX+"."+name()+".label";
+	}
+	
+	public String getKeyDescription() {
+		return CommandName.I18N_PREFIX+"."+name()+".description";
+	}
+	
+	public String getKeyQMapValueA() {
+		return CommandName.I18N_PREFIX+"."+name()+".qmapA";
+	}
+	
+	public String getKeyQMapValueB() {
+		return CommandName.I18N_PREFIX+"."+name()+".qmapB";
+	}
+	
 	static public CommandName valueOfId(int idx) {
 		for (CommandName cn:values()) {
 			if (cn.getId()==idx) {

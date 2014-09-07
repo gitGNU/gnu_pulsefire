@@ -39,9 +39,6 @@ import javax.swing.JTextField;
 
 import org.nongnu.pulsefire.device.ui.components.JFireBorder;
 import org.nongnu.pulsefire.device.ui.components.JFireDial;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
-import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
-import org.nongnu.pulsefire.wire.CommandName;
 
 /**
  * JComponentFactory
@@ -132,6 +129,7 @@ public class JComponentFactory {
 	static public JPanel createJFirePanel() {
 		return createJFirePanel(null);
 	}
+	
 	static public JPanel createJFirePanel(Object nameObject,String name) {
 		String i18nName = PulseFireUI.getInstance().getContext().getResourceMap().getString(nameObject.getClass().getName()+".firepanel."+name+".text");
 		return createJFirePanel(i18nName);
@@ -144,12 +142,6 @@ public class JComponentFactory {
 		JFireBorder fireBorder = new JFireBorder(name,panel);
 		panel.setBorder(fireBorder);
 		
-		return panel;
-	}
-	
-	static public JPanel createJFirePanelQMapTable(JFireTabPanel comp,String fireName,CommandName cmdName,String colA,String colB) {
-		JPanel panel = createJFirePanel(comp,fireName/*cmdName.name()*/);// TODO: check i18n with dynamic cmd structure per version
-		panel.add(new JFireQMapTable(cmdName,colA,colB));
 		return panel;
 	}
 	

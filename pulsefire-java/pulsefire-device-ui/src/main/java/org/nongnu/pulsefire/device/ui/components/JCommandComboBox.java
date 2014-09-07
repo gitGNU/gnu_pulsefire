@@ -65,7 +65,7 @@ public class JCommandComboBox extends JComboBox<String> implements ActionListene
 		this.addActionListener(this);
 		JComponentEnableStateListener.attach(this,commandName);
 		deviceManager.addDeviceCommandListener(command.getCommandName(), this);
-		setName("commandname."+commandName.name()+".combobox");
+		setToolTipText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyDescription()));
 	}
 	
 	@Override

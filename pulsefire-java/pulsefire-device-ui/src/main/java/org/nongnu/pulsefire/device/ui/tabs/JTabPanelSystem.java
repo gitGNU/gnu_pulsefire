@@ -82,8 +82,8 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		JPanel wrapM = new JPanel();
 		wrapM.setLayout(new SpringLayout());
 		
-		wrapM.add(JComponentFactory.createJFirePanelQMapTable(this, "sysVarMeta", CommandName.sys_vvm_map,"dot","lock"));
-		wrapM.add(JComponentFactory.createJFirePanelQMapTable(this, "sysVarLimit", CommandName.sys_vvl_map,"min","max"));
+		wrapM.add(createCommandQMapTable(CommandName.sys_vvm_map));
+		wrapM.add(createCommandQMapTable(CommandName.sys_vvl_map));
 		SpringLayoutGrid.makeCompactGrid(wrapM,1,2,0,0,6,6);
 		
 		JPanel wrap = new JPanel();
@@ -326,7 +326,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	*/
 	
 	private JPanel createSystemVar() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"io");
+		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"id");
 		JPanel ioPanel = new JPanel();
 		ioPanel.setLayout(new SpringLayout());
 		

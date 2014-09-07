@@ -61,7 +61,7 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		JPanel wrapI = new JPanel();
 		wrapI.setLayout(new SpringLayout());
 		wrapI.add(createInt());
-		wrapI.add(JComponentFactory.createJFirePanelQMapTable(this, "intTable", CommandName.int_map,"int0","int1"));
+		wrapI.add(createCommandQMapTable(CommandName.int_map));
 		SpringLayoutGrid.makeCompactGrid(wrapI,2,1,0,0,6,6);
 		
 		JPanel wrap = new JPanel();

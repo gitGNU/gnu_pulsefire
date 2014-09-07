@@ -52,13 +52,12 @@ public class JCommandButton extends JButton implements ActionListener {
 		if (commandName==null) {
 			throw new NullPointerException("Can't make command button with null command name.");
 		}
-		setName("commandname."+commandName.name()+".button");
 		command = new Command(commandName);
+		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyLabel()));
 		if (index != null) {
-			command.setArgu0(index.toString());
-			setName("commandname."+commandName.name()+index+".button");
+			setText(getText()+" "+index);
 		}
-		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(getName()+".text"));	// fill i18n
+		setToolTipText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyDescription()));
 		addActionListener(this);
 		JComponentEnableStateListener.attach(this,commandName);
 	}
@@ -69,18 +68,13 @@ public class JCommandButton extends JButton implements ActionListener {
 	 * @param argument
 	 * @param index
 	 */
-	public JCommandButton(CommandName commandName,CommandName argument,Integer index) {
-		super();
-		setName("commandname."+argument.name()+".button");
-		command = new Command(commandName);
-		command.setArgu0(argument.name());
+	public JCommandButton(CommandName commandName,Integer index,CommandName commandTrigger) {
+		this(commandName,index);
+		command = new Command(commandTrigger);
+		command.setArgu0(commandName.name());
 		if (index != null) {
 			command.setArgu1(index.toString());
-			setName("commandname."+argument.name()+index+".button");
 		}
-		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(getName()+".text"));	// fill i18n
-		addActionListener(this);
-		JComponentEnableStateListener.attach(this,argument); // mm
 	}
 	
 	@Override

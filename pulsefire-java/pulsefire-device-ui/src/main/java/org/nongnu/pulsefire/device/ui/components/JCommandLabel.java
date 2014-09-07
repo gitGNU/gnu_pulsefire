@@ -48,12 +48,10 @@ public class JCommandLabel extends JLabel {
 			throw new NullPointerException("Can't make command label with null command name.");
 		}
 		this.commandName=commandName;
+		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(commandName.getKeyLabel()));
 		if (index != null) {
-			setName("commandname."+commandName.name()+index+".label");
-		} else {
-			setName("commandname."+commandName.name()+".label");
+			setText(getText()+" "+index);
 		}
-		setText(PulseFireUI.getInstance().getContext().getResourceMap().getString(getName()+".text"));	// fill i18n
 	}
 	
 	public CommandName getCommandName() {

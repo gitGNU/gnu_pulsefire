@@ -55,8 +55,8 @@ public class JTabPanelPtc extends AbstractFireTabPanel implements DeviceCommandL
 		wrap.setLayout(new SpringLayout());
 		wrap.add(createTimeConfPanel0());
 		wrap.add(createTimeConfPanel1());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "timer0", CommandName.ptc_0map,"value","time"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "timer1", CommandName.ptc_1map,"value","time"));
+		wrap.add(createCommandQMapTable(CommandName.ptc_0map));
+		wrap.add(createCommandQMapTable(CommandName.ptc_1map));
 		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
 		getJPanel().add(wrap);
 		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();

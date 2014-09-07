@@ -23,11 +23,6 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.wire.CommandName;
 
 /**
@@ -38,11 +33,11 @@ import org.nongnu.pulsefire.wire.CommandName;
 public class JTabPanelVfc extends AbstractFireTabPanel {
 	
 	public JTabPanelVfc() {
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "input", CommandName.vfc_input_map,"min","max"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "output", CommandName.vfc_output_map,"map-min","map-max"));
-		SpringLayoutGrid.makeCompactGrid(wrap,1,2);
-		getJPanel().add(wrap);
+		build(
+			createCompactGrid(1, 2,
+				createCommandQMapTable(CommandName.vfc_input_map),
+				createCommandQMapTable(CommandName.vfc_output_map)
+			)
+		);
 	}
 }

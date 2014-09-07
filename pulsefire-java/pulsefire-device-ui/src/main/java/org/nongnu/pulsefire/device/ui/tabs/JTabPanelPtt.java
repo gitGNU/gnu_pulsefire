@@ -53,10 +53,10 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 		
 		wrap.add(createTriggerStatusPanel());
 		wrap.add(createTriggerTestPanel());
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt0", CommandName.ptt_0map,"value","time"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt1", CommandName.ptt_1map,"value","time"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt2", CommandName.ptt_2map,"value","time"));
-		wrap.add(JComponentFactory.createJFirePanelQMapTable(this, "ptt3", CommandName.ptt_3map,"value","time"));
+		wrap.add(createCommandQMapTable(CommandName.ptt_0map));
+		wrap.add(createCommandQMapTable(CommandName.ptt_1map));
+		wrap.add(createCommandQMapTable(CommandName.ptt_2map));
+		wrap.add(createCommandQMapTable(CommandName.ptt_3map));
 		
 		SpringLayoutGrid.makeCompactGrid(wrap,3,2);
 		getJPanel().add(wrap);
@@ -86,11 +86,10 @@ public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandL
 	private JPanel createTriggerTestPanel() {
 		JPanel header = JComponentFactory.createJFirePanel(this,"pttTrigger");
 		JPanel wrap = new JPanel();
-		wrap.add(new JLabel("Fire: "));
-		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,0));
-		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,1));
-		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,2));
-		wrap.add(new JCommandButton(CommandName.req_trigger,CommandName.ptt_fire,3));		
+		wrap.add(new JCommandButton(CommandName.ptt_fire,0,CommandName.req_trigger));
+		wrap.add(new JCommandButton(CommandName.ptt_fire,1,CommandName.req_trigger));
+		wrap.add(new JCommandButton(CommandName.ptt_fire,2,CommandName.req_trigger));
+		wrap.add(new JCommandButton(CommandName.ptt_fire,3,CommandName.req_trigger));
 		header.add(wrap);
 		return header;
 	}

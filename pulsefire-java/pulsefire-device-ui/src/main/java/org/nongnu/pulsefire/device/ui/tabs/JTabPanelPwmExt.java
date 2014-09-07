@@ -54,10 +54,10 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		
 		JPanel wrapE = new JPanel();
 		wrapE.setLayout(new SpringLayout());
-		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "fireMap", CommandName.pulse_fire_map,"fire","zero"));
-		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "holdMap", CommandName.pulse_hold_map,"hold","zero"));
-		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "resumeMap", CommandName.pulse_resume_map,"resume","zero"));
-		wrapE.add(JComponentFactory.createJFirePanelQMapTable(this, "resetMap", CommandName.pulse_reset_map,"reset","zero"));
+		wrapE.add(createCommandQMapTable(CommandName.pulse_fire_map));
+		wrapE.add(createCommandQMapTable(CommandName.pulse_hold_map));
+		wrapE.add(createCommandQMapTable(CommandName.pulse_resume_map));
+		wrapE.add(createCommandQMapTable(CommandName.pulse_reset_map));
 		SpringLayoutGrid.makeCompactGrid(wrapE,2,2,0,0,6,6);
 		
 		JPanel wrap = new JPanel();
@@ -70,7 +70,7 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createPulseOutput() {
-		JPanel topPanel = JComponentFactory.createJFirePanel("Output");
+		JPanel topPanel = JComponentFactory.createJFirePanel(this,"output");
 		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		JPanel pulsePanel = new JPanel();
 		pulsePanel.setLayout(new SpringLayout());
@@ -86,18 +86,18 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 	}
 	
 	private JPanel createPulseTriggers() {
-		JPanel butPanel = JComponentFactory.createJFirePanel("Triggers");
+		JPanel butPanel = JComponentFactory.createJFirePanel(this,"triggers");
 		butPanel.setLayout(new SpringLayout());
-		butPanel.add(new JCommandButton(CommandName.req_trigger,CommandName.pulse_fire,null));
-		butPanel.add(new JCommandButton(CommandName.req_trigger,CommandName.pulse_reset_fire,null));
-		butPanel.add(new JCommandButton(CommandName.req_trigger,CommandName.pulse_hold_fire,null));
-		butPanel.add(new JCommandButton(CommandName.req_trigger,CommandName.pulse_resume_fire,null));
+		butPanel.add(new JCommandButton(CommandName.pulse_fire,null,CommandName.req_trigger));
+		butPanel.add(new JCommandButton(CommandName.pulse_reset_fire,null,CommandName.req_trigger));
+		butPanel.add(new JCommandButton(CommandName.pulse_hold_fire,null,CommandName.req_trigger));
+		butPanel.add(new JCommandButton(CommandName.pulse_resume_fire,null,CommandName.req_trigger));
 		SpringLayoutGrid.makeCompactGrid(butPanel,2,2);
 		return butPanel;
 	}
 	
 	private JPanel createPulseHold() {
-		JPanel firePanel = JComponentFactory.createJFirePanel("Pulse Control");
+		JPanel firePanel = JComponentFactory.createJFirePanel(this,"control");
 		firePanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		
 		JPanel pulsePanel = new JPanel();
