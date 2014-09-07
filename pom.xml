@@ -24,11 +24,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.nongnu.pulsefire</groupId>
-  <artifactId>pulsefire-root</artifactId>
+  <artifactId>pulsefire</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>pulsefire-root</name>
-  <description>pulsefire-root is the root maven project for the pulsefire build modules.</description>
+  <name>pulsefire</name>
+  <description>pulsefire is the root maven project for the pulsefire build modules.</description>
   <url>http://www.nongnu.org/pulsefire/</url>
   <inceptionYear>2011</inceptionYear>
   <organization>
@@ -56,9 +56,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <maven>3.0.1</maven>
   </prerequisites>
   <modules>
-    <module>pulsefire-java</module>
     <module>pulsefire-build</module>
     <module>pulsefire-chip</module>
+    <module>pulsefire-device</module>
+    <module>pulsefire-lib</module>
+    <module>pulsefire-parent-java</module>
   </modules>
   <distributionManagement>
   <!--  DISABLED for release else if will deploy site also. 
