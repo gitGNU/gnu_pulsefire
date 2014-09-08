@@ -29,23 +29,10 @@ cd `dirname $0`;
 JAVA="java";
 JAVA_OPTS="-Xms64m -Xmx256m -splash:splash.png";
 MAIN_CLASS="org.nongnu.pulsefire.device.ui.PulseFireUI";
-JNI_LIB="pulsefire-rxtx-linux-i686.jar";
 CP=`echo lib/*.jar | sed 's/ /:/g'`;
 
-# Special check for fruitcake products.
-case `uname -s` in 
-  Darwin) JNI_LIB=`echo jni/pulsefire-rxtx-mac-10.5-*.jar`;;
-  SunOS|Linux)  
-	case `uname -m` in 
-	        i86pc)  JNI_LIB=`echo jni/pulsefire-rxtx-openindiana-i86pc-*.jar`;;
-          x86_64) JNI_LIB=`echo jni/pulsefire-rxtx-linux-x86_64-*.jar`;;
-          *)      JNI_LIB=`echo jni/pulsefire-rxtx-linux-x86-*.jar`;;
-        esac;;
-  *) echo "Unknown OS type, please add yourself from toybox.";exit 1;;
-esac
-
 # Launch application 
-$JAVA $JAVA_OPTS -cp $CP:$JNI_LIB -Djava.library.path=. $MAIN_CLASS -jni-cp;
+$JAVA $JAVA_OPTS -cp $CP -Djava.library.path=. $MAIN_CLASS;
 
 # EOF
 

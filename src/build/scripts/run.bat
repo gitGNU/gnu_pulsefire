@@ -31,17 +31,8 @@ set JAVA_OPTS=-Xms64m -Xmx256m -splash:splash.png
 set MAIN_CLASS=org.nongnu.pulsefire.device.ui.PulseFireUI
 set CP=lib\*
 
-:: Check 64 bit for serial
-set ARCH=x86_64
-IF "%PROCESSOR_ARCHITECTURE%"=="x86" set ARCH=x86
-for /f "tokens=*" %%a in (
-'dir /B jni\pulsefire-rxtx-windows-%ARCH%-*'
-) do (
-set JNI_CP=%%a
-)
-
 :: Launch application
-java %JAVA_OPTS% -cp "%CP%;jni\%JNI_CP%" -Djava.library.path=. %MAIN_CLASS% -jni-cp
+java %JAVA_OPTS% -cp "%CP%" -Djava.library.path=. %MAIN_CLASS%
 
 endlocal 
 :: EOF

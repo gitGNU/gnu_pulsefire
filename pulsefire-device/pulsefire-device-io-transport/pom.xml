@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </dependency>
     <dependency>
       <groupId>org.nongnu.pulsefire.lib</groupId>
-      <artifactId>pulsefire-lib-rxtx</artifactId>
+      <artifactId>pulsefire-lib-rxtx-native</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

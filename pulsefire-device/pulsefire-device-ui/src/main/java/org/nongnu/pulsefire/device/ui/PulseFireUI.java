@@ -29,17 +29,12 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Properties;
@@ -62,6 +57,8 @@ import org.nongnu.pulsefire.device.ui.pull.PulseFireTimeData;
 import org.nongnu.pulsefire.device.ui.pull.UpdatePwmData;
 import org.nongnu.pulsefire.device.ui.time.EventTimeManager;
 import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
+import org.nongnu.pulsefire.lib.rxtx.RXTXNative;
+import org.nongnu.pulsefire.lib.rxtx.RXTXNative.DefaultPhasedBootIntegration;
 
 
 /**
@@ -83,108 +80,6 @@ public class PulseFireUI extends SingleFrameApplication {
 	
 	static public void main(String[] args) {
 		Application.launch(PulseFireUI.class, args);
-	}
-	
-	/**
-	 * Real nasty hack to silent rxtx on startup.
-	 */
-	private void initSerialLib() {
-		PrintStream out = System.out;
-		try {
-			final StringBuilder buf = new StringBuilder(40);
-			System.setOut(new PrintStream(new OutputStream() {
-				public void write(int b) {
-					buf.append(Character.toChars(b));
-				}
-			}));
-			Class<?> clazz = Class.forName("gnu.io.CommPortIdentifier");
-			clazz.getMethod("getPortIdentifiers").invoke(null);
-			for (String line:buf.toString().split("\n")) {
-				if (line.contains("Version")) {
-					logger.info(line); // only log the lib versions. 
-				}
-			}
-		} catch (Exception e1) {
-			logger.warning("Could not init serial lib: "+e1.getMessage());
-		} finally {
-			System.setOut(out);
-		}
-	}
-	
-	private void checkSerialLibLock() {
-		String osname = System.getProperty("os.name");
-		if (osname==null) {
-			return;
-		}
-		if (osname.startsWith("Mac")==false) {
-			return; // This check is only needed on mac platform.
-		}
-		File varLock = new File("/var/lock");
-		if (varLock.exists()) {
-			return; // Only check existance 
-		}
-		String macError = "Fatal Max OS X Error:\n"+
-				"Directory '/var/lock' does not exists.\n"+
-				"Please do the following commands in 'Terminal';\n"+
-				"$ sudo bash\n"+
-				"# mkdir /var/lock\n"+
-				"# chmod 777 /var/lock\n"+
-				"# exit\n$ exit\n"+
-				"note: the 'sudo' command will ask for your password.\n"+
-				"Done, now start pulsefire again.";
-				
-		JOptionPane.showMessageDialog(null, macError, "Mac RXTX Initialize Error", JOptionPane.ERROR_MESSAGE);
-		System.exit(1);
-	}
-	
-	/**
-	 * Does some native lib loading because if is different in each final deployment everment :(
-	 */
-	private void loadSerialLib(boolean jniCopy,boolean jniCopyOs) {
-		try {
-			if (jniCopy==false) {
-				return; // nothing todo
-			}
-			String libName = System.mapLibraryName("rxtxSerial"); // add .so or .dll
-			File libFile = new File(libName);
-			if (libFile.exists()) {
-				logger.info("No copy, file exists: "+libFile);
-				System.loadLibrary("rxtxSerial");
-				return; // File is already copyed.
-			}
-
-			logger.info("Finding native lib: "+libName);
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			if (cl==null) {
-				cl = libName.getClass().getClassLoader();
-			}
-			String arch = System.getProperty("os.arch");
-			if ("amd64".endsWith(arch)) {
-				arch = "x86_64"; // this name looks better in dir listings and is logical.
-			}
-			Enumeration<URL> libs = cl.getResources(libName);
-			while (libs.hasMoreElements()) {	
-				URL jarResourceUrl = libs.nextElement();
-				logger.info("Copy native lib from: "+jarResourceUrl+" for: "+arch);
-				if (jniCopyOs && jarResourceUrl.toExternalForm().contains(arch)==false) {
-					continue;
-				}
-				InputStream is = jarResourceUrl.openStream();
-				OutputStream os = new FileOutputStream(libName);
-				byte[] buf = new byte[4096];
-				int cnt = is.read(buf);
-				while (cnt > 0) {
-					os.write(buf, 0, cnt);
-					cnt = is.read(buf);
-				}
-				os.close();
-				is.close();
-				break; // only do one
-			}
-			System.loadLibrary("rxtxSerial"); // copy once from jar resource and load native lib.
-		} catch (Throwable t) {
-			t.printStackTrace();	
-		}
 	}
 	
 	private void setupBuildInfo() {
@@ -250,24 +145,24 @@ public class PulseFireUI extends SingleFrameApplication {
 			setupLogging();   // init logging with config
 			setupBuildInfo(); // Get build version info
 			logger.info("Starting PulseFire-UI version: "+buildInfo.getVersion()+" build: "+buildInfo.getBuildDate());
-
-			boolean jniCopy = false;
-			boolean jniCopyOs = false;
+			
 			for (String argu:args) {
 				if ("-fs".equals(argu)) {
 					fullScreen = true;
 				}
-				if ("-jni-cp".equals(argu)) {
-					jniCopy = true;
-				}
-				if ("-jni-cp-os".equals(argu)) {
-					jniCopy = true;
-					jniCopyOs = true;
-				}
 			}
-			checkSerialLibLock();
-			loadSerialLib(jniCopy,jniCopyOs);
-			initSerialLib();
+			
+			RXTXNative.defaultPhasedBoot(new File("."),new DefaultPhasedBootIntegration() {
+				@Override
+				public void showAndExit(String message) {
+					JOptionPane.showMessageDialog(null, message, "RXTXNative Error", JOptionPane.ERROR_MESSAGE);
+					System.exit(1);
+				}
+				@Override
+				public void log(String message) {
+					logger.info(message);
+				}
+			});
 			
 			settingsManager = new PulseFireUISettingManager(getContext());
 			settingsManager.loadSettings();
@@ -282,7 +177,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			logger.info("Color schema selected: "+colorName);
 			long stopTime = System.currentTimeMillis();
 			logger.info("PulseFireUI initialized in "+(stopTime-startTime)+" ms.");
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			JOptionPane.showMessageDialog(null, "Fatal Initialize Error:\n"+sw.getBuffer().toString(), "PulseFire Initialize Error", JOptionPane.ERROR_MESSAGE);

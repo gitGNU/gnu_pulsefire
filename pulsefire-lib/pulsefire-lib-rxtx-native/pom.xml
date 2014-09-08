@@ -8,4 +8,11 @@
   <artifactId>pulsefire-lib-rxtx-native</artifactId>
   <name>pulsefire-lib-rxtx-native</name>
   <description>pulsefire-lib-rxtx-native</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.nongnu.pulsefire.lib</groupId>
+      <artifactId>pulsefire-lib-rxtx</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 </project>
