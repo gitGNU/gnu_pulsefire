@@ -43,6 +43,11 @@ pom.xml.versionsBackup
 # Ignore manual makefile builds
 /pulsefire-chip/src/main/c/build
 
+# Ignore developer native library copy.
+/pulsefire-device/pulsefire-device-ui/librxtxSerial.so
+/pulsefire-device/pulsefire-device-ui/rxtxSerial.dll
+/pulsefire-device/pulsefire-device-ui/librxtxSerial.jnilib
+
 # Ignore binary files
 *.o
 *.class
