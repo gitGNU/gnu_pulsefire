@@ -149,7 +149,7 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 			}
 		}
 	}
-
+	
 	@Override
 	public void disconnect(boolean error) {
 		if (serialThread==null) {

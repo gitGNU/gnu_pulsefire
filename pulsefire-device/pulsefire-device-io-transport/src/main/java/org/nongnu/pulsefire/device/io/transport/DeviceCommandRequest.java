@@ -28,7 +28,7 @@ import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.io.protocol.CommandVariableType;
 
 /**
- * DeviceCommandRequest is class to hold the request and response toughter.
+ * DeviceCommandRequest is class to hold the request and response commands in single result.
  * 
  * @author Willem Cazander
  */
@@ -104,11 +104,11 @@ public class DeviceCommandRequest {
 	public Exception getError() {
 		return error;
 	}
-
+	
 	public long getRequestTime() {
 		return requestTime;
 	}
-
+	
 	public long getResponseTime() {
 		return responseTime;
 	}

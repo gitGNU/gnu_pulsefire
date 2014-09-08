@@ -36,7 +36,7 @@ import org.nongnu.pulsefire.device.io.protocol.CommandName;
 import org.nongnu.pulsefire.device.io.protocol.CommandNameVersionFactory;
 
 /**
- * AbstractDeviceWireManager had basic implemention of DeviceWireManager
+ * AbstractDeviceWireManager implements most DeviceWireManager functions.
  * 
  * @author Willem Cazander
  * @see DeviceWireManager
@@ -81,8 +81,8 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 	
 	/**
 	 * Checks the infoChip response and and performs version check and other connecting steps.
-	 * @param infoChip
-	 * @return
+	 * @param infoChip	The request to connect the info.
+	 * @return	True is connected else false.
 	 */
 	protected boolean doSafeConnect(DeviceCommandRequest infoChip) {
 		
@@ -258,27 +258,30 @@ abstract public class AbstractDeviceWireManager implements DeviceWireManager {
 			list.get(i).commandReceived(command);
 		}
 	}
-
+	
+	/**
+	 * Increases the total error count.
+	 */
 	public void incTotalError() {
 		totalErrors++;
 	}
 	
 	/**
-	 * @return the totalErrors
+	 * @return the totalErrors.
 	 */
 	public int getTotalErrors() {
 		return totalErrors;
 	}
-
+	
 	/**
-	 * @return the totalCmdTx
+	 * @return the totalCmdTx.
 	 */
 	public long getTotalCmdTx() {
 		return totalCmdTx;
 	}
-
+	
 	/**
-	 * @return the totalCmdRx
+	 * @return the totalCmdRx.
 	 */
 	public long getTotalCmdRx() {
 		return totalCmdRx;

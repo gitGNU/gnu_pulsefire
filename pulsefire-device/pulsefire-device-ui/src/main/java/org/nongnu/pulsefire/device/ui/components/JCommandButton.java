@@ -62,12 +62,6 @@ public class JCommandButton extends JButton implements ActionListener {
 		JComponentEnableStateListener.attach(this,commandName);
 	}
 	
-	/**
-	 * Special version for trigger buttons.
-	 * @param commandName
-	 * @param argument
-	 * @param index
-	 */
 	public JCommandButton(CommandName commandName,Integer index,CommandName commandTrigger) {
 		this(commandName,index);
 		command = new Command(commandTrigger);

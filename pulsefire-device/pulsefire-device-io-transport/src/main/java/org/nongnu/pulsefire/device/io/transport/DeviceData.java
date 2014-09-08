@@ -56,7 +56,7 @@ public class DeviceData {
 	}
 	
 	/**
-	 * Sets and device variable
+	 * Sets and device variable.
 	 * @param command	The command to set.
 	 */
 	public void setDeviceParameter(Command command) {
@@ -80,7 +80,7 @@ public class DeviceData {
 		}
 		Map<CommandName,Command> typeMap = getTypeMap(commandName);
 		typeMap.put(commandName, command);
-	}	
+	}
 	
 	/**
 	 * @return	Returns the the map with all the variable types.
@@ -99,7 +99,7 @@ public class DeviceData {
 	}
 	
 	/**
-	 * Returns the index map for indexed variables
+	 * Returns the index map for indexed variables.
 	 * @param commandName	The command name to get to map for.
 	 * @return	The Command data map.
 	 */
@@ -115,11 +115,6 @@ public class DeviceData {
 		return indexMap;
 	}
 	
-	/**
-	 * Returns the Map of all types.
-	 * @param commandType
-	 * @return
-	 */
 	public Map<CommandName,Command> getTypeMap(CommandVariableType commandType) {
 		Map<CommandName,Command> typeList = deviceParameters.get(commandType);
 		if (typeList==null) {
@@ -130,40 +125,29 @@ public class DeviceData {
 	}
 	
 	/**
-	 * Gets indexed parameters
-	 * @param command	The parameter to get
-	 * @param idx		The index of the parameter to get
+	 * Gets indexed parameters.
+	 * @param command	The parameter to get.
+	 * @param idx		The index of the parameter to get.
 	 * @return	The indexed parameter.
 	 */
 	public Command getDeviceParameterIndexed(Command command,Integer idx) {
 		return getDeviceParameterIndexed(command.getCommandName(),idx);
 	}
 	
-	/**
-	 * Gets indexed parameters
-	 * @param command	The parameter to get
-	 * @param idx		The index of the parameter to get
-	 * @return	The indexed parameter.
-	 */
 	public Command getDeviceParameterIndexed(CommandName commandName,Integer idx) {
 		Map<Integer,Command> indexMap = getTypeMapIndexed(commandName);
 		return indexMap.get(idx);
 	}
 	
 	/**
-	 * Returns device parameter
-	 * @param command The parameter to get
-	 * @return	The command of the parameter
+	 * Returns device parameter.
+	 * @param command The parameter to get.
+	 * @return	The command of the parameter.
 	 */
 	public Command getDeviceParameter(Command command) {
 		return getDeviceParameter(command.getCommandName());
 	}
 	
-	/**
-	 * Returns device parameter
-	 * @param command The parameter to get
-	 * @return	The command of the parameter
-	 */
 	public Command getDeviceParameter(CommandName commandName) {
 		Map<CommandName,Command> typeMap = getTypeMap(commandName);
 		return typeMap.get(commandName);

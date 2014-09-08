@@ -36,7 +36,7 @@ public interface DeviceCommandListener {
 
 	/**
 	 * Gets fires when the command is received.
-	 * @param command
+	 * @param command	The command received.
 	 */
 	public void commandReceived(Command command);
 }

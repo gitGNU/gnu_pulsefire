@@ -166,14 +166,14 @@ public class JMalEditor extends JPanel implements ActionListener {
 	}
 	
 	/**
-	 * @return the maxProgramSize
+	 * @return the maxProgramSize.
 	 */
 	public int getMaxProgramSize() {
 		return maxProgramSize;
 	}
 
 	/**
-	 * @param maxProgramSize the maxProgramSize to set
+	 * @param maxProgramSize the maxProgramSize to set.
 	 */
 	public void setMaxProgramSize(int maxProgramSize) {
 		this.maxProgramSize = maxProgramSize;
@@ -215,7 +215,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 	
 	/**
 	 * Saves the opcodes to this byte list.
-	 * @return
+	 * @return	The list with program code.
 	 */
 	public List<Byte> saveData() {
 		List<Byte> programData = new ArrayList<Byte>(programLines.size());
@@ -227,7 +227,7 @@ public class JMalEditor extends JPanel implements ActionListener {
 	
 	/**
 	 * Load the opcodes as byte into mal commands.
-	 * @param programData
+	 * @param programData	The program code bytes.
 	 */
 	public void loadData(List<Byte> programData) {
 		programLines.clear();

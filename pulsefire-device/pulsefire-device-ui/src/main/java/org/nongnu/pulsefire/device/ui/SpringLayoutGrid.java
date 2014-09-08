@@ -150,7 +150,9 @@ public class SpringLayoutGrid {
 	   * the maximum preferred width of the components in that column; height is
 	   * similarly determined for each row. The parent is made just big enough to
 	   * fit them all.
-	   * 
+	   *
+	   * @param parent
+	   *            The container to layout.
 	   * @param rows
 	   *            number of rows
 	   * @param cols

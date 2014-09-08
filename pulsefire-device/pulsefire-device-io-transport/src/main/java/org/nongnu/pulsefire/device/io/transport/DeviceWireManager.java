@@ -59,17 +59,17 @@ public interface DeviceWireManager {
 	
 	// stats
 	/**
-	 * @return the totalErrors
+	 * @return the totalErrors.
 	 */
 	int getTotalErrors();
 
 	/**
-	 * @return the totalCmdTx
+	 * @return the totalCmdTx.
 	 */
 	long getTotalCmdTx();
 
 	/**
-	 * @return the totalCmdRx
+	 * @return the totalCmdRx.
 	 */
 	long getTotalCmdRx();
 	

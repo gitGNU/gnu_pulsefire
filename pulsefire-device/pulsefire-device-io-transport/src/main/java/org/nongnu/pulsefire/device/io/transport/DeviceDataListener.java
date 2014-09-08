@@ -33,13 +33,13 @@ public interface DeviceDataListener {
 
 	/**
 	 * The raw data being send to device.
-	 * @param data
+	 * @param data	The raw ascii data send to the device.
 	 */
 	public void deviceDataSend(String data);
 	
 	/**
 	 * The raw data being received from the device.
-	 * @param data
+	 * @param data	The raw ascii data received from the device.
 	 */
 	public void deviceDataReceived(String data);
 }
