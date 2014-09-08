@@ -30,19 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
   <baseDirectory>pulsefire-${project.version}</baseDirectory>
-  <moduleSets>
-    <moduleSet> 
-      <useAllReactorProjects>true</useAllReactorProjects>
-      <includes>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-windows-x86</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-windows-x86_64</include>
-      </includes>
-      <binaries>
-        <outputDirectory>/jni</outputDirectory>
-        <unpack>false</unpack>
-      </binaries>
-    </moduleSet>
-  </moduleSets>
   <dependencySets>
     <dependencySet>
       <outputDirectory>/lib</outputDirectory>

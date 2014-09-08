@@ -32,26 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
   <baseDirectory>pulsefire-${project.version}</baseDirectory>
-  <moduleSets>
-    <moduleSet> 
-      <useAllReactorProjects>true</useAllReactorProjects>
-      <includes>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-windows-x86</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-windows-x86_64</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-mac-10.5</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-openindiana-i86pc</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-linux-x86</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-linux-x86_64</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-linux-ppc32</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-linux-ppc64</include>
-        <include>org.nongnu.pulsefire:pulsefire-rxtx-linux-armv71</include>
-      </includes>
-      <binaries>
-        <outputDirectory>/jni</outputDirectory>
-        <unpack>false</unpack>
-      </binaries>
-    </moduleSet>
-  </moduleSets>
   <dependencySets>
     <dependencySet>
       <outputDirectory>/lib</outputDirectory>

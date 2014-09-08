@@ -88,18 +88,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <file>../../src/build/files/splash.bmp</file>
                 <timeout>60</timeout>
               </splash>
-              <jar>../../pulsefire-java/pulsefire-device-ui/target/pulsefire-device-ui-${project.version}.jar</jar>
+              <jar>../../pulsefire-device/pulsefire-device-ui/target/pulsefire-device-ui-${project.version}.jar</jar>
               <!-- Fails with net.sf.launch4j.BuilderException: Specify runtime path of the jar relative to the executable.
               <dontWrapJar>true</dontWrapJar>
                -->
               <chdir>.</chdir>
               <customProcName>true</customProcName>
-              <cmdLine>-Djava.library.path=. -jni-cp-os</cmdLine>
+              <cmdLine>-Djava.library.path=.</cmdLine>
               <classPath>
                 <mainClass>org.nongnu.pulsefire.device.ui.PulseFireUI</mainClass>
                 <addDependencies>true</addDependencies>
                 <jarLocation>lib/</jarLocation>
-                <postCp>jni/pulsefire-rxtx-windows-x86-${project.version}.jar;jni/pulsefire-rxtx-windows-x86_64-${project.version}.jar</postCp>
+                <postCp></postCp>
               </classPath>
               <jre>
                 <minVersion>${project.build.javaVersion}.0</minVersion>
