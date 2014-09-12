@@ -73,11 +73,8 @@ src/build/gnu-up.sh <scm_username> <version>
 
 -- Make site --
 
-TODO: redo site stuff !!
-
-(edit pom.xml and enable site)
 cd project-root/;
-mvn site:site site:stage
+mvn -Ppf-build-site site:site
 And then manual upload.
 
 -- Check for dependency-updates --

@@ -1,19 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.nongnu.pulsefire</groupId>
-    <artifactId>pulsefire-parent-java</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <relativePath>../pulsefire-parent-java</relativePath>
-  </parent>
-  <groupId>org.nongnu.pulsefire.lib</groupId>
-  <artifactId>pulsefire-lib</artifactId>
-  <packaging>pom</packaging>
-  <name>pulsefire-lib</name>
-  <description>pulsefire-lib</description>
-  <modules>
-  	<module>pulsefire-lib-avr-flash</module>
-  	<module>pulsefire-lib-rxtx</module>
-  	<module>pulsefire-lib-rxtx-native</module>
-  </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.nongnu.pulsefire</groupId>
+		<artifactId>pulsefire-parent-java</artifactId>
+		<version>1.1.0-SNAPSHOT</version>
+		<relativePath>../pulsefire-parent-java</relativePath>
+	</parent>
+	<groupId>org.nongnu.pulsefire.lib</groupId>
+	<artifactId>pulsefire-lib</artifactId>
+	<packaging>pom</packaging>
+	<name>pulsefire-lib</name>
+	<description>Parent container for java library modules.</description>
+	<modules>
+		<module>pulsefire-lib-avr-flash</module>
+		<module>pulsefire-lib-rxtx</module>
+	</modules>
 </project>

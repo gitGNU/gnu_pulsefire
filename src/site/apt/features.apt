@@ -24,68 +24,69 @@
 PulseFire Features
 
 * Generic
+
 ------
   - Savable config in eeprom for standalone usage.
   - All diffent chip data is resetable.
-  - Diffent size lcd support.
-  - Experimental GLCD support. (MEGA only)
-  - Soft warmup modes for software pwm.
-  - Configable generic pin connection modes.
+  - Supports most text lcds, size and speed is configable.
+  - Generic pin connection modes on some pins.
   - Multiple extented connection modes with extra chips.
   - Two programmable step timers which can change any config variable.
   - Multiple trigger step timers to change config variables.
-  - Virtual feedback config from config variable to config variable.
+  - Virtual feedback mapping from/to variables.
 ------
 
 * Software pwm
+
 ------
   - 1 to 16 outputs
-  - 3 different pulse modes
+  - 5 different pulse modes
   - Internal and External trigging with delays.
   - Pulse direction in both ways and auto reverse.
-  - Inverting output signel level LOW VS HIGH.
-  - Per output masking.
-  - Per output on time step value.
-  - Per output off time step value.
-  - Per output software time step tuning.
+  - Per output masking and inverting.
+  - Per output on/off time step value.
   - Two banks of config data.
 ------
 
 * Programmable Pulse Modulator
+
 ------
-  - 3 different pulse modes for ppm.
   - Variable bit pattern length max 16 bits.
-  - Per ouput bit pattern config.
+  - Per output bit pattern.
 ------
 
 * Inputs
+
 ------
   - Analog and Digital inputs.
-  - Per input action is mappable to a internal config variables.
+  - Per input action is mappable to a internal variables.
   - Per input value range adjustment.
   - Analog value jitter removal.
   - Auto push data to ui for realtime viewing.
 ------
 
 * Safety
+
 ------
   - Maximum and minimum treshold values.
-  - Dynamicly assign trashold values to config variables.
-  - Changes pulse mode when treshold is triggered.
+  - Dynamic assign trashold values to variables.
+  - Dynamic action based on warning or error.
   - Minimal time delay in safety mode.
   - LCD message when entering safety mode.
 ------
 
 * PulseFire-UI
+
 ------
   - Easy modification of almost any config variable.
   - Pulled readout of all internal variables.
   - Console log to see all messages to and from pulsefire chip.
   - All mappable steps made easy with drop downs.
   - Realtime viewing al input data.
-  - Most variable are automaticly graphed over time.
-  - Log serial commands and/or pulled variables to file.
+  - Most variable are automatic graphed over time.
+  - Log data variables to file.
   - Custom nightly work compatible color themes.
   - Comes with prebuild pulsefire chip firmwares.
   - Comes with simple flash dialog to flash firmware to device.
 ------
+
