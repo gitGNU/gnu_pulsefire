@@ -101,20 +101,38 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 		JPanel filterPanel = JComponentFactory.createJFirePanel("Filter");
 		filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		filterPanel.add(new JLabel("Filter"));
-		final JComboBox<String> filterBox = new JComboBox<String>();
+		
+		List<String> filterValues = new ArrayList<String>();
 		for (WireChipFlags flag:WireChipFlags.values()) {
-			filterBox.addItem(flag.name());
+			if (flag.name().startsWith("ARM")) {
+				continue; // for later
+			}
+			if (Character.isDigit(flag.name().charAt(flag.name().length()-1))) {
+				String nameSingle = flag.name().substring(0,flag.name().length()-1);
+				if (!filterValues.contains(nameSingle)) {
+					filterValues.add(nameSingle);
+				}
+				continue;
+			}
+			filterValues.add(flag.name());
 		}
-		filterBox.addItem("DIC");
-		filterBox.addItem("DOC");
-		filterBox.addItem("DEV");
-		filterBox.addItem("PULSE");
-		filterBox.addItem("PPM");
-		filterBox.addItem("CHIP");
-		filterBox.addItem("FREQ");
-		filterBox.addItem("SYS");
-		filterBox.addItem("ALL");
-		filterBox.setSelectedIndex(filterBox.getItemCount()-1);
+		filterValues.add("DIC");
+		filterValues.add("DOC");
+		filterValues.add("DEV");
+		filterValues.add("PULSE");
+		filterValues.add("PPM");
+		filterValues.add("CHIP");
+		filterValues.add("FREQ");
+		filterValues.add("SYS");
+		filterValues.add("*");
+		
+		Collections.sort(filterValues);
+		
+		final JComboBox<String> filterBox = new JComboBox<String>();
+		for (String f:filterValues) {
+			filterBox.addItem(f);
+		}
+		filterBox.setSelectedItem("*");
 		filterBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -279,7 +297,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			if (filterType.isEmpty()) {
 				return result;
 			}
-			if ("ALL".equals(filterType)) {
+			if ("*".equals(filterType)) {
 				return result;
 			}
 			String ff = filterType.toLowerCase();

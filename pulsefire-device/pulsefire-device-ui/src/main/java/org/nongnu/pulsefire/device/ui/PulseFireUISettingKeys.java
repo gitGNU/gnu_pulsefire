@@ -33,7 +33,6 @@ public enum PulseFireUISettingKeys {
 	LAF_COLORS("dark-red"),
 	AUTO_CONNECT("false"),
 	DEVICE_PORT(""),
-	LIMIT_CHANNELS("true"),
 	CONSOLE_LINES("500"),
 	PULL_SPEED("10000"),
 	

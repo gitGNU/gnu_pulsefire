@@ -35,12 +35,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 
+import org.nongnu.pulsefire.device.ui.components.JCommandChipLoad;
 import org.nongnu.pulsefire.device.ui.tabs.AbstractFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JFireTabPanel;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelCip;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelLcd;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFDataLog;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwm;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelGraphs;
@@ -50,7 +51,7 @@ import org.nongnu.pulsefire.device.ui.tabs.JTabPanelMal;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtc;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPtt;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPins;
-import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwmExt;
+import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPwmFire;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelStv;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelPFSettings;
 import org.nongnu.pulsefire.device.ui.tabs.JTabPanelSystem;
@@ -73,7 +74,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	public JSplitPane bottomSplitPane = null;
 	public JSplitPane bottomLogSplitPane = null;
 	public AbstractFireTabPanel uiLogPanel = null;
-	public AbstractFireTabPanel scopePanel = null;
 	public AbstractFireTabPanel lpmPanel = null;
 	public JTopPanelSerial topPanelSerial = null;
 	
@@ -81,10 +81,11 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		
 		tabPanels = new ArrayList<JFireTabPanel>(10);
 		tabPanels.add(new JTabPanelPwm());
-		tabPanels.add(new JTabPanelPwmExt());
+		tabPanels.add(new JTabPanelPwmFire());
 		tabPanels.add(new JTabPanelSystem());
 		tabPanels.add(new JTabPanelPins());
 		tabPanels.add(new JTabPanelInput());
+		tabPanels.add(new JTabPanelLcd());
 		tabPanels.add(new JTabPanelVsc());
 		tabPanels.add(new JTabPanelCip());
 		tabPanels.add(new JTabPanelStv());
@@ -116,11 +117,27 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	}
 	
 	private JPanel createTop() {
+		
+		JPanel loadPanelOuter = new JPanel();
+		JPanel loadPanel = JComponentFactory.createJFirePanel("Load");
+		JPanel chipLoadPanel = new JPanel();
+		chipLoadPanel.add(new JCommandChipLoad());
+		chipLoadPanel.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
+		loadPanel.add(chipLoadPanel);
+		loadPanelOuter.add(loadPanel);
+		
+		JPanel rightTop = new JPanel();
+		rightTop.setLayout(new BorderLayout(0,0));
+		rightTop.add(loadPanelOuter,BorderLayout.LINE_START);
+		rightTop.add(new JTopPanelStatus(),BorderLayout.CENTER);
+		
 		JPanel top = new JPanel();
-		top.setLayout(new GridLayout(1,2));
+		top.setLayout(new BorderLayout());
 		topPanelSerial = new JTopPanelSerial();
-		top.add(topPanelSerial);
-		top.add(new JTopPanelStatus());
+		topPanelSerial.setPreferredSize(new Dimension(500,100));
+		top.add(topPanelSerial,BorderLayout.LINE_START);
+		top.add(rightTop,BorderLayout.CENTER);
+		
 		return top;
 	}
 	
@@ -216,8 +233,8 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private Component createJScrollPane(JFireTabPanel innerPanel) {
 		JScrollPane scrollPane = innerPanel.getJScrollPane();
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		//scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		//scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		if (innerPanel.getJPanelSide()!=null) {
@@ -230,7 +247,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		contentSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
 		contentSplitPane.setOneTouchExpandable(true);
 		contentSplitPane.setResizeWeight(0.8);
-		contentSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
+//		contentSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
 		sp0.setMinimumSize(new Dimension(150, 200));
 		sp1.setMinimumSize(new Dimension(150, 200));
 		return contentSplitPane;

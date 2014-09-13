@@ -47,7 +47,8 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 	private Command command = null;
 	private int bit = -1;
 	private int idx = -1;
-	volatile private boolean noEvent = false;
+	private volatile boolean noEvent = false;
+	private Boolean enabledOverride = true;
 
 	public JCommandCheckBox(CommandName commandName) {
 		this(commandName,-1,-1);
@@ -165,4 +166,29 @@ public class JCommandCheckBox extends JCheckBox implements ActionListener,Device
 			
 		}
 	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		if (getEnabledOverride()==null) {
+			super.setEnabled(enabled);
+		} else {
+			super.setEnabled(getEnabledOverride());
+		}
+	}
+	
+	/**
+	 * @return the enabledOverride
+	 */
+	public Boolean getEnabledOverride() {
+		return enabledOverride;
+	}
+	
+	/**
+	 * @param enabledOverride the enabledOverride to set
+	 */
+	public void setEnabledOverride(Boolean enabledOverride) {
+		this.enabledOverride = enabledOverride;
+		setEnabled(enabledOverride);
+	}
+
 }

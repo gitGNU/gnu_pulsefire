@@ -38,19 +38,18 @@ import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 
 /**
- * JTabPanelPwmExt extended pwm controls.
+ * JTabPanelPwmFire shows the extended pwm fire controls.
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPwmExt extends AbstractFireTabPanel {
+public class JTabPanelPwmFire extends AbstractFireTabPanel {
 	
-	public JTabPanelPwmExt() {
+	public JTabPanelPwmFire() {
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new SpringLayout());
-		topPanel.add(createPulseOutput());
 		topPanel.add(createPulseHold());
 		topPanel.add(createPulseTriggers());
-		SpringLayoutGrid.makeCompactGrid(topPanel,1,3,0,0,0,0);
+		SpringLayoutGrid.makeCompactGrid(topPanel,1,2,0,0,0,0);
 		
 		JPanel wrapE = new JPanel();
 		wrapE.setLayout(new SpringLayout());
@@ -67,22 +66,6 @@ public class JTabPanelPwmExt extends AbstractFireTabPanel {
 		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,6,6);
 		
 		getJPanel().add(wrap);
-	}
-	
-	private JPanel createPulseOutput() {
-		JPanel topPanel = JComponentFactory.createJFirePanel(this,"output");
-		topPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-		JPanel pulsePanel = new JPanel();
-		pulsePanel.setLayout(new SpringLayout());
-		pulsePanel.add(new JCommandLabel	(CommandName.pulse_steps));
-		pulsePanel.add(new JCommandComboBox	(CommandName.pulse_steps));
-		pulsePanel.add(new JCommandLabel	(CommandName.pulse_enable));
-		pulsePanel.add(new JCommandCheckBox	(CommandName.pulse_enable));
-		//pulsePanel.add(new JCommandLabel	(CommandName.pulse_inv));
-		//pulsePanel.add(new JCommandCheckBox	(CommandName.pulse_inv));
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,2);
-		topPanel.add(pulsePanel);
-		return topPanel;
 	}
 	
 	private JPanel createPulseTriggers() {

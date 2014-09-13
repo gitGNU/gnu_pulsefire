@@ -39,12 +39,13 @@ import org.nongnu.pulsefire.device.io.transport.DeviceConnectListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
+import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
-import org.nongnu.pulsefire.device.ui.components.JFireGraph;
+import org.nongnu.pulsefire.device.ui.components.JCommandStatusBox;
 import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 
 /**
@@ -128,8 +129,12 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 		return PulseFireUI.getInstance().getContext().getResourceMap().getString(key);
 	}
 	
-	private JComponent createCommandComponentLabelGrid(final CommandName cmdName,final JComponent component) {
-		final JCommandLabel result = new JCommandLabel(cmdName);
+	private JComponent createCommandComponentLabelGrid(CommandName cmdName,JComponent component) {
+		return createCommandComponentLabelGrid(cmdName,null,component);
+	}
+	
+	private JComponent createCommandComponentLabelGrid(CommandName cmdName,Integer index,final JComponent component) {
+		final JCommandLabel result = new JCommandLabel(cmdName,index);
 		result.addHierarchyListener(new HierarchyListener() {
 			@Override
 			public void hierarchyChanged(HierarchyEvent e) {
@@ -157,6 +162,26 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 		return createCommandComponentLabelGrid(cmdName,new JCommandCheckBox(cmdName));
 	}
 	
+	protected JComponent createCommandStatusBoxLabelGrid(CommandName runCommand,CommandName displayCommand,CommandName stepCommand) {
+		return createCommandComponentLabelGrid(displayCommand,createCommandStatusBox(runCommand,displayCommand,stepCommand));
+	}
+	
+	protected JComponent createCommandStatusBoxLabelGrid(CommandName runCommand,CommandName displayCommand,CommandName stepCommand,int idx) {
+		return createCommandComponentLabelGrid(displayCommand,idx,createCommandStatusBox(runCommand,displayCommand,stepCommand,idx));
+	}
+	
+	protected JComponent createCommandStatusBox(CommandName runCommand,CommandName displayCommand,CommandName stepCommand) {
+		return new JCommandStatusBox(runCommand,displayCommand,stepCommand);
+	}
+	
+	protected JComponent createCommandStatusBox(CommandName runCommand,CommandName displayCommand,CommandName stepCommand,int idx) {
+		return new JCommandStatusBox(runCommand,displayCommand,stepCommand,idx);
+	}
+	
+	protected JComponent createCommandButtonTrigger(CommandName commandName,Integer index,CommandName commandTrigger) {
+		return new JCommandButton(commandName,index,commandTrigger);
+	}
+	
 	protected JComponent createCommandDial(CommandName cmdName) {
 		return new JCommandDial(cmdName);
 	}
@@ -181,6 +206,10 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 	}
 	
 	protected JComponent createCompactGrid(final int rows,final int cols,JComponent...components) {
+		return createCompactGrid(rows,cols,6,6,6,6,components);
+	}
+	
+	protected JComponent createCompactGrid(final int rows,final int cols,final int initialX,final int initialY,final int xPad,final int yPad,JComponent...components) {
 		final JPanel result = new JPanel();
 		result.setLayout(new SpringLayout());
 		for (JComponent comp:components) {
@@ -193,7 +222,7 @@ abstract public class AbstractFireTabPanel implements JFireTabPanel {
 					return;
 				}
 				if (result.getParent()!=null) {
-					SpringLayoutGrid.makeCompactGrid(result,rows,cols);
+					SpringLayoutGrid.makeCompactGrid(result,rows,cols,initialX,initialY,xPad,yPad);
 					result.removeHierarchyListener(this);
 				}
 			}

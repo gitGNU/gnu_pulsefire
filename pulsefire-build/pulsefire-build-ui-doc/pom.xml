@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.nongnu.pulsefire</groupId>
+		<artifactId>pulsefire-build</artifactId>
+		<version>1.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>pulsefire-build-ui-doc</artifactId>
+	<packaging>pom</packaging>
+	<name>pulsefire-build-ui-doc</name>
+	<description>Creates documents</description>
+	<profiles>
+		<profile>
+			<id>pf-build</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.agilejava.docbkx</groupId>
+						<artifactId>docbkx-maven-plugin</artifactId>
+						<version>${docbkx-maven-plugin.version}</version>
+						<configuration>
+							<sourceDirectory>src/main/docbook/</sourceDirectory>
+							<targetDirectory>target/docbook/</targetDirectory>
+							<includes>*.xml</includes>
+							<xincludeSupported>true</xincludeSupported>
+							<entities>
+								<entity>
+									<name>version</name>
+									<value>${project.version}</value>
+								</entity>
+							</entities>
+							<chunkedOutput>true</chunkedOutput>
+						</configuration>
+						<executions>
+							<execution>
+								<id>create-pdf-docs</id>
+								<phase>package</phase>
+								<goals>
+									<goal>generate-pdf</goal>
+								</goals>
+								<configuration>
+									<imgSrcPath>file:///${basedir}/src/main/docbook/images/</imgSrcPath>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create-html-docs</id>
+								<phase>pre-site</phase>
+								<goals>
+									<goal>generate-html</goal>
+								</goals>
+								<configuration>
+									<preProcess>
+										<copy todir="target/docbook/images">
+											<fileset dir="src/docbook/images" />
+										</copy>
+									</preProcess>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.docbook</groupId>
+								<artifactId>docbook-xml</artifactId>
+								<version>${docbook-xml.version}</version>
+								<scope>runtime</scope>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

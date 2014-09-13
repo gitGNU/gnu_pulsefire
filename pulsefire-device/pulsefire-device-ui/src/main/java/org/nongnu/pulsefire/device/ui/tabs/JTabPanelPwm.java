@@ -24,238 +24,212 @@
 package org.nongnu.pulsefire.device.ui.tabs;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.CardLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-import javax.swing.UIManager;
 
 import org.nongnu.pulsefire.device.io.protocol.Command;
 import org.nongnu.pulsefire.device.io.protocol.CommandName;
+import org.nongnu.pulsefire.device.io.protocol.WirePulseMode;
 import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
 import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.device.ui.PulseFireUISettingKeys;
-import org.nongnu.pulsefire.device.ui.PulseFireUISettingListener;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandCheckBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandDial;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
 import org.nongnu.pulsefire.device.ui.components.JFireBorderChild;
-import org.nongnu.pulsefire.device.ui.components.JFirePwmInfo;
+import org.nongnu.pulsefire.device.ui.components.JCommandPwmInfo;
 
 /**
- * JTabPanelPWM
+ * JTabPanelPwm
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandListener,PulseFireUISettingListener {
+public class JTabPanelPwm extends AbstractFireTabPanel  {
 
-	private JPanel centerPanel = null;
-	private List<JPanel> channels = null;
-	private List<JPanel> channelsEmpty = null;
+	private final CardLayout cardLayout;
+	private final JPanel cardPanel;
 	
 	public JTabPanelPwm() {
-		getJPanel().setBorder(BorderFactory.createEmptyBorder(4,4,4,4)); // align with spring layout on other tabs (6-2=4)
-		getJPanel().add(createContent());
+		cardLayout = new CardLayout();
+		cardPanel = new JPanel(cardLayout);
+		
+		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_mode, new DeviceCommandListener() {
+			@Override
+			public void commandReceived(Command command) {
+				int modeNumber = new Integer(command.getArgu0());
+				WirePulseMode mode = WirePulseMode.values()[modeNumber];
+				cardLayout.show(cardPanel, mode.name());
+			}
+		});
+		
+		build(
+			createCompactGrid(1, 2, 0,0,0,0,
+				createJPanelWrap(
+					createCompactGrid(4, 1,0,0,6,6,
+						createPulseConfig(),
+						createCompactGrid(1, 2, 0,0,0,0, createPulseDelay(),createTopPWM()),
+						createCompactGrid(1, 2, 0,0,0,0,
+							createBitABFirePanel("mask",CommandName.pulse_mask_a,CommandName.pulse_mask_b),
+							createBitABFirePanel("inv",CommandName.pulse_inv_a,CommandName.pulse_inv_b)
+						),
+						createTopFreq()
+					)
+				),
+				createCardContent()
+			)
+		);
 	}
+	
+	private JPanel createJPanelWrap(JComponent...comps) {
+		JPanel wrap = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		for (JComponent comp:comps) {
+			wrap.add(comp);
+		}
+		return wrap;
+	}
+	
 	
 	protected JPanel createTabSidePane() {
 		JPanel result = new JPanel();
 		result.setLayout(new GridLayout(1,1,0,0));
-		result.add(new JFirePwmInfo());
+		result.add(new JCommandPwmInfo());
 		return result;
 	}
 	
-	private JPanel createContent() {
+	JComponent createCardContent() {
+		
+		cardPanel.add(createCardContentTrain(),WirePulseMode.TRAIN.name());
+		cardPanel.add(createCardContentFlash(),WirePulseMode.FLASH.name());
+		cardPanel.add(createCardContentFlashZero(),WirePulseMode.FLASH_ZERO.name());
+		cardPanel.add(createCardContentPPM(),WirePulseMode.PPM.name());
+		cardPanel.add(new JPanel(),WirePulseMode.OFF.name());
+		
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
+		result.add(cardPanel);
+		return result;
+	}
+	
+	JComponent createCardContentTrain() {
+		return createPWMChannels("OUT",true,false,CommandName.pulse_steps);
+	}
+	
+	JComponent createCardContentFlash() {
+		return createPWMChannels("STEP",false,false,null);
+	}
+	
+	JComponent createCardContentFlashZero() {
+		return createPWMChannels("STEP",false,true,null);
+	}
+	
+	JComponent createCardContentPPM() {
+		return createCompactGrid(2, 1, 0,0,0,0,
+			createPWMChannels("STEP",false,false,CommandName.ppm_data_len),
+			createCompactGrid(1, 3,
+				createPPMCheckMatrix("ppmA",CommandName.ppm_data_a),
+				createPPMCheckMatrix("ppmB",CommandName.ppm_data_b),
+				createTopPPM()
+			)
+		);
+	}
+	
+	JComponent createPPMCheckMatrix(String fireName,CommandName cmdName) {
 		JPanel result = new JPanel();
-		
-		channels = new ArrayList<JPanel>(16);
-		channelsEmpty = new ArrayList<JPanel>(16);
+		result.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
+		result.setLayout(new GridLayout(16,0));
 		for (int i=0;i<16;i++) {
-			channelsEmpty.add(new JPanel());
+			result.add(new JLabel(""+i));
+			for (int p=0;p<16;p++) {
+				JCheckBox box = new JCommandCheckBox(cmdName,p,i);
+				box.putClientProperty("JComponent.sizeVariant", "mini");
+				result.add(box);
+			}
 		}
-		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.pulse_steps, this);
-		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.LIMIT_CHANNELS, this);
-		
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BorderLayout());
-		
-		JPanel topLayoutPanel = new JPanel();
-		topLayoutPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-		topLayoutPanel.setLayout(new FlowLayout(FlowLayout.LEFT,6,0));
-		JPanel pulsePanel = createTopPulse();
-		topLayoutPanel.add(pulsePanel);
-		JPanel delayPanel = createTopDelay();
-		delayPanel.setPreferredSize(new Dimension(delayPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
-		topLayoutPanel.add(delayPanel);
-		JPanel pwmPanel = createTopPWM();
-		pwmPanel.setPreferredSize(new Dimension(pwmPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
-		topLayoutPanel.add(pwmPanel);
-		JPanel ppmPanel = createTopPPM();
-		ppmPanel.setPreferredSize(new Dimension(ppmPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
-		topLayoutPanel.add(ppmPanel);
-		JPanel freqPanel = createTopFreq();
-		freqPanel.setPreferredSize(new Dimension(freqPanel.getPreferredSize().width, pulsePanel.getPreferredSize().height));
-		topLayoutPanel.add(freqPanel);
-		topPanel.add(topLayoutPanel,BorderLayout.NORTH);
-		
-		JPanel splitPanel = new JPanel();
-		splitPanel.setLayout(new BoxLayout(splitPanel,BoxLayout.LINE_AXIS));
-		splitPanel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-		//splitPanel.add(createChannelFirst());
-		splitPanel.add(createChannelAll());
-		topPanel.add(splitPanel,BorderLayout.CENTER);
-		
-		result.add(topPanel);
-		
-		return result;
+		return createFlowLeftFirePanel(fireName,result);
 	}
 	
-	private JPanel createChannelAll() {
-		centerPanel = new JPanel();
-		GridLayout centerLayout = new GridLayout(1,16,5,5);
-		centerPanel.setLayout(centerLayout);
-		centerPanel.setBorder(BorderFactory.createEmptyBorder(0,5,0,0)); // only left 5 px like grid layout
-		
+	private JPanel createPWMChannels(String prefix,boolean addInit,boolean limitToOne,CommandName autoLimitCommand) {
+		JPanel row0 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		for (int i=0;i<16;i++) {
-			JPanel out = JComponentFactory.createJFirePanel("OUT"+i);
+			final int outI = i;
+			final JPanel out = JComponentFactory.createJFirePanel(prefix+i);
 			out.setLayout(new BoxLayout(out, BoxLayout.PAGE_AXIS));
-
-			JPanel boxPanel = new JPanel();
-			boxPanel.setLayout(new SpringLayout());
-						
-			JCheckBox boxMaskA = new JCommandCheckBox(CommandName.pulse_mask_a,i);
-			boxMaskA.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxMaskA);
-			JLabel maskLabel = new JLabel("Mask");
-			boxPanel.add(maskLabel);
-			JCheckBox boxMaskB = new JCommandCheckBox(CommandName.pulse_mask_b,i);
-			boxMaskB.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxMaskB);
-			JCheckBox boxInitA = new JCommandCheckBox(CommandName.pulse_init_a,i);
-			boxInitA.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxInitA);
-			JLabel intiLabel = new JLabel("Init");
-			boxPanel.add(intiLabel);
-			JCheckBox boxInitB = new JCommandCheckBox(CommandName.pulse_init_b,i);
-			boxInitB.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxInitB);
-			JCheckBox boxInvA = new JCommandCheckBox(CommandName.pulse_inv_a,i);
-			boxInvA.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxInvA);
-			JLabel invLabel = new JLabel("Invert");
-			boxPanel.add(invLabel);
-			JCheckBox boxInvB = new JCommandCheckBox(CommandName.pulse_inv_b,i);
-			boxInvB.putClientProperty("JComponent.sizeVariant", "mini");
-			boxPanel.add(boxInvB);
-
-			SpringLayoutGrid.makeCompactGrid(boxPanel,3,3,0,0,0,0);
-			out.add(boxPanel);
+			
+			if (addInit) {
+				JPanel boxPanel = new JPanel();
+				boxPanel.setLayout(new SpringLayout());
+				
+				JCheckBox boxInitA = new JCommandCheckBox(CommandName.pulse_init_a,i);
+				boxInitA.putClientProperty("JComponent.sizeVariant", "mini");
+				boxPanel.add(boxInitA);
+				JLabel intiLabel = new JLabel("Init");
+				boxPanel.add(intiLabel);
+				JCheckBox boxInitB = new JCommandCheckBox(CommandName.pulse_init_b,i);
+				boxInitB.putClientProperty("JComponent.sizeVariant", "mini");
+				boxPanel.add(boxInitB);
+				
+				SpringLayoutGrid.makeCompactGrid(boxPanel,1,3,0,0,0,0);
+				out.add(boxPanel);
+			}
 			
 			JPanel dialPanel = new JPanel();
-			dialPanel.setBorder(new JFireBorderChild(out));
+			if (addInit) {
+				dialPanel.setBorder(new JFireBorderChild(out));
+			}
 			dialPanel.setLayout(new SpringLayout());
 			
-			JCommandDial dialA = new JCommandDial(CommandName.pwm_on_cnt_a,i);
-			dialPanel.add(dialA);
-			JCommandDial dialB = new JCommandDial(CommandName.pwm_on_cnt_b,i);
-			dialPanel.add(dialB);
+			dialPanel.add(new JCommandDial(CommandName.pwm_on_cnt_a,i));
+			dialPanel.add(new JCommandDial(CommandName.pwm_on_cnt_b,i));
 			dialPanel.add(new JCommandDial(CommandName.pwm_off_cnt_a,i));
 			dialPanel.add(new JCommandDial(CommandName.pwm_off_cnt_b,i));
 			
 			SpringLayoutGrid.makeCompactGrid(dialPanel,2,2,0,0,0,0);
 			out.add(dialPanel);
 			
-			/*
-			JPanel flagsPanel = new JPanel();
-			flagsPanel.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
-			flagsPanel.add(new JCommandDial(CommandName.pwm_tune_cnt,i));
-			out.add(flagsPanel);
-			*/
-
-			JPanel ppmPanel = new JPanel();
-			ppmPanel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
-			//ppmPanel.setBorder(new JFireBorderChild(out));
-			//ppmPanel.setLayout(new FlowLayout(FlowLayout.CENTER,2,2));
-			ppmPanel.setLayout(new BorderLayout(5,5));
-			JPanel ppmPanelA = new JPanel();
-			ppmPanelA.setLayout(new GridLayout(0,2));
-			for (int p=0;p<16;p++) {
-				JCheckBox box = new JCommandCheckBox(CommandName.ppm_data_a,p,i);
-				box.putClientProperty("JComponent.sizeVariant", "mini");
-				box.setBorder(BorderFactory.createEmptyBorder());
-				ppmPanelA.add(box);
-			}
-			JPanel ppmPanelT = new JPanel();
-			ppmPanelT.setLayout(new GridLayout(0,1));
-			int num = 0;
-			for (int p=0;p<8;p++) {
-				StringBuilder buf = new StringBuilder(20);
-				int n = num++;
-				if (n<=9) {
-					buf.append('0');
-				}
-				buf.append(n);
-				buf.append('-');
-				n = num++;
-				if (n<=9) {
-					buf.append('0');
-				}
-				buf.append(n);
-				JLabel l = new JLabel(buf.toString());
-				l.setFont(UIManager.getFont("FireDial.font"));
-				l.setForeground(UIManager.getColor("nimbusDisabledText"));
-				ppmPanelT.add(l);
-			}
-			JPanel ppmPanelB = new JPanel();
-			//ppmPanelB.setBorder(new JFireBorderChild((JFireBorder)out.getBorder(),0,0,1));
-			ppmPanelB.setLayout(new GridLayout(0,2));
-			for (int p=0;p<16;p++) {
-				JCheckBox box = new JCommandCheckBox(CommandName.ppm_data_b,p,i);
-				box.putClientProperty("JComponent.sizeVariant", "mini");
-				ppmPanelB.add(box);
+			if (autoLimitCommand!=null) {
+				PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(autoLimitCommand, new DeviceCommandListener() {
+					@Override
+					public void commandReceived(Command command) {
+						if (command.getArgu0()==null) {
+							return;
+						}
+						int value = Integer.parseInt(command.getArgu0());
+						out.setVisible(value > outI);
+					}
+				});
 			}
 			
-			ppmPanel.add(ppmPanelA,BorderLayout.WEST);
-			ppmPanel.add(ppmPanelT,BorderLayout.CENTER);
-			ppmPanel.add(ppmPanelB,BorderLayout.EAST);
-			out.add(ppmPanel);
-			centerPanel.add(out);
-			channels.add(out);
-		}
-		return centerPanel;
-	}
-	
-	@Override
-	public void commandReceived(Command command) {
-		int steps = new Integer(command.getArgu0());
-		checkChannels(steps);
-	}
-	
-	private void checkChannels(long steps) {
-		Boolean limit = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.LIMIT_CHANNELS);
-		if (limit==false) {
-			steps = CommandName.pulse_steps.getMaxValue();
-		}
-		centerPanel.removeAll();
-		for (int i=0;i<16;i++) {
-			if (i>=steps) {
-				centerPanel.add(channelsEmpty.get(i));
+			
+			if (i<8) {
+				row0.add(out);
 			} else {
-				centerPanel.add(channels.get(i));
+				row1.add(out);
+			}
+			if (limitToOne) {
+				break;
 			}
 		}
+		
+		JPanel centerPanel = new JPanel();
+		centerPanel.setLayout(new BorderLayout(0,0));
+		centerPanel.add(row0,BorderLayout.CENTER);
+		centerPanel.add(row1,BorderLayout.PAGE_END);
+		
+		JPanel resultPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
+		resultPanel.add(centerPanel);
+		return resultPanel;
 	}
 	
 	private JPanel createTopFreq() {
@@ -329,66 +303,63 @@ public class JTabPanelPwm extends AbstractFireTabPanel implements DeviceCommandL
 		return resultPanel;
 	}
 	
-	private JPanel createTopDelay() {
-		JPanel borderPanel = JComponentFactory.createJFirePanel(this,"delay");
-		
-		JPanel splitPanel = new JPanel();
-		splitPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-		borderPanel.add(splitPanel);
-		
-		JPanel delayPanel = new JPanel();
-		delayPanel.setLayout(new SpringLayout());
-		splitPanel.add(delayPanel);
-		delayPanel.add(new JCommandDial(CommandName.pulse_pre_delay));
-		delayPanel.add(new JCommandDial(CommandName.pulse_post_delay));
-		SpringLayoutGrid.makeCompactGrid(delayPanel,1,2);
-		
-		JPanel mulPanel = new JPanel();
-		mulPanel.setLayout(new SpringLayout());
-		splitPanel.add(mulPanel);
-		mulPanel.add(new JCommandLabel(CommandName.pulse_pre_mul));
-		mulPanel.add(new JCommandComboBox(CommandName.pulse_pre_mul));
-		mulPanel.add(new JCommandLabel(CommandName.pulse_post_mul));
-		mulPanel.add(new JCommandComboBox(CommandName.pulse_post_mul));
-		SpringLayoutGrid.makeCompactGrid(mulPanel,2,2);
-		
-		JPanel postPanel = new JPanel();
-		postPanel.setLayout(new SpringLayout());
-		splitPanel.add(postPanel);
-		postPanel.add(new JCommandLabel(CommandName.pulse_post_hold));
-		postPanel.add(new JCommandComboBox(CommandName.pulse_post_hold));
-		SpringLayoutGrid.makeCompactGrid(postPanel,2,1);
-		
-		return borderPanel;
+	JComponent createPulseDelay() {
+		return
+			createFlowLeftFirePanel("delay",
+				createCompactGrid(1, 2,
+					createCompactGrid(1, 2,
+						createCommandDial(CommandName.pulse_pre_delay),
+						createCommandDial(CommandName.pulse_post_delay)
+					),
+					createLabeledGrid(3, 1,
+						createCommandComboBoxLabelGrid(CommandName.pulse_pre_mul),
+						createCommandComboBoxLabelGrid(CommandName.pulse_post_mul),
+						createCommandComboBoxLabelGrid(CommandName.pulse_post_hold)
+					)
+				)
+			);
 	}
 	
-	private JPanel createTopPulse() {
-		JPanel borderPanel = JComponentFactory.createJFirePanel(this,"pulse");
-		
-		JPanel splitPanel = new JPanel();
-		splitPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-		borderPanel.add(splitPanel);
-		
-		JPanel pulsePanel = new JPanel();
-		pulsePanel.setLayout(new SpringLayout());
-		splitPanel.add(pulsePanel);
-		
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_mode));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_mode));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_dir));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_trig));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_trig));
-		pulsePanel.add(new JCommandLabel(CommandName.pulse_bank));
-		pulsePanel.add(new JCommandComboBox(CommandName.pulse_bank));
-		SpringLayoutGrid.makeCompactGrid(pulsePanel,2,4);
-				
-		return borderPanel;
+	JComponent createPulseConfig() {
+		return createFlowLeftFirePanel("pulse",createLabeledGrid(2, 3,
+			createCommandComboBoxLabelGrid(CommandName.pulse_mode),
+			createCommandComboBoxLabelGrid(CommandName.pulse_dir),
+			createCommandComboBoxLabelGrid(CommandName.pulse_trig),
+			createCommandComboBoxLabelGrid(CommandName.pulse_bank),
+			createCommandComboBoxLabelGrid(CommandName.pulse_steps),
+			createCommandCheckBoxLabelGrid(CommandName.pulse_enable)
+		));
 	}
 	
-	@Override
-	public void settingUpdated(PulseFireUISettingKeys key, String value) {
-		Command cmd = PulseFireUI.getInstance().getDeviceData().getDeviceParameter(CommandName.pulse_steps);
-		commandReceived(cmd); // recheck channels
+	JComponent createBitABFirePanel(String fireName,CommandName cmdA,CommandName cmdB) {
+		JPanel result = new JPanel();
+		result.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
+		result.setLayout(new GridLayout(3,0));
+		result.add(new JLabel("A"));
+		for (int p=0;p<16;p++) {
+			JCheckBox box = new JCommandCheckBox(cmdA,p);
+			box.putClientProperty("JComponent.sizeVariant", "mini");
+			result.add(box);
+		}
+		result.add(new JLabel());
+		for (int p=0;p<16;p++) {
+			String labelText = ""+p;
+			if (labelText.length()==1) {
+				labelText = "0"+labelText;
+			}
+			JLabel label = new JLabel(labelText);
+			label.setFont(label.getFont().deriveFont(10.0f));
+			result.add(label);
+		}
+		result.add(new JLabel("B"));
+		for (int p=0;p<16;p++) {
+			JCheckBox box = new JCommandCheckBox(cmdB,p);
+			box.putClientProperty("JComponent.sizeVariant", "mini");
+			result.add(box);
+		}
+		
+		JPanel panel = JComponentFactory.createJFirePanel(this, fireName);
+		panel.add(result);
+		return panel;
 	}
 }

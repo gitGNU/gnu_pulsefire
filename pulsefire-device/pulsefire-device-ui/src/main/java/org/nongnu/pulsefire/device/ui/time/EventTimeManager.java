@@ -54,7 +54,12 @@ public class EventTimeManager {
 	}
 	
 	public void shutdown() {
-		eventTimeThread.shutdown();
+		eventTimeThread.shutdown(); // FIXME: add wait lock
+		try {
+			Thread.sleep(333);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		eventTimeThread = null;
 	}
 	

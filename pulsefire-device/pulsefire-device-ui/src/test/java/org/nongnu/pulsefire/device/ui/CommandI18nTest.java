@@ -148,11 +148,11 @@ public class CommandI18nTest extends TestCase {
 			}
 		}
 		
-		System.out.println("KEYS START");
-		for (String key:resourceData.keySet()) {
-			String value = resourceData.get(key);
-			System.out.println(key+"="+value);
-		}
-		System.out.println("KEYS DONE");
+//		System.out.println("KEYS START");
+//		for (String key:resourceData.keySet()) {
+//			String value = resourceData.get(key);
+//			System.out.println(key+"="+value);
+//		}
+		System.out.println("KEYS DONE total: "+resourceData.size());
 	}
 }

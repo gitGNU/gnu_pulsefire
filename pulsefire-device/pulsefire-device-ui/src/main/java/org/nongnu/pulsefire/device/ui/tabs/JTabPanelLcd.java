@@ -26,27 +26,24 @@ package org.nongnu.pulsefire.device.ui.tabs;
 import org.nongnu.pulsefire.device.io.protocol.CommandName;
 
 /**
- * JTabPanelPtc
+ * JTabPanelLcd
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPtc extends AbstractFireTabPanel {
+public class JTabPanelLcd extends AbstractFireTabPanel {
 	
-	public JTabPanelPtc() {
+	public JTabPanelLcd() {
 		build(
-			createCompactGrid(2, 2, 
-				createFlowLeftFirePanel("config0",
-					createCommandDial(CommandName.ptc_0run),
-					createCommandDial(CommandName.ptc_0mul),
-					createCommandStatusBox(CommandName.ptc_0step,CommandName.ptc_0map_idx,CommandName.ptc_0cnt)
+			createCompactGrid(1, 2,
+				createFlowLeftFirePanel("lcd",
+					createLabeledGrid(4, 1,
+						createCommandComboBoxLabelGrid(CommandName.lcd_size),
+						createCommandComboBoxLabelGrid(CommandName.lcd_defp),
+						createCommandComboBoxLabelGrid(CommandName.lcd_mode),
+						createCommandComboBoxLabelGrid(CommandName.lcd_hcd)
+					)
 				),
-				createFlowLeftFirePanel("config1",
-					createCommandDial(CommandName.ptc_1run),
-					createCommandDial(CommandName.ptc_1mul),
-					createCommandStatusBox(CommandName.ptc_1step,CommandName.ptc_1map_idx,CommandName.ptc_1cnt)
-				),
-				createCommandQMapTable(CommandName.ptc_0map),
-				createCommandQMapTable(CommandName.ptc_1map)
+				createCommandQMapTable(CommandName.lcd_plp)
 			)
 		);
 	}

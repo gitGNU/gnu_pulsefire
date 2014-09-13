@@ -55,10 +55,7 @@ import org.nongnu.pulsefire.device.ui.JComponentFactory;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
 import org.nongnu.pulsefire.device.ui.components.JCommandButton;
-import org.nongnu.pulsefire.device.ui.components.JCommandComboBox;
 import org.nongnu.pulsefire.device.ui.components.JCommandLabel;
-import org.nongnu.pulsefire.device.ui.components.JCommandSpinner;
-import org.nongnu.pulsefire.device.ui.components.JFireQMapTable;
 import org.nongnu.pulsefire.device.ui.pull.PulseFireDataPuller;
 
 /**
@@ -72,27 +69,20 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 	
 	public JTabPanelSystem() {
 		logger = Logger.getLogger(JTabPanelSystem.class.getName());
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new SpringLayout());
-		topPanel.add(createSystemConfig());
-		topPanel.add(createSystemLcd());
-		topPanel.add(createSystemVar());
-		SpringLayoutGrid.makeCompactGrid(topPanel,1,3,0,0,6,6);
 		
-		JPanel wrapM = new JPanel();
-		wrapM.setLayout(new SpringLayout());
-		
-		wrapM.add(createCommandQMapTable(CommandName.sys_vvm_map));
-		wrapM.add(createCommandQMapTable(CommandName.sys_vvl_map));
-		SpringLayoutGrid.makeCompactGrid(wrapM,1,2,0,0,6,6);
-		
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		wrap.add(topPanel);
-		wrap.add(wrapM);
-		SpringLayoutGrid.makeCompactGrid(wrap,2,1,6,6,0,0);
-		
-		getJPanel().add(wrap);
+		build(
+			createCompactGrid(2, 2,
+				createSystemConfig(),
+				createFlowLeftFirePanel("id",
+					createLabeledGrid(2, 1,
+						createCommandSpinnerLabelGrid(CommandName.sys_id),
+						createCommandSpinnerLabelGrid(CommandName.sys_pass)
+					)
+				),
+				createCommandQMapTable(CommandName.sys_vvm_map),
+				createCommandQMapTable(CommandName.sys_vvl_map)
+			)
+		);
 	}
 	
 	private JPanel createSystemConfig() {
@@ -178,7 +168,7 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 		confPanel.add(JComponentFactory.createJLabel("Save File"));
 		confPanel.add(saveButton);
 		
-		SpringLayoutGrid.makeCompactGrid(confPanel,6,2);
+		SpringLayoutGrid.makeCompactGrid(confPanel,3,4);
 		wrapPanel.add(confPanel);
 		return wrapPanel;
 	}
@@ -274,71 +264,5 @@ public class JTabPanelSystem extends AbstractFireTabPanel {
 			}
 		}
 		reader.close();
-	}
-	
-	private JPanel createSystemLcd() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"lcd");
-		JPanel lcdPanel = new JPanel();
-		lcdPanel.setLayout(new SpringLayout());
-		
-		lcdPanel.add(new JCommandLabel(CommandName.lcd_size));
-		lcdPanel.add(new JCommandComboBox(CommandName.lcd_size));
-		
-		lcdPanel.add(new JCommandLabel(CommandName.lcd_defp));
-		lcdPanel.add(new JCommandComboBox(CommandName.lcd_defp));
-		
-		lcdPanel.add(new JCommandLabel(CommandName.lcd_mode));
-		lcdPanel.add(new JCommandComboBox(CommandName.lcd_mode));
-		
-		lcdPanel.add(new JCommandLabel(CommandName.lcd_hcd));
-		lcdPanel.add(new JCommandComboBox(CommandName.lcd_hcd));
-		
-		lcdPanel.add(new JCommandLabel(CommandName.lcd_plp));
-		JPanel plpPanel = new JPanel();
-		lcdPanel.add(plpPanel);
-		
-		JFireQMapTable t = new JFireQMapTable(CommandName.lcd_plp);
-		plpPanel.add(t);
-		
-		SpringLayoutGrid.makeCompactGrid(lcdPanel,5,2);
-		wrapPanel.add(lcdPanel);
-		return wrapPanel;
-	}
-	
-	/*
-	private JPanel createSystemWarmup() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"warmup");
-		wrapPanel.setLayout(new BoxLayout(wrapPanel,BoxLayout.PAGE_AXIS));
-		
-		JPanel warmDialPanel = new JPanel();
-		warmDialPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		warmDialPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.swc_delay)));
-		warmDialPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.swc_secs)));
-		warmDialPanel.add(JComponentFactory.createJPanelJWrap(new JCommandDial(CommandName.swc_duty)));
-		wrapPanel.add(warmDialPanel);
-		
-		JPanel warmPanel = new JPanel();
-		warmPanel.add(new JFireQMapTable(CommandName.swc_map,"warmup","normal"));
-		wrapPanel.add(warmPanel);
-		
-		return wrapPanel;
-	}
-	*/
-	
-	private JPanel createSystemVar() {
-		JPanel wrapPanel = JComponentFactory.createJFirePanel(this,"id");
-		JPanel ioPanel = new JPanel();
-		ioPanel.setLayout(new SpringLayout());
-		
-		ioPanel.add(new JCommandLabel(CommandName.sys_id));
-		ioPanel.add(new JCommandSpinner(CommandName.sys_id));
-		
-		ioPanel.add(new JCommandLabel(CommandName.sys_pass));
-		ioPanel.add(new JCommandSpinner(CommandName.sys_pass));
-		
-		
-		SpringLayoutGrid.makeCompactGrid(ioPanel,2,2);
-		wrapPanel.add(ioPanel);
-		return wrapPanel;
 	}
 }

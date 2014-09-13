@@ -42,24 +42,32 @@ import org.nongnu.pulsefire.device.io.transport.DeviceData;
 import org.nongnu.pulsefire.device.ui.PulseFireUI;
 
 /**
- * JFirePwmInfo shows pwm step data.
+ * JCommandPwmInfo shows pwm step data.
  * 
  * @author Willem Cazander
  */
-public class JFirePwmInfo extends JPanel implements DeviceCommandListener,DeviceConnectListener {
+public class JCommandPwmInfo extends JPanel implements DeviceCommandListener {
 	
 	private static final long serialVersionUID = -2922342927574919902L;
-	private DeviceData deviceData = null;
-	private BasicStroke dashedStroke = null;
-	private String[] displayText = null;
+	private final DeviceData deviceData;
+	private final BasicStroke dashedStroke;
+	private final String[] displayText;
 	
-	public JFirePwmInfo() {
+	public JCommandPwmInfo() {
 		this.deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
 		this.dashedStroke = new BasicStroke(1f, 0, 0, 10f, new float[] {5f,4f,1f,4f}, 0f);
 		setBorder(BorderFactory.createEmptyBorder());
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_pwm_data, this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(CommandName.info_freq_data, this);
-		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
+		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(new DeviceConnectListener() {
+			@Override
+			public void deviceDisconnect() {
+				repaint();
+			}
+			@Override
+			public void deviceConnect() {
+			}
+		});
 		displayText = new String[] {
 				"#________#_#_#_#",
 				"_#______________",
@@ -154,13 +162,8 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 			//g2.drawString(""+xStep, xDest+1, 75);
 		}
 		
-		g2.setPaint(lineColor);
-		for (int y=1;y<=yLines;y++) {
-			g2.drawLine(0,yOffset+yLine*y, w,yOffset+yLine*y);
-		}
-		
-		g2.setPaint(pulseColor);
 		for (int y=0;y<yLines;y++) {
+			g2.setPaint(pulseColor);
 			g2.drawString("Out: "+y, 3, yOffset+yLine*y+yLine - 2);
 			Command freqData = deviceData.getDeviceParameterIndexed(CommandName.info_freq_data,y);
 			if (freqData!=null && w>400 && yLine>40) {
@@ -171,6 +174,7 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 			}
 			Boolean levelOrg = null;
 			xPrefix = 0;
+			int stopX = 0;
 			for (int x=0;x<xLines;x++) {
 				Command stepData = deviceData.getDeviceParameterIndexed(CommandName.info_pwm_data,x);
 				if (stepData==null) {
@@ -178,14 +182,18 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 				}
 				int data = Integer.parseInt(stepData.getArgu0(),2);
 				int time = Integer.parseInt(stepData.getArgu2());
-				int xStep = time/(totalTime/w);
+				int timeWidth = totalTime/w;
+				if (timeWidth == 0) {
+					timeWidth = 1; // / by zero
+				}
+				int xStep = time/timeWidth;
 				int xDest = xPrefix;
 				xPrefix+=xStep;
 				Boolean level = (data & (1 << y)) == 0;
 				
 				int startY = yOffset+yLine*y+yLine;
 				int startX = xDest; //xLine*x;
-				int stopX  = xPrefix; //xLine*x+xLine;
+				stopX  = xPrefix; //xLine*x+xLine;
 				int stopY  = startY;
 				
 				if (!level) {
@@ -202,20 +210,14 @@ public class JFirePwmInfo extends JPanel implements DeviceCommandListener,Device
 				g2.drawLine(startX,startY, stopX, stopY);
 				levelOrg = level;
 			}
+			
+			g2.setPaint(lineColor);
+			g2.drawLine(0,yOffset+yLine*(y+1), stopX,yOffset+yLine*(y+1));
 		}
 	}
-
+	
 	@Override
 	public void commandReceived(Command command) {
-		repaint();
-	}
-
-	@Override
-	public void deviceConnect() {
-	}
-
-	@Override
-	public void deviceDisconnect() {
 		repaint();
 	}
 }

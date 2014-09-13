@@ -23,12 +23,21 @@
 
 package org.nongnu.pulsefire.device.ui;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -45,8 +54,8 @@ import org.nongnu.pulsefire.device.ui.components.JFireGraph;
  * 
  * @author Willem Cazander
  */
-public class JPanelConsoleInfo extends JPanel implements ComponentListener,DeviceConnectListener,PulseFireUISettingListener {
-
+public class JPanelConsoleInfo extends JPanel implements ComponentListener, DeviceConnectListener, PulseFireUISettingListener {
+	
 	private static final long serialVersionUID = 5027054951800480326L;
 	private final CardLayout cardLayout;
 	private final JPanel graphPanel;
@@ -56,57 +65,84 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		addComponentListener(this);
 		PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
 		
+		graphPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 		setBorder(BorderFactory.createEmptyBorder());
+		add(createInfoPanel(), InfoViewType.INFO.name());
+		add(graphPanel, InfoViewType.GRAPH.name());
 		
-		add(createInfoPanel(),InfoViewType.INFO.name());
-		
-		graphPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		add(graphPanel,InfoViewType.GRAPH.name());
-		
-		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST_FRONT,this);
+		PulseFireUI.getInstance().getSettingsManager().addSettingListener(PulseFireUISettingKeys.GRAPH_LIST_FRONT, this);
 	}
 	
 	private enum InfoViewType {
-		INFO,
-		GRAPH
+		INFO, GRAPH
 	}
 	
 	private JPanel createInfoPanel() {
+		final String siteUrl = "http://www.nongnu.org/pulsefire/";
+		String yearPart = "2011-"+Calendar.getInstance().get(Calendar.YEAR);
 		JPanel infoPanel = new JPanel();
 		infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 		infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		
+		JPanel innerPanel = new JPanel();
+		innerPanel.setLayout(new BorderLayout());
+		
 		JLabel text = new JLabel();
-		text.setText("<html><center><h1>PulseFire</h1><sub>Copyright 2011 Willem Cazander</sub>"+
-					"<br>For more information visit website;<br>http://www.nongnu.org/pulsefire/<br>" +
-					"</center></html>");
-		infoPanel.add(text);
+		text.setText("<html><center><h1>PulseFire</h1><sub>Copyright "+yearPart+" Willem Cazander</sub>"+
+					"<br>For more information visit website;</center></html>");
+		innerPanel.add(text,BorderLayout.NORTH);
+		JLabel textUrl = new JLabel();
+		textUrl.setText("<html><a href=\""+siteUrl+"\">"+siteUrl+"</a></html>");
+		textUrl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		textUrl.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI(siteUrl));
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		innerPanel.add(textUrl,BorderLayout.SOUTH);
+		
+		
+		infoPanel.add(innerPanel);
 		return infoPanel;
 	}
 	
 	private void redoPanel() {
+		if (!PulseFireUI.getInstance().getDeviceManager().isConnected()) {
+			return;
+		}
+		
 		int w = getSize().width;
 		int h = getSize().height;
 		int wMin = 200;
 		int hMin = 100;
-		int gW = w/wMin;
-		int gH = h/hMin;
+		int gW = w / wMin;
+		int gH = h / hMin;
 		
 		List<CommandName> d = new ArrayList<CommandName>(10);
 		d = CommandName.decodeCommandList(PulseFireUI.getInstance().getSettingsManager().getSettingString(PulseFireUISettingKeys.GRAPH_LIST_FRONT));
-		int ii=0;
-		for (int y=0;y<gH;y++) {
-			for (int x=0;x<gW;x++) {
-				if (ii>=d.size()) {
+		int ii = 0;
+		for (int y = 0; y < gH; y++) {
+			for (int x = 0; x < gW; x++) {
+				if (ii >= d.size()) {
 					break;
 				}
 				ii++;
 			}
 		}
 		
-		// Auto switch back and forward when settings or size goes to zero graphs.
-		if (ii==0) {
+		// Auto switch back and forward when settings or size goes to zero
+		// graphs.
+		if (ii == 0) {
 			if (!InfoViewType.INFO.equals(graphZeroState)) {
 				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.INFO.name());
 				graphZeroState = InfoViewType.INFO; // do once
@@ -118,36 +154,41 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 			}
 		}
 		
-		if (graphPanel.getComponentCount()==ii) {
+		if (graphPanel.getComponentCount() == ii) {
 			return; // nop
 		}
 		graphPanel.removeAll();
-		ii=0;
-		for (int y=0;y<gH;y++) {
-			for (int x=0;x<gW;x++) {
-				if (ii>=d.size()) {
+		ii = 0;
+		for (int y = 0; y < gH; y++) {
+			for (int x = 0; x < gW; x++) {
+				if (ii >= d.size()) {
 					break;
 				}
 				CommandName name = d.get(ii);
 				JFireGraph g = new JFireGraph(name);
-				g.setPreferredSize(new Dimension(wMin,hMin));
+				g.setPreferredSize(new Dimension(wMin, hMin));
 				graphPanel.add(g);
 				ii++;
 			}
 		}
-		SwingUtilities.updateComponentTreeUI(this); // fixes redraw artifacts after removing most graphs.
+		SwingUtilities.updateComponentTreeUI(this); // fixes redraw artifacts
+													// after removing most
+													// graphs.
 	}
 	
 	@Override
 	public void componentShown(ComponentEvent e) {
 	}
+	
 	@Override
 	public void componentResized(ComponentEvent e) {
 		redoPanel();
 	}
+	
 	@Override
 	public void componentMoved(ComponentEvent e) {
 	}
+	
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
@@ -158,6 +199,7 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 			@Override
 			public void run() {
 				cardLayout.show(JPanelConsoleInfo.this, InfoViewType.GRAPH.name());
+				redoPanel();
 			}
 		});
 	}
@@ -172,7 +214,7 @@ public class JPanelConsoleInfo extends JPanel implements ComponentListener,Devic
 		});
 	}
 	
-	public void settingUpdated(PulseFireUISettingKeys key,String value) {
+	public void settingUpdated(PulseFireUISettingKeys key, String value) {
 		redoPanel();
 	}
 }

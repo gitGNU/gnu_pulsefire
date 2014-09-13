@@ -99,9 +99,6 @@ public class JTabPanelPFSettings extends AbstractFireTabPanel {
 		});
 		panel.add(colors);
 		
-		panel.add(JComponentFactory.createJLabel("Limit Channels"));
-		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.LIMIT_CHANNELS));
-		
 		panel.add(JComponentFactory.createJLabel("Auto Connect"));
 		panel.add(JComponentFactory.createSettingsJCheckBox(PulseFireUISettingKeys.AUTO_CONNECT));
 		
@@ -117,7 +114,7 @@ public class JTabPanelPFSettings extends AbstractFireTabPanel {
 		panel.add(JComponentFactory.createJLabel("Pull Speed"));
 		panel.add(JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.PULL_SPEED,new String[] {"100","250","500","1000","2000","3000","5000","10000","30000","60000","120000",""+5*60*1000,""+15*60*1000,""+30*60*1000,""+60*60*1000}));
 		
-		SpringLayoutGrid.makeCompactGrid(panel,7,2);
+		SpringLayoutGrid.makeCompactGrid(panel,6,2);
 		return panel;
 	}
 	

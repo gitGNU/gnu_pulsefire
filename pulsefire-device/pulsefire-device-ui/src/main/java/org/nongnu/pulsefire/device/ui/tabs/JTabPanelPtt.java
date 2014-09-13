@@ -23,108 +23,37 @@
 
 package org.nongnu.pulsefire.device.ui.tabs;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
-import org.nongnu.pulsefire.device.io.protocol.Command;
 import org.nongnu.pulsefire.device.io.protocol.CommandName;
-import org.nongnu.pulsefire.device.io.transport.DeviceCommandListener;
-import org.nongnu.pulsefire.device.io.transport.DeviceData;
-import org.nongnu.pulsefire.device.io.transport.DeviceWireManager;
-import org.nongnu.pulsefire.device.ui.JComponentFactory;
-import org.nongnu.pulsefire.device.ui.PulseFireUI;
-import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
-import org.nongnu.pulsefire.device.ui.components.JCommandButton;
 
 /**
- * JTabPanelPTT
+ * JTabPanelPtt
  * 
  * @author Willem Cazander
  */
-public class JTabPanelPtt extends AbstractFireTabPanel implements DeviceCommandListener {
-
-	private JLabel runLabel = null;
-	private JLabel runStepLabel = null;
+public class JTabPanelPtt extends AbstractFireTabPanel {
 	
 	public JTabPanelPtt() {
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		
-		wrap.add(createTriggerStatusPanel());
-		wrap.add(createTriggerTestPanel());
-		wrap.add(createCommandQMapTable(CommandName.ptt_0map));
-		wrap.add(createCommandQMapTable(CommandName.ptt_1map));
-		wrap.add(createCommandQMapTable(CommandName.ptt_2map));
-		wrap.add(createCommandQMapTable(CommandName.ptt_3map));
-		
-		SpringLayoutGrid.makeCompactGrid(wrap,3,2);
-		getJPanel().add(wrap);
-		
-		DeviceWireManager deviceManager = PulseFireUI.getInstance().getDeviceManager();
-		deviceManager.addDeviceCommandListener(CommandName.info_data, this);
-	}
-	
-	private JPanel createTriggerStatusPanel() {
-		JPanel header = JComponentFactory.createJFirePanel(this,"pttStatus");
-		JPanel wrap = new JPanel();
-		wrap.setLayout(new SpringLayout());
-		
-		wrap.add(new JLabel("Run:"));
-		runLabel = new JLabel();
-		wrap.add(runLabel);
-		
-		wrap.add(new JLabel("Step:"));
-		runStepLabel = new JLabel();
-		wrap.add(runStepLabel);
-		
-		SpringLayoutGrid.makeCompactGrid(wrap,2,2);
-		header.add(wrap);
-		return header;
-	}
-	
-	private JPanel createTriggerTestPanel() {
-		JPanel header = JComponentFactory.createJFirePanel(this,"pttTrigger");
-		JPanel wrap = new JPanel();
-		wrap.add(new JCommandButton(CommandName.ptt_fire,0,CommandName.req_trigger));
-		wrap.add(new JCommandButton(CommandName.ptt_fire,1,CommandName.req_trigger));
-		wrap.add(new JCommandButton(CommandName.ptt_fire,2,CommandName.req_trigger));
-		wrap.add(new JCommandButton(CommandName.ptt_fire,3,CommandName.req_trigger));
-		header.add(wrap);
-		return header;
-	}
-	
-	@Override
-	public void commandReceived(Command command) {
-		DeviceData deviceData = PulseFireUI.getInstance().getDeviceManager().getDeviceData();
-		StringBuilder buf = new StringBuilder(100);
-		for (int i=CommandName.ptt_cnt.getMaxIndexA()-1;i>=0;i--) {
-			Command cmd = deviceData.getDeviceParameterIndexed(CommandName.ptt_cnt, i);
-			int value = -1;
-			if (cmd!=null) {
-				value = new Integer(cmd.getArgu0());
-			}
-			buf.append(CommandName.ptt_cnt.name());
-			buf.append(i);
-			buf.append(": ");
-			buf.append(value);
-			buf.append(" ");
-		}
-		runLabel.setText(buf.toString());
-
-		buf = new StringBuilder(100);
-		for (int i=CommandName.ptt_idx.getMaxIndexA()-1;i>=0;i--) {
-			Command cmd = deviceData.getDeviceParameterIndexed(CommandName.ptt_idx, i);
-			int value = -1;
-			if (cmd!=null) {
-				value = new Integer(cmd.getArgu0());
-			}
-			buf.append(CommandName.ptt_idx.name());
-			buf.append(i);
-			buf.append(": ");
-			buf.append(value);
-			buf.append(" ");
-		}
-		runStepLabel.setText(buf.toString());
+		build(
+			createCompactGrid(3, 2, 
+				createFlowLeftFirePanel("pttStatus",
+					createLabeledGrid(2, 2, 
+						createCommandStatusBoxLabelGrid(CommandName.ptt_fire,CommandName.ptt_idx,CommandName.ptt_cnt,0),
+						createCommandStatusBoxLabelGrid(CommandName.ptt_fire,CommandName.ptt_idx,CommandName.ptt_cnt,1),
+						createCommandStatusBoxLabelGrid(CommandName.ptt_fire,CommandName.ptt_idx,CommandName.ptt_cnt,2),
+						createCommandStatusBoxLabelGrid(CommandName.ptt_fire,CommandName.ptt_idx,CommandName.ptt_cnt,3)
+					)
+				),
+				createFlowLeftFirePanel("pttTrigger",
+					createCommandButtonTrigger(CommandName.ptt_fire,0,CommandName.req_trigger),
+					createCommandButtonTrigger(CommandName.ptt_fire,1,CommandName.req_trigger),
+					createCommandButtonTrigger(CommandName.ptt_fire,2,CommandName.req_trigger),
+					createCommandButtonTrigger(CommandName.ptt_fire,3,CommandName.req_trigger)
+				),
+				createCommandQMapTable(CommandName.ptt_0map),
+				createCommandQMapTable(CommandName.ptt_1map),
+				createCommandQMapTable(CommandName.ptt_2map),
+				createCommandQMapTable(CommandName.ptt_3map)
+			)
+		);
 	}
 }

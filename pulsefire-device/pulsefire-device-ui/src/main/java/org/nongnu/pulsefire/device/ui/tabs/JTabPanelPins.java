@@ -26,7 +26,6 @@ package org.nongnu.pulsefire.device.ui.tabs;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
@@ -88,8 +87,8 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		JPanel chipsPanel = new JPanel();
 		chipsPanel.setLayout(new GridLayout(0,2));
 		ioPanel.add(chipsPanel);
-		JCheckBox box = null;
 		
+		JCommandCheckBox box = null;
 		box = new JCommandCheckBox(CommandName.spi_chips,0);
 		box.setText("OUT8");
 		box.putClientProperty("JComponent.sizeVariant", "mini");
@@ -112,14 +111,17 @@ public class JTabPanelPins extends AbstractFireTabPanel {
 		chipsPanel.add(box);
 		box = new JCommandCheckBox(CommandName.spi_chips,5);
 		box.setText("FREE0");
+		box.setEnabledOverride(false);
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
 		box = new JCommandCheckBox(CommandName.spi_chips,6);
 		box.setText("FREE1");
+		box.setEnabledOverride(false);
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
 		box = new JCommandCheckBox(CommandName.spi_chips,7);
 		box.setText("FREE2");
+		box.setEnabledOverride(false);
 		box.putClientProperty("JComponent.sizeVariant", "mini");
 		chipsPanel.add(box);
 		
