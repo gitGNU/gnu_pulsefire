@@ -195,12 +195,12 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		FlashMessage vTarget = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_VTARGET.getToken());
 		double voltageTarget = new Double(vTarget.getResponse().get(3))/10;
 		logMessage("Vtarget: "+voltageTarget);
-		FlashMessage sckTime = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SCK_DURATION.getToken());
-		FlashMessage vAdjust = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_VADJUST.getToken());
-		FlashMessage oscP = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_PSCALE.getToken());
-		FlashMessage oscC = doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_CMATCH.getToken());
+		/*FlashMessage sckTime =*/ doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_SCK_DURATION.getToken());
+		/*FlashMessage vAdjust =*/ doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_VADJUST.getToken());
+		/*FlashMessage oscP =*/ doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_PSCALE.getToken());
+		/*FlashMessage oscC =*/ doFlashCommand(Stk500v2Command.CMD_GET_PARAMETER,Stk500v2Command.PARAM_OSC_CMATCH.getToken());
 		
-		FlashMessage resetPol = doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
+		/*FlashMessage resetPol =*/ doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
 
 		progress = 9;
 		FlashMessage enterIsp = new FlashMessage();
@@ -228,34 +228,34 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 		if (flashControllerConfig.getDeviceSignature()>0 && flashControllerConfig.getDeviceSignature()!=deviceId) {
 			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
 		}
-		
-		FlashMessage lFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
-		FlashMessage lFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
+		// FIXME: Check trippple read
+		/*FlashMessage lFuse0 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
+		/*FlashMessage lFuse1 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x00,0x00,0x00);
 		logMessage("lfuse value: 0x"+Integer.toHexString(lFuse2.getResponse().get(6)));
 		
-		FlashMessage hFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
-		FlashMessage hFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
+		/*FlashMessage hFuse0 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
+		/*FlashMessage hFuse1 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x58,0x08,0x00,0x00);
 		logMessage("hfuse value: 0x"+Integer.toHexString(hFuse2.getResponse().get(6)));
 		
-		FlashMessage eFuse0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
-		FlashMessage eFuse1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
+		/*FlashMessage eFuse0 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
+		/*FlashMessage eFuse1 =*/ doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0x50,0x08,0x00,0x00);
 		logMessage("efuse value: 0x"+Integer.toHexString(eFuse2.getResponse().get(6) & 0x07)); // only lower 3 bits for efuse
 		
 		// Erase flash
 		if (flashControllerConfig.isFlashErase()) {
 			logMessage("Erase flash memery.");
-			FlashMessage eraseFlash0 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFC,0x00);
-			FlashMessage eraseFlash1 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFD,0x00);
-			FlashMessage eraseFlash2 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFE,0x00);
-			FlashMessage eraseFlash3 = doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFF,0x00);
+			doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFC,0x00);
+			doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFD,0x00);
+			doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFE,0x00);
+			doFlashCommand(Stk500v2Command.CMD_SPI_MULTI,0x04,0x04,0x00,0xA0,0x03,0xFF,0x00);
 		}
 		
 		// Chip erase
-		FlashMessage eraseChip0 = doFlashCommand(Stk500v2Command.CMD_CHIP_ERASE_ISP,0x09,0x00,0xAC,0x9F,0x7F,0x00);
-		FlashMessage eraseChipReset = doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
+		/*FlashMessage eraseChip0 =*/ doFlashCommand(Stk500v2Command.CMD_CHIP_ERASE_ISP,0x09,0x00,0xAC,0x9F,0x7F,0x00);
+		/*FlashMessage eraseChipReset =*/ doFlashCommand(Stk500v2Command.CMD_SET_PARAMETER,Stk500v2Command.PARAM_RESET_POLARITY.getToken(),0x01);
 		FlashMessage eraseEnterIsp = new FlashMessage();
 		prepareMessagePrefix(eraseEnterIsp,Stk500v2Command.CMD_ENTER_PROGMODE_ISP);
 		eraseEnterIsp.getRequest().add(0xC8); // timeout in ms

@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,7 +62,6 @@ import org.nongnu.pulsefire.device.ui.SpringLayoutGrid;
  */
 public class JTabPanelVariables extends AbstractFireTabPanel {
 
-	private boolean filterIndexed = true;
 	private String filterType = null;
 	private int filterData = 0;
 	private List<DeviceConfigVariableTableModel> models = null;
@@ -141,17 +139,6 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			}
 		});
 		filterPanel.add(filterBox);
-		filterPanel.add(new JLabel("Indexed"));
-		final JCheckBox filterIndexedCheckBox = new JCheckBox();
-		filterIndexedCheckBox.setSelected(true);
-		filterIndexedCheckBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				filterIndexed = filterIndexedCheckBox.isSelected();
-				fireUpdateModels();
-			}
-		});
-		filterPanel.add(filterIndexedCheckBox);
 		filterPanel.add(new JLabel("Variables"));
 		final JComboBox<String> filterDataBox = new JComboBox<String>(new String[] {"VALUES","META_ID","META_IDX","META_MAX"});
 		filterDataBox.addActionListener(new ActionListener() {
@@ -159,7 +146,6 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			public void actionPerformed(ActionEvent e) {
 				filterData = filterDataBox.getSelectedIndex();
 				filterBox.setEnabled(filterData == 0);
-				filterIndexedCheckBox.setEnabled(filterData == 0);
 				fireUpdateModels();
 			}
 		});
@@ -232,7 +218,7 @@ public class JTabPanelVariables extends AbstractFireTabPanel {
 			for (CommandName name:cmdMap.keySet()) {
 				result.put(name.name(), cmdMap.get(name));
 			}
-			if (filterIndexed && filterData == 0) {
+			if (filterData == 0) {
 				for (CommandName cmd:CommandName.values()) {
 					if (cmd.isIndexedA()==false) {
 						continue;

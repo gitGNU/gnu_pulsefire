@@ -69,10 +69,10 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 	private JButton defaultButton = null;
 	private JButton saveButton = null;
 	private JButton cancelButton = null;
-	private JList selectList = null;
-	private JList selectedList = null;
-	private DefaultListModel selectListModel = null;
-	private DefaultListModel selectedListModel = null;
+	private JList<CommandName> selectList = null;
+	private JList<CommandName> selectedList = null;
+	private DefaultListModel<CommandName> selectListModel = null;
+	private DefaultListModel<CommandName> selectedListModel = null;
 	private JButton moveLeft = null;
 	private JButton moveRight = null;
 	private JButton moveUp = null;
@@ -84,8 +84,8 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		this.setting=setting;
 		this.selectCommands=commands;
 		this.defaultCommands=defaultSelected;
-		this.selectListModel = new DefaultListModel();
-		this.selectedListModel = new DefaultListModel();
+		this.selectListModel = new DefaultListModel<CommandName>();
+		this.selectedListModel = new DefaultListModel<CommandName>();
 		
 		String settingValue = PulseFireUI.getInstance().getSettingsManager().getSettingString(setting);
 		selectedCommands = CommandName.decodeCommandList(settingValue);
@@ -124,7 +124,7 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 	private JPanel createLeftPanel() {
 		JPanel panel = JComponentFactory.createJFirePanel("Select");
 		
-		selectList = new JList(selectListModel);
+		selectList = new JList<CommandName>(selectListModel);
 		selectList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		selectList.addKeyListener(this);
 		
@@ -166,8 +166,8 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 		JPanel panel = JComponentFactory.createJFirePanel("Selected");
 		//panel.add(new JLabel("Active"));
 		
-		selectedListModel = new DefaultListModel();
-		selectedList = new JList(selectedListModel);
+		selectedListModel = new DefaultListModel<CommandName>();
+		selectedList = new JList<CommandName>(selectedListModel);
 		selectedList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		selectedList.addKeyListener(this);
 		
@@ -217,7 +217,7 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 	}
 	
 	private void orderSelectListModel() {
-		DefaultListModel listModel = selectListModel;
+		DefaultListModel<CommandName> listModel = selectListModel;
 		List<CommandName> orderList = new ArrayList<CommandName>(listModel.size());
 		for (int i=0;i<listModel.size();i++) {
 			Object o = listModel.get(i);
@@ -255,14 +255,14 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 			initListModels();
 			return;
 		} else if (e.getSource()==moveLeft) {
-			for (Object o:selectedList.getSelectedValues()) {
+			for (CommandName o:selectedList.getSelectedValuesList()) {
 				selectedListModel.removeElement(o);
 				selectListModel.addElement(o);
 			}
 			orderSelectListModel();
 			return;
 		} else if (e.getSource()==moveRight) {
-			for (Object o:selectList.getSelectedValues()) {
+			for (CommandName o:selectList.getSelectedValuesList()) {
 				if (selectedListModel.contains(o)) {
 					continue;
 				}
@@ -272,14 +272,14 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 			return;
 		} else if (e.getSource()==moveUp) {
 			if (selectedList.getSelectedIndex()>=0 && (selectedList.getSelectedIndex()-1)>=0) {
-				Object move = selectedListModel.get(selectedList.getSelectedIndex()-1);
+				CommandName move = selectedListModel.get(selectedList.getSelectedIndex()-1);
 				selectedListModel.set(selectedList.getSelectedIndex()-1, selectedList.getSelectedValue());
 				selectedListModel.set(selectedList.getSelectedIndex(), move);
 				selectedList.setSelectedIndex(selectedList.getSelectedIndex()-1);
 			}
 		} else if (e.getSource()==moveDown) {
 			if (selectedList.getSelectedIndex()>=0 && (selectedList.getSelectedIndex()+1)<selectedListModel.size()) {
-				Object move = selectedListModel.get(selectedList.getSelectedIndex()+1);
+				CommandName move = selectedListModel.get(selectedList.getSelectedIndex()+1);
 				selectedListModel.set(selectedList.getSelectedIndex()+1, selectedList.getSelectedValue());
 				selectedListModel.set(selectedList.getSelectedIndex(), move);
 				selectedList.setSelectedIndex(selectedList.getSelectedIndex()+1);
@@ -291,13 +291,13 @@ public class JCommandSettingListDialog extends JDialog implements ActionListener
 	public void keyReleased(KeyEvent keyEvent) {
 		if (keyEvent.getKeyCode()==KeyEvent.VK_ENTER) {
 			if (selectList.hasFocus()) {
-				for (Object o:selectList.getSelectedValues()) {
+				for (CommandName o:selectList.getSelectedValuesList()) {
 					selectedListModel.addElement(o);
 					selectListModel.removeElement(o);
 				}
 			}
 			if (selectedList.hasFocus()) {
-				for (Object o:selectedList.getSelectedValues()) {
+				for (CommandName o:selectedList.getSelectedValuesList()) {
 					selectedListModel.removeElement(o);
 					selectListModel.addElement(o);
 				}

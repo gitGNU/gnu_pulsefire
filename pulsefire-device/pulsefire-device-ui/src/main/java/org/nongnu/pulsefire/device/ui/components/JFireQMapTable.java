@@ -436,10 +436,10 @@ public class JFireQMapTable extends JPanel {
 	
 	public class MapVariableIdInputCellEditor extends AbstractCellEditor implements TableCellEditor,DeviceConnectListener,ActionListener {
 		private static final long serialVersionUID = -5036452317089888791L;
-		private JComboBox component = null;
+		private JComboBox<String> component = null;
 		
 		public MapVariableIdInputCellEditor() {
-			component = new JComboBox();
+			component = new JComboBox<String>();
 			component.addActionListener(this);
 			component.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 			PulseFireUI.getInstance().getDeviceManager().addDeviceConnectListener(this);
@@ -515,10 +515,10 @@ public class JFireQMapTable extends JPanel {
 	
 	public class MapVariableIdxInputCellEditor extends AbstractCellEditor implements TableCellEditor,ActionListener {
 		private static final long serialVersionUID = 1890108511408714142L;
-		private JComboBox component = null;
+		private JComboBox<String> component = null;
 		
 		public MapVariableIdxInputCellEditor() {
-			component = new JComboBox();
+			component = new JComboBox<String>();
 			component.addActionListener(this);
 			component.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 		}

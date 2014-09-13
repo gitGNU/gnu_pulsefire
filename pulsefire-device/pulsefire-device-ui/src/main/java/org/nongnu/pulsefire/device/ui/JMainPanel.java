@@ -233,8 +233,6 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 	private Component createJScrollPane(JFireTabPanel innerPanel) {
 		JScrollPane scrollPane = innerPanel.getJScrollPane();
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		//scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		//scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.getVerticalScrollBar().setUnitIncrement(10);
 		scrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		if (innerPanel.getJPanelSide()!=null) {
@@ -247,6 +245,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		contentSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,sp0,sp1);
 		contentSplitPane.setOneTouchExpandable(true);
 		contentSplitPane.setResizeWeight(0.8);
+		// FIXME: can be per tab
 //		contentSplitPane.setDividerLocation(PulseFireUI.getInstance().getSettingsManager().getSettingInteger(PulseFireUISettingKeys.UI_SPLIT_CONTENT));
 		sp0.setMinimumSize(new Dimension(150, 200));
 		sp1.setMinimumSize(new Dimension(150, 200));

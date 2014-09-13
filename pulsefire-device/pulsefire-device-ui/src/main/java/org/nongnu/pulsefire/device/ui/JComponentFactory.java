@@ -72,13 +72,13 @@ public class JComponentFactory {
 		return c;
 	}
 	
-	static public JComboBox createSettingsJComboBox(final PulseFireUISettingKeys key,Object[] items) {
-		JComboBox comboBox = new JComboBox(items);
+	static public JComboBox<String> createSettingsJComboBox(final PulseFireUISettingKeys key,String[] items) {
+		final JComboBox<String> comboBox = new JComboBox<String>(items);
 		comboBox.setSelectedItem(PulseFireUI.getInstance().getSettingsManager().getSettingString(key));
 		comboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, ""+((JComboBox)e.getSource()).getSelectedItem());
+				PulseFireUI.getInstance().getSettingsManager().setSettingString(key, ""+comboBox.getSelectedItem());
 			}
 		});
 		return comboBox;

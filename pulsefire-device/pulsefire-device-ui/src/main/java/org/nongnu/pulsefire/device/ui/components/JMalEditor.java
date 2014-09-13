@@ -388,16 +388,16 @@ public class JMalEditor extends JPanel implements ActionListener {
 
 		private static final long serialVersionUID = -2473578115689529402L;
 		private MalCommand malCommand = null;
-		private JComboBox cmdTypeBox = null;
-		private JComboBox varIdxBox = null;
-		private JComboBox progIdxBox = null;
-		private JComboBox valueTypeBox = null;
-		private JComboBox valueTypeLoadBox = null;
-		private JComboBox valueCommandBox = null;
-		private JComboBox valueCommandIdxBox = null;
-		private JComboBox extTypeComboBox = null;
-		private JComboBox extOpComboBox = null;
-		private JComboBox gotoLineComboBox = null;
+		private JComboBox<CmdType> cmdTypeBox = null;
+		private JComboBox<VarIndex> varIdxBox = null;
+		private JComboBox<VarIndex> progIdxBox = null;
+		private JComboBox<ValueType> valueTypeBox = null;
+		private JComboBox<ValueType> valueTypeLoadBox = null;
+		private JComboBox<CommandName> valueCommandBox = null;
+		private JComboBox<Integer> valueCommandIdxBox = null;
+		private JComboBox<ExtType> extTypeComboBox = null;
+		private JComboBox<String> extOpComboBox = null;
+		private JComboBox<Integer> gotoLineComboBox = null;
 		private JIntegerTextField valueRawTextField = null;
 		private volatile boolean actions = true;
 		private JLabel malCommandLabel = null;
@@ -416,16 +416,16 @@ public class JMalEditor extends JPanel implements ActionListener {
 		public JEditPanel() {
 			setLayout(new SpringLayout());
 			valueRawTextField	= new JIntegerTextField(-1, 6);
-			cmdTypeBox			= new JComboBox(MalCommand.CmdType.values());
-			varIdxBox			= new JComboBox(MalCommand.VarIndex.values());
-			progIdxBox			= new JComboBox(MalCommand.VarIndex.values());
-			valueTypeBox		= new JComboBox(MalCommand.ValueType.values());
-			valueTypeLoadBox	= new JComboBox(MalCommand.ValueType.values());
-			extTypeComboBox		= new JComboBox(MalCommand.ExtType.values());
-			valueCommandBox		= new JComboBox(CommandName.valuesMapIndex().toArray());
-			valueCommandIdxBox	= new JComboBox();
-			extOpComboBox		= new JComboBox();
-			gotoLineComboBox	= new JComboBox();
+			cmdTypeBox			= new JComboBox<CmdType>(MalCommand.CmdType.values());
+			varIdxBox			= new JComboBox<VarIndex>(MalCommand.VarIndex.values());
+			progIdxBox			= new JComboBox<VarIndex>(MalCommand.VarIndex.values());
+			valueTypeBox		= new JComboBox<ValueType>(MalCommand.ValueType.values());
+			valueTypeLoadBox	= new JComboBox<ValueType>(MalCommand.ValueType.values());
+			extTypeComboBox		= new JComboBox<ExtType>(MalCommand.ExtType.values());
+			valueCommandBox		= new JComboBox<CommandName>(CommandName.valuesMapIndex().toArray(new CommandName[]{}));
+			valueCommandIdxBox	= new JComboBox<Integer>();
+			extOpComboBox		= new JComboBox<String>();
+			gotoLineComboBox	= new JComboBox<Integer>();
 			valueTypeBox.removeItemAt(valueTypeBox.getItemCount()-1); // remove reversed load 
 			
 			malCommandDataLabel		= new JLabel();

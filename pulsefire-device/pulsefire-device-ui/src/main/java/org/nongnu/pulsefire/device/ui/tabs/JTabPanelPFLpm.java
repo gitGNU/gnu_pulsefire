@@ -701,8 +701,8 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 		private JButton saveButton = null;
 		private JButton cancelButton = null;
 		private JIntegerTextField orderField = null;
-		private JComboBox stepCommandBox = null;
-		private JComboBox stepCommandIndexBox = null;
+		private JComboBox<CommandName> stepCommandBox = null;
+		private JComboBox<Integer> stepCommandIndexBox = null;
 		private JIntegerTextField startValueField = null;
 		private JIntegerTextField stopValueField = null;
 		private JIntegerTextField stepValueField = null;
@@ -761,7 +761,7 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 				if (cn.isIndexedA()) {
 					stepCommandIndexBox.removeAllItems();
 					for (int i=0;i<cn.getMaxIndexA();i++) {
-						stepCommandIndexBox.addItem(""+i);
+						stepCommandIndexBox.addItem(i);
 					}
 					stepCommandIndexBox.setEnabled(true);
 				} else {
@@ -786,13 +786,13 @@ public class JTabPanelPFLpm extends AbstractFireTabPanel implements ActionListen
 					cmds.remove(s.getCommandName());
 				}
 			}
-			stepCommandBox = new JComboBox(cmds.toArray());
+			stepCommandBox = new JComboBox<CommandName>(cmds.toArray(new CommandName[]{}));
 			stepCommandBox.setSelectedItem(step.getCommandName());
 			stepCommandBox.addActionListener(this);
 			panel.add(stepCommandBox);
 			
 			panel.add(new JLabel("Index"));
-			stepCommandIndexBox = new JComboBox();
+			stepCommandIndexBox = new JComboBox<Integer>();
 			stepCommandIndexBox.setEnabled(false);
 			panel.add(stepCommandIndexBox);
 			

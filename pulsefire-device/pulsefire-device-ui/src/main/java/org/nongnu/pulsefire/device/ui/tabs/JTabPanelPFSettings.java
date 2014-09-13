@@ -90,7 +90,7 @@ public class JTabPanelPFSettings extends AbstractFireTabPanel {
 		panel.setLayout(new SpringLayout());
 		
 		panel.add(JComponentFactory.createJLabel("UI Colors"));
-		JComboBox colors = JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.LAF_COLORS,new String[] {"dark-red","yellow-purple","light-blue","black-white"});
+		JComboBox<String> colors = JComponentFactory.createSettingsJComboBox(PulseFireUISettingKeys.LAF_COLORS,new String[] {"dark-red","yellow-purple","light-blue","black-white"});
 		colors.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

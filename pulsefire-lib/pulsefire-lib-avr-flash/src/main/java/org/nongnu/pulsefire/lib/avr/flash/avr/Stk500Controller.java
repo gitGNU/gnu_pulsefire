@@ -152,7 +152,7 @@ public class Stk500Controller extends AbstractStk500Controller {
 		progress = 1;
 		rebootDevice();
 		progress = 2;
-
+		
 		// Sync serial with device
 		for (int i = 0; i < 5; i++) {
 			doFlashCommand(Stk500Command.STK_GET_SYNC);
@@ -181,17 +181,17 @@ public class Stk500Controller extends AbstractStk500Controller {
 		logMessage("Firmware verion: "+(versionSwMajor.getResponse().get(1))+"."+(versionSwMinor.getResponse().get(1)));
 
 		FlashMessage vtarget = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x84);
-		FlashMessage varef = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x85);
-		FlashMessage osc0 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x86);
-		FlashMessage osc1 = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x87);
-		FlashMessage sck = doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x89);
+		/*FlashMessage varef =*/ doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x85);
+		/*FlashMessage osc0 =*/ doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x86);
+		/*FlashMessage osc1 =*/ doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x87);
+		/*FlashMessage sck =*/ doFlashCommand(Stk500Command.STK_GET_PARAMETER,0x89);
 		double voltageTarget = new Double(vtarget.getResponse().get(1))/10;
 		logMessage("Vtarget: "+voltageTarget);
 		
 		//FlashMessage deviceFlags = doFlashCommand(Stk500Command.STK_SET_DEVICE,0x86,0x00,0x00,0x01,0x01,0x01,0x01,0x03,0xFF,0xFF,0xFF,0xFF,0x00,0x80,0x04,0x00,0x00,0x00,0x80,0x00);
 		//FlashMessage deviceFlagsExt = doFlashCommand(Stk500Command.STK_SET_DEVICE_EXT,0x05,0x04,0xd7,0xc2,0x00);
 
-		FlashMessage enterProg = doFlashCommand(Stk500Command.STK_ENTER_PROGMODE);
+		doFlashCommand(Stk500Command.STK_ENTER_PROGMODE);
 		logMessage("AVR device initialized");
 		
 		FlashMessage deviceSign = doFlashCommand(Stk500Command.STK_READ_SIGN);
@@ -201,28 +201,29 @@ public class Stk500Controller extends AbstractStk500Controller {
 			throw new FlashException("Device signature is different: "+Integer.toHexString(deviceId)+" expected: "+Integer.toHexString(flashControllerConfig.getDeviceSignature()));
 		}
 		
-		FlashMessage lFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
-		FlashMessage lFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
+		//FIXME: check why read fuse 3x
+		/*FlashMessage lFuse0 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
+		/*FlashMessage lFuse1 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
 		FlashMessage lFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x00,0x00,0x00);
 		logMessage("lfuse value: 0x"+Integer.toHexString(lFuse2.getResponse().get(1)));
 		
-		FlashMessage hFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
-		FlashMessage hFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
+		/*FlashMessage hFuse0 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
+		/*FlashMessage hFuse1 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
 		FlashMessage hFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x58,0x08,0x00,0x00);
 		logMessage("hfuse value: 0x"+Integer.toHexString(hFuse2.getResponse().get(1)));
 		
-		FlashMessage eFuse0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
-		FlashMessage eFuse1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
+		/*FlashMessage eFuse0 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
+		/*FlashMessage eFuse1 =*/ doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
 		FlashMessage eFuse2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0x50,0x08,0x00,0x00);
 		logMessage("efuse value: 0x"+Integer.toHexString(eFuse2.getResponse().get(1) & 0x07));
 		
 		// Erase flash
 		if (flashControllerConfig.isFlashErase()) {
 			logMessage("Erase flash memery.");
-			FlashMessage eraseFlash0 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFC,0x00);
-			FlashMessage eraseFlash1 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFD,0x00);
-			FlashMessage eraseFlash2 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFE,0x00);
-			FlashMessage eraseFlash3 = doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFF,0x00);
+			doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFC,0x00);
+			doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFD,0x00);
+			doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFE,0x00);
+			doFlashCommand(Stk500Command.STK_UNIVERSAL,0xA0,0x03,0xFF,0x00);
 		}
 		
 		// Chip erase

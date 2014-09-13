@@ -104,12 +104,12 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 	private Logger logger = null;
 	private FlashControllerConfig flashConfig = null;
 	private volatile FlashProgramController flashProgramController = null;
-	private JComboBox mcuTypeBox = null;
-	private JComboBox mcuSpeedBox = null;
+	private JComboBox<String> mcuTypeBox = null;
+	private JComboBox<String> mcuSpeedBox = null;
 	private JPanel filterItemPanel = null;
 	private Map<String,FilterItem> filterItems = new HashMap<String,FilterItem>(10);
-	private JComboBox portsComboBox = null;
-	private JComboBox progComboBox = null;
+	private JComboBox<String> portsComboBox = null;
+	private JComboBox<String> progComboBox = null;
 	private JCheckBox progVerboseBox = null; 
 	private JCheckBox progVerifyBox = null;
 	private JProgressBar flashProgressBar = null;
@@ -230,14 +230,14 @@ public class JFlashDialog extends JDialog implements ActionListener,ListSelectio
 		burnOptionPanel.add(burnDeviceId);
 		burnOptionPanel.add(new JLabel("Port:"));
 		DevicePortsComboBoxModel portModel = new DevicePortsComboBoxModel();
-		portsComboBox = new JComboBox(portModel);
+		portsComboBox = new JComboBox<String>(portModel);
 		portsComboBox.addPopupMenuListener(portModel);
 		burnOptionPanel.add(portsComboBox);
 		burnOptionPanel.add(new JLabel("Programer:"));
 		if (nativeFlashCmd!=null && nativeFlashCmd.isEmpty()==false && nativeFlashConfig!=null && nativeFlashConfig.isEmpty()==false) {
-			progComboBox = new JComboBox(new String[] {"arduino","stk500v2","native-arduino","native-stk500v1","native-stk500v2"});
+			progComboBox = new JComboBox<String>(new String[] {"arduino","stk500v2","native-arduino","native-stk500v1","native-stk500v2"});
 		} else {
-			progComboBox = new JComboBox(new String[] {"arduino","stk500v2"});
+			progComboBox = new JComboBox<String>(new String[] {"arduino","stk500v2"});
 		}
 		burnOptionPanel.add(progComboBox);
 		burnOptionPanel.add(new JLabel("logVerbose:"));
