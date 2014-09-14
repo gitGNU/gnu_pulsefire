@@ -30,11 +30,15 @@ import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
@@ -141,6 +145,9 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("AutoUpdateSpeedCounters",new AutoUpdateSpeedCounters(),1000));
 		PulseFireUI.getInstance().getEventTimeManager().addEventTimeTriggerConnected(new EventTimeTrigger("AutoUpdateCounters",new AutoUpdateCounters(),100));
 		updateCounters();
+		
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F3"),"toggleConnectAction");
+		getActionMap().put("toggleConnectAction",toggleConnectAction);
 	}
 	
 	class AutoUpdateCounters implements Runnable {
@@ -156,6 +163,15 @@ public class JTopPanelSerial extends JPanel implements ActionListener,DeviceConn
 			updateSpeedCounters();
 		}
 	}
+	
+	private Action toggleConnectAction = new AbstractAction("toggleConnectAction") {
+		private static final long serialVersionUID = -857683386678673114L;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JTopPanelSerial.this.actionPerformed(null); // FIXME: make method 
+		}
+	};
+	
 	
 	public void autoConnect() {
 		Boolean autoConnect = PulseFireUI.getInstance().getSettingsManager().getSettingBoolean(PulseFireUISettingKeys.AUTO_CONNECT);

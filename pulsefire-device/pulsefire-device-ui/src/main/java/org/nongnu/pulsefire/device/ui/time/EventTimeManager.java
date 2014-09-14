@@ -41,6 +41,7 @@ public class EventTimeManager {
 	public EventTimeManager() {
 		logger = Logger.getLogger(EventTimeManager.class.getName());
 		eventTimeTriggers = new ArrayList<EventTimeTrigger>(100);
+		addEventTimeTrigger(new EventTimeTrigger("LogEventSpeed",new LogEventSpeed(),1000));
 	}
 	
 	public boolean isRunning() {
@@ -50,7 +51,6 @@ public class EventTimeManager {
 	public void start() {
 		eventTimeThread = new EventTimeThread(this);
 		eventTimeThread.start();
-		addEventTimeTrigger(new EventTimeTrigger("LogEventSpeed",new LogEventSpeed(),1000));
 	}
 	
 	public void shutdown() {

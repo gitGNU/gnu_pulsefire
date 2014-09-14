@@ -27,6 +27,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsDevice;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -42,7 +45,11 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Application;
@@ -196,14 +203,14 @@ public class PulseFireUI extends SingleFrameApplication {
 			mainView.setComponent(new JMainPanel());
 			mainView.getFrame().setTitle(mainView.getFrame().getTitle()+" "+buildInfo.getVersion());
 			// //new JFireGlassPane(mainView.getFrame());
-				
+			
+			mainView.getComponent().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F11"),"toggleFullScreen");
+			mainView.getComponent().getActionMap().put("toggleFullScreen",toggleFullScreenAction);
+			
+			show(mainView); // init bsaf
 			if (fullScreen) {
-				GraphicsDevice gd = mainView.getFrame().getGraphicsConfiguration().getDevice(); 
-				mainView.getFrame().setUndecorated(true);
-				gd.setFullScreenWindow(mainView.getFrame());
-				mainView.getFrame().validate();
-			} else {
-				show(mainView);
+				fullScreen = !fullScreen;
+				toggleFullScreen();
 			}
 			
 			eventTimeManager.addEventTimeTrigger(new EventTimeTrigger("refreshData",new PulseFireDataPuller(),PulseFireDataPuller.INIT_SPEED));
@@ -224,6 +231,42 @@ public class PulseFireUI extends SingleFrameApplication {
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+	
+	private Action toggleFullScreenAction = new AbstractAction("toggleFullScreen") {
+		private static final long serialVersionUID = -857683386678673114L;
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			toggleFullScreen();
+		}
+	};
+	
+	private void toggleFullScreen() {
+		if (getDeviceManager().isConnected()) {
+			// Only allow switch when disconnected else we get low level errors;
+			// NPE: at java.awt.Component$BltBufferStrategy.contentsLost(Component.java:4455)
+			// OOM: Java heap space at java.awt.image.DataBufferInt.<init>
+			//note: eventTimeManager.shutdown(); does not help
+			return;
+		}
+		FrameView mainView = getMainView();
+		GraphicsDevice gd = mainView.getFrame().getGraphicsConfiguration().getDevice();
+		if (!gd.isFullScreenSupported()) {
+			return;
+		}
+
+		mainView.getFrame().dispose();
+		if (!fullScreen) {
+			mainView.getFrame().setUndecorated(true);
+			gd.setFullScreenWindow(mainView.getFrame());
+			
+		} else {
+			mainView.getFrame().setUndecorated(false);
+			gd.setFullScreenWindow(null);
+		}
+		mainView.getFrame().pack();
+		mainView.getFrame().setVisible(true);
+		fullScreen = !fullScreen;
 	}
 	
 	private String installColorsLaF() {
