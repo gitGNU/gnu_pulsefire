@@ -55,20 +55,21 @@ int main(void) {
 	Serial_setup();      // Setup serial lib
 	Vars_setup();        // Setup vars
 	Chip_setup();        // Setup chips using vars
+
 #if defined(SF_ENABLE_VSC0) || defined(SF_ENABLE_VSC1)
 	Vsc_setup();         // Setup vars steps
 #endif
 #ifdef SF_ENABLE_PWM
 	PWM_send_output(PULSE_DATA_OFF);
 #endif
-
 #ifdef SF_ENABLE_LCD
 	Lcd_setup();         // needs interrupts in spi mode
 #endif
-#ifdef SF_ENABLE_DEBUG_HTX
-	Debug_htx_c('S');
-#endif
 
+	// FIXME: init-dep serial works after Chip_setup(); not before.
+	Serial_println();
+	Serial_printCharP(pmPromt);
+	Serial_println();
 	for(;;) {
 		// High speed loop
 		pf_data.sys_loop0_cnt++;

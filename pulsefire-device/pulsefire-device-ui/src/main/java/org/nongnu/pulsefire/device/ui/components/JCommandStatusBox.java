@@ -89,11 +89,13 @@ public class JCommandStatusBox extends JLabel {
 		PulseFireUI.getInstance().getDeviceManager().addDeviceCommandListener(stepCommand, new DeviceCommandListener() {
 			@Override
 			public void commandReceived(Command command) {
-				Command display;
-				if (index==null) {
-					display = PulseFireUI.getInstance().getDeviceManager().getDeviceData().getDeviceParameter(displayCommand);
-				} else {
-					display = PulseFireUI.getInstance().getDeviceManager().getDeviceData().getDeviceParameterIndexed(displayCommand,index);
+				Command display = null;
+				if (!displayCommand.equals(command.getCommandName())) {
+					if (index==null) {
+						display = PulseFireUI.getInstance().getDeviceManager().getDeviceData().getDeviceParameter(displayCommand);
+					} else {
+						display = PulseFireUI.getInstance().getDeviceManager().getDeviceData().getDeviceParameterIndexed(displayCommand,index);
+					}
 				}
 				String displayPrefix = "Step ";
 				if (display != null) {

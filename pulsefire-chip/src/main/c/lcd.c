@@ -479,7 +479,7 @@ void Lcd_draw_adc(void) {
 		line++;
 		Lcd_printCharP(pmChipFlagADC);
 		Lcd_print(i);
-		Lcd_printCharP(pmSetSpaced);
+		Lcd_write(CMD_EQUALS,LCD_SEND_DATA);
 		Lcd_printNum(valueAdc,5);
 	}
 }
@@ -531,7 +531,7 @@ void Lcd_draw_plp(void) {
 		Lcd_print(i);
 		Lcd_printSpace();
 		Lcd_printChar(Vars_getName(var_id));
-		Lcd_printCharP(pmSetSpaced);
+		Lcd_write(CMD_EQUALS,LCD_SEND_DATA);
 		Lcd_printNum(Vars_getValue(var_id,ZERO,ZERO),5);
 	}
 }

@@ -37,7 +37,7 @@ Version 1.1.0:
 - Removed all(5) help arguments, now it only lists the help.
 - Removed 2 pulse_trig's now its LOOP or PULSE_FIRE.
 - GUI: Added serial cmd/error counters and improved serial code.
-- GUI: Added 500ms and 1 second pull data speed.
+- GUI: Added 250,500 and 1000 ms pull data speed.
 - Redone info_freq from pwm step data.
 - Renamed: mal_mticks to mal_wait and made 8b.
 - Redone main pulsefire time loop and removed *_time_cnt.
@@ -56,8 +56,10 @@ Version 1.1.0:
 - Made avr serial send use buffed lines.
 - GUI: Dropped experimental audio scope code.
 - GUI: Improved gui performance, so uses less cpu.
-- GUI: Reworked all tabs layout.
+- GUI: Reworked all tabs layouts.
 - GUI: Added keys; F3=connect/disconnect F11=toggleFullScreen (only when disconnected)
+- Dropped "==" was 'get' indicator now all response is single equals sign. 
+- Made adc skip readout if input not enabled.
 
 
 Version 1.0.4:

@@ -25,8 +25,9 @@
 #include "serial.h"
 
 void Serial_print(char c) {
-	while (pf_data.serial_tx_lock != ZERO) {}; // wait int is disabled
-
+	if (pf_data.serial_tx_idx_buff >= SERIAL_TX_BUFF_SIZE) {
+		pf_data.serial_tx_idx_buff = ZERO; // loop ring buffer
+	}
 	pf_data.serial_tx_buff[pf_data.serial_tx_idx_buff]=c;
 	pf_data.serial_tx_idx_buff++;
 }
@@ -69,14 +70,14 @@ void Serial_printCharP(const char* argu) {
 
 void Serial_println_done_P(const char* argu) {
 	Serial_printCharP(argu);
-	Serial_printCharP(pmSetSpaced);
+	Serial_print(CMD_EQUALS);
 	Serial_printCharP(pmDone);
 	Serial_println();
 }
 
 void Serial_println_get_P2(const char* argu0,const char* argu1) {
 	Serial_printCharP(argu0);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 	Serial_printCharP(argu1);
 	Serial_println();
 }
@@ -95,7 +96,7 @@ void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value) {
 					Serial_print('@');
 				}
 				if(i<10) {Serial_print('0');} Serial_printDec((int)i);
-				Serial_printCharP(pmSetSpaced);
+				Serial_print(CMD_EQUALS);
 				Serial_printDec(value);
 				Serial_println();
 			}
@@ -107,7 +108,7 @@ void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value) {
 				Serial_print('@');
 			}
 			if(idxA<10) {Serial_print('0');} Serial_printDec((int)idxA);
-			Serial_printCharP(pmSetSpaced);
+			Serial_print(CMD_EQUALS);
 			Serial_printDec(value);
 			Serial_println();
 		}
@@ -118,7 +119,7 @@ void Serial_printVar(uint8_t idx,uint8_t idxA,uint16_t value) {
 			Serial_printHex(idx);
 			Serial_print('@');
 		}
-		Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
 		Serial_printDec(value);
 		Serial_println();
 	}
@@ -136,7 +137,7 @@ void cmd_print_var_indexed(uint8_t i,uint8_t setIndexA) {
 	}
 	if(setIndexA<10) {Serial_print('0');}
 	Serial_printDec((int)setIndexA);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 	if (Vars_getBitType(i) == PFVT_32BIT) {
 		Serial_print(Vars_getValue32(i,setIndexA));
 	} else {
@@ -164,11 +165,7 @@ void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 			Serial_printHex(i);
 			Serial_print('@');
 		}
-		if (isSet) {
-			Serial_printCharP(pmSetSpaced);
-		} else {
-			Serial_printCharP(pmGetSpaced);
-		}
+		Serial_print(CMD_EQUALS);
 		if (Vars_getBitType(i) == PFVT_32BIT) {
 			uint32_t value = Vars_getValue32(i,0);
 			u32toa(value,pf_data.unpstr_buff);
@@ -194,7 +191,7 @@ void cmd_print_var(uint8_t i,boolean limit_to_steps,boolean isSet) {
 // Print long value
 void cmd_print_info_value_long(const char* dstring,uint32_t value) {
 	Serial_printCharP(dstring);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 	u32toa(value,pf_data.unpstr_buff);
 	Serial_printChar(pf_data.unpstr_buff);
 	Serial_println();
@@ -207,7 +204,7 @@ void cmd_print_info_freq(void) {
 		Serial_printCharP(pmCmdInfoFreqData);
 		if(i<10) {Serial_print('0');}
 		Serial_printDec((int)i);
-		Serial_printCharP(pmGetSpaced);
+		Serial_print(CMD_EQUALS);
 		u32toa(calc_pwm_freq(i),pf_data.unpstr_buff);
 		Serial_printChar(pf_data.unpstr_buff);
 		Serial_print(' ');
@@ -222,14 +219,14 @@ void cmd_print_info_freq(void) {
 void cmd_print_info_chip(void) {
 
 	Serial_printCharP(pmChipVersion);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 	Serial_printDec(PULSE_FIRE_VERSION/10 % 10);
 	Serial_print('.');
 	Serial_printDec(PULSE_FIRE_VERSION % 10);
 	Serial_println();
 
 	Serial_printCharP(pmChipConfMax);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 	Serial_printDec(CHIP_EEPROM_SIZE);
 	Serial_println();
 
@@ -241,7 +238,7 @@ void cmd_print_info_chip(void) {
 	Serial_println_get_P2(pmChipBuild,               pmChipBuildDate);
 
 	Serial_printCharP(pmChipFlags);
-	Serial_printCharP(pmGetSpaced);
+	Serial_print(CMD_EQUALS);
 #ifdef SF_ENABLE_PWM
 	Serial_printCharP(pmChipFlagPWM);
 #endif
@@ -343,7 +340,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 			}
 			Serial_printCharP(pmCmdInfoVarsPrefix);
 			Serial_printChar(Vars_getName(i));
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			Serial_printDec(i); // index id
 			Serial_print(' ');
 			Serial_printDec(Vars_getBitType(i));
@@ -386,7 +383,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 			Serial_print('a');
 			if (i <= 9) { Serial_print('0'); }
 			Serial_printDec((int)i);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			uint16_t data_row = pf_conf.ppm_data_a[i];
 			int ii=OUTPUT_MAX-ONE;
 			for (ii=OUTPUT_MAX-ONE;ii>=ZERO;ii-- ) {
@@ -405,7 +402,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 			Serial_print('b');
 			if (i <= 9) { Serial_print('0'); }
 			Serial_printDec((int)i);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			uint16_t data_row = pf_conf.ppm_data_b[i];
 			int ii=OUTPUT_MAX-ONE;
 			for (ii=OUTPUT_MAX-ONE;ii>=ZERO;ii-- ) {
@@ -423,7 +420,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 
 	} else if (strcmp(cmd,UNPSTR(pmCmdInfoPWM)) == ZERO) {
 		Serial_printCharP(pmCmdInfoPWMSize);
-		Serial_printCharP(pmGetSpaced);
+		Serial_print(CMD_EQUALS);
 		Serial_printDec(pf_data.pwm_data_size);
 		Serial_println();
 		for (i=ZERO;i < pf_data.pwm_data_size;i++) {
@@ -432,7 +429,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 			Serial_printCharP(pmCmdInfoPWMData);
 			if (i <= 9) { Serial_print('0'); }
 			Serial_printDec(i);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			int ii=OUTPUT_MAX-ONE;
 			for (ii=OUTPUT_MAX-ONE;ii>=ZERO;ii-- ) {
 				uint16_t out = (data_out >> ii) & ONE;
@@ -470,7 +467,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 	} else if (strcmp(cmd,UNPSTR(pmCmdReqTrigger)) == ZERO) {
 		if (args[ZERO] == NULL) {
 			Serial_printCharP(pmCmdReqTrigger);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			Serial_printDec(ZERO);
 			Serial_println();
 			return;
@@ -483,7 +480,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 		}
 		if (idx > PF_VARS_SIZE || Vars_isTrigger(idx)==false) {
 			Serial_printCharP(pmCmdReqTrigger);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			Serial_printDec(ZERO);
 			Serial_println();
 			return;
@@ -498,7 +495,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 		}
 		Vars_setValue(idx,idxA,ZERO,ONE); // use normal so print fire change 
 		Serial_printCharP(pmCmdReqTrigger);
-		Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
 		Serial_printDec(idx);
 		Serial_print(' ');
 		Serial_printDec(idxA);
@@ -517,7 +514,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 
 			Serial_printCharP(pmCmdReqDoc);
 			Serial_printDec(port);
-			Serial_printCharP(pmSetSpaced);
+			Serial_print(CMD_EQUALS);
 			Serial_printDec(value);
 			Serial_println();
 		} else {
@@ -526,10 +523,8 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 
 	} else if (strcmp(cmd,UNPSTR(pmDataTXPush)) == ZERO) {
 		Serial_printCharP(pmDataTXPush);
-		if (args[0] == NULL) {
-			Serial_printCharP(pmGetSpaced);
-		} else {
-			Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
+		if (args[0] != NULL) {
 			uint16_t push = atou16(args[0]);
 			if (push == ZERO) {  pf_data.req_tx_push = ZERO;
 			} else {             pf_data.req_tx_push = ONE;
@@ -539,10 +534,8 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmDataTXEcho)) == ZERO) {
 		Serial_printCharP(pmDataTXEcho);
-		if (args[0] == NULL) {
-			Serial_printCharP(pmGetSpaced);
-		} else {
-			Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
+		if (args[0] != NULL) {
 			uint16_t echo = atou16(args[0]);
 			if (echo == ZERO) {  pf_data.req_tx_echo = ZERO;
 			} else {             pf_data.req_tx_echo = ONE;
@@ -552,10 +545,8 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmDataTXPromt)) == ZERO) {
 		Serial_printCharP(pmDataTXPromt);
-		if (args[0] == NULL) {
-			Serial_printCharP(pmGetSpaced);
-		} else {
-			Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
+		if (args[0] != NULL) {
 			uint16_t promt = atou16(args[0]);
 			if (promt == ZERO) {  pf_data.req_tx_promt = ZERO;
 			} else {              pf_data.req_tx_promt = ONE;
@@ -565,10 +556,8 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 		Serial_println();
 	} else if (strcmp(cmd,UNPSTR(pmDataTXHex)) == ZERO) {
 		Serial_printCharP(pmDataTXHex);
-		if (args[0] == NULL) {
-			Serial_printCharP(pmGetSpaced);
-		} else {
-			Serial_printCharP(pmSetSpaced);
+		Serial_print(CMD_EQUALS);
+		if (args[0] != NULL) {
 			uint16_t promt = atou16(args[0]);
 			if (promt == ZERO) {  pf_data.req_tx_hex = ZERO;
 			} else {              pf_data.req_tx_hex = ONE;
@@ -581,7 +570,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 	} else if (strcmp(cmd,UNPSTR(pmConfMALCode)) == ZERO) {
 		if (args[ZERO] == NULL) {
 			Serial_printCharP(pmConfMALCode);
-			Serial_printCharP(pmGetSpaced);
+			Serial_print(CMD_EQUALS);
 			for (uint16_t addr=ZERO;addr < MAL_CODE_SIZE;addr++) {
 				Serial_printHex(pf_conf.mal_code[addr]);
 			}
@@ -596,7 +585,7 @@ void cmd_execute(volatile char* cmd, volatile char** args) {
 				pf_conf.mal_code[base+3] = (uint8_t) (res >> 0 ) & 0xFF;
 			}
 			Serial_printCharP(pmConfMALCode);
-			Serial_printCharP(pmSetSpaced);
+			Serial_print(CMD_EQUALS);
 			for (uint16_t addr=ZERO;addr < MAL_CODE_SIZE;addr++) {
 				Serial_printHex(pf_conf.mal_code[addr]);
 			}
@@ -732,21 +721,12 @@ void Serial_rx_int(uint8_t c) {
 	if (pf_data.cmd_buff_idx > CMD_BUFF_SIZE) {
 		pf_data.cmd_buff_idx = ZERO; // protect against to long input
 	}
-	if (c=='\b') {
-		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// backspace
-		pf_data.cmd_buff_idx--;
-		//if (pf_data.req_tx_echo == ONE) {
-			//Serial_print(' ');
-			//Serial_print(c); // TODO: fixme can't echo on int
-			//Chip_out_serial(' ');
-			//Chip_out_serial(c);
-		//}
-	} else if (c=='\n') {
+	if (c=='\n') {
 		pf_data.cmd_buff[pf_data.cmd_buff_idx] = '\0';// newline
 		pf_data.cmd_buff_idx = ZERO;
 		pf_data.cmd_process  = ZERO;
 	} else {
-		pf_data.cmd_buff[pf_data.cmd_buff_idx] = c;   // store in buffer
+		pf_data.cmd_buff[pf_data.cmd_buff_idx] = c; // store in buffer
 		pf_data.cmd_buff_idx++;
 	}
 }
@@ -769,8 +749,8 @@ void Serial_setup(void) {
 
 	// delay is needed else we get junk on terminal.
 	Chip_delay(100);
-	Serial_println();
-	Serial_printCharP(pmPromt);
-	Chip_out_serial();
+	//Serial_println();
+	//Serial_printCharP(pmPromt);
+	//Serial_println();
 }
 

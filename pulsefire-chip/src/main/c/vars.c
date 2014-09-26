@@ -853,7 +853,7 @@ uint16_t Vars_setValueImpl(uint8_t idx,uint8_t idxA,uint8_t idxB,uint16_t value,
 				}
 			}
 			if (intBuff==true) {
-			  return value; // done setting int buff
+				return value; // done setting int buff
 			}
 	//	}
 	}

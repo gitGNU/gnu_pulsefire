@@ -84,9 +84,11 @@ typedef union longmap Longmap; */
 #define FREQ_MUL                   100   // freq is in 100 so 11112 = 111.12 Hz.
 #define OUTPUT_MAX                  16   // Max support for 16 outputs.
 #define SERIAL_SPEED              115200 // Connect with this speed.
+#define SERIAL_TX_BUFF_SIZE        100   // serial transmit buffer (chip_flags is longest cmd; 87chars)
 #define CMD_BUFF_SIZE               40   // max command length
 #define CMD_MAX_ARGS                8    // max 8 arguments to command
 #define CMD_WHITE_SPACE       " \r\t\n"  // All diffent white space chars to split commands on
+#define CMD_EQUALS                 '='   // Cmds equals sign.
 #define PULSE_DATA_OFF           0x0000  // Data for OFF output
 #define PULSE_DATA_ON            0xFFFF  // Data for ON  output
 #define PULSE_BANK_MAX              2    // 0=A, 1=A, 2=AB
@@ -384,7 +386,7 @@ typedef struct {
 
 	volatile char          cmd_buff[CMD_BUFF_SIZE];       // Command buffer for serial cmds
 	volatile uint8_t       cmd_buff_idx;                  // Command index
-	volatile char          serial_tx_buff[CMD_BUFF_SIZE+CMD_BUFF_SIZE]; // todo: check overflow
+	volatile char          serial_tx_buff[SERIAL_TX_BUFF_SIZE];
 	volatile uint8_t       serial_tx_idx_buff;
 	volatile uint8_t       serial_tx_idx_int;
 	volatile uint8_t       serial_tx_lock;

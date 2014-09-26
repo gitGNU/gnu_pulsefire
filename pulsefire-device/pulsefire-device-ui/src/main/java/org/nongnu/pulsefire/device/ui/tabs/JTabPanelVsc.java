@@ -38,15 +38,17 @@ public class JTabPanelVsc extends AbstractFireTabPanel {
 				createFlowLeftFirePanel("config0",
 					createCommandDial(CommandName.vsc_0time),
 					createCommandDial(CommandName.vsc_0step),
-					createLabeledGrid(1, 1,
-						createCommandComboBoxLabelGrid(CommandName.vsc_0mode)
+					createLabeledGrid(2, 1,
+						createCommandComboBoxLabelGrid(CommandName.vsc_0mode),
+						createCommandStatusBoxLabelGrid(CommandName.vsc_0mode, CommandName.vsc_0time_cnt, CommandName.vsc_0time_cnt)
 					)
 				),
 				createFlowLeftFirePanel("config1",
 					createCommandDial(CommandName.vsc_1time),
 					createCommandDial(CommandName.vsc_1step),
-					createLabeledGrid(1, 1,
-						createCommandComboBoxLabelGrid(CommandName.vsc_1mode)
+					createLabeledGrid(2, 1,
+						createCommandComboBoxLabelGrid(CommandName.vsc_1mode),
+						createCommandStatusBoxLabelGrid(CommandName.vsc_1mode, CommandName.vsc_1time_cnt, CommandName.vsc_1time_cnt)
 					)
 				),
 				createCommandQMapTable(CommandName.vsc_0map),

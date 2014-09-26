@@ -26,8 +26,6 @@
 //
 // All strings in pulsefire (except debug stuff)
 //
-const char pmGetSpaced[]               CHIP_PROGMEM = "==";
-const char pmSetSpaced[]               CHIP_PROGMEM = "=";
 const char pmPulseFire[]               CHIP_PROGMEM = "PulseFire ";
 const char pmPromt[]                   CHIP_PROGMEM = "root@pulsefire: ";
 const char pmDone[]                    CHIP_PROGMEM = "done";

@@ -31,13 +31,11 @@ package org.nongnu.pulsefire.device.io.protocol;
 public class Command {
 
 	static public final char   LINE_END = '\n';
-	static public final String SEPERATOR = " ";
-	static public final String RESPONSE_SET = "=";
-	static public final String RESPONSE_GET = "==";
+	static public final String VALUE_SEPERATOR = " ";
+	static public final String NAME_SEPERATOR = "=";
 	
 	private String lineRaw = null;
 	private CommandName commandName = null;
-	private CommandWireType commandType = null;
 	private String argu0 = null;
 	private String argu1 = null;
 	private String argu2 = null;
@@ -60,12 +58,6 @@ public class Command {
 	}
 	public void setCommandName(CommandName commandName) {
 		this.commandName = commandName;
-	}
-	public CommandWireType getType() {
-		return commandType;
-	}
-	public void setType(CommandWireType commandType) {
-		this.commandType=commandType;
 	}
 	public String getArgu0() {
 		return argu0;

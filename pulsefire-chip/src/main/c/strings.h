@@ -28,8 +28,6 @@
 #include "vars.h"
 
 // Strings
-extern const char pmGetSpaced[];
-extern const char pmSetSpaced[];
 extern const char pmPulseFire[];
 extern const char pmPromt[];
 extern const char pmDone[];

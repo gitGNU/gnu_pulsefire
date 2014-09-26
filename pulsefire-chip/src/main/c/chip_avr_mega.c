@@ -195,11 +195,9 @@ void Chip_setup_serial(void) {
 
 void Chip_out_serial(void) {
 	while (pf_data.serial_tx_lock != ZERO) {}; // wait int is disabled
-	pf_data.serial_tx_lock = ONE;
+	pf_data.serial_tx_lock = pf_data.serial_tx_idx_buff;
 	UCSR0B |=  (ONE<<UDRIE0);
 	UCSR0A |=  (ONE<<TXC0);
-	//while ( !(UCSR0A & (1<<UDRE0)));
-	//UDR0 = data;
 }
 
 void Chip_setup(void) {
@@ -655,11 +653,12 @@ ISR(USART0_UDRE_vect) {
 	uint8_t idx = pf_data.serial_tx_idx_int;
 	UDR0 = pf_data.serial_tx_buff[idx];
 	idx++;
-	if (idx==pf_data.serial_tx_idx_buff) {
-		idx=ZERO;
+	if (pf_data.serial_tx_lock == idx) { // stop when reached end of request
 		UCSR0B &= ~(ONE<<UDRIE0); // disable int
-		pf_data.serial_tx_idx_buff = ZERO;
-		pf_data.serial_tx_lock = ZERO; // soft send wait lock release
+		pf_data.serial_tx_lock = ZERO; // lock release
+	}
+	if (idx >= SERIAL_TX_BUFF_SIZE) {
+		idx = ZERO; // loop ring buffer
 	}
 	pf_data.serial_tx_idx_int=idx;
 }

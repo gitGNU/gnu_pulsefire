@@ -37,21 +37,15 @@ public class CommandWire {
 		
 		// parse based on commandType
 		String commandName = null;
-		CommandWireType commandType = CommandWireType.request_set;
-		if (line.contains(Command.RESPONSE_GET)) {
-			commandType = CommandWireType.response_get;
-			String ss[] = line.split(Command.RESPONSE_GET);
-			commandName = ss[0];
-			line = ss[1];
-		} else if (line.contains(Command.RESPONSE_SET)) {
-			commandType = CommandWireType.response_set;
-			String ss[] = line.split(Command.RESPONSE_SET);
+		if (line.contains(Command.NAME_SEPERATOR)) {
+			String ss[] = line.split(Command.NAME_SEPERATOR);
 			commandName = ss[0];
 			line = ss[1];
 		} else {
-			if (line.contains(Command.SEPERATOR)) {
-				commandName = line.substring(0,line.indexOf(Command.SEPERATOR));
-				line = line.substring(line.indexOf(Command.SEPERATOR),line.length());
+			// for ?
+			if (line.contains(Command.VALUE_SEPERATOR)) {
+				commandName = line.substring(0,line.indexOf(Command.VALUE_SEPERATOR));
+				line = line.substring(line.indexOf(Command.VALUE_SEPERATOR),line.length());
 			} else {
 				commandName = line;
 				line = "";
@@ -102,8 +96,7 @@ public class CommandWire {
 			line = line+" "+idx;
 		}
 		
-		result.setType(commandType);
-		String[] columns = line.split(Command.SEPERATOR);
+		String[] columns = line.split(Command.VALUE_SEPERATOR);
 		
 		
 		if (result.getCommandName()==CommandName.chip_flags | result.getCommandName()==CommandName.chip_build) {
@@ -161,11 +154,11 @@ public class CommandWire {
 			buff.append(command.getCommandName().toString());
 		}
 		if (command.getArgu0()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu0());
 		}
 		if (command.getArgu1()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			if (mapName && command.getCommandName().isIndexedB() && "65535".equals(command.getArgu1())==false) {
 				CommandName cmdName = CommandName.valueOfMapIndex(new Integer(command.getArgu1()));
 				buff.append(cmdName.name());
@@ -174,27 +167,27 @@ public class CommandWire {
 			}
 		}
 		if (command.getArgu2()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu2());
 		}
 		if (command.getArgu3()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu3());
 		}
 		if (command.getArgu4()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu4());
 		}
 		if (command.getArgu5()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu5());
 		}
 		if (command.getArgu6()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu6());
 		}
 		if (command.getArgu7()!=null) {
-			buff.append(Command.SEPERATOR);
+			buff.append(Command.VALUE_SEPERATOR);
 			buff.append(command.getArgu7());
 		}
 		String lineRaw =  buff.toString();
