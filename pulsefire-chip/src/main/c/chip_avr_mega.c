@@ -55,7 +55,7 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 19    IN      INT2        <--         <--         <--         INT 0
 - 20    I/O     SDA         <--         <--         <--         TODO
 - 21    I/O     SCL         <--         <--         <--         TODO
-- 22    OUT     PA0         <--         <--         <--         avr_port_a
+- 22    OUT     PA0         <--         <--         <--         mega_port_a
 - 23    OUT     PA1         <--         <--         <--
 - 24    OUT     PA2         <--         <--         <--
 - 25    OUT     PA3         <--         <--         <--
@@ -63,7 +63,7 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 27    OUT     PA5         <--         <--         <--
 - 28    OUT     PA6         <--         <--         <--
 - 29    OUT     PA7         <--         <--         <--
-- 30    OUT     PC7         <--         LCD-D3      LCD-D3      avr_port_c
+- 30    OUT     PC7         <--         LCD-D3      LCD-D3      mega_port_c
 - 31    OUT     PC6         <--         LCD-D2      LCD-D2
 - 32    OUT     PC5         <--         LCD-D1      LCD-D1
 - 33    OUT     PC4         <--         LCD-D0      LCD-D0
@@ -83,9 +83,9 @@ Pin#	I/O		DEFAULT		SPI			LCD			LCD+SPI		PulseFire
 - 47    IN      PWM_CLK     <--         <--         <--
 - 48    n/a     free        <--         <--         <--
 - 49    n/a     free        <--         <--         <--
-- 50    OUT     free        MISO        free        MISO
-- 51    IN?     free        MOSI        free        MOSI
-- 52    OUT     free        SCK         free        SCK
+- 50    OUT     free        SPI_MISO    free        SPI_MISO
+- 51    IN?     free        SPI_MOSI    free        SPI_MOSI
+- 52    OUT     free        SPI_SCK     free        SPI_SCK
 - 53    OUT     free        SPI_OUT_E   free        SPI_OUT_E
 
 - A0 - A7  = Analog inputs

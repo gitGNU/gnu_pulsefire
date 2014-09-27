@@ -49,7 +49,10 @@ import org.nongnu.pulsefire.device.ui.time.EventTimeTrigger;
 public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 	
 	private static final long serialVersionUID = -2922342927574919902L;
-	private static final float AVG_NORMAL_SPEED = 22000; //uno with spi chips 
+	private static final int PROCENT_100 = 100;
+	private static final int SPEED_WARNING = 3333;
+	private static final int SPEED_OVERLOAD = 2000; //below 2000 main loops timing will go larger
+	private static final float SPEED_AVG_NORMAL = SPEED_OVERLOAD+20000; //uno with spi chips 
 	private final DeviceData deviceData;
 	private boolean overloadBlink;
 	
@@ -84,15 +87,14 @@ public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 		Color lineColor = UIManager.getColor("gridColor"); //nimbusFocus,nimbusRed,gridColor
 		Color loadColor = UIManager.getColor("gridColor"); //nimbusFocus,nimbusRed,gridColor
 		Color textColor = UIManager.getColor("text");
+		Color lineBackgroundColor = getBackground().brighter();
 		
 		int sysSpeed = getLoadSpeed();
-		if (sysSpeed < 3333) { // warning
+		if (sysSpeed < SPEED_WARNING) {
 			loadColor = UIManager.getColor("nimbusRed"); 
 		}
-		if (sysSpeed < 2000) { // overload
-			if (overloadBlink) {
-				loadColor = UIManager.getColor("gridColor");
-			}
+		if (sysSpeed < SPEED_OVERLOAD && overloadBlink) {
+			loadColor = UIManager.getColor("gridColor");
 		}
 		
 		Graphics2D g2 = (Graphics2D)g;
@@ -103,8 +105,8 @@ public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 		int startLoad = h-load;
 		
 		for (int i=1;i<h;i=i+2) {
-			//g2.setColor(gridColor);
-			//g2.drawLine(0+2, i, w-2, i);
+			g2.setColor(lineBackgroundColor);
+			g2.drawLine(0+2, i, w-2, i);
 			if (i>startLoad) {
 				g2.setColor(loadColor);
 				g2.drawLine(0+3, i, w-4, i);
@@ -115,7 +117,7 @@ public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 		g2.drawRect(0, 0, w-1, h-1);
 		g2.setColor(textColor);
 		g2.drawString(load+"%", 5, 15);
-		if (sysSpeed < 2000) {
+		if (sysSpeed < SPEED_OVERLOAD) {
 			g2.drawString("chip", 5, 45);
 			g2.drawString("over", 5+1, 60);
 			g2.drawString("load", 5+2, 75);
@@ -123,7 +125,7 @@ public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 	}
 	
 	private int getLoadSpeed() {
-		int notConnectValue = new Float(AVG_NORMAL_SPEED*2).intValue(); 
+		int notConnectValue = new Float(SPEED_AVG_NORMAL+SPEED_AVG_NORMAL).intValue(); 
 		if (!PulseFireUI.getInstance().getDeviceManager().isConnected()) {
 			return notConnectValue;
 		}
@@ -140,11 +142,11 @@ public class JCommandChipLoad extends JPanel implements DeviceCommandListener {
 	
 	private int getLoadPercentage() {
 		int sysSpeed = getLoadSpeed();
-		float sysSpeedNormal = AVG_NORMAL_SPEED;
+		float sysSpeedNormal = SPEED_AVG_NORMAL;
 		if (sysSpeed > sysSpeedNormal) {
 			return 0;
 		}
-		float load = 100-(((float)sysSpeed/sysSpeedNormal)*100);
+		float load = PROCENT_100-(((float)sysSpeed/sysSpeedNormal)*PROCENT_100);
 		return new Float(load).intValue(); 
 	}
 	

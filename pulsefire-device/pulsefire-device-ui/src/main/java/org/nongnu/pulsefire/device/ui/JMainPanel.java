@@ -134,7 +134,7 @@ public class JMainPanel extends JPanel implements PulseFireUISettingListener {
 		JPanel top = new JPanel();
 		top.setLayout(new BorderLayout());
 		topPanelSerial = new JTopPanelSerial();
-		topPanelSerial.setPreferredSize(new Dimension(500,100));
+		topPanelSerial.setPreferredSize(new Dimension(550,100)); // FIXME: layout on small screen
 		top.add(topPanelSerial,BorderLayout.LINE_START);
 		top.add(rightTop,BorderLayout.CENTER);
 		
