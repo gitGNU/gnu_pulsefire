@@ -74,11 +74,10 @@ public class DeviceCommandRequest {
 			}
 			try {
 				Thread.sleep(100);
-			} catch (Exception e) {
+			} catch (InterruptedException e) {
 				return;
 			}
 		}
-		return;
 	}
 	
 	public Command getRequest() {

@@ -298,7 +298,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			// Invert focus painters
 			List<Object> keys = new ArrayList<Object>(UIManager.getLookAndFeelDefaults().keySet());
 			for (Object keyObj:keys) {
-				if ((keyObj instanceof String)==false) {
+				if (!(keyObj instanceof String)) {
 					continue;
 				}
 				String key = (String)keyObj;
@@ -343,6 +343,7 @@ public class PulseFireUI extends SingleFrameApplication {
 			try {
 				in.close();
 			} catch (IOException e) {
+				logger.warning(e.getMessage());
 			}
 		}
 		return colorName;

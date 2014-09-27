@@ -39,34 +39,13 @@ public class Stk500Controller extends AbstractStk500Controller {
 
 	private boolean logDebug = false;
 	
-	public void prepareMessagePrefix(FlashMessage msg,FlashCommandToken command) {
+	protected void prepareMessagePrefix(FlashMessage msg,FlashCommandToken command) {
 		msg.addRequestCommand(command);
 	}
-	public void prepareMessagePostfix(FlashMessage msg,FlashCommandToken command) {
+	protected void prepareMessagePostfix(FlashMessage msg,FlashCommandToken command) {
 		msg.addRequestCommand(Stk500Command.CRC_EOP);
 	}
-	public FlashMessage sendFlashMessage(FlashMessage message) throws IOException {
-		if (message==null) {
-			throw new NullPointerException("Can't send null message");
-		}
-		if (message.getRequest().isEmpty()) {
-			throw new IllegalArgumentException("Can't send empty message");
-		}
-		StringBuilder buf = new StringBuilder(30);
-		for (Integer data:message.getRequest()) {
-			output.write(data);
-			output.flush();
-			
-			String hex = Integer.toHexString(data);
-			if (hex.length()==1) {
-				hex = "0"+hex;
-			}
-			if (hex.startsWith("ffffff")) {
-				hex = hex.substring(6);
-			}
-			buf.append(hex);
-		}
-		output.flush();
+	protected FlashMessage sendFlashMessage(FlashMessage message,StringBuilder buf) throws IOException {
 		if (logDebug) {
 			logMessage("Send data: "+buf+" ("+Stk500Command.valueOfToken(message.getRequest().get(0))+")");
 		}

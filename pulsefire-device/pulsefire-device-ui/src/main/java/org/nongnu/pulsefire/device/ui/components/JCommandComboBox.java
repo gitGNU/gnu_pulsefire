@@ -75,9 +75,9 @@ public class JCommandComboBox extends JComboBox<String> implements ActionListene
 			String sel = command.getCommandName().getListValues()[i];
 			if (sel.equals(enumName)) {
 				if (command.getCommandName().isMagicTopListValue() && getSelectedIndex()==command.getCommandName().getListValues().length-1) {
-					command.setArgu0(new Integer(255).toString());
+					command.setArgu0("255");
 				} else {
-					command.setArgu0(new Integer(i).toString());
+					command.setArgu0(""+i);
 				}
 				if (idx != -1) {
 					command.setArgu1(""+idx);

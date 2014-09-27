@@ -218,10 +218,10 @@
 								<configuration>
 									<target>
 										<echo>Copy project markdown to site.</echo>
-										<copy file="versions.md" todir="src/site/markdown"/>
-										<copy file="todo.md" todir="src/site/markdown"/>
-										<copy file="build.md" todir="src/site/markdown"/>
-										<!-- <copy file="authors.md" todir="src/site/markdown"/>  -->
+										<copy verbose="true" file="versions.md" todir="src/site/markdown"/>
+										<copy verbose="true" file="todo.md" todir="src/site/markdown"/>
+										<copy verbose="true" file="build.md" todir="src/site/markdown"/>
+										<!-- <copy verbose="true" file="authors.md" todir="src/site/markdown"/>  -->
 									</target>
 								</configuration>
 							</execution>

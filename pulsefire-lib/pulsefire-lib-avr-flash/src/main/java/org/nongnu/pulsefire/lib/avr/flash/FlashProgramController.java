@@ -32,8 +32,8 @@ import java.io.IOException;
  */
 public interface FlashProgramController {
 
-	public void addFlashLogListener(FlashLogListener flashLogListener);
-	public void removeFlashLogListener(FlashLogListener flashLogListener);
-	public void flash(FlashControllerConfig flashControllerConfig) throws IOException,FlashException;
-	public int getProgress();
+	void addFlashLogListener(FlashLogListener flashLogListener);
+	void removeFlashLogListener(FlashLogListener flashLogListener);
+	void flash(FlashControllerConfig flashControllerConfig) throws IOException,FlashException;
+	int getProgress();
 }

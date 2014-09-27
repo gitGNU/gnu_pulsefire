@@ -100,7 +100,7 @@ public class JCommandPwmInfo extends JPanel implements DeviceCommandListener {
 		if (pwmStepsCommand==null) {
 			g2.setPaint(pulseColor);
 			for (int i=0;i<displayText.length;i++) {
-				g2.drawString(displayText[i], 10, (h/2)-30+(i*12));
+				g2.drawString(displayText[i], 10, h/2-30+i*12);
 			}
 			return;
 		}

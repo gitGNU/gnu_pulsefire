@@ -34,10 +34,10 @@ public interface DeviceConnectListener {
 	/**
 	 * Connected succesfully to device.
 	 */
-	public void deviceConnect();
+	void deviceConnect();
 	
 	/**
 	 * Disconnect from divice.
 	 */
-	public void deviceDisconnect();
+	void deviceDisconnect();
 }

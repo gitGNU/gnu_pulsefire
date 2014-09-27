@@ -34,5 +34,5 @@ public interface FlashLogListener {
 	 * Logs an message of the flash controller
 	 * @param message
 	 */
-	public void flashLogMessage(String message);
+	void flashLogMessage(String message);
 }

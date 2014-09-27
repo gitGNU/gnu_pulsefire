@@ -115,8 +115,8 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 				logger.log(Level.WARNING,runException.getMessage(),runException);
 			} finally {
 				logger.info("Closing port: "+serialPort.getName());
-				try { reader.close();reader=null; } catch (IOException e) {}
-				try { writer.close();writer=null; } catch (IOException e) {}
+				try { reader.close();reader=null; } catch (IOException e) {logger.warning(e.getMessage());}
+				try { writer.close();writer=null; } catch (IOException e) {logger.warning(e.getMessage());}
 				serialPort.removeEventListener();
 				serialPort.close();
 				serialPort=null;
@@ -183,7 +183,6 @@ public class SerialDeviceWireThread implements SerialPortEventListener {
 		}
 		deviceManager.requestCommand(new Command(CommandName.req_tx_push,"1"));
 		*/
-		return;
 	}
 	
 	private void pollCommandRequest() throws InterruptedException, IOException {

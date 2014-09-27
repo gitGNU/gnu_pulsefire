@@ -75,11 +75,11 @@ public class PulseFireUISettingManager {
 	}
 	
 	public Boolean getSettingBoolean(PulseFireUISettingKeys key) {
-		return new Boolean(getSettingString(key));
+		return Boolean.valueOf(getSettingString(key));
 	}
 	
 	public Integer getSettingInteger(PulseFireUISettingKeys key) {
-		return new Integer(getSettingString(key));
+		return Integer.valueOf(getSettingString(key));
 	}
 	
 	public void setSettingInteger(PulseFireUISettingKeys key,Integer value) {

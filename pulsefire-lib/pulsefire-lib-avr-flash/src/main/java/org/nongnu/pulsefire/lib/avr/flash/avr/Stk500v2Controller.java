@@ -41,7 +41,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 	private int messageSeqenceNumber = 1;
 	
 	@Override
-	public void prepareMessagePrefix(FlashMessage msg, FlashCommandToken command) {
+	protected void prepareMessagePrefix(FlashMessage msg, FlashCommandToken command) {
 		if (messageSeqenceNumber>255) {
 			messageSeqenceNumber = 1;
 		}
@@ -54,7 +54,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 	}
 
 	@Override
-	public void prepareMessagePostfix(FlashMessage msg, FlashCommandToken command) {
+	protected void prepareMessagePostfix(FlashMessage msg, FlashCommandToken command) {
 		int size = msg.getRequest().size()-5; // -5 = header
 		if (size>0) {
 			msg.getRequest().set(3,size);
@@ -68,28 +68,7 @@ public class Stk500v2Controller extends AbstractStk500Controller {
 	}
 	
 	@Override
-	public FlashMessage sendFlashMessage(FlashMessage message) throws IOException {
-		if (message==null) {
-			throw new NullPointerException("Can't send null message");
-		}
-		if (message.getRequest().isEmpty()) {
-			throw new IllegalArgumentException("Can't send empty message");
-		}
-		StringBuilder buf = new StringBuilder(30);
-		for (Integer data:message.getRequest()) {
-			output.write(data);
-			output.flush();
-			
-			String hex = Integer.toHexString(data);
-			if (hex.length()==1) {
-				hex = "0"+hex;
-			}
-			if (hex.startsWith("ffffff")) {
-				hex = hex.substring(6);
-			}
-			buf.append(hex);
-		}
-		output.flush();
+	protected FlashMessage sendFlashMessage(FlashMessage message,StringBuilder buf) throws IOException {
 		if (logDebug) {
 			logMessage("Send data: "+buf+" ("+Stk500v2Command.valueOfToken(message.getRequest().get(5))+")");
 		}

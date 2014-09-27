@@ -34,13 +34,13 @@ import javax.swing.JScrollPane;
  */
 public interface JFireTabPanel {
 
-	public String getTabName();
-	public String getTabTooltip();
-	public Icon getTabIcon();
+	String getTabName();
+	String getTabTooltip();
+	Icon getTabIcon();
 	
-	public JPanel getJPanel();
-	public JPanel getJPanelSide();
-	public JScrollPane getJScrollPane();
+	JPanel getJPanel();
+	JPanel getJPanelSide();
+	JScrollPane getJScrollPane();
 	
-	public void release();
+	void release();
 }

@@ -95,7 +95,7 @@ public class JNimbusColorFrame extends JFrame {
 		panel.setBorder(BorderFactory.createTitledBorder("Core Colors"));
 		panel.setLayout(new SpringLayout());
 		for (String colorName:NIMBUS_PRIMARY_COLORS) {
-			addColorSetting(panel,colorName,true);	
+			addColorSetting(panel,colorName/*,true*/);
 		}
 		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_PRIMARY_COLORS.size(),7);
 		return panel;
@@ -106,13 +106,13 @@ public class JNimbusColorFrame extends JFrame {
 		panel.setBorder(BorderFactory.createTitledBorder("Colors"));
 		panel.setLayout(new SpringLayout());
 		for (String colorName:NIMBUS_SECONDARY_COLORS) {
-			addColorSetting(panel,colorName,false);	
+			addColorSetting(panel,colorName/*,false*/);
 		}
 		SpringLayoutGrid.makeCompactGrid(panel,NIMBUS_SECONDARY_COLORS.size(),7);
 		return panel;
 	}
 	
-	private void addColorSetting(JPanel panel,String colorName,boolean isPrimary) {
+	private void addColorSetting(JPanel panel,String colorName/*,boolean isPrimary*/) {
 
 		final ColorSetting cs = new ColorSetting();
 		cs.colorName=colorName;

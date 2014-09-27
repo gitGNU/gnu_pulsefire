@@ -68,6 +68,7 @@ public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 				}
 			}
 		} catch (Throwable e) { // missing lib in jvm path...so no ports
+			logger.warning("CommError: "+e.getMessage());
 		}
 		logger.info("Total ports found: "+result.size());
 		return result;

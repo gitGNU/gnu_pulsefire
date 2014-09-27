@@ -69,7 +69,7 @@ public class RXTXNative {
 		return new RXTXNativeLoader();
 	}
 	
-	static public interface DefaultPhasedBootIntegration {
+	public interface DefaultPhasedBootIntegration {
 		void log(String message);
 		void showAndExit(String message);
 	}

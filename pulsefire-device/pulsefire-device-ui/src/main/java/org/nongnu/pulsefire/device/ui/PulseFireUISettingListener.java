@@ -30,5 +30,5 @@ package org.nongnu.pulsefire.device.ui;
  */
 public interface PulseFireUISettingListener {
 
-	public void settingUpdated(PulseFireUISettingKeys key,String value);
+	void settingUpdated(PulseFireUISettingKeys key,String value);
 }

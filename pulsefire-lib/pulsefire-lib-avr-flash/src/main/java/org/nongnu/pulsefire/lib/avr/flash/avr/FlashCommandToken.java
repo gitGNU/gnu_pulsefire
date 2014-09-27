@@ -30,5 +30,5 @@ package org.nongnu.pulsefire.lib.avr.flash.avr;
  */
 public interface FlashCommandToken {
 
-	public Integer getToken();
+	Integer getToken();
 }

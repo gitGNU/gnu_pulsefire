@@ -47,7 +47,7 @@ public class JFireBorderChild implements Border {
 		if (parentHolder==null) {
 			throw new IllegalArgumentException("JComponent is null");
 		}
-		if ((parentHolder.getBorder() instanceof JFireBorder)==false) {
+		if (!(parentHolder.getBorder() instanceof JFireBorder)) {
 			throw new IllegalArgumentException("JComponent has not JFireBorder");
 		}
 		this.parentBorder=(JFireBorder)parentHolder.getBorder();

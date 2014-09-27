@@ -52,9 +52,33 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		logger = Logger.getLogger(AbstractStk500Controller.class.getName());
 	}
 	
-	abstract public FlashMessage sendFlashMessage(FlashMessage message) throws IOException;	
-	abstract public void prepareMessagePrefix(FlashMessage msg,FlashCommandToken command);
-	abstract public void prepareMessagePostfix(FlashMessage msg,FlashCommandToken command);
+	public FlashMessage sendFlashMessage(FlashMessage message) throws IOException {
+		if (message==null) {
+			throw new NullPointerException("Can't send null message");
+		}
+		if (message.getRequest().isEmpty()) {
+			throw new IllegalArgumentException("Can't send empty message");
+		}
+		StringBuilder buf = new StringBuilder(30);
+		for (Integer data:message.getRequest()) {
+			output.write(data);
+			output.flush();
+			
+			String hex = Integer.toHexString(data);
+			if (hex.length()==1) {
+				hex = "0"+hex;
+			}
+			if (hex.startsWith("ffffff")) {
+				hex = hex.substring(6);
+			}
+			buf.append(hex);
+		}
+		output.flush();
+		return sendFlashMessage(message,buf);
+	}
+	abstract protected FlashMessage sendFlashMessage(FlashMessage message,StringBuilder buf) throws IOException;
+	abstract protected void prepareMessagePrefix(FlashMessage msg,FlashCommandToken command);
+	abstract protected void prepareMessagePostfix(FlashMessage msg,FlashCommandToken command);
 	
 	public FlashMessage doFlashCommand(FlashCommandToken command,Integer...param) throws IOException {
 		FlashMessage msg = new FlashMessage();
@@ -73,12 +97,14 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		try {
 			Thread.sleep(150);
 		} catch (InterruptedException e) {
+			logger.fine("woken");
 		}
 		serialPort.setRTS(true);
 		serialPort.setDTR(true);
 		try {
 			Thread.sleep(150);
 		} catch (InterruptedException e) {
+			logger.fine("woken");
 		}
 	}
 	
@@ -92,14 +118,17 @@ abstract public class AbstractStk500Controller extends AbstractFlashProgramContr
 		try {
 			output.close();
 		} catch (IOException e) {
+			logger.warning("Could not close: "+e.getMessage());
 		}
 		try {
 			input.close();
 		} catch (IOException e) {
+			logger.warning("Could not close: "+e.getMessage());
 		}
 		try {
 			serialPort.close();
 		} catch (Exception e) {
+			logger.warning("Could not close: "+e.getMessage());
 		}
 		output = null;
 		input = null;

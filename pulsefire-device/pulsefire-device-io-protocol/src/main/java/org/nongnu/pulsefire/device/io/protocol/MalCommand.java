@@ -174,9 +174,10 @@ public class MalCommand implements Cloneable {
 		if (value_type==0) {
 			opcode = data.next();
 			opcodes.add(opcode);
-			cmdArgu = (cmdArgu << 8) + opcode;
+			cmdArgu = cmdArgu << 8 + opcode;
 		} else if (value_type==1) {
 			//value = pf_prog.mal_var[cmd_argu];
+			return true;
 		} else if (value_type==2) {
 			CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
 			if (cmd.isIndexedA()) {
@@ -240,24 +241,7 @@ public class MalCommand implements Cloneable {
 			opcodes.add(opcode);
 			switch (extType) {
 			case VOP:
-				opcode = new Integer(getCmdArgu()).byteValue();
-				opcodes.add(opcode);
-				switch (valueType) {
-				case RAW_VALUE:
-					opcode = new Integer(getCmdArgu() >> 8).byteValue();
-					opcodes.add(opcode);
-					break;
-				case PF_VALUE:
-				case PF_VALUE_SET:
-					CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
-					if (cmd.isIndexedA()) {
-						opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
-						opcodes.add(opcode);
-					}
-					break;
-				default:
-					break;
-				}
+				compileExtOp();
 				break;
 			case STOP:
 				break;
@@ -268,24 +252,7 @@ public class MalCommand implements Cloneable {
 				opcodes.add(opcode);
 				break;
 			case IF:
-				opcode = new Integer(getCmdArgu()).byteValue();
-				opcodes.add(opcode);
-				switch (valueType) {
-				case RAW_VALUE:
-					opcode = new Integer(getCmdArgu() >> 8).byteValue();
-					opcodes.add(opcode);
-					break;
-				case PF_VALUE:
-				case PF_VALUE_SET:
-					CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
-					if (cmd.isIndexedA()) {
-						opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
-						opcodes.add(opcode);
-					}
-					break;
-				default:
-					break;
-				}
+				compileExtOp();
 				break;
 			case ENDIF:
 				break;
@@ -295,6 +262,27 @@ public class MalCommand implements Cloneable {
 			break;
 		case LAST_CMD:
 			opcodes.add(new Integer(0xFF).byteValue());
+			break;
+		}
+	}
+	
+	private void compileExtOp() {
+		byte opcode = new Integer(getCmdArgu()).byteValue();
+		opcodes.add(opcode);
+		switch (valueType) {
+		case RAW_VALUE:
+			opcode = new Integer(getCmdArgu() >> 8).byteValue();
+			opcodes.add(opcode);
+			break;
+		case PF_VALUE:
+		case PF_VALUE_SET:
+			CommandName cmd = CommandName.valueOfMapIndex(getCmdArgu());
+			if (cmd.isIndexedA()) {
+				opcode = new Integer(getCmdArguIdx() & 0xFF).byteValue();
+				opcodes.add(opcode);
+			}
+			break;
+		default:
 			break;
 		}
 	}
@@ -358,30 +346,7 @@ public class MalCommand implements Cloneable {
 				buff.append(malVarIndex);
 				buff.append("=");
 				buff.append(malVarIndex);
-				buff.append(" ");
-				buff.append(ExtOpVar.values()[extOp].getCharCode());
-				buff.append(" ");
-				switch (valueType) {
-				case RAW_VALUE:
-					buff.append(cmdArgu);
-					break;
-				case PROG_VALUE:
-					buff.append("VAR_");
-					buff.append(cmdArgu);
-					break;
-				case PF_VALUE:
-					CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
-					buff.append(cmd);
-					if (cmd.isIndexedA()) {
-						buff.append('[');
-						buff.append(cmdArguIdx);
-						buff.append(']');
-					}
-					break;
-				case PF_VALUE_SET:
-					buff.append("reserved");
-					break;
-				}
+				toStringAppendExtOp(buff);
 				break;
 			case STOP:
 				buff.append("STOP");
@@ -393,30 +358,7 @@ public class MalCommand implements Cloneable {
 			case IF:
 				buff.append("IF ( ");
 				buff.append(malVarIndex);
-				buff.append(" ");
-				buff.append(ExtOpIf.values()[extOp].getCharCode());
-				buff.append(" ");
-				switch (valueType) {
-				case RAW_VALUE:
-					buff.append(cmdArgu);
-					break;
-				case PROG_VALUE:
-					buff.append("VAR_");
-					buff.append(cmdArgu);
-					break;
-				case PF_VALUE:
-					CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
-					buff.append(cmd);
-					if (cmd.isIndexedA()) {
-						buff.append('[');
-						buff.append(cmdArguIdx);
-						buff.append(']');
-					}
-					break;
-				case PF_VALUE_SET:
-					buff.append("reserved");
-					break;
-				}
+				toStringAppendExtOp(buff);
 				buff.append(" )");
 				break;
 			case ENDIF:
@@ -432,6 +374,33 @@ public class MalCommand implements Cloneable {
 			break;
 		}
 		return buff.toString();
+	}
+	
+	private void toStringAppendExtOp(StringBuilder buff) {
+		buff.append(" ");
+		buff.append(ExtOpIf.values()[extOp].getCharCode());
+		buff.append(" ");
+		switch (valueType) {
+		case RAW_VALUE:
+			buff.append(cmdArgu);
+			break;
+		case PROG_VALUE:
+			buff.append("VAR_");
+			buff.append(cmdArgu);
+			break;
+		case PF_VALUE:
+			CommandName cmd = CommandName.valueOfMapIndex(cmdArgu);
+			buff.append(cmd);
+			if (cmd.isIndexedA()) {
+				buff.append('[');
+				buff.append(cmdArguIdx);
+				buff.append(']');
+			}
+			break;
+		case PF_VALUE_SET:
+			buff.append("reserved");
+			break;
+		}
 	}
 	
 	public String toStringHexOpcodes() {
