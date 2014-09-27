@@ -21,3 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+.breadcrumb,#bannerLeft,#bannerRight,#poweredBy {
+	display: none
+}
+

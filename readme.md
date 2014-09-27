@@ -26,15 +26,15 @@ and bit sequencer generators.
 
 ## Files in root folder
 
-authors.md          - Contributors listing.
-build.md            - Developer build guide.
-licence.txt         - The licence of PulseFire.
-pom.xml             - Maven specific build file.
-readme.md           - This file.
-todo.md             - Small todo list.
-versions.md         - Versions history.
-pulsefire-*         - Maven Java/Chip packages for pulsefire.
-src                 - site/schematic source.
+* authors.md          - Contributors listing.
+* build.md            - Developer build guide.
+* licence.txt         - The licence of PulseFire.
+* pom.xml             - Maven specific build file.
+* readme.md           - This file.
+* todo.md             - Small todo list.
+* versions.md         - Versions history.
+* pulsefire-*         - Maven Java/Chip packages for pulsefire.
+* src                 - site/schematic source.
 
 ## Licensed binary files
 

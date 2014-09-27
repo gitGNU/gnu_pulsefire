@@ -51,8 +51,7 @@ import org.nongnu.pulsefire.device.io.transport.DeviceWireManager;
 public class SerialDeviceWireManager extends AbstractDeviceWireManager {
 
 	private Logger logger = null;
-	private SerialDeviceWireThread serialThread = null;
-	
+	private SerialDeviceWireThread serialThread = null; 
 	public SerialDeviceWireManager() {
 		logger = Logger.getLogger(SerialDeviceWireManager.class.getName());
 	}

@@ -1,12 +1,12 @@
 
-# Building PulseFire
+# PulseFire Building
 
 ## Requirements
 
-	- java sdk 1.6 or higher.
-	- maven 3 or higher.
-	- make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
-	- for launch4j build on 64b os get ia32-libs installed.
+* java sdk 1.6 or higher.
+* maven 3 or higher.
+* make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
+* for launch4j build on 64b os get ia32-libs installed.
 
 ## Create build artifacts
 
@@ -69,13 +69,14 @@ mvn versions:set -DnewVersion=2.3.4-SNAPSHOT
 
 cd project-root/;
 mvn -Ppf-build clean package;
-mvn -B -Dusername=<scm_username> clean install release:clean release:prepare release:perform;
-src/build/gnu-up.sh <scm_username> <version>
+mvn -B -Dusername=(scm_username) clean install release:clean release:prepare release:perform;
+src/build/gnu-up.sh (scm_username) (version)
 
 ## Make site
 
 cd project-root/;
-mvn -Ppf-build-site site:site
+mvn -Ppf-build-site clean install site:site
+Optional add -DstagingDirectory=/tmp/pf-fullsite
 And then manual upload.
 
 ## Check for dependency-updates
@@ -86,11 +87,11 @@ mvn versions:display-dependency-updates|grep ">"|uniq;
 
 ## Eclipse Setup
 
-- Download Eclipse Luna EE (4.4) from; http://eclipse.org/downloads/
-- Install via marketplace "AVR Eclipse Plugin" for basic c/c++ editors support.
-- Clone remote git repro to local.
-- Import project into workspace from git working dir.
-- Import the other modules by Import -> Maven/ Excisting maven projects and the select the git working dir.
+* Download Eclipse Luna EE (4.4) from; http://eclipse.org/downloads/
+* Install via marketplace "AVR Eclipse Plugin" for basic c/c++ editors support.
+* Clone remote git repro to local.
+* Import project into workspace from git working dir.
+* Import the other modules by Import -> Maven/ Excisting maven projects and the select the git working dir.
 
 - Goto pulsefire-device-ui and open class PulseFireUI.
 - Run PulseFireUI it will start and give two warnings;

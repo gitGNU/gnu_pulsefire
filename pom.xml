@@ -90,6 +90,7 @@
 		<ant-nodeps.version>1.8.1</ant-nodeps.version>
 		<docbook-xml.version>4.4</docbook-xml.version>
 		<doclet.version>5.1</doclet.version>
+		<doxia-module-markdown.version>1.6</doxia-module-markdown.version>
 
 		<!-- Build test lib versions -->
 		<mockito-all.version>1.9.5</mockito-all.version>
@@ -204,8 +205,39 @@
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>${maven-antrun-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>copy-project-markdown</id>
+								<phase>generate-sources</phase>
+								<inherited>false</inherited>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<echo>Copy project markdown to site.</echo>
+										<copy file="versions.md" todir="src/site/markdown"/>
+										<copy file="todo.md" todir="src/site/markdown"/>
+										<copy file="build.md" todir="src/site/markdown"/>
+										<!-- <copy file="authors.md" todir="src/site/markdown"/>  -->
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-site-plugin</artifactId>
 						<version>${maven-site-plugin.version}</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.apache.maven.doxia</groupId>
+								<artifactId>doxia-module-markdown</artifactId>
+								<version>${doxia-module-markdown.version}</version>
+							</dependency>
+						</dependencies>
 					</plugin>
 				</plugins>
 			</build>
@@ -220,6 +252,29 @@
 							<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
 							<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 						</configuration>
+						<reportSets>
+							<reportSet>
+								<reports>
+									<!-- TODO: <report>cim</report>  -->
+									<!-- <report>dependencies</report>  -->
+									<report>dependency-convergence</report>
+									<!-- <report>dependency-info</report> -->
+									<!-- <report>dependency-management</report> -->
+									<!-- <report>distribution-management</report> -->
+									<!-- <report>help</report> -->
+									<!-- <report>index</report> -->
+									<report>issue-tracking</report>
+									<report>license</report>
+									<!-- TODO: <report>mailing-list</report> -->
+									<!-- <report>modules</report> -->
+									<!-- <report>plugin-management</report> -->
+									<!-- <report>plugins</report> -->
+									<!-- TODO:? <report>project-team</report> -->
+									<report>scm</report>
+									<report>summary</report>
+								</reports>
+							</reportSet>
+						</reportSets>
 					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>

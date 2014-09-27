@@ -48,6 +48,12 @@ pom.xml.versionsBackup
 /pulsefire-device/pulsefire-device-ui/rxtxSerial.dll
 /pulsefire-device/pulsefire-device-ui/librxtxSerial.jnilib
 
+# Ignore copyed site resource
+/src/site/markdown/build.md
+/src/site/markdown/todo.md
+/src/site/markdown/versions.md
+/src/site/markdown/authors.md
+
 # Ignore binary files
 *.o
 *.class

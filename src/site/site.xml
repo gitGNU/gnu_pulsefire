@@ -29,28 +29,38 @@
 			<topBarIcon>
 				<name>Pulsefire</name>
 				<alt>${project.name}</alt>
-				<src>/images/pulsefire-left.png</src>
+				<src>/img/logo/pulsefire-topbar.png</src>
 				<href>/index.html</href>
 			</topBarIcon>
 			<sideBarEnabled>false</sideBarEnabled>
 			<googleSearch />
-			<sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
-			<skipGenerationDate>true</skipGenerationDate>
-			<breadcrumbDivider>»</breadcrumbDivider>
+			<sourceLineNumbersEnabled>false</sourceLineNumbersEnabled>
+			<skipGenerationDate>false</skipGenerationDate>
 		</fluidoSkin>
 	</custom>
 	<body>
 		<links>
-			<item name="${project.name}" href="${project.url}" />
+			<item name="RWGresearch" href="http://rwgresearch.com/" />
+			<item name="Arduino Home" href="http://arduino.cc/" />
+			<item name="Arduino Waveform Generator" href="http://www.instructables.com/id/Arduino-Waveform-Generator/" />
+			<item name="Arduino Pulse Generator" href="http://kms15.github.io/ArduinoPulseGenerator/" />
 		</links>
 		<menu name="PulseFire">
 			<item name="Home" href="index.html" />
-			<item name="Install" href="install.html" />
-			<item name="Commands" href="commands.html" />
-			<item name="Examples" href="examples.html" />
-			<item name="Schematics" href="schematic.html" />
-			<item name="Screenshots" href="screenshots.html" />
+			<item name="Download" href="download.html" />
 			<item name="Features" href="features.html" />
+			<item name="Versions" href="versions.html" />
+			<item name="Building" href="build.html" />
+			<item name="Todo" href="todo.html" />
+		</menu>
+		<menu name="Examples">
+			<item name="Chip Examples" href="examples.html" />
+			<item name="Chip Commands" href="commands.html" />
+			<item name="Chip Schematics" href="schematic.html" />
+		</menu>
+		<menu name="Screenshots">
+			<item name="Version 1.1" href="screenshots-v11.html" />
+			<item name="Version 1.0" href="screenshots-v10.html" />
 		</menu>
 		<menu ref="reports" />
 	</body>
