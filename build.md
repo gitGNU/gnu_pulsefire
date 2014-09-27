@@ -1,13 +1,14 @@
 
-Building PulseFire
+# Building PulseFire
 
-You need a few software packages;
-- java sdk 1.6 or higher.
-- maven 3 or higher.
-- make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
-- for launch4j build on 64b os get ia32-libs installed.
+## Requirements
 
--- Create build artifacts --
+	- java sdk 1.6 or higher.
+	- maven 3 or higher.
+	- make/avr-gcc (apt-get install make gcc-avr avr-libc avrdude)
+	- for launch4j build on 64b os get ia32-libs installed.
+
+## Create build artifacts
 
 cd project-root/;
 mvn -Ppf-build clean package;
@@ -15,14 +16,14 @@ mvn -Ppf-build clean package;
 Which results in zip/tar/gz archieves in the different build targets;
 ls pulsefire-build/pulsefire-build-*/target/*
 
--- Run via maven --
+## Run via maven
 
 cd project-root/;
 mvn clean install;
 cd pulsefire-java/pulsefire-device-ui/;
 mvn exec:java -Dexec.mainClass="org.nongnu.pulsefire.device.ui.PulseFireUI"
 
--- Build manual chip code --
+## Build manual chip code
 
 cd project-root/;
 cd pulsefire-chip/src/main/c/;
@@ -34,7 +35,7 @@ make clean all;
 
 note: firmwares manual build do not show in application.
 
--- Run hardware debug --
+## Run hardware debug
 
 Hardware setup;
 - mega is on ttyACM1
@@ -50,7 +51,7 @@ Start debug console;
 stty -F /dev/ttyACM0 cs8 115200 ignbrk -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke noflsh -ixon -crtscts
 cat < /dev/ttyACM0
 
--- Test Flash code manual --
+## Test Flash code manual
 
 cd project-root/;
 java -Djava.library.path=TODOpulsefire-lib/pulsefire-rxtx/pulsefire-rxtx-linux-x86_64/src/main/jni/ \
@@ -59,31 +60,31 @@ java -Djava.library.path=TODOpulsefire-lib/pulsefire-rxtx/pulsefire-rxtx-linux-x
 	-P /dev/ttyACM0 -c arduino -f pulsefire-chip/src/main/c/build/atmega328p-007/pulsefire.hex
 
 
--- Change pom.xml versions --
+## Change pom.xml versions
 
 cd project-root/;
 mvn versions:set -DnewVersion=2.3.4-SNAPSHOT
 
--- Make release build --
+## Make release build
 
 cd project-root/;
 mvn -Ppf-build clean package;
 mvn -B -Dusername=<scm_username> clean install release:clean release:prepare release:perform;
 src/build/gnu-up.sh <scm_username> <version>
 
--- Make site --
+## Make site
 
 cd project-root/;
 mvn -Ppf-build-site site:site
 And then manual upload.
 
--- Check for dependency-updates --
+## Check for dependency-updates
 
 cd project-root/;
 mvn versions:display-plugin-updates|grep ">"|uniq;
 mvn versions:display-dependency-updates|grep ">"|uniq;
 
--- Eclipse Setup --
+## Eclipse Setup
 
 - Download Eclipse Luna EE (4.4) from; http://eclipse.org/downloads/
 - Install via marketplace "AVR Eclipse Plugin" for basic c/c++ editors support.
@@ -103,8 +104,4 @@ Goto Arguments tab panel and fill in the program arguments
 And fill in the VM arguments;
 "-Djava.library.path=." (without quotes)
 Then apply and run and pulsefire should connect to serial correctly. 
-
-
-
-
 

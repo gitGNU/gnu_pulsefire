@@ -1,9 +1,0 @@
-PulseFire was written by:
-
-	Willem Cazander  <w.cazander@gmail.com>
-
-Contributors:
-
-	Russ Gries <rwg42985@aol.com>
-
-

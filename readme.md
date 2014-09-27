@@ -1,10 +1,21 @@
 
-=== Welcome in PulseFire ===
+# PulseFire
 
-PulseFire is a programmable PWM and bit sequencer build on the Arduino platform in C.
-Targeted for free energy (re)search with full generic configurable mappings for analog/digital
-inputs so it can operate HHO cells, magnetic motors and solid state coil shorting setups.
-Some features; max 16 outputs,soft warm-up,timing per channel,serial console,lcd interface,etc.
+Copyright 1997-2014 Willem Cazander
+
+License: BSD 2-Clause license, see license.txt
+
+## Introduction
+
+You are currently reading the README file for the Pulsefire project.
+This project is hosted under http://www.nongnu.org/pulsefire/
+Please refer to these pages for updated information and the latest version of pulsefire.
+
+Pulsefire is an open-source software package for controlling pulse generators, implemented in 
+the programming language Java(tm) for interface and plain C for pulse code.
+
+PulseFire currently targets the Arduino(tm) platform as basis for the software programmable PWM 
+and bit sequencer generators.
 
   +----+                          +----+
 --+    +--------------------------+    +---
@@ -13,19 +24,19 @@ Some features; max 16 outputs,soft warm-up,timing per channel,serial console,lcd
                     +----+ 
 --------------------+    +-----------------
 
-=== Files in this package ===
+## Files in root folder
 
-authors.txt         - Contributors listing.
-build.txt           - Developer build guide.
+authors.md          - Contributors listing.
+build.md            - Developer build guide.
 licence.txt         - The licence of PulseFire.
 pom.xml             - Maven specific build file.
-readme.txt          - This file.
-todo.txt            - Small todo list.
-versions.txt        - Versions history.
+readme.md           - This file.
+todo.md             - Small todo list.
+versions.md         - Versions history.
 pulsefire-*         - Maven Java/Chip packages for pulsefire.
 src                 - site/schematic source.
 
-=== Licensed binary files ===
+## Licensed binary files
 
 ./src/schemetic/avr-ext-chips.sch
 ./src/schemetic/pf-wfc-driver.sch
@@ -48,7 +59,7 @@ The binary files in the above listing fall all under
 the licence terms described in the licence.txt file.
 
 
-=== External licensed binary files ===
+## External licensed binary files
 
 ./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-lib/src/main/lib/RXTXcomm.jar
 ./pulsefire-java/pulsefire-rxtx/pulsefire-rxtx-windows-x86/src/main/jni/rxtxSerial.dll
